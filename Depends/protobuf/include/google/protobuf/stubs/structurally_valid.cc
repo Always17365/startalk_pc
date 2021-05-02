@@ -1,5 +1,6 @@
 // Copyright 2005-2008 Google Inc. All Rights Reserved.
 // Author: jrm@google.com (Jim Meehan)
+//  Startalk Ltd. 2021 revised
 
 #include <google/protobuf/stubs/common.h>
 

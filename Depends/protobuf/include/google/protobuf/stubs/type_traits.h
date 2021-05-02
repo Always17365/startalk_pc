@@ -29,6 +29,7 @@
 
 // ----
 // Author: Matt Austern
+//  Startalk Ltd. 2021 revised
 //
 // This code is compiled directly on many platforms, including client
 // platforms like Windows, Mac, and embedded systems.  Before making

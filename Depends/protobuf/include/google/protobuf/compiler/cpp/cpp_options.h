@@ -29,6 +29,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Author: rennie@google.com (Jeffrey Rennie)
+//  Startalk Ltd. 2021 revised
 
 #ifndef GOOGLE_PROTOBUF_COMPILER_CPP_OPTIONS_H__
 #define GOOGLE_PROTOBUF_COMPILER_CPP_OPTIONS_H__

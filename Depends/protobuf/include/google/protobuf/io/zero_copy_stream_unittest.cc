@@ -32,6 +32,7 @@
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
 //
+//  Startalk Ltd. 2021 revised
 // Testing strategy:  For each type of I/O (array, string, file, etc.) we
 // create an output stream and write some data to it, then create a
 // corresponding input stream to read the same data back and expect it to

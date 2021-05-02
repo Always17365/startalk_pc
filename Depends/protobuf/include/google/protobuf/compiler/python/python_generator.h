@@ -31,6 +31,7 @@
 // Author: robinson@google.com (Will Robinson)
 //
 // Generates Python code for a given .proto file.
+//  Startalk Ltd. 2021 revised
 
 #ifndef GOOGLE_PROTOBUF_COMPILER_PYTHON_GENERATOR_H__
 #define GOOGLE_PROTOBUF_COMPILER_PYTHON_GENERATOR_H__

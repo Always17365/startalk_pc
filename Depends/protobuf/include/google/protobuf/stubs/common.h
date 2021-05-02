@@ -30,6 +30,7 @@
 
 // Author: kenton@google.com (Kenton Varda) and others
 //
+//  Startalk Ltd. 2021 revised
 // Contains basic types and utilities used by the rest of the library.
 
 #ifndef GOOGLE_PROTOBUF_COMMON_H__

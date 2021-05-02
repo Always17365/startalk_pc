@@ -31,6 +31,7 @@
 // Author: kenton@google.com (Kenton Varda)
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
+//  Startalk Ltd. 2021 revised
 //
 // To test GeneratedMessageReflection, we actually let the protocol compiler
 // generate a full protocol message implementation and then test its

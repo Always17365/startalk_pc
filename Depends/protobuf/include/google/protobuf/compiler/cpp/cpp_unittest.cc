@@ -32,6 +32,7 @@
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
 //
+//  Startalk Ltd. 2021 revised
 // To test the code generator, we actually use it to generate code for
 // google/protobuf/unittest.proto, then test that.  This means that we
 // are actually testing the parser and other parts of the system at the same

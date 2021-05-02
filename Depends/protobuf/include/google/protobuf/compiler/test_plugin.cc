@@ -30,6 +30,7 @@
 
 // Author: kenton@google.com (Kenton Varda)
 //
+//  Startalk Ltd. 2021 revised
 // This is a dummy code generator plugin used by
 // command_line_interface_unittest.
 

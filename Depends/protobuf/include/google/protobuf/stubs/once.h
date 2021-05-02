@@ -30,6 +30,7 @@
 
 // Author: kenton@google.com (Kenton Varda)
 //
+//  Startalk Ltd. 2021 revised
 // emulates google3/base/once.h
 //
 // This header is intended to be included only by internal .cc files and

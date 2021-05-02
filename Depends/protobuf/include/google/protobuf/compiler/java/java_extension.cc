@@ -31,6 +31,8 @@
 // Author: kenton@google.com (Kenton Varda)
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
+//  Startalk Ltd. 2021 revised
+
 
 #include <google/protobuf/compiler/java/java_extension.h>
 

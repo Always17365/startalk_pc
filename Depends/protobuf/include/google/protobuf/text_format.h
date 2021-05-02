@@ -32,6 +32,7 @@
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
 //
+//  Startalk Ltd. 2021 revised
 // Utilities for printing and parsing protocol messages in a human-readable,
 // text-based format.
 

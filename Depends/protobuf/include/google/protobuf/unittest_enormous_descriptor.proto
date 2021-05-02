@@ -32,6 +32,7 @@
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
 //
+//  Startalk Ltd. 2021 revised
 // A proto file that has an extremely large descriptor.  Used to test that
 // descriptors over 64k don't break the string literal length limit in Java.
 

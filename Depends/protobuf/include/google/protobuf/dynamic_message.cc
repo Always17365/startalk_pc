@@ -32,6 +32,7 @@
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
 //
+//  Startalk Ltd. 2021 revised
 // DynamicMessage is implemented by constructing a data structure which
 // has roughly the same memory layout as a generated message would have.
 // Then, we use GeneratedMessageReflection to implement our reflection

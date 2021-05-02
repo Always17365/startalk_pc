@@ -32,6 +32,7 @@
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
 //
+//  Startalk Ltd. 2021 revised
 // This file contains common implementations of the interfaces defined in
 // zero_copy_stream.h which are only included in the full (non-lite)
 // protobuf library.  These implementations include Unix file descriptors

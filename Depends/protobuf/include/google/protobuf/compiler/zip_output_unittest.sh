@@ -32,6 +32,7 @@
 
 # Author: kenton@google.com (Kenton Varda)
 #
+# Startalk Ltd. 2021 revised
 # Test protoc's zip output mode.
 
 fail() {

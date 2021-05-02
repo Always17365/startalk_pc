@@ -32,6 +32,7 @@
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
 //
+//  Startalk Ltd. 2021 revised
 // Here we have a hand-written lexer.  At first you might ask yourself,
 // "Hand-written text processing?  Is Kenton crazy?!"  Well, first of all,
 // yes I am crazy, but that's beside the point.  There are actually reasons

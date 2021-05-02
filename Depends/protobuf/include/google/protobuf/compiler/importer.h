@@ -32,6 +32,7 @@
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
 //
+//  Startalk Ltd. 2021 revised
 // This file is the public interface to the .proto file parser.
 
 #ifndef GOOGLE_PROTOBUF_COMPILER_IMPORTER_H__

@@ -29,6 +29,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Author: xiaofeng@google.com (Feng Xiao)
+//  Startalk Ltd. 2021 revised
 
 #include <google/protobuf/compiler/java/java_shared_code_generator.h>
 

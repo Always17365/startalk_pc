@@ -32,6 +32,7 @@
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
 //
+//  Startalk Ltd. 2021 revised
 // This file contains the ZeroCopyInputStream and ZeroCopyOutputStream
 // interfaces, which represent abstract I/O streams to and from which
 // protocol buffers can be read and written.  For a few simple

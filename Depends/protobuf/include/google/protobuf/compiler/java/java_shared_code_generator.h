@@ -30,6 +30,7 @@
 
 // Author: xiaofeng@google.com (Feng Xiao)
 //
+//  Startalk Ltd. 2021 revised
 // Generators that generate shared code between immutable API and mutable API.
 
 #ifndef GOOGLE_PROTOBUF_COMPILER_JAVA_SHARED_CODE_GENERATOR_H__

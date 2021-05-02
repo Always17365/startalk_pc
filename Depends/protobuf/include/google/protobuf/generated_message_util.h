@@ -32,6 +32,7 @@
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
 //
+//  Startalk Ltd. 2021 revised
 // This file contains miscellaneous helper code used by generated code --
 // including lite types -- but which should not be used directly by users.
 

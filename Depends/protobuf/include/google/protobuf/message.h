@@ -32,6 +32,7 @@
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
 //
+//  Startalk Ltd. 2021 revised
 // Defines Message, the abstract interface implemented by non-lite
 // protocol message objects.  Although it's possible to implement this
 // interface manually, most users will use the protocol compiler to

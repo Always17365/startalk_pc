@@ -30,6 +30,7 @@
 // ----
 // Author: lar@google.com (Laramie Leavitt)
 //
+//  Startalk Ltd. 2021 revised
 // Template metaprogramming utility functions.
 //
 // This code is compiled directly on many platforms, including client

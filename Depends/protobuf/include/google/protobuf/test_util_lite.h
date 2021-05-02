@@ -31,6 +31,7 @@
 // Author: kenton@google.com (Kenton Varda)
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
+//  Startalk Ltd. 2021 revised
 
 #ifndef GOOGLE_PROTOBUF_TEST_UTIL_LITE_H__
 #define GOOGLE_PROTOBUF_TEST_UTIL_LITE_H__

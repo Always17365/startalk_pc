@@ -29,6 +29,7 @@
 
 // ----
 // Author: Matt Austern
+//  Startalk Ltd. 2021 revised
 
 #include <google/protobuf/stubs/type_traits.h>
 

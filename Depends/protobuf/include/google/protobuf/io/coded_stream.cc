@@ -32,6 +32,7 @@
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
 //
+//  Startalk Ltd. 2021 revised
 // This implementation is heavily optimized to make reads and writes
 // of small values (especially varints) as fast as possible.  In
 // particular, we optimize for the common case that a read or a write

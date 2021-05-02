@@ -30,6 +30,7 @@
 // ----
 // Author: lar@google.com (Laramie Leavitt)
 //
+//  Startalk Ltd. 2021 revised
 // These tests are really compile time tests.
 // If you try to step through this in a debugger
 // you will not see any evaluations, merely that

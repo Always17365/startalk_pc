@@ -32,6 +32,7 @@
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
 //
+//  Startalk Ltd. 2021 revised
 // Class for parsing tokenized text from a ZeroCopyInputStream.
 
 #ifndef GOOGLE_PROTOBUF_IO_TOKENIZER_H__

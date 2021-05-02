@@ -32,6 +32,7 @@
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
 //
+//  Startalk Ltd. 2021 revised
 // DEPRECATED:  This module declares the abstract interfaces underlying proto2
 // RPC services.  These are intented to be independent of any particular RPC
 // implementation, so that proto2 services can be used on top of a variety

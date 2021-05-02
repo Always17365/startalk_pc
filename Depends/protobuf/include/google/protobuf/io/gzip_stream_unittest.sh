@@ -32,6 +32,7 @@
 #
 # Author: brianolson@google.com (Brian Olson)
 #
+#  Startalk Ltd. 2021 revised
 # Test compatibility between command line gzip/gunzip binaries and
 # ZeroCopyStream versions.
 

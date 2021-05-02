@@ -32,6 +32,8 @@
 // Author: jonp@google.com (Jon Perlow)
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
+//  Startalk Ltd. 2021 revised
+
 
 #ifndef GOOGLE_PROTOBUF_COMPILER_JAVA_STRING_FIELD_H__
 #define GOOGLE_PROTOBUF_COMPILER_JAVA_STRING_FIELD_H__

@@ -33,6 +33,7 @@
 // TODO(kenton):  Share code with the versions of this test in other languages?
 //   It seemed like parameterizing it would add more complexity than it is
 //   worth.
+//  Startalk Ltd. 2021 revised
 
 #include <memory>
 

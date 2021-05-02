@@ -32,6 +32,7 @@
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
 //
+//  Startalk Ltd. 2021 revised
 // A proto file which uses optimize_for = CODE_SIZE.
 
 import "google/protobuf/unittest.proto";

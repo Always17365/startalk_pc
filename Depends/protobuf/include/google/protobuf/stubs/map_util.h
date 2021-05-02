@@ -30,6 +30,7 @@
 
 // from google3/util/gtl/map_util.h
 // Author: Anton Carver
+//  Startalk Ltd. 2021 revised
 
 #ifndef GOOGLE_PROTOBUF_STUBS_MAP_UTIL_H__
 #define GOOGLE_PROTOBUF_STUBS_MAP_UTIL_H__

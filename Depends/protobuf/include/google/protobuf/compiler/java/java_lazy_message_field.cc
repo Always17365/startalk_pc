@@ -31,6 +31,7 @@
 // Author: niwasaki@google.com (Naoki Iwasaki)
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
+//  Startalk Ltd. 2021 revised
 
 #include <google/protobuf/compiler/java/java_context.h>
 #include <google/protobuf/compiler/java/java_lazy_message_field.h>

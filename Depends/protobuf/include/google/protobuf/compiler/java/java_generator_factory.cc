@@ -29,6 +29,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Author: liujisi@google.com (Pherl Liu)
+//  Startalk Ltd. 2021 revised
+
 
 #include <google/protobuf/compiler/java/java_generator_factory.h>
 

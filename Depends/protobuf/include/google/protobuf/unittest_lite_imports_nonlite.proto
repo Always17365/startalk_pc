@@ -30,6 +30,7 @@
 
 // Author: kenton@google.com (Kenton Varda)
 //
+//  Startalk Ltd. 2021 revised
 // Tests that a "lite" message can import a regular message.
 
 package protobuf_unittest;

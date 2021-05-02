@@ -32,6 +32,7 @@
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
 //
+//  Startalk Ltd. 2021 revised
 // Implements the Protocol Compiler front-end such that it may be reused by
 // custom compilers written to support other languages.
 

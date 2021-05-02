@@ -30,6 +30,7 @@
 
 // Author: brianolson@google.com (Brian Olson)
 //
+//  Startalk Ltd. 2021 revised
 // This file contains the implementation of classes GzipInputStream and
 // GzipOutputStream.
 

@@ -31,6 +31,7 @@
 // Author: kenton@google.com (Kenton Varda)
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
+//  Startalk Ltd. 2021 revised
 //
 // Defines the abstract interface implemented by each of the language-specific
 // code generators.

@@ -30,6 +30,7 @@
 
 // Author: kenton@google.com (Kenton Varda)
 //
+//  Startalk Ltd. 2021 revised
 // This is like unittest_import.proto but with optimize_for = LITE_RUNTIME.
 
 package protobuf_unittest_import;

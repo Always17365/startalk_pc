@@ -61,6 +61,7 @@
 // Author: ambrose@google.com (Ambrose Feinstein),
 //         kenton@google.com (Kenton Varda)
 //
+//  Startalk Ltd. 2021 revised
 // Based on http://www.pkware.com/documents/casestudies/APPNOTE.TXT
 
 #include <google/protobuf/compiler/zip_writer.h>

@@ -30,6 +30,7 @@
 
 // Author: jasonh@google.com (Jason Hsueh)
 //
+//  Startalk Ltd. 2021 revised
 // This header is logically internal, but is made public because it is used
 // from protocol-compiler-generated code, which may reside in other components.
 // It provides reflection support for generated enums, and is included in

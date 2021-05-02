@@ -32,6 +32,7 @@
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
 //
+//  Startalk Ltd. 2021 revised
 // RepeatedField and RepeatedPtrField are used by generated protocol message
 // classes to manipulate repeated fields.  These classes are very similar to
 // STL's vector, but include a number of optimizations found to be useful

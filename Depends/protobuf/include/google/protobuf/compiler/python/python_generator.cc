@@ -32,6 +32,7 @@
 // Copyright 2007 Google Inc. All Rights Reserved.
 // Author: robinson@google.com (Will Robinson)
 //
+//  Startalk Ltd. 2021 revised
 // This module outputs pure-Python protocol message classes that will
 // largely be constructed at runtime via the metaclass in reflection.py.
 // In other words, our job is basically to output a Python equivalent

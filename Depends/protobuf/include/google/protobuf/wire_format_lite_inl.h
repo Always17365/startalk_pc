@@ -32,6 +32,7 @@
 //         wink@google.com (Wink Saville) (refactored from wire_format.h)
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
+//  Startalk Ltd. 2021 revised
 
 #ifndef GOOGLE_PROTOBUF_WIRE_FORMAT_LITE_INL_H__
 #define GOOGLE_PROTOBUF_WIRE_FORMAT_LITE_INL_H__

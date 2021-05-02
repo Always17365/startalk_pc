@@ -30,6 +30,7 @@
 
 // Author: tgs@google.com (Tom Szymanski)
 //
+//  Startalk Ltd. 2021 revised
 // Test reflection methods for aggregate access to Repeated[Ptr]Fields.
 // This test proto2 methods on a proto2 layout.
 

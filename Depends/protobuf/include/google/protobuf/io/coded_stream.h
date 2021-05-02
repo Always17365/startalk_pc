@@ -32,6 +32,7 @@
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
 //
+//  Startalk Ltd. 2021 revised
 // This file contains the CodedInputStream and CodedOutputStream classes,
 // which wrap a ZeroCopyInputStream or ZeroCopyOutputStream, respectively,
 // and allow you to read or write individual pieces of data in various

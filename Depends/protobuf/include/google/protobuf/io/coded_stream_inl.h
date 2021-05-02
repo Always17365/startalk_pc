@@ -30,6 +30,7 @@
 
 // Author: jasonh@google.com (Jason Hsueh)
 //
+//  Startalk Ltd. 2021 revised
 // Implements methods of coded_stream.h that need to be inlined for performance
 // reasons, but should not be defined in a public header.
 

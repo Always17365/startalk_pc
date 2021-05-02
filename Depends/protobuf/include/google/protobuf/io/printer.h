@@ -32,6 +32,7 @@
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
 //
+//  Startalk Ltd. 2021 revised
 // Utility class for writing text to a ZeroCopyOutputStream.
 
 #ifndef GOOGLE_PROTOBUF_IO_PRINTER_H__

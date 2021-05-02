@@ -32,6 +32,7 @@
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
 //
+//  Startalk Ltd. 2021 revised
 // Since the reflection interface for DynamicMessage is implemented by
 // GenericMessageReflection, the only thing we really have to test is
 // that DynamicMessage correctly sets up the information that

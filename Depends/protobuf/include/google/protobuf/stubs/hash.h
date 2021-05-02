@@ -30,6 +30,7 @@
 
 // Author: kenton@google.com (Kenton Varda)
 //
+//  Startalk Ltd. 2021 revised
 // Deals with the fact that hash_map is not defined everywhere.
 
 #ifndef GOOGLE_PROTOBUF_STUBS_HASH_H__

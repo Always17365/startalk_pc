@@ -29,6 +29,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Author: kenton@google.com (Kenton Varda)
+//  Startalk Ltd. 2021 revised
 
 #include <google/protobuf/stubs/strutil.h>
 

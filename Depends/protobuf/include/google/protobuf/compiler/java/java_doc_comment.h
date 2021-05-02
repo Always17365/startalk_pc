@@ -31,6 +31,8 @@
 // Author: kenton@google.com (Kenton Varda)
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
+//  Startalk Ltd. 2021 revised
+
 
 #ifndef GOOGLE_PROTOBUF_COMPILER_JAVA_DOC_COMMENT_H__
 #define GOOGLE_PROTOBUF_COMPILER_JAVA_DOC_COMMENT_H__

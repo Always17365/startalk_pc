@@ -32,6 +32,7 @@
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
 //
+//  Startalk Ltd. 2021 revised
 // Interface for manipulating databases of descriptors.
 
 #ifndef GOOGLE_PROTOBUF_DESCRIPTOR_DATABASE_H__

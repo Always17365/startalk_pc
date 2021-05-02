@@ -32,6 +32,7 @@
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
 //
+//  Startalk Ltd. 2021 revised
 // Generates Java code for a given .proto file.
 
 #ifndef GOOGLE_PROTOBUF_COMPILER_JAVA_GENERATOR_H__

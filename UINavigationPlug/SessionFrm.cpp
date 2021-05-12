@@ -40,8 +40,9 @@ SessionFrm::SessionFrm(QWidget *parent) : QFrame(parent)
 
 SessionFrm::~SessionFrm()
 {
-    if (_messageListener)
+    if (_messageListener) {
         delete _messageListener;
+    }
 }
 
 /**
@@ -62,56 +63,9 @@ void SessionFrm::initLayout()
     mainLay->addWidget(_pTcpDisconnect);
     _pTcpDisconnect->setVisible(false);
     //
-//    _pBackBtnFrm = new QFrame(this);
-//    _pBackBtnFrm->setObjectName("SessionBackFrm");
-//    _pBackBtnFrm->setFixedHeight(40);
-//    auto *backBtnLay = new QHBoxLayout(_pBackBtnFrm);
-//    backBtnLay->setContentsMargins(0, 0, 25, 0);
-//    backBtnLay->setSpacing(0);
-//    auto *backBtn = new QPushButton(this);
-//    _pTitleLabel = new QLabel(tr("未读消息"), this);
-//    _pTitleLabel->setObjectName("SessionLabel");
-//    _pTitleLabel->setAlignment(Qt::AlignCenter);
-//    backBtn->setObjectName("SessionBackBtn");
-//    backBtn->setFixedSize(25, 25);
-//    backBtnLay->addWidget(backBtn, 0);
-//    backBtnLay->addWidget(_pTitleLabel, 1);
-//    mainLay->addWidget(_pBackBtnFrm);
-//    _pBackBtnFrm->setVisible(false);
-    //
-    _pSelectFrm = new QFrame(this);
-//    _pSelectFrm->setObjectName("SessionBackFrm");
-    _pSelectFrm->setFixedHeight(50);
-    auto *selectLay = new QHBoxLayout(_pSelectFrm);
-    selectLay->setContentsMargins(0, 0, 0, 0);
-    selectLay->setSpacing(2);
-    mainLay->addWidget(_pSelectFrm);
-    auto *tabGroup = new UCButtonGroup(this);
-    auto *allBtn = new UCButton(tr("全部"), this);
-    auto *topBtn = new UCButton(tr("置顶"), this);
-    auto *unReadBtn = new UCButton(tr("未读"), this);
-    auto *unNoticeBtn = new UCButton(tr("免打扰"), this);
-    //
-    tabGroup->addButton(allBtn, EM_SELECT_ALL);
-    tabGroup->addButton(topBtn, EM_SELECT_TOP);
-    tabGroup->addButton(unReadBtn, EM_SELECT_UNREAD);
-    tabGroup->addButton(unNoticeBtn, EM_SELECT_UNNOTICE);
-    selectLay->addWidget(allBtn, 2);
-    selectLay->addWidget(topBtn, 2);
-    selectLay->addWidget(unReadBtn, 2);
-    selectLay->addWidget(unNoticeBtn, 3);
-    tabGroup->setCheck(EM_SELECT_ALL);
-    connect(tabGroup, &UCButtonGroup::clicked, [this](int index)
-    {
-        sortAndFilterView(index);
-    });
-    //
     mainLay->addWidget(new Line(this));
-    //
-    _pStackWgt = new QStackedWidget(this);
     // session view
     _pSessionView = new QListView(this);
-    _pStackWgt->addWidget(_pSessionView);
     _pSessionView->setObjectName("SessionView");
     _pSessionView->verticalScrollBar()->setVisible(false);
     _pSessionView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
@@ -130,13 +84,16 @@ void SessionFrm::initLayout()
     _pSessionScrollBar->setRange(0, 0);
     _pSessionScrollBar->setMinimumHeight(100);
     _pSessionScrollBar->setVisible(false);
-    connect(_pSessionView->verticalScrollBar(), SIGNAL(valueChanged(int)), _pSessionScrollBar, SLOT(setValue(int)));
-    connect(_pSessionScrollBar, SIGNAL(valueChanged(int)), _pSessionView->verticalScrollBar(), SLOT(setValue(int)));
-    connect(_pSessionView->verticalScrollBar(), SIGNAL(rangeChanged(int, int)), _pSessionScrollBar, SLOT(setRange(int, int)));
+    connect(_pSessionView->verticalScrollBar(), SIGNAL(valueChanged(int)),
+            _pSessionScrollBar, SLOT(setValue(int)));
+    connect(_pSessionScrollBar, SIGNAL(valueChanged(int)),
+            _pSessionView->verticalScrollBar(), SLOT(setValue(int)));
+    connect(_pSessionView->verticalScrollBar(), SIGNAL(rangeChanged(int, int)),
+            _pSessionScrollBar, SLOT(setRange(int, int)));
     _pSessionView->setFrameShape(QFrame::NoFrame);
     _pSessionView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     _pSessionView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    mainLay->addWidget(_pStackWgt);
+    mainLay->addWidget(_pSessionView);
     _pSessionView->installEventFilter(this);
     _pContextMenu = new QMenu(_pSessionView);
     _pContextMenu->setAttribute(Qt::WA_TranslucentBackground, true);
@@ -163,34 +120,48 @@ void SessionFrm::initLayout()
 
 void SessionFrm::connects()
 {
-    connect(_pSessionView, &QListView::pressed, this, &SessionFrm::onItemSelectChanged);
+    connect(_pSessionView, &QListView::pressed, this,
+            &SessionFrm::onItemSelectChanged);
     connect(_showCardAct, &QAction::triggered, this, &SessionFrm::onShowCardAct);
-    connect(_closeSessionAct, &QAction::triggered, this, &SessionFrm::onCloseSession);
-    connect(_toTopOrCancelTopAct, &QAction::triggered, this, &SessionFrm::onToTopAct);
+    connect(_closeSessionAct, &QAction::triggered, this,
+            &SessionFrm::onCloseSession);
+    connect(_toTopOrCancelTopAct, &QAction::triggered, this,
+            &SessionFrm::onToTopAct);
     connect(_noticeAct, &QAction::triggered, this, &SessionFrm::onUnNoticeAct);
     connect(_starAct, &QAction::triggered, this, &SessionFrm::onStarAct);
     connect(_blackAct, &QAction::triggered, this, &SessionFrm::onBlackAct);
-    connect(_clearUnreadAct, &QAction::triggered, this, &SessionFrm::onClearUnreadAct);
+    connect(_clearUnreadAct, &QAction::triggered, this,
+            &SessionFrm::onClearUnreadAct);
     connect(_quitGroupAct, &QAction::triggered, this, &SessionFrm::onQuitGroupAct);
     //
     qRegisterMetaType<ReceiveSession>("ReceiveSession");
     qRegisterMetaType<QTalk::Entity::UID>("QTalk::Entity::UID");
     qRegisterMetaType<QTalk::StGroupInfo>("QTalk::StGroupInfo");
     qRegisterMetaType<StSessionInfo>("StSessionInfo");
-    connect(this, &SessionFrm::sgReceiveSession, this, &SessionFrm::onReceiveSession);
+    connect(this, &SessionFrm::sgReceiveSession, this,
+            &SessionFrm::onReceiveSession);
     connect(this, SIGNAL(sgDownLoadHeadPhotosFinish()), this, SLOT(repaint()));
     connect(this, &SessionFrm::sgUpdateOnline, this, &SessionFrm::onUpdateOnline);
-    connect(this, &SessionFrm::sgUpdateOnlineUsers, this, &SessionFrm::onUpdateOnlineUsers);
-    connect(this, &SessionFrm::setDisconnectWgtVisible, _pTcpDisconnect, &TcpDisconnect::setVisible);
-    connect(this, &SessionFrm::updateGroupInfoSignal, this, &SessionFrm::onUpdateGroupInfo);
-    connect(this, &SessionFrm::updateReadedCountSignal, this, &SessionFrm::onUpdateReadedCount);
-    connect(this, &SessionFrm::recvRevokeMessageSignal, this, &SessionFrm::recvRevikeMessage);
+    connect(this, &SessionFrm::sgUpdateOnlineUsers, this,
+            &SessionFrm::onUpdateOnlineUsers);
+    connect(this, &SessionFrm::setDisconnectWgtVisible, _pTcpDisconnect,
+            &TcpDisconnect::setVisible);
+    connect(this, &SessionFrm::updateGroupInfoSignal, this,
+            &SessionFrm::onUpdateGroupInfo);
+    connect(this, &SessionFrm::updateReadedCountSignal, this,
+            &SessionFrm::onUpdateReadedCount);
+    connect(this, &SessionFrm::recvRevokeMessageSignal, this,
+            &SessionFrm::recvRevikeMessage);
     connect(this, &SessionFrm::loadSession, this, &SessionFrm::onloadSessionData);
-    connect(this, &SessionFrm::sgUserConfigChanged, this, &SessionFrm::onUserConfigChanged);
-    connect(this, &SessionFrm::destoryGroupSignal, this, &SessionFrm::onDestroyGroup);
+    connect(this, &SessionFrm::sgUserConfigChanged, this,
+            &SessionFrm::onUserConfigChanged);
+    connect(this, &SessionFrm::destoryGroupSignal, this,
+            &SessionFrm::onDestroyGroup);
     connect(this, &SessionFrm::sgGotMState, this, &SessionFrm::onGotMState);
-    connect(this, &SessionFrm::sgShortCutSwitchSession, this, &SessionFrm::onShortCutSwitchSession);
-    connect(this, &SessionFrm::sgUpdateUserInfo, this, &SessionFrm::onUpdateUserInfo);
+    connect(this, &SessionFrm::sgShortCutSwitchSession, this,
+            &SessionFrm::onShortCutSwitchSession);
+    connect(this, &SessionFrm::sgUpdateUserInfo, this,
+            &SessionFrm::onUpdateUserInfo);
 }
 
 /**
@@ -201,8 +172,9 @@ void SessionFrm::sortAndFilterView(int index )
 {
     static int _s_index = 0;
 
-    if(index != -1)
+    if (index != -1) {
         _s_index = index;
+    }
 
     _pModel->setFilterRole(_s_index);
     _pModel->sort(0);
@@ -219,7 +191,8 @@ void SessionFrm::onReceiveSession(const ReceiveSession &mess, bool isSend)
 {
     perf_counter_warning(100, "onReceiveSession:{0}", mess.xmppId.toStdString());
     QString userId = mess.xmppId;
-    QString realJid = (mess.realJid.isNull() || mess.realJid.isEmpty()) ? mess.xmppId : mess.realJid;
+    QString realJid = (mess.realJid.isNull()
+                       || mess.realJid.isEmpty()) ? mess.xmppId : mess.realJid;
     userId = userId.left(userId.indexOf("/"));
     UID uid(userId, realJid);
     QStandardItem *item = _sessionMap.value(uid);
@@ -227,29 +200,24 @@ void SessionFrm::onReceiveSession(const ReceiveSession &mess, bool isSend)
     bool unNotice = _mapNotice.find(userId.toStdString()) != _mapNotice.end();
     QString sessionName;
 
-    if (nullptr != item)
-    {
+    if (nullptr != item) {
         notCurItem = !(uid == _curUserId);
 
-        if (mess.sendJid != _strSelfId.data())
-        {
-            if (notCurItem)
-            {
-                if (mess.chatType == QTalk::Enum::GroupChat)
-                {
+        if (mess.sendJid != _strSelfId.data()) {
+            if (notCurItem) {
+                if (mess.chatType == QTalk::Enum::GroupChat) {
                     unsigned int atCount = item->data(ITEM_DATATYPE_ATCOUNT).toUInt();
 
-                    if (mess.messageContent.contains("@all"))
+                    if (mess.messageContent.contains("@all")) {
                         atCount |= 0x000F;
-                    else if (mess.messageContent.contains(
-                                 QString("@%1").arg(PLAT.getSelfName().data())))
+                    } else if (mess.messageContent.contains(
+                                   QString("@%1").arg(PLAT.getSelfName().data()))) {
                         atCount |= 0x00F0;
+                    }
 
                     item->setData(atCount, ITEM_DATATYPE_ATCOUNT);
                 }
-            }
-            else
-            {
+            } else {
                 NavigationMsgManager::sendReadedMessage(mess.messageId.toStdString(),
                                                         realJid.toStdString(),
                                                         mess.chatType);
@@ -258,50 +226,38 @@ void SessionFrm::onReceiveSession(const ReceiveSession &mess, bool isSend)
 
         //
         sessionName = item->data(ITEM_DATATYPE_USERNAME).toString();
-    }
-    else
-    {
+    } else {
         QString headPath;
         QTalk::Entity::JID jid(userId.toStdString());
         bool noLocalHead = true;
 
-        if (mess.chatType == QTalk::Enum::GroupChat)
-        {
+        if (mess.chatType == QTalk::Enum::GroupChat) {
             std::shared_ptr<QTalk::Entity::ImGroupInfo> groupInfo =
                 DB_PLAT.getGroupInfo(userId.toStdString(), true);
 
-            if (groupInfo)
-            {
+            if (groupInfo) {
                 headPath = QTalk::GetHeadPathByUrl(groupInfo->HeaderSrc).data();
                 QFileInfo headfile(headPath);
                 noLocalHead = !headfile.isFile() || !headfile.exists();
 
-                if(noLocalHead)
-                {
-                    QtConcurrent::run([groupInfo]()
-                    {
+                if (noLocalHead) {
+                    QtConcurrent::run([groupInfo]() {
                         NavigationMsgManager::downloadGroupHeads({groupInfo->HeaderSrc});
                     });
                 }
             }
-        }
-        else
-        {
+        } else {
             auto userInfo = DB_PLAT.getUserInfo(userId.toStdString(), true);
 
-            if (userInfo)
-            {
-                if (!userInfo->HeaderSrc.empty())
-                {
+            if (userInfo) {
+                if (!userInfo->HeaderSrc.empty()) {
                     headPath = QTalk::GetHeadPathByUrl(userInfo->HeaderSrc).data();
                     QFileInfo headfile(headPath);
                     noLocalHead = !headfile.isFile() || !headfile.exists();
                 }
 
-                if(noLocalHead)
-                {
-                    QtConcurrent::run([userId]()
-                    {
+                if (noLocalHead) {
+                    QtConcurrent::run([userId]() {
                         NavigationMsgManager::downloadUserHeads({userId.toStdString()});
                     });
                 }
@@ -312,18 +268,16 @@ void SessionFrm::onReceiveSession(const ReceiveSession &mess, bool isSend)
         item->setData(mess.chatType, ITEM_DATATYPE_CHATTYPE);
         item->setData(userId, ITEM_DATATYPE_USERID);
         item->setData(realJid, ITEM_DATATYPE_REALJID);
-        item->setData(_mapStick.find(uid.toStdString()) != _mapStick.end(), ITEM_DATATYPE_ISTOP);
+        item->setData(_mapStick.find(uid.toStdString()) != _mapStick.end(),
+                      ITEM_DATATYPE_ISTOP);
         item->setData(unNotice, ITEM_DATATYPE_UNNOTICE);
         //
         std::string id = jid.basename();
 
-        if (SYSTEM_XMPPID == jid.username())
-        {
+        if (SYSTEM_XMPPID == jid.username()) {
             sessionName = tr(SYSTEM_NAME);
             item->setData(":/UINavigationPlug/image1/system.png", ITEM_DATATYPE_HEADPATH);
-        }
-        else
-        {
+        } else {
             sessionName = getUserName(id, mess.chatType == QTalk::Enum::GroupChat);
             item->setData(headPath, ITEM_DATATYPE_HEADPATH);
             item->setToolTip(sessionName);
@@ -337,27 +291,34 @@ void SessionFrm::onReceiveSession(const ReceiveSession &mess, bool isSend)
     item->setData(mess.messageId, ITEM_DATATYPE_LAST_MESSAGE_ID);
     item->setData(mess.messageRecvTime, ITEM_DATATYPE_LASTTIME);
 
-    if (!isSend && notCurItem)
-    {
+    if (!isSend && notCurItem) {
         int count = item->data(ITEM_DATATYPE_UNREADCOUNT).toInt();
         item->setData(++count, ITEM_DATATYPE_UNREADCOUNT);
 
-        if (count > 0 && !unNotice)
-            emit sgShowUnreadMessage(mess.chatType, uid, sessionName, mess.messageRecvTime, count);
+        if (count > 0 && !unNotice) {
+            emit sgShowUnreadMessage(mess.chatType, uid, sessionName, mess.messageRecvTime,
+                                     count);
+        }
 
-        if (!unNotice)
+        if (!unNotice) {
             emit updateTotalUnreadCount(++_totalUnReadCount);
+        }
     }
 
     QString userName;
 
-    if (mess.chatType == QTalk::Enum::GroupChat)
-        userName = QString::fromStdString(QTalk::getUserName(mess.sendJid.toStdString()));
+    if (mess.chatType == QTalk::Enum::GroupChat) {
+        userName = QString::fromStdString(QTalk::getUserName(
+                                              mess.sendJid.toStdString()));
+    }
 
-    if (mess.messtype == QTalk::Entity::MessageTypeShock && _strSelfId.data() != mess.sendJid)
+    if (mess.messtype == QTalk::Entity::MessageTypeShock
+        && _strSelfId.data() != mess.sendJid) {
         item->setData(true, ITEM_DATATYPE_QQQ);
+    }
 
-    item->setData(GenerateContent(mess.messageContent, mess.chatType, mess.messtype, userName),
+    item->setData(GenerateContent(mess.messageContent, mess.chatType, mess.messtype,
+                                  userName),
                   ITEM_DATATYPE_MESSAGECONTENT);
     // sort
     _pSessionView->update();
@@ -379,30 +340,26 @@ void SessionFrm::onloadSessionData()
     _totalUnReadCount = 0;
     std::set<std::string> withoutHeadUsers, withoutGroupHeadGroups;
 
-    if (pSessions)
-    {
+    if (pSessions) {
         {
             auto it = _mapStick.begin();
 
-            for (; it != _mapStick.end(); it++)
-            {
+            for (; it != _mapStick.end(); it++) {
                 const std::string &xmppId = it->first;
                 UID uid(xmppId);
                 auto itFind = std::find_if(pSessions->begin(), pSessions->end(),
-                                           [uid](const std::shared_ptr<QTalk::Entity::ImSessionInfo> &session)
-                {
+                [uid](const std::shared_ptr<QTalk::Entity::ImSessionInfo> &session) {
                     return session->XmppId == uid.usrId();
                 });
 
-                if (itFind == pSessions->end())
-                {
+                if (itFind == pSessions->end()) {
                     QJsonParseError jsoErr{};
                     QJsonDocument jsoDoc = QJsonDocument::fromJson(it->second.data(), &jsoErr);
 
-                    if (jsoErr.error == QJsonParseError::NoError)
-                    {
+                    if (jsoErr.error == QJsonParseError::NoError) {
                         QJsonObject obj = jsoDoc.object();
-                        std::shared_ptr<QTalk::Entity::ImSessionInfo> session(new QTalk::Entity::ImSessionInfo);
+                        std::shared_ptr<QTalk::Entity::ImSessionInfo> session(new
+                                                                              QTalk::Entity::ImSessionInfo);
                         session->XmppId = uid.usrId();
                         session->RealJid = uid.realId();
                         session->ChatType = obj.value("chatType").toInt(); //
@@ -415,43 +372,38 @@ void SessionFrm::onloadSessionData()
         }
 
         //
-        for (const auto &sessionInfo : *pSessions)
-        {
+        for (const auto &sessionInfo : *pSessions) {
             std::string xmppId = sessionInfo->XmppId;
             std::string realJid = sessionInfo->RealJid;
             QString headPath;
             bool noLocalHead = true;
 
-            if (sessionInfo->ChatType == QTalk::Enum::GroupChat)
-            {
+            if (sessionInfo->ChatType == QTalk::Enum::GroupChat) {
                 std::shared_ptr<QTalk::Entity::ImGroupInfo> groupInfo =
                     DB_PLAT.getGroupInfo(sessionInfo->XmppId);
 
-                if (groupInfo)
-                {
+                if (groupInfo) {
                     headPath = QTalk::GetHeadPathByUrl(groupInfo->HeaderSrc).data();
                     QFileInfo headfile(headPath);
                     noLocalHead = !headfile.isFile() || !headfile.exists();
 
-                    if (noLocalHead)
+                    if (noLocalHead) {
                         withoutGroupHeadGroups.insert(groupInfo->HeaderSrc);
+                    }
                 }
-            }
-            else
-            {
+            } else {
                 auto userInfo = DB_PLAT.getUserInfo(sessionInfo->XmppId);
 
-                if (userInfo)
-                {
-                    if (!userInfo->HeaderSrc.empty())
-                    {
+                if (userInfo) {
+                    if (!userInfo->HeaderSrc.empty()) {
                         headPath = QTalk::GetHeadPathByUrl(userInfo->HeaderSrc).data();
                         QFileInfo headfile(headPath);
                         noLocalHead = !headfile.isFile() || !headfile.exists();
                     }
 
-                    if (noLocalHead)
+                    if (noLocalHead) {
                         withoutHeadUsers.insert(sessionInfo->XmppId);
+                    }
                 }
             }
 
@@ -459,44 +411,44 @@ void SessionFrm::onloadSessionData()
             UID uid(xmppId, realJid);
             bool unNotice = _mapNotice.find(sessionInfo->XmppId) != _mapNotice.end();
 
-            if (_sessionMap.contains(uid))
+            if (_sessionMap.contains(uid)) {
                 item = _sessionMap.value(uid);
-            else
-            {
+            } else {
                 item = new QStandardItem;
 
-                if (sessionInfo->ChatType == QTalk::Enum::GroupChat)
+                if (sessionInfo->ChatType == QTalk::Enum::GroupChat) {
                     item->setData(0, ITEM_DATATYPE_ATCOUNT);
+                }
             }
 
             item->setData(sessionInfo->UnreadCount, ITEM_DATATYPE_UNREADCOUNT);
 
-            if (!unNotice)
+            if (!unNotice) {
                 _totalUnReadCount += sessionInfo->UnreadCount;
+            }
 
             item->setData(sessionInfo->ChatType, ITEM_DATATYPE_CHATTYPE);
-            item->setData(QString::fromStdString(sessionInfo->XmppId), ITEM_DATATYPE_USERID);
+            item->setData(QString::fromStdString(sessionInfo->XmppId),
+                          ITEM_DATATYPE_USERID);
             item->setData(sessionInfo->LastUpdateTime, ITEM_DATATYPE_LASTTIME);
             item->setData(QString::fromStdString(realJid), ITEM_DATATYPE_REALJID);
-            item->setData(QString::fromStdString(sessionInfo->LastMessageId), ITEM_DATATYPE_LAST_MESSAGE_ID);
+            item->setData(QString::fromStdString(sessionInfo->LastMessageId),
+                          ITEM_DATATYPE_LAST_MESSAGE_ID);
             QString sessionName;
 
-            if (SYSTEM_XMPPID == QTalk::Entity::JID(sessionInfo->XmppId).username())
-            {
+            if (SYSTEM_XMPPID == QTalk::Entity::JID(sessionInfo->XmppId).username()) {
                 sessionName = tr(SYSTEM_NAME);
                 item->setData(":/UINavigationPlug/image1/system.png", ITEM_DATATYPE_HEADPATH);
-            }
-            else
-            {
-                sessionName = getUserName(xmppId, sessionInfo->ChatType == QTalk::Enum::GroupChat);
+            } else {
+                sessionName = getUserName(xmppId,
+                                          sessionInfo->ChatType == QTalk::Enum::GroupChat);
                 item->setData(headPath, ITEM_DATATYPE_HEADPATH);
             }
 
             item->setToolTip(sessionName);
             item->setData(sessionName, ITEM_DATATYPE_USERNAME);
 
-            if (sessionInfo->UnreadCount > 0 && !unNotice)
-            {
+            if (sessionInfo->UnreadCount > 0 && !unNotice) {
                 emit sgShowUnreadMessage(sessionInfo->ChatType,
                                          uid, sessionName, sessionInfo->LastUpdateTime, sessionInfo->UnreadCount);
             }
@@ -505,20 +457,22 @@ void SessionFrm::onloadSessionData()
             {
                 QString userName;
 
-                if (sessionInfo->ChatType == QTalk::Enum::GroupChat)
+                if (sessionInfo->ChatType == QTalk::Enum::GroupChat) {
                     userName = QString::fromStdString(QTalk::getUserName(sessionInfo->UserId));
+                }
 
-                item->setData(GenerateContent(QString::fromStdString(sessionInfo->Content), sessionInfo->ChatType,
+                item->setData(GenerateContent(QString::fromStdString(sessionInfo->Content),
+                                              sessionInfo->ChatType,
                                               sessionInfo->MessType, userName),
                               ITEM_DATATYPE_MESSAGECONTENT);
             }
             //is top
-            item->setData(_mapStick.find(uid.toStdString()) != _mapStick.end(), ITEM_DATATYPE_ISTOP);
+            item->setData(_mapStick.find(uid.toStdString()) != _mapStick.end(),
+                          ITEM_DATATYPE_ISTOP);
             item->setData(unNotice, ITEM_DATATYPE_UNNOTICE);
 
             //
-            if (!_sessionMap.contains(uid))
-            {
+            if (!_sessionMap.contains(uid)) {
                 _pSrcModel->appendRow(item);
                 _sessionMap.insert(uid, item);
             }
@@ -526,11 +480,14 @@ void SessionFrm::onloadSessionData()
     }
 
     //
-    if(!withoutHeadUsers.empty())
+    if (!withoutHeadUsers.empty()) {
         QtConcurrent::run(&NavigationMsgManager::downloadUserHeads, withoutHeadUsers);
+    }
 
-    if(!withoutGroupHeadGroups.empty())
-        QtConcurrent::run(&NavigationMsgManager::downloadGroupHeads, withoutGroupHeadGroups);
+    if (!withoutGroupHeadGroups.empty()) {
+        QtConcurrent::run(&NavigationMsgManager::downloadGroupHeads,
+                          withoutGroupHeadGroups);
+    }
 
     _strSelfId = PLAT.getSelfXmppId();
     // sort
@@ -549,15 +506,17 @@ void SessionFrm::onloadSessionData()
 void SessionFrm::onItemSelectChanged(const QModelIndex &index)
 {
     //_headPhotoLab
-    if (!index.isValid())
+    if (!index.isValid()) {
         return;
+    }
 
     auto userId = index.data(ITEM_DATATYPE_USERID).toString();
     auto relJid = index.data(ITEM_DATATYPE_REALJID).toString();
     UID uid(userId, relJid);
     //
     StSessionInfo sessionInfo;
-    sessionInfo.chatType = static_cast<QUInt8>(index.data(ITEM_DATATYPE_CHATTYPE).toInt());
+    sessionInfo.chatType = static_cast<QUInt8>(index.data(
+                                                   ITEM_DATATYPE_CHATTYPE).toInt());
     sessionInfo.userId = userId;
     sessionInfo.realJid = relJid;
     sessionInfo.userName = index.data(ITEM_DATATYPE_USERNAME).toString();
@@ -565,12 +524,12 @@ void SessionFrm::onItemSelectChanged(const QModelIndex &index)
     {
         _curUserId = UID(sessionInfo.userId, sessionInfo.realJid);
         _pItemDelegate->setProperty("CURRENT_ID", userId);
-//        _pModel->setProperty("CURRENT_ID", userId);
+        //        _pModel->setProperty("CURRENT_ID", userId);
     }
 
-    if (sessionInfo.userName.isEmpty())
-    {
-        sessionInfo.userName = QTalk::getGroupName(sessionInfo.userId.toStdString()).data();
+    if (sessionInfo.userName.isEmpty()) {
+        sessionInfo.userName = QTalk::getGroupName(
+                                   sessionInfo.userId.toStdString()).data();
         _sessionMap[uid]->setData(sessionInfo.userName, ITEM_DATATYPE_USERNAME);
     }
 
@@ -582,28 +541,28 @@ void SessionFrm::onItemSelectChanged(const QModelIndex &index)
     //if (sessionInfo.chatType != QTalk::Enum::GroupChat) {
     unsigned int count = _sessionMap[uid]->data(ITEM_DATATYPE_UNREADCOUNT).toUInt();
     _sessionMap[uid]->setData(0, ITEM_DATATYPE_UNREADCOUNT);
-    bool unNotice = _mapNotice.find(sessionInfo.userId.toStdString()) != _mapNotice.end();
+    bool unNotice = _mapNotice.find(sessionInfo.userId.toStdString()) !=
+                    _mapNotice.end();
 
-    if (!unNotice)
-    {
+    if (!unNotice) {
         _totalUnReadCount -= count;
         emit updateTotalUnreadCount(_totalUnReadCount);
         emit sgShowUnreadMessage(0, uid, "", 0, 0);
     }
 
     _sessionMap[uid]->setData(0, ITEM_DATATYPE_ATCOUNT);
-    QtConcurrent::run([sessionInfo, index, count]()
-    {
-        if (sessionInfo.chatType != QTalk::Enum::GroupChat)
+    QtConcurrent::run([sessionInfo, index, count]() {
+        if (sessionInfo.chatType != QTalk::Enum::GroupChat) {
             NavigationMsgManager::sendGetUserStatus(sessionInfo.realJid.toStdString());
+        }
 
-        if (count > 0)
-        {
+        if (count > 0) {
             //if(sessionInfo.chatType == QTalk::Enum::TwoPersonChat)
             {
                 // 发送消息已读
                 QString messageId = index.data(ITEM_DATATYPE_LAST_MESSAGE_ID).toString();
-                NavigationMsgManager::sendReadedMessage(messageId.toStdString(), sessionInfo.realJid.toStdString(),
+                NavigationMsgManager::sendReadedMessage(messageId.toStdString(),
+                                                        sessionInfo.realJid.toStdString(),
                                                         sessionInfo.chatType);
             }
         }
@@ -644,16 +603,16 @@ void SessionFrm::onDownLoadGroupHeadPhotosFinish()
   */
 void SessionFrm::onUpdateOnline()
 {
-    if (!PLAT.isMainThread())
-    {
+    if (!PLAT.isMainThread()) {
         emit sgUpdateOnline();
         return;
     }
 
     perf_counter_warning(200, "onUpdateOnline");
 
-    for (const UID &uid : _sessionMap.keys())
+    for (const UID &uid : _sessionMap.keys()) {
         setUserStatus(uid);
+    }
 }
 
 /**
@@ -665,8 +624,7 @@ void SessionFrm::onUpdateOnline()
   */
 void SessionFrm::onUpdateOnlineUsers(const QString &id)
 {
-    if (!PLAT.isMainThread())
-    {
+    if (!PLAT.isMainThread()) {
         emit sgUpdateOnlineUsers(id);
         return;
     }
@@ -686,25 +644,23 @@ void SessionFrm::onNewSession(const StSessionInfo &info)
     ReceiveSession mess;
     mess.xmppId = info.userId;
 
-    if (DB_PLAT.isHotLine(mess.xmppId.toStdString()))
+    if (DB_PLAT.isHotLine(mess.xmppId.toStdString())) {
         mess.chatType = QTalk::Enum::Consult;
-    else
+    } else {
         mess.chatType = (QTalk::Enum::ChatType)info.chatType;
+    }
 
     mess.realJid = info.realJid.isEmpty() ? info.userId : info.realJid;
     mess.headSrc = info.headPhoto;
     // 临时处理
     UID uid(mess.xmppId, mess.realJid);
 
-    if (_sessionMap.contains(uid))
-    {
+    if (_sessionMap.contains(uid)) {
         QStandardItem *item = _sessionMap[uid];
         mess.messageContent = item->data(ITEM_DATATYPE_MESSAGECONTENT).toString();
         mess.messageRecvTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
         mess.messageId = item->data(ITEM_DATATYPE_LAST_MESSAGE_ID).toString();
-    }
-    else
-    {
+    } else {
         std::string messagedId = QTalk::utils::getMessageId();
         mess.messageContent = "";
         mess.messageRecvTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
@@ -758,12 +714,10 @@ void SessionFrm::setUserStatus(const QTalk::Entity::UID &uid, bool)
 {
     QStandardItem *item = _sessionMap.value(uid);
 
-    if (nullptr != item)
-    {
+    if (nullptr != item) {
         auto chatType = item->data(ITEM_DATATYPE_CHATTYPE).toInt();
 
-        if (chatType == QTalk::Enum::GroupChat)
-        {
+        if (chatType == QTalk::Enum::GroupChat) {
             item->setData(true, ITEM_DATATYPE_ISONLINE);
             return;
         }
@@ -771,15 +725,13 @@ void SessionFrm::setUserStatus(const QTalk::Entity::UID &uid, bool)
         {
             QTalk::Entity::JID jid(uid.usrId());
 
-            if (jid.username() == SYSTEM_XMPPID)
-            {
+            if (jid.username() == SYSTEM_XMPPID) {
                 item->setData(true, ITEM_DATATYPE_ISONLINE);
                 return;
             }
         }
 
-        if (uid.usrId() == _strSelfId)
-        {
+        if (uid.usrId() == _strSelfId) {
             item->setData(true, ITEM_DATATYPE_ISONLINE);
             return;
         }
@@ -797,28 +749,27 @@ void SessionFrm::setUserStatus(const QTalk::Entity::UID &uid, bool)
  */
 bool SessionFrm::eventFilter(QObject *o, QEvent *e)
 {
-    if (o == _pSessionView)
-    {
-        if (e->type() == QEvent::ContextMenu)
-        {
-            QUInt8 chatType = static_cast<QUInt8>(_pSessionView->currentIndex().data(ITEM_DATATYPE_CHATTYPE).toInt());
-            std::string id = _pSessionView->currentIndex().data(ITEM_DATATYPE_USERID).toString().toStdString();
+    if (o == _pSessionView) {
+        if (e->type() == QEvent::ContextMenu) {
+            QUInt8 chatType = static_cast<QUInt8>(_pSessionView->currentIndex().data(
+                                                      ITEM_DATATYPE_CHATTYPE).toInt());
+            std::string id = _pSessionView->currentIndex().data(
+                                 ITEM_DATATYPE_USERID).toString().toStdString();
             bool isTop = _pSessionView->currentIndex().data(ITEM_DATATYPE_ISTOP).toBool();
-            bool unNotice = _pSessionView->currentIndex().data(ITEM_DATATYPE_UNNOTICE).toBool();
+            bool unNotice = _pSessionView->currentIndex().data(
+                                ITEM_DATATYPE_UNNOTICE).toBool();
             _toTopOrCancelTopAct->setText(isTop ? tr("取消置顶") : tr("会话置顶"));
             _noticeAct->setText(unNotice ? tr("取消免打扰") : tr("消息免打扰"));
             _quitGroupAct->setVisible(chatType == QTalk::Enum::GroupChat);
 
-            if (chatType == QTalk::Enum::GroupChat)
-            {
+            if (chatType == QTalk::Enum::GroupChat) {
                 _starAct->setVisible(false);
                 _blackAct->setVisible(false);
-            }
-            else
-            {
+            } else {
                 //
                 bool isStar = std::find(_arSatr.begin(), _arSatr.end(), id) != _arSatr.end();
-                bool isBlack = std::find(_arBlackList.begin(), _arBlackList.end(), id) != _arBlackList.end();
+                bool isBlack = std::find(_arBlackList.begin(), _arBlackList.end(),
+                                         id) != _arBlackList.end();
                 _starAct->setText(isStar ? tr("取消星标") : tr("星标联系人"));
                 _blackAct->setText(isBlack ? tr("移出黑名单") : tr("加入黑名单"));
             }
@@ -826,11 +777,9 @@ bool SessionFrm::eventFilter(QObject *o, QEvent *e)
             _pContextMenu->exec(QCursor::pos());
             _starAct->setVisible(true);
             _blackAct->setVisible(true);
-        }
-        else if (e->type() == QEvent::MouseMove)
+        } else if (e->type() == QEvent::MouseMove) {
             _pSessionView->update();
-        else if (e->type() == QEvent::Resize)
-        {
+        } else if (e->type() == QEvent::Resize) {
             _pSessionScrollBar->setGeometry(_pSessionView->width() - 15, 55,
                                             17, _pSessionView->height() - 10);
         }
@@ -846,20 +795,18 @@ bool SessionFrm::eventFilter(QObject *o, QEvent *e)
  */
 bool SessionFrm::event(QEvent *e)
 {
-    if (e->type() == QEvent::Enter)
-    {
-        if (_pSessionScrollBar->maximum() > 0 && !_pSessionScrollBar->isVisible())
+    if (e->type() == QEvent::Enter) {
+        if (_pSessionScrollBar->maximum() > 0 && !_pSessionScrollBar->isVisible()) {
             _pSessionScrollBar->setVisible(true);
-    }
-    else if (e->type() == QEvent::Leave)
-    {
-        if (_pSessionScrollBar->isVisible())
+        }
+    } else if (e->type() == QEvent::Leave) {
+        if (_pSessionScrollBar->isVisible()) {
             _pSessionScrollBar->setVisible(false);
-    }
-    else if (e->type() == QEvent::WindowActivate || e->type() == QEvent::Show)
-    {
-        if (_curUserId.isEmpty())
+        }
+    } else if (e->type() == QEvent::WindowActivate || e->type() == QEvent::Show) {
+        if (_curUserId.isEmpty()) {
             onAppActive();
+        }
     }
 
     return QFrame::event(e);
@@ -871,29 +818,28 @@ bool SessionFrm::event(QEvent *e)
  */
 void SessionFrm::onUpdateGroupInfo(const QTalk::StGroupInfo &gInfo)
 {
-    if (!PLAT.isMainThread())
-    {
+    if (!PLAT.isMainThread()) {
         emit updateGroupInfoSignal(gInfo);
         return;
     }
 
     UID uid(gInfo.groupId);
 
-    if (_sessionMap.contains(uid))
-    {
+    if (_sessionMap.contains(uid)) {
         QStandardItem *item = _sessionMap[uid];
         auto info = DB_PLAT.getGroupInfo(gInfo.groupId, true);
 
-        if (nullptr == info)
+        if (nullptr == info) {
             return;
+        }
 
         QString name = QString::fromStdString(info->Name);
 
-        if (!name.isEmpty())
-        {
+        if (!name.isEmpty()) {
             item->setData(name, ITEM_DATATYPE_USERNAME);
             item->setToolTip(name);
-            item->setData(QTalk::GetHeadPathByUrl(info->HeaderSrc).data(), ITEM_DATATYPE_HEADPATH);
+            item->setData(QTalk::GetHeadPathByUrl(info->HeaderSrc).data(),
+                          ITEM_DATATYPE_HEADPATH);
         }
     }
 }
@@ -906,105 +852,106 @@ void SessionFrm::onUpdateGroupInfo(const QTalk::StGroupInfo &gInfo)
  * @param userName
  * @return
  */
-QString SessionFrm::GenerateContent(const QString &content, const QUInt8 &chatType, const int &msgType,
+QString SessionFrm::GenerateContent(const QString &content,
+                                    const QUInt8 &chatType, const int &msgType,
                                     const QString &userName)
 {
     QString ret = "";
 
-    if (chatType == QTalk::Enum::GroupChat && !userName.isEmpty() && msgType != QTalk::Entity::MessageTypeGroupNotify)
+    if (chatType == QTalk::Enum::GroupChat && !userName.isEmpty()
+        && msgType != QTalk::Entity::MessageTypeGroupNotify) {
         ret += userName + ":";
+    }
 
-    switch (msgType)
-    {
-        case QTalk::Entity::MessageTypePhoto:
-            ret += tr("[图片]");
-            break;
+    switch (msgType) {
+    case QTalk::Entity::MessageTypePhoto:
+        ret += tr("[图片]");
+        break;
 
-        case QTalk::Entity::MessageTypeImageNew:
-            ret += tr("[表情]");
-            break;
+    case QTalk::Entity::MessageTypeImageNew:
+        ret += tr("[表情]");
+        break;
 
-        case QTalk::Entity::MessageTypeFile:
-            ret += tr("[文件]");
-            break;
+    case QTalk::Entity::MessageTypeFile:
+        ret += tr("[文件]");
+        break;
 
-        case QTalk::Entity::MessageTypeCommonTrdInfo:
-        case QTalk::Entity::MessageTypeCommonTrdInfoV2:
-            ret += tr("[链接卡片]");
-            break;
+    case QTalk::Entity::MessageTypeCommonTrdInfo:
+    case QTalk::Entity::MessageTypeCommonTrdInfoV2:
+        ret += tr("[链接卡片]");
+        break;
 
-        case QTalk::Entity::MessageTypeSourceCode:
-            ret += tr("[代码块]");
-            break;
+    case QTalk::Entity::MessageTypeSourceCode:
+        ret += tr("[代码块]");
+        break;
 
-        case QTalk::Entity::MessageTypeSmallVideo:
-            ret += tr("[视频]");
-            break;
+    case QTalk::Entity::MessageTypeSmallVideo:
+        ret += tr("[视频]");
+        break;
 
-        case QTalk::Entity::WebRTC_MsgType_VideoCall:
-            ret += tr("[实时视频]");
-            break;
+    case QTalk::Entity::WebRTC_MsgType_VideoCall:
+        ret += tr("[实时视频]");
+        break;
 
-        case QTalk::Entity::WebRTC_MsgType_AudioCall:
-            ret += tr("[实时音频]");
-            break;
+    case QTalk::Entity::WebRTC_MsgType_AudioCall:
+        ret += tr("[实时音频]");
+        break;
 
-        case QTalk::Entity::WebRTC_MsgType_Video_Group:
-            ret += tr("[群组视频]");
-            break;
+    case QTalk::Entity::WebRTC_MsgType_Video_Group:
+        ret += tr("[群组视频]");
+        break;
 
-        case QTalk::Entity::MessageTypeVoice:
-            ret += tr("[语音]");
-            break;
+    case QTalk::Entity::MessageTypeVoice:
+        ret += tr("[语音]");
+        break;
 
-        case QTalk::Entity::MessageTypeProduct:
-        case QTalk::Entity::MessageTypeNote:
-            ret += tr("[产品详情]");
-            break;
+    case QTalk::Entity::MessageTypeProduct:
+    case QTalk::Entity::MessageTypeNote:
+        ret += tr("[产品详情]");
+        break;
 
-        case QTalk::Entity::MessageTypeSystem:
-            ret += tr("[系统消息]");
-            break;
+    case QTalk::Entity::MessageTypeSystem:
+        ret += tr("[系统消息]");
+        break;
 
-        case QTalk::Entity::MessageTypeNotice:
-            ret += tr("[公告消息]");
-            break;
+    case QTalk::Entity::MessageTypeNotice:
+        ret += tr("[公告消息]");
+        break;
 
-        case QTalk::Entity::MessageTypeGrabMenuVcard:
-        case QTalk::Entity::MessageTypeGrabMenuResult:
-            ret += tr("[抢单消息]");
-            break;
+    case QTalk::Entity::MessageTypeGrabMenuVcard:
+    case QTalk::Entity::MessageTypeGrabMenuResult:
+        ret += tr("[抢单消息]");
+        break;
 
-        case 65537:
-        case 65538:
-            ret += tr("[热线提示信息]");
-            break;
+    case 65537:
+    case 65538:
+        ret += tr("[热线提示信息]");
+        break;
 
-        default:
-            {
-                QString tmpContent = content.split("\n").first();
-                QRegExp regExp("\\[obj type=[\\\\]?\"([^\"]*)[\\\\]?\" value=[\\\\]?\"([^\"]*)[\\\\]?\"(.*)\\]");
-                regExp.setMinimal(true);
-                int pos = 0;
+    default: {
+        QString tmpContent = content.split("\n").first();
+        QRegExp regExp("\\[obj type=[\\\\]?\"([^\"]*)[\\\\]?\" value=[\\\\]?\"([^\"]*)[\\\\]?\"(.*)\\]");
+        regExp.setMinimal(true);
+        int pos = 0;
 
-                while ((pos = regExp.indexIn(tmpContent)) != -1)
-                {
-                    QString item = regExp.cap(0); // 符合条件的整个字符串
-                    QString type = regExp.cap(1); // 多媒体类型
+        while ((pos = regExp.indexIn(tmpContent)) != -1) {
+            QString item = regExp.cap(0); // 符合条件的整个字符串
+            QString type = regExp.cap(1); // 多媒体类型
 
-                    if ("url" == type)
-                        tmpContent.replace(pos, item.size(), tr("[链接]"));
-                    else if ("image" == type)
-                        tmpContent.replace(pos, item.size(), tr("[图片]"));
-                    else if ("emoticon" == type)
-                        tmpContent.replace(pos, item.size(), tr("[表情]"));
-                    else
-                        tmpContent.replace(pos, item.size(), tr("[未知]"));
-                }
-
-                ret += tmpContent;
-                break;
+            if ("url" == type) {
+                tmpContent.replace(pos, item.size(), tr("[链接]"));
+            } else if ("image" == type) {
+                tmpContent.replace(pos, item.size(), tr("[图片]"));
+            } else if ("emoticon" == type) {
+                tmpContent.replace(pos, item.size(), tr("[表情]"));
+            } else {
+                tmpContent.replace(pos, item.size(), tr("[未知]"));
             }
+        }
+
+        ret += tmpContent;
+        break;
+    }
     }
 
     return ret;
@@ -1015,19 +962,19 @@ QString SessionFrm::GenerateContent(const QString &content, const QUInt8 &chatTy
  * @param uid
  * @param count
  */
-void SessionFrm::onUpdateReadedCount(const QTalk::Entity::UID &uid, const int &count)
+void SessionFrm::onUpdateReadedCount(const QTalk::Entity::UID &uid,
+                                     const int &count)
 {
-    if (!PLAT.isMainThread())
-    {
+    if (!PLAT.isMainThread()) {
         emit updateReadedCountSignal(uid, count);
         return;
     }
 
-    if (_curUserId == uid)
+    if (_curUserId == uid) {
         return;
+    }
 
-    if (_sessionMap.contains(uid) && nullptr != _sessionMap[uid])
-    {
+    if (_sessionMap.contains(uid) && nullptr != _sessionMap[uid]) {
         int chatType = _sessionMap[uid]->data(ITEM_DATATYPE_CHATTYPE).toInt();
         QString name = _sessionMap[uid]->data(ITEM_DATATYPE_USERNAME).toString();
         QInt64 lasTime = _sessionMap[uid]->data(ITEM_DATATYPE_LASTTIME).toLongLong();
@@ -1037,8 +984,7 @@ void SessionFrm::onUpdateReadedCount(const QTalk::Entity::UID &uid, const int &c
         emit sgShowUnreadMessage(chatType, uid, name, lasTime, tmpC - minc);
         bool unNotice = _mapNotice.find(uid.usrId()) != _mapNotice.end();
 
-        if (!unNotice)
-        {
+        if (!unNotice) {
             _totalUnReadCount -= minc;
             emit updateTotalUnreadCount(_totalUnReadCount);
         }
@@ -1057,31 +1003,31 @@ void SessionFrm::onUpdateReadedCount(const QTalk::Entity::UID &uid, const int &c
  * @param uid
  * @param fromId
  */
-void SessionFrm::recvRevikeMessage(const QTalk::Entity::UID &uid, const QString &fromId)
+void SessionFrm::recvRevikeMessage(const QTalk::Entity::UID &uid,
+                                   const QString &fromId)
 {
-    if (!PLAT.isMainThread())
-    {
+    if (!PLAT.isMainThread()) {
         emit recvRevokeMessageSignal(uid, fromId);
         return;
     }
 
-    if (_sessionMap.contains(uid) && nullptr != _sessionMap[uid])
-    {
+    if (_sessionMap.contains(uid) && nullptr != _sessionMap[uid]) {
         QString userName = tr("你");
 
-        if (fromId.toStdString() != _strSelfId)
-        {
+        if (fromId.toStdString() != _strSelfId) {
             std::shared_ptr<QTalk::Entity::ImUserInfo> info =
                 DB_PLAT.getUserInfo(fromId.toStdString());
 
-            if (info && !info->Name.empty())
+            if (info && !info->Name.empty()) {
                 userName = QString::fromStdString(QTalk::getUserName(info));
-            else
+            } else {
                 userName = "";
+            }
         }
 
         QInt64 time = QDateTime::currentDateTime().toMSecsSinceEpoch();
-        _sessionMap[uid]->setData(tr("%1撤回了一条消息").arg(userName), ITEM_DATATYPE_MESSAGECONTENT);
+        _sessionMap[uid]->setData(tr("%1撤回了一条消息").arg(userName),
+                                  ITEM_DATATYPE_MESSAGECONTENT);
         _sessionMap[uid]->setData(time, ITEM_DATATYPE_LASTTIME);
         //        _sessionMap[uid]->setData(GenerateTimeText(time), ITEM_DATATYPE_LASTSTRTIME);
         // sort
@@ -1096,14 +1042,14 @@ void SessionFrm::onShowCardAct(bool)
 {
     QModelIndex index = _pSessionView->currentIndex();
 
-    if (index.isValid())
-    {
+    if (index.isValid()) {
         QString xmppId = index.data(ITEM_DATATYPE_USERID).toString();
 
-        if (index.data(ITEM_DATATYPE_CHATTYPE).toInt() == QTalk::Enum::GroupChat)
+        if (index.data(ITEM_DATATYPE_CHATTYPE).toInt() == QTalk::Enum::GroupChat) {
             emit showGroupCardSignal(xmppId);
-        else
+        } else {
             emit showUserCardSignal(xmppId);
+        }
     }
 }
 
@@ -1118,8 +1064,7 @@ void SessionFrm::onCloseSession(bool)
     UID uid(peerId, realJid);
     auto itFind = _sessionMap.find(uid);
 
-    if (itFind != _sessionMap.end() && nullptr != *itFind)
-    {
+    if (itFind != _sessionMap.end() && nullptr != *itFind) {
         emit removeSession(uid.qUsrId());
         _pSrcModel->removeRow((*itFind)->row());
         _sessionMap.remove(uid);
@@ -1136,13 +1081,13 @@ void SessionFrm::onToTopAct(bool)
     int chatType = index.data(ITEM_DATATYPE_CHATTYPE).toInt();
     QString peerId = index.data(ITEM_DATATYPE_USERID).toString();
     bool isTop = index.data(ITEM_DATATYPE_ISTOP).toBool();
-    QString val = QString("{\"topType\":%1,\"chatType\":%2}").arg(isTop ? 0 : 1).arg(chatType);
+    QString val = QString("{\"topType\":%1,\"chatType\":%2}").arg(
+                      isTop ? 0 : 1).arg(chatType);
     QString realJid = index.data(ITEM_DATATYPE_REALJID).toString();
     UID uid(peerId, realJid);
     auto itFind = _sessionMap.find(uid);
 
-    if (itFind != _sessionMap.end() && nullptr != *itFind)
-    {
+    if (itFind != _sessionMap.end() && nullptr != *itFind) {
         QtConcurrent::run(NavigationMsgManager::setUserSetting, isTop,
                           std::string("kStickJidDic"), uid.toStdString(), val.toStdString());
     }
@@ -1156,10 +1101,11 @@ void SessionFrm::updateUserConfig()
     QMutexLocker locker(&_mutex);
     auto it = _sessionMap.begin();
 
-    for (; it != _sessionMap.end(); it++)
-    {
-        (*it)->setData(_mapStick.find(it.key().toStdString()) != _mapStick.end(), ITEM_DATATYPE_ISTOP);
-        (*it)->setData(_mapNotice.find(it.key().toStdString()) != _mapNotice.end(), ITEM_DATATYPE_UNNOTICE);
+    for (; it != _sessionMap.end(); it++) {
+        (*it)->setData(_mapStick.find(it.key().toStdString()) != _mapStick.end(),
+                       ITEM_DATATYPE_ISTOP);
+        (*it)->setData(_mapNotice.find(it.key().toStdString()) != _mapNotice.end(),
+                       ITEM_DATATYPE_UNNOTICE);
     }
 
     sortAndFilterView();
@@ -1171,8 +1117,7 @@ void SessionFrm::updateUserConfig()
  */
 void SessionFrm::onDestroyGroup(const QString &groupId)
 {
-    if (!PLAT.isMainThread())
-    {
+    if (!PLAT.isMainThread()) {
         emit destoryGroupSignal(groupId);
         return;
     }
@@ -1180,8 +1125,7 @@ void SessionFrm::onDestroyGroup(const QString &groupId)
     UID uid(groupId);
     auto itFind = _sessionMap.find(uid);
 
-    if (itFind != _sessionMap.end() && nullptr != *itFind)
-    {
+    if (itFind != _sessionMap.end() && nullptr != *itFind) {
         // 销毁群之后更新未读数
         unsigned int count = (*itFind)->data(ITEM_DATATYPE_UNREADCOUNT).toUInt();
         _totalUnReadCount -= count;
@@ -1210,8 +1154,7 @@ void SessionFrm::onUnNoticeAct(bool)
     UID uid(peerId, realJid);
     auto itFind = _sessionMap.find(uid);
 
-    if (itFind != _sessionMap.end() && nullptr != *itFind)
-    {
+    if (itFind != _sessionMap.end() && nullptr != *itFind) {
         QtConcurrent::run(NavigationMsgManager::setUserSetting, unNotice,
                           std::string("kNoticeStickJidDic"), peerId.toStdString(), val.toStdString());
     }
@@ -1225,14 +1168,14 @@ void SessionFrm::onStarAct(bool)
     emit sgOperator(tr("星标联系人"));
     QModelIndex index = _pSessionView->currentIndex();
     QString peerId = index.data(ITEM_DATATYPE_USERID).toString();
-    bool isStar = std::find(_arSatr.begin(), _arSatr.end(), peerId.toStdString()) != _arSatr.end();
+    bool isStar = std::find(_arSatr.begin(), _arSatr.end(),
+                            peerId.toStdString()) != _arSatr.end();
     QString val = QString::number(isStar ? 0 : 1);
     QString realJid = index.data(ITEM_DATATYPE_REALJID).toString();
     UID uid(peerId, realJid);
     auto itFind = _sessionMap.find(uid);
 
-    if (itFind != _sessionMap.end() && nullptr != *itFind)
-    {
+    if (itFind != _sessionMap.end() && nullptr != *itFind) {
         QtConcurrent::run(NavigationMsgManager::setUserSetting,
                           isStar,
                           std::string("kStarContact"),
@@ -1249,14 +1192,14 @@ void SessionFrm::onBlackAct(bool)
     emit sgOperator(tr("加入黑名单"));
     QModelIndex index = _pSessionView->currentIndex();
     QString peerId = index.data(ITEM_DATATYPE_USERID).toString();
-    bool isBlack = std::find(_arBlackList.begin(), _arBlackList.end(), peerId.toStdString()) != _arBlackList.end();
+    bool isBlack = std::find(_arBlackList.begin(), _arBlackList.end(),
+                             peerId.toStdString()) != _arBlackList.end();
     QString val = QString::number(isBlack ? 0 : 1);
     QString realJid = index.data(ITEM_DATATYPE_REALJID).toString();
     UID uid(peerId, realJid);
     auto itFind = _sessionMap.find(uid);
 
-    if (itFind != _sessionMap.end() && nullptr != *itFind)
-    {
+    if (itFind != _sessionMap.end() && nullptr != *itFind) {
         QtConcurrent::run(&NavigationMsgManager::setUserSetting,
                           isBlack,
                           std::string("kBlackList"),
@@ -1270,27 +1213,25 @@ void SessionFrm::onBlackAct(bool)
  */
 void SessionFrm::jumpToNewMessage()
 {
-    if (!PLAT.isMainThread())
+    if (!PLAT.isMainThread()) {
         return;
+    }
 
     int row = _pModel->rowCount();
 
-    for (int i = _jumpIndex; i < row; i++)
-    {
+    for (int i = _jumpIndex; i < row; i++) {
         QModelIndex index = _pModel->index(i, 0);
         QModelIndex srcIndex = _pModel->mapToSource(index);
         int unreadCout = srcIndex.data(ITEM_DATATYPE_UNREADCOUNT).toInt();
 
-        if (unreadCout > 0)
-        {
+        if (unreadCout > 0) {
             _pSessionView->scrollTo(index, QAbstractItemView::PositionAtTop);
             _jumpIndex = i + 1;
             return;
         }
     }
 
-    if (_jumpIndex > 0)
-    {
+    if (_jumpIndex > 0) {
         _jumpIndex = 0;
         jumpToNewMessage();
     }
@@ -1306,15 +1247,16 @@ QString SessionFrm::getUserName(const std::string &id, bool isGroup)
 {
     std::string userId = QTalk::Entity::JID(id).username();
 
-    if (SYSTEM_XMPPID == userId)
+    if (SYSTEM_XMPPID == userId) {
         return tr(SYSTEM_NAME);
+    }
 
-    if (!id.empty())
-    {
-        if (isGroup)
+    if (!id.empty()) {
+        if (isGroup) {
             return QString::fromStdString(QTalk::getGroupName(id));
-        else
+        } else {
             return QString::fromStdString(QTalk::getUserName(id));
+        }
     }
 
     return userId.data();
@@ -1328,30 +1270,29 @@ void SessionFrm::onShortCutSwitchSession(int key)
 {
     int index = _pSessionView->currentIndex().row();
 
-    switch (key)
-    {
-        case Qt::Key_Up:
-            {
-                index--;
+    switch (key) {
+    case Qt::Key_Up: {
+        index--;
 
-                if (index <= 0)
-                    index = 0;
+        if (index <= 0) {
+            index = 0;
+        }
 
-                break;
-            }
+        break;
+    }
 
-        case Qt::Key_Down:
-            {
-                index++;
+    case Qt::Key_Down: {
+        index++;
 
-                if (index >= _pModel->rowCount())
-                    index = _pModel->rowCount();
+        if (index >= _pModel->rowCount()) {
+            index = _pModel->rowCount();
+        }
 
-                break;
-            }
+        break;
+    }
 
-        default:
-            break;
+    default:
+        break;
     }
 
     QModelIndex modelIndex = _pModel->index(index, 0);
@@ -1366,16 +1307,13 @@ void SessionFrm::onShortCutSwitchSession(int key)
  */
 void SessionFrm::onUpdateUserInfo(const QVector<QString> &users)
 {
-    for(auto &u : users)
-    {
+    for (auto &u : users) {
         auto *item = _sessionMap.value(UID(u));
 
-        if (item)
-        {
+        if (item) {
             auto info = DB_PLAT.getUserInfo(u.toStdString(), true);
 
-            if (info)
-            {
+            if (info) {
                 item->setData(QTalk::getUserName(u.toStdString()).data(),
                               ITEM_DATATYPE_USERNAME);
                 item->setData(QTalk::GetHeadPathByUrl(info->HeaderSrc).data(),
@@ -1394,13 +1332,12 @@ void SessionFrm::onClearUnreadAct(bool)
     QMap<UID, QUInt8> mapUnreadIds;
     auto it = _sessionMap.begin();
 
-    for (; it != _sessionMap.end(); it++)
-    {
+    for (; it != _sessionMap.end(); it++) {
         unsigned int count = (*it)->data(ITEM_DATATYPE_UNREADCOUNT).toUInt();
 
-        if (count > 0)
-        {
-            QUInt8 chatType = static_cast<QUInt8>((*it)->data(ITEM_DATATYPE_CHATTYPE).toInt());
+        if (count > 0) {
+            QUInt8 chatType = static_cast<QUInt8>((*it)->data(
+                                                      ITEM_DATATYPE_CHATTYPE).toInt());
             (*it)->setData(0, ITEM_DATATYPE_UNREADCOUNT);
             mapUnreadIds[it.key()] = chatType;
         }
@@ -1408,15 +1345,15 @@ void SessionFrm::onClearUnreadAct(bool)
 
     _totalUnReadCount = 0;
     emit updateTotalUnreadCount(_totalUnReadCount);
-    QtConcurrent::run([mapUnreadIds, this]()
-    {
+    QtConcurrent::run([mapUnreadIds, this]() {
         auto itr = mapUnreadIds.begin();
 
-        for (; itr != mapUnreadIds.end(); itr++)
-        {
-            QString messageId = _sessionMap[itr.key()]->data(ITEM_DATATYPE_LAST_MESSAGE_ID).toString();
+        for (; itr != mapUnreadIds.end(); itr++) {
+            QString messageId = _sessionMap[itr.key()]->data(
+                                    ITEM_DATATYPE_LAST_MESSAGE_ID).toString();
             emit sgShowUnreadMessage(0, itr.key(), "", 0, 0);
-            NavigationMsgManager::sendReadedMessage(messageId.toStdString(), itr.key().realId(), *itr);
+            NavigationMsgManager::sendReadedMessage(messageId.toStdString(),
+                                                    itr.key().realId(), *itr);
         }
     });
 }
@@ -1427,14 +1364,14 @@ void SessionFrm::onClearUnreadAct(bool)
  */
 void SessionFrm::onUserConfigChanged(const QTalk::Entity::UID &uid)
 {
-    if (_sessionMap.contains(uid))
-    {
+    if (_sessionMap.contains(uid)) {
         int type = _sessionMap[uid]->data(ITEM_DATATYPE_CHATTYPE).toInt();
         bool isTop = _mapStick.find(uid.toStdString()) != _mapStick.end();
         bool unNotice = _mapNotice.find(uid.realId()) != _mapNotice.end();
         _sessionMap[uid]->setData(isTop, ITEM_DATATYPE_ISTOP);
         _sessionMap[uid]->setData(unNotice, ITEM_DATATYPE_UNNOTICE);
-        _sessionMap[uid]->setData(getUserName(uid.realId(), type == QTalk::Enum::GroupChat), ITEM_DATATYPE_USERNAME);
+        _sessionMap[uid]->setData(getUserName(uid.realId(),
+                                              type == QTalk::Enum::GroupChat), ITEM_DATATYPE_USERNAME);
         // sort
         _pSessionView->update();
         sortAndFilterView();
@@ -1446,10 +1383,10 @@ void SessionFrm::onUserConfigChanged(const QTalk::Entity::UID &uid)
  * @param uid
  * @param draft
  */
-void SessionFrm::onShowDraft(const QTalk::Entity::UID &uid, const QString &draft)
+void SessionFrm::onShowDraft(const QTalk::Entity::UID &uid,
+                             const QString &draft)
 {
-    enum
-    {
+    enum {
         Type_Invalid,
         Type_Text,
         Type_Image,
@@ -1457,63 +1394,56 @@ void SessionFrm::onShowDraft(const QTalk::Entity::UID &uid, const QString &draft
         Type_Url,
     };
 
-    if (!_sessionMap.contains(uid))
+    if (!_sessionMap.contains(uid)) {
         return;
+    }
 
     //
     QString a_data;
     auto document = QJsonDocument::fromJson(draft.toUtf8());
 
-    if (document.isNull())
-    {
-    }
-    else
-    {
+    if (document.isNull()) {
+    } else {
         QJsonArray array = document.array();
 
-        for (auto &&i : array)
-        {
+        for (auto &&i : array) {
             QJsonObject obj = i.toObject();
             int key = obj.value("key").toInt();
             QString value = obj.value("value").toString();
 
-            switch (key)
-            {
-                case Type_Text:
-                    {
-                        a_data.append(value);
-                        break;
-                    }
+            switch (key) {
+            case Type_Text: {
+                a_data.append(value);
+                break;
+            }
 
-                case Type_Url:
-                    {
-                        a_data.append(tr("[链接]"));
-                        break;
-                    }
+            case Type_Url: {
+                a_data.append(tr("[链接]"));
+                break;
+            }
 
-                case Type_Image:
-                    {
-                        a_data.append(tr("[图片]"));
-                        break;
-                    }
+            case Type_Image: {
+                a_data.append(tr("[图片]"));
+                break;
+            }
 
-                case Type_At:
-                    {
-                        a_data.append(QString("@%1").arg(value));
-                        break;
-                    }
+            case Type_At: {
+                a_data.append(QString("@%1").arg(value));
+                break;
+            }
 
-                case Type_Invalid:
-                default:
-                    break;
+            case Type_Invalid:
+            default:
+                break;
             }
         }
     }
 
     a_data.replace("\n", " ");
 
-    if (_sessionMap.contains(uid) && !a_data.trimmed().isEmpty())
+    if (_sessionMap.contains(uid) && !a_data.trimmed().isEmpty()) {
         _sessionMap[uid]->setData(a_data, ITEM_DATATYPE_DRAFT);
+    }
 }
 
 /**
@@ -1531,8 +1461,7 @@ void SessionFrm::onAppActive()
 {
     auto index = _pSessionView->currentIndex();
 
-    if (index.isValid())
-    {
+    if (index.isValid()) {
         auto chatType = index.data(ITEM_DATATYPE_CHATTYPE).toInt();
         auto userId = index.data(ITEM_DATATYPE_USERID).toString();
         auto realJid = index.data(ITEM_DATATYPE_REALJID).toString();
@@ -1544,17 +1473,16 @@ void SessionFrm::onAppActive()
         }
         int count = index.data(ITEM_DATATYPE_UNREADCOUNT).toUInt();
 
-        if (count > 0)
-        {
+        if (count > 0) {
             QString messageId = index.data(ITEM_DATATYPE_LAST_MESSAGE_ID).toString();
-            NavigationMsgManager::sendReadedMessage(messageId.toStdString(), realJid.toStdString(),
+            NavigationMsgManager::sendReadedMessage(messageId.toStdString(),
+                                                    realJid.toStdString(),
                                                     chatType);
             _sessionMap[uid]->setData(0, ITEM_DATATYPE_UNREADCOUNT);
             _sessionMap[uid]->setData(0, ITEM_DATATYPE_ATCOUNT);
             bool unNotice = _mapNotice.find(realJid.toStdString()) != _mapNotice.end();
 
-            if (!unNotice)
-            {
+            if (!unNotice) {
                 _totalUnReadCount -= count;
                 emit updateTotalUnreadCount(_totalUnReadCount);
                 emit sgShowUnreadMessage(0, uid, "", 0, 0);
@@ -1568,20 +1496,21 @@ void SessionFrm::onAppActive()
  * @param messageId
  * @param time
  */
-void SessionFrm::onGotMState(const QTalk::Entity::UID &uid, const QString &messageId, const long long &time)
+void SessionFrm::onGotMState(const QTalk::Entity::UID &uid,
+                             const QString &messageId, const long long &time)
 {
-    if (!PLAT.isMainThread())
-    {
+    if (!PLAT.isMainThread()) {
         emit sgGotMState(uid, messageId, time);
         return;
     }
 
-    if (_sessionMap.contains(uid) && _sessionMap[uid])
-    {
-        auto itemMsgId = _sessionMap[uid]->data(ITEM_DATATYPE_LAST_MESSAGE_ID).toString();
+    if (_sessionMap.contains(uid) && _sessionMap[uid]) {
+        auto itemMsgId = _sessionMap[uid]->data(
+                             ITEM_DATATYPE_LAST_MESSAGE_ID).toString();
 
-        if (messageId == itemMsgId)
+        if (messageId == itemMsgId) {
             _sessionMap[uid]->setData(time, ITEM_DATATYPE_LASTTIME);
+        }
     }
 }
 
@@ -1592,20 +1521,19 @@ void SessionFrm::onQuitGroupAct(bool)
 {
     QModelIndex index = _pSessionView->currentIndex();
 
-    if (index.isValid())
-    {
+    if (index.isValid()) {
         QString xmppId = index.data(ITEM_DATATYPE_USERID).toString();
         int chatType = index.data(ITEM_DATATYPE_CHATTYPE).toInt();
         QString name = index.data(ITEM_DATATYPE_USERNAME).toString();
-        int ret = QtMessageBox::warning(this, tr("警告"), tr("即将退出群聊%1 (%2), 是否继续?").arg(name, xmppId),
+        int ret = QtMessageBox::warning(this, tr("警告"),
+                                        tr("即将退出群聊%1 (%2), 是否继续?").arg(name, xmppId),
                                         QtMessageBox::EM_BUTTON_YES | QtMessageBox::EM_BUTTON_NO);
 
-        if (ret == QtMessageBox::EM_BUTTON_YES)
-        {
-            QtConcurrent::run([xmppId, chatType]()
-            {
-                if (chatType == QTalk::Enum::GroupChat)
+        if (ret == QtMessageBox::EM_BUTTON_YES) {
+            QtConcurrent::run([xmppId, chatType]() {
+                if (chatType == QTalk::Enum::GroupChat) {
                     NavigationMsgManager::quitGroupById(xmppId.toStdString());
+                }
             });
         }
     }
@@ -1623,8 +1551,10 @@ void SessionFrm::receiveSession(R_Message mess)
     info.chatType = (QTalk::Enum::ChatType)message.ChatType;
     info.messageId = QString::fromStdString(message.MsgId);
     info.messageContent = QString::fromStdString(message.Content);
-    info.xmppId = QString::fromStdString(QTalk::Entity::JID(message.SendJid).basename());
-    info.realJid = QString::fromStdString(QTalk::Entity::JID(message.RealJid).basename());
+    info.xmppId = QString::fromStdString(QTalk::Entity::JID(
+                                             message.SendJid).basename());
+    info.realJid = QString::fromStdString(QTalk::Entity::JID(
+                                              message.RealJid).basename());
     info.messageRecvTime = message.LastUpdateTime;
     std::string from = QTalk::Entity::JID(message.From).basename();
     info.sendJid = QString::fromStdString(from);
@@ -1672,7 +1602,8 @@ void SessionFrm::onLoginSuccess()
  * @brief SessionFrm::onUpdateUserConfig
  * @param arConfigs
  */
-void SessionFrm::onUpdateUserConfig(const std::vector<QTalk::Entity::ImConfig> &arConfigs)
+void SessionFrm::onUpdateUserConfig(const std::vector<QTalk::Entity::ImConfig>
+                                    &arConfigs)
 {
     //
     std::map<std::string, std::string> tmpStick;
@@ -1681,19 +1612,17 @@ void SessionFrm::onUpdateUserConfig(const std::vector<QTalk::Entity::ImConfig> &
     std::vector<std::string> arBlackList;
     auto it = arConfigs.begin();
 
-    for (; it != arConfigs.end(); it++)
-    {
-        if (it->ConfigKey == "kStickJidDic")
-        {
+    for (; it != arConfigs.end(); it++) {
+        if (it->ConfigKey == "kStickJidDic") {
             QString xmppId = QString::fromStdString(it->ConfigSubKey);
             tmpStick[xmppId.toStdString()] = it->ConfigValue;
-        }
-        else if (it->ConfigKey == "kNoticeStickJidDic")
+        } else if (it->ConfigKey == "kNoticeStickJidDic") {
             tmpNotice[it->ConfigSubKey] = it->ConfigValue;
-        else if (it->ConfigKey == "kStarContact")
+        } else if (it->ConfigKey == "kStarContact") {
             arSatr.push_back(it->ConfigSubKey);
-        else if (it->ConfigKey == "kBlackList")
+        } else if (it->ConfigKey == "kBlackList") {
             arBlackList.push_back(it->ConfigSubKey);
+        }
     }
 
     //
@@ -1714,33 +1643,32 @@ void SessionFrm::onUpdateUserConfig(const std::vector<QTalk::Entity::ImConfig> &
  * @param deleteData
  * @param arImConfig
  */
-void SessionFrm::onUpdateUserConfig(const std::map<std::string, std::string> &deleteData,
+void SessionFrm::onUpdateUserConfig(const std::map<std::string, std::string>
+                                    &deleteData,
                                     const std::vector<QTalk::Entity::ImConfig> &arImConfig)
 {
     QMutexLocker locker(&_mutex);
 
-    for (const auto &it : deleteData)
-    {
+    for (const auto &it : deleteData) {
         QTalk::Entity::UID uid(it.first);
 
         //
-        if (it.second == "kStickJidDic")
+        if (it.second == "kStickJidDic") {
             _mapStick.erase(it.first);
-        else if (it.second == "kNoticeStickJidDic")
+        } else if (it.second == "kNoticeStickJidDic") {
             _mapNotice.erase(it.first);
-        else if (it.second == "kStarContact")
-        {
+        } else if (it.second == "kStarContact") {
             auto itFind = std::find(_arSatr.begin(), _arSatr.end(), it.first);
 
-            if (itFind != _arSatr.end())
+            if (itFind != _arSatr.end()) {
                 _arSatr.erase(itFind);
-        }
-        else if (it.second == "kBlackList")
-        {
+            }
+        } else if (it.second == "kBlackList") {
             auto itFind = std::find(_arBlackList.begin(), _arBlackList.end(), it.first);
 
-            if (itFind != _arBlackList.end())
+            if (itFind != _arBlackList.end()) {
                 _arBlackList.erase(itFind);
+            }
         }
 
         //
@@ -1748,20 +1676,18 @@ void SessionFrm::onUpdateUserConfig(const std::map<std::string, std::string> &de
     }
 
     //
-    for (const auto &conf : arImConfig)
-    {
+    for (const auto &conf : arImConfig) {
         QTalk::Entity::UID uid(conf.ConfigSubKey);
 
-        if (conf.ConfigKey == "kStickJidDic")
+        if (conf.ConfigKey == "kStickJidDic") {
             _mapStick[conf.ConfigSubKey] = conf.ConfigValue;
-        else if (conf.ConfigKey == "kNoticeStickJidDic")
+        } else if (conf.ConfigKey == "kNoticeStickJidDic") {
             _mapNotice[conf.ConfigSubKey] = conf.ConfigValue;
-        else if (conf.ConfigKey == "kStarContact")
+        } else if (conf.ConfigKey == "kStarContact") {
             _arSatr.push_back(conf.ConfigSubKey);
-        else if (conf.ConfigKey == "kBlackList")
+        } else if (conf.ConfigKey == "kBlackList") {
             _arBlackList.push_back(conf.ConfigSubKey);
-        else
-        {
+        } else {
         }
 
         //
@@ -1779,11 +1705,13 @@ void SessionFrm::onGotUserCards(const std::vector<QTalk::StUserCard> &cards)
 {
     QVector<QString> users;
 
-    for (auto &card : cards)
+    for (auto &card : cards) {
         users.push_back(card.xmppId.data());
+    }
 
-    if (!users.empty())
+    if (!users.empty()) {
         emit sgUpdateUserInfo(users);
+    }
 }
 
 void SessionFrm::onGotUserCard(const QString &user)

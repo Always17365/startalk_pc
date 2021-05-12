@@ -12,7 +12,7 @@
 #include "../UICom/StyleDefine.h"
 
 #define DEFAULT_PluginManagerPath ":/QTalk/config/pluginManager.json"
-#define DEFAULT_PluginPath "./"
+#define DEFAULT_PluginPath "."
 
 #define USER_FOLDER "USER"
 #define FILE_FOLDER "FILE"
@@ -235,8 +235,7 @@ void GlobalManager::InitPluginManager() {
         //
         _pluginManager.setPlugNames(arPlugs);
     }
-    QString pluginPath = DEFAULT_PluginPath;
-    _pluginManager.setPluginPath(pluginPath);
+    _pluginManager.setPluginPath(DEFAULT_PluginPath);
     _pluginManager.LoadPluginAllQt();
     qInfo() << "InitPluginManager done.";
 }

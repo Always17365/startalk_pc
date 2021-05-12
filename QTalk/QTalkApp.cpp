@@ -153,11 +153,7 @@ QTalkApp::QTalkApp(int argc, char *argv[])
         QStringList params;
         const QString &cmd = QApplication::applicationFilePath();
         QStringList arguments;
-#ifdef _STARTALK
-        arguments << "START_BY_STARTER=YES" << "AUTO_LOGIN=OFF";
-#else
         arguments << "AUTO_LOGIN=OFF";
-#endif
         QProcess::startDetached(cmd, arguments);
     });
 #endif

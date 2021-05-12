@@ -78,7 +78,8 @@ public slots:
     void onDestroyGroup(const QString &groupId);
     void onUserConfigChanged(const QTalk::Entity::UID &);
     void onShowDraft(const QTalk::Entity::UID &, const QString &draft);
-    void onGotMState(const QTalk::Entity::UID &, const QString &messageId, const long long &time);
+    void onGotMState(const QTalk::Entity::UID &, const QString &messageId,
+                     const long long &time);
 
 private:
     void onShowCardAct(bool);
@@ -96,8 +97,8 @@ private:
     void initLayout();
     void connects();
     QString
-    GenerateContent(const QString &content, const QUInt8 &chatType, const int &msgType, const QString &userName);
-//    void GenerateHeadPhotoName(QString &photosrc);
+    GenerateContent(const QString &content, const QUInt8 &chatType,
+                    const int &msgType, const QString &userName);
     void setUserStatus(const QTalk::Entity::UID &, bool check = false);
     QString getUserName(const std::string &xmppId, bool isGroup);
     void sortAndFilterView(int index = -1);
@@ -115,18 +116,19 @@ Q_SIGNALS:
     void loadSession();
     void sgUserConfigChanged(const QTalk::Entity::UID &);
     void destoryGroupSignal(const QString &);
-    void sgGotMState(const QTalk::Entity::UID &, const QString &, const long long &);
+    void sgGotMState(const QTalk::Entity::UID &, const QString &,
+                     const long long &);
     void sgShortCutSwitchSession(int);
     void sgUpdateUserInfo(const QVector<QString> &);
     void updateGroupInfoSignal(const QTalk::StGroupInfo &);
     void updateReadedCountSignal(const QTalk::Entity::UID &, const int &);
     void recvRevokeMessageSignal(const QTalk::Entity::UID &, const QString &);
     void setDisconnectWgtVisible(bool);
-    //
     void showUserCardSignal(const QString &);
     void showGroupCardSignal(const QString &);
     void updateTotalUnreadCount(int);
-    void sgShowUnreadMessage(int, const QTalk::Entity::UID &, const QString &, qint64, int);
+    void sgShowUnreadMessage(int, const QTalk::Entity::UID &, const QString &,
+                             qint64, int);
 
 public: // listener ack messages
     void receiveSession(R_Message mess);
@@ -136,7 +138,6 @@ public: // listener ack messages
     void onUpdateUserConfig(const std::vector<QTalk::Entity::ImConfig> &arConfigs);
     void onUpdateUserConfig(const std::map<std::string, std::string> &deleteData,
                             const std::vector<QTalk::Entity::ImConfig> &arImConfig);
-//    void onChangeHeadRet(bool ret, const QString &xmppId, const QString &localHead);
     void onGotUserCards(const std::vector<QTalk::StUserCard> &cards);
     void onGotUserCard(const QString &xmppid);
     void updateTatalReadCount();
@@ -158,15 +159,15 @@ private:
     SessionitemDelegate *_pItemDelegate{};
 
 private:
-    QMenu *_pContextMenu{};
-    QAction *_showCardAct{};                               // 名片
-    QAction *_closeSessionAct{};                           // 关闭会话
-    QAction *_toTopOrCancelTopAct{};                       // 置顶
-    QAction *_noticeAct{};                                 // 免打扰
-    QAction *_starAct{};                                   // 星标联系人
-    QAction *_blackAct{};                                  // 黑名单
-    QAction *_clearUnreadAct{};                            // 清除所有未读
-    QAction *_quitGroupAct{};                              // 清除所有未读
+    QMenu   *_pContextMenu{};
+    QAction *_showCardAct{};
+    QAction *_closeSessionAct{};
+    QAction *_toTopOrCancelTopAct{};
+    QAction *_noticeAct{};
+    QAction *_starAct{};
+    QAction *_blackAct{};
+    QAction *_clearUnreadAct{};
+    QAction *_quitGroupAct{};
 
 
 private:
@@ -179,19 +180,15 @@ private:
 public:
     QMutex _mutex;
     ImSessions pSessions{nullptr};
-    std::map<std::string, std::string> _mapStick;  // 置顶
-    std::map<std::string, std::string> _mapNotice; // 面打扰
-    std::vector<std::string> _arSatr;              // 星标
-    std::vector<std::string> _arBlackList;         // 黑名单
-    QTalk::Entity::UID _curUserId;                 // 当前会话
-    QMap<QTalk::Entity::UID, QStandardItem *> _sessionMap; //
+    std::map<std::string, std::string> _mapStick;
+    std::map<std::string, std::string> _mapNotice;
+    std::vector<std::string>           _arSatr;
+    std::vector<std::string>           _arBlackList;
+    QTalk::Entity::UID                 _curUserId;
+    QMap<QTalk::Entity::UID, QStandardItem *> _sessionMap;
 
 private:
-    QStackedWidget *_pStackWgt{};
-    TcpDisconnect *_pTcpDisconnect{};
-//    QFrame *_pBackBtnFrm{};
-//    QLabel *_pTitleLabel{};
-    QFrame *_pSelectFrm{};
+    TcpDisconnect         *_pTcpDisconnect{};
     NavigationMsgListener *_messageListener{};
 
 };

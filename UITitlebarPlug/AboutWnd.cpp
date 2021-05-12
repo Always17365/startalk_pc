@@ -46,8 +46,13 @@ void AboutWnd::initUi()
     //
     QFrame* mainFrm = new QFrame(this);
 
+#if defined(_STARTALK)
     mainFrm->setObjectName("AboutMainFrm");
     this->setStyleSheet("background:url(:/title/image1/aboutStarTalk.png);");
+#else
+    mainFrm->setObjectName("AboutMainFrm");
+    mainFrm->setStyleSheet("background:url(:/title/image1/aboutQtalk.png);");
+#endif
     auto * mainLay = new QVBoxLayout(mainFrm);
     mainLay->setContentsMargins(0, 0, 0, 20);
     //

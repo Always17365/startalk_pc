@@ -29,19 +29,17 @@
 #include "../QtUtil/Entity/JID.h"
 
 UIGroupManager::UIGroupManager()
-        : UShadowDialog(nullptr, true){
-
+    : UShadowDialog(nullptr, true)
+{
 #ifndef _LINUX
     auto flags = Qt::X11BypassWindowManagerHint | Qt::WindowStaysOnTopHint | Qt::Tool;
     setWindowFlags(this->windowFlags() | flags);
 #endif
     initUi();
     _pMsgListener = new GroupMsgListener(this);
-
     connect(this, &UIGroupManager::initDataFinish, this, &UIGroupManager::updateUi, Qt::QueuedConnection);
     // init data
     initData();
-
 }
 
 UIGroupManager::~UIGroupManager()
@@ -51,7 +49,8 @@ UIGroupManager::~UIGroupManager()
 }
 
 //
-void UIGroupManager::onCreatGroup(const QString &memberId) {
+void UIGroupManager::onCreatGroup(const QString &memberId)
+{
     resetUi(memberId);
     _pTitleLabel->setText(tr("创建群组"));
     _type = EM_TYPE_CREATGROUP;
@@ -60,15 +59,14 @@ void UIGroupManager::onCreatGroup(const QString &memberId) {
     _batchAddMemberBtn->setVisible(true);
     //
     std::shared_ptr<QTalk::Entity::ImUserInfo> info = DB_PLAT.getUserInfo(memberId.toStdString());
-    if (info) {
+
+    if (info)
+    {
         QString headrSrc = QString(QTalk::GetHeadPathByUrl(info->HeaderSrc).c_str());
-        if (QFileInfo(headrSrc).isDir() || !QFile::exists(headrSrc)) {
-#ifdef _STARTALK
+
+        if (QFileInfo(headrSrc).isDir() || !QFile::exists(headrSrc))
             headrSrc = ":/QTalk/image1/StarTalk_defaultHead.png";
-#else
-			headrSrc = ":/QTalk/image1/headPortrait.png";
-#endif
-        }
+
         addGroupMember(memberId, headrSrc);
         //
 //        QWidget *wgt = UICom::getInstance()->getAcltiveMainWnd();
@@ -78,7 +76,8 @@ void UIGroupManager::onCreatGroup(const QString &memberId) {
 }
 
 //
-void UIGroupManager::onAddGroupMember(const QString &groupId) {
+void UIGroupManager::onAddGroupMember(const QString &groupId)
+{
     resetUi();
     _pTitleLabel->setText(tr("加人进群"));
     _type = EM_TYPE_ADDGROUPMEMBER;
@@ -93,7 +92,8 @@ void UIGroupManager::onAddGroupMember(const QString &groupId) {
 }
 
 //
-void UIGroupManager::initUi() {
+void UIGroupManager::initUi()
+{
     setFixedSize(650, 570);
     setObjectName("UIGroupManager");
     //
@@ -159,7 +159,6 @@ void UIGroupManager::initUi() {
     _pTipLabel = new QLabel(QString(tr("已选择了 %1 个联系人")).arg(0), this);
     _pTipLabel->setObjectName("TipLabel");
     _pTipLabel->setContentsMargins(6, 6, 6, 10);
-
     auto *listItemDelegate = new ChoseItemDelegate(this);
     _pLstWgt = new QListView(this);
     _pLstWgt->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -195,7 +194,6 @@ void UIGroupManager::initUi() {
     cancelBtn->setFocusPolicy(Qt::NoFocus);
     _batchAddMemberBtn->setFocusPolicy(Qt::NoFocus);
     okBtn->setFocusPolicy(Qt::NoFocus);
-
     btnlayout->addWidget(_batchAddMemberBtn);
     btnlayout->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Expanding));
     btnlayout->addWidget(cancelBtn);
@@ -215,9 +213,9 @@ void UIGroupManager::initUi() {
     splitter->setCollapsible(0, false);
     splitter->setCollapsible(1, false);
     //
-    auto* mainFrm = new QFrame(this);
+    auto *mainFrm = new QFrame(this);
     mainFrm->setObjectName("mainFrm");
-    auto* mainLay = new QVBoxLayout(mainFrm);
+    auto *mainLay = new QVBoxLayout(mainFrm);
     mainLay->setMargin(6);
     mainLay->setSpacing(0);
     mainLay->addWidget(splitter, 1);
@@ -229,38 +227,38 @@ void UIGroupManager::initUi() {
     layout->setSpacing(0);
     layout->addWidget(titleFrm, 0);
     layout->addWidget(mainFrm);
-
     _batchAddMemberWnd = new BatchAddMemberWnd(this);
-
-    connect(cancelBtn, &QPushButton::clicked, [this]() {
+    connect(cancelBtn, &QPushButton::clicked, [this]()
+    {
         this->setVisible(false);
     });
-
 //    connect(splitter, &QSplitter::splitterMoved, [this](int pos, int index) {
 //        qreal maxW = _pTreeWgt->width();
 //    });
+    connect(okBtn, &QPushButton::clicked, [this]()
+    {
+        switch (_type)
+        {
+            case EM_TYPE_ADDGROUPMEMBER:
+                {
+                    if (!_mapLstWgtItem.empty())
+                        sendAddGroupMemberMessage(_strGroupId, _mapLstWgtItem.keys());
 
-    connect(okBtn, &QPushButton::clicked, [this]() {
-
-        switch (_type) {
-            case EM_TYPE_ADDGROUPMEMBER: {
-                if (!_mapLstWgtItem.empty()) {
-                    sendAddGroupMemberMessage(_strGroupId, _mapLstWgtItem.keys());
+                    break;
                 }
-                break;
-            }
+
             case EM_TYPE_CREATGROUP:
                 creatGroup();
                 break;
+
             default:
                 break;
         }
 
         this->setVisible(false);
     });
-
-    connect(_pSearchItemDelegate, &SearchItemDelegate::itemChanged, [this](QModelIndex index) {
-
+    connect(_pSearchItemDelegate, &SearchItemDelegate::itemChanged, [this](QModelIndex index)
+    {
         QString memberId = index.data(EM_SEARCH_DATATYPE_XMPPID).toString();
         QString headSrc = index.data(EM_SEARCH_DATATYPE_ICONPATH).toString();
         bool check = index.data(EM_SEARCH_DATATYPE_CHECKSTATE).toBool();
@@ -274,15 +272,16 @@ void UIGroupManager::initUi() {
                 removeGroupMeber(memberId);
         }
     });
-
-    connect(_pSearchItemDelegate, &SearchItemDelegate::sgItemDbClicked, [this](QModelIndex index) {
+    connect(_pSearchItemDelegate, &SearchItemDelegate::sgItemDbClicked, [this](QModelIndex index)
+    {
         QString id = index.data(EM_SEARCH_DATATYPE_XMPPID).toString();
         QString name = index.data(EM_SEARCH_DATATYPE_TEXT).toString();
         onItemDoubleClick(id, name);
     });
-
-    connect(_pItemDelegate, &TreeItemDelegate::sgItemDbClicked, [this](QModelIndex index) {
+    connect(_pItemDelegate, &TreeItemDelegate::sgItemDbClicked, [this](QModelIndex index)
+    {
         int type = index.data(EM_STAFF_DATATYPE_ROW_TYPE).toInt();
+
         if(EM_ROW_TYPE_ITEM == type)
         {
             QString id = index.data(EM_STAFF_DATATYPE_XMPPID).toString();
@@ -290,30 +289,28 @@ void UIGroupManager::initUi() {
             onItemDoubleClick(id, name);
         }
     });
-
-    connect(_pSearchWgt, &SearchWgt::textChanged, [this](const QString& text) {
+    connect(_pSearchWgt, &SearchWgt::textChanged, [this](const QString & text)
+    {
         _pSearchModel->setFilterRegExp(text.toLower());
         //
         bool isEmpty = text.isEmpty();
         _pSearchView->setVisible(!isEmpty);
         _pTreeWgt->setVisible(isEmpty);
     });
-
-    connect(_batchAddMemberBtn, &QPushButton::clicked, [this](){
+    connect(_batchAddMemberBtn, &QPushButton::clicked, [this]()
+    {
         QPoint pos = this->geometry().topRight();
         _batchAddMemberWnd->clear();
         _batchAddMemberWnd->move(pos.x() + 10, pos.y());
         _batchAddMemberWnd->showModel();
     });
     connect(_batchAddMemberWnd, &BatchAddMemberWnd::sgBatchAddGroupMember, this, &UIGroupManager::onBatchAddMember);
-
-    connect(listItemDelegate, &ChoseItemDelegate::removeItem, [this](const QString& id){
+    connect(listItemDelegate, &ChoseItemDelegate::removeItem, [this](const QString & id)
+    {
         removeGroupMeber(id);
     });
-
-
-    connect(_pItemDelegate, &TreeItemDelegate::itemChanged, [this](QModelIndex index) {
-
+    connect(_pItemDelegate, &TreeItemDelegate::itemChanged, [this](QModelIndex index)
+    {
         int rowType = index.data(EM_STAFF_DATATYPE_ROW_TYPE).toInt();
 
         if(rowType == EM_ROW_TYPE_ITEM)
@@ -322,6 +319,7 @@ void UIGroupManager::initUi() {
             QString headSrc = index.data(EM_STAFF_DATATYPE_ICONPATH).toString();
             bool check = index.data(EM_DATATYPE_CHECKSTATE).toBool();
             std::string id = memberId.toStdString();
+
             if(!id.empty())
             {
                 if(check)
@@ -347,23 +345,24 @@ void UIGroupManager::addGroupMember(const QString &memberId, const QString &head
 
     auto *item = new QStandardItem();
     item->setData(memberId, EM_ITEM_DATA_XMPPID);
-
     QString name = _mapUserName[memberId];
     std::string head = headSrc.toStdString();
     item->setData(headSrc, EM_ITEM_DATA_HEAD);
     item->setData(name, EM_ITEM_DATA_NAME);
-
     _plstModel->appendRow(item);
     _mapLstWgtItem[memberId] = item;
     _pTipLabel->setText(QString(tr("已选择了 %1 个联系人")).arg(_mapLstWgtItem.size()));
     //
     std::string id = memberId.toStdString();
+
     if(!id.empty())
     {
         const auto &mapItems = _mapItems[id];
-        for(const auto& it : mapItems)
+
+        for(const auto &it : mapItems)
         {
             auto *tmpItem = it.second;
+
             if(EM_STRUCTURE == it.first)
                 tmpItem->setData(true, EM_SEARCH_DATATYPE_CHECKSTATE);
             else
@@ -373,21 +372,28 @@ void UIGroupManager::addGroupMember(const QString &memberId, const QString &head
 }
 
 //
-void UIGroupManager::removeGroupMeber(const QString &memberId) {
+void UIGroupManager::removeGroupMeber(const QString &memberId)
+{
     auto itFind = _mapLstWgtItem.find(memberId);
-    if (itFind != _mapLstWgtItem.end()) {
+
+    if (itFind != _mapLstWgtItem.end())
+    {
         _plstModel->removeRow((*itFind)->row());
         _mapLstWgtItem.erase(itFind);
         _pTipLabel->setText(QString(tr("已选择了 %1 个联系人")).arg(_mapLstWgtItem.size()));
     }
+
     //
     std::string id = memberId.toStdString();
+
     if(!id.empty())
     {
         const auto &mapItems = _mapItems[id];
-        for(const auto& it : mapItems)
+
+        for(const auto &it : mapItems)
         {
             auto *tmpItem = it.second;
+
             if(EM_STRUCTURE == it.first)
                 tmpItem->setData(false, EM_SEARCH_DATATYPE_CHECKSTATE);
             else
@@ -396,37 +402,43 @@ void UIGroupManager::removeGroupMeber(const QString &memberId) {
     }
 }
 
-void UIGroupManager::resetUi(const QString &memberId) {
+void UIGroupManager::resetUi(const QString &memberId)
+{
     initRecentSessionData();
-
     _pGroupNameEdit->setText("");
     _pSearchWgt->clearText();
     //
     _plstModel->clear();
     _mapLstWgtItem.clear();
     _pTipLabel->setText(QString(tr("已选择了 %1 个联系人")).arg(_mapLstWgtItem.size()));
+
     //
-    for(const auto& mapItem : _mapItems)
+    for(const auto &mapItem : _mapItems)
     {
-        for(const auto& item : mapItem.second)
+        for(const auto &item : mapItem.second)
         {
             if(item.first == EM_RECENT)
                 continue;
+
             auto *tmpItem = item.second;
+
             if(item.first == EM_STRUCTURE)
                 tmpItem->setData(false, EM_SEARCH_DATATYPE_CHECKSTATE);
             else
                 tmpItem->setData(false, EM_DATATYPE_CHECKSTATE);
         }
     }
+
     //
     std::string id = memberId.toStdString();
+
     if(!id.empty() && _structure.find(id) != _structure.end())
     {
-        auto info =_structure[id];
+        auto info = _structure[id];
         addGroupMember(memberId,
-                QTalk::GetHeadPathByUrl(info->HeaderSrc).data());
+                       QTalk::GetHeadPathByUrl(info->HeaderSrc).data());
     }
+
     //
     _pRecentItem->setData(true, EM_STAFF_DATATYPE_EXTEND);
 //    _pFriendItem->setData(false, EM_STAFF_DATATYPE_EXTEND);
@@ -437,46 +449,53 @@ void UIGroupManager::resetUi(const QString &memberId) {
     _pTreeWgt->scrollTo(_pTreeModel->index(0, 0), QAbstractItemView::PositionAtTop);
 }
 
-void UIGroupManager::sendAddGroupMemberMessage(const QString &groupId, const QList<QString> &members, bool showTip) {
+void UIGroupManager::sendAddGroupMemberMessage(const QString &groupId, const QList<QString> &members, bool showTip)
+{
     if(showTip && members.size() > 50)
     {
         int ret = QtMessageBox::question(this, tr("提示"), QString(tr("选择的群成员已超过50人，是否继续？")));
+
         if(ret == QtMessageBox::EM_BUTTON_NO)
             return;
     }
 
     std::vector<std::string> member;
-    for(const QString &id : members) {
+
+    for(const QString &id : members)
         member.push_back(id.toStdString());
-    }
+
     _mapGroupMembers.remove(groupId);
     GroupManagerMsgManager::addGroupMember(member, groupId.toStdString());
 }
 
-void UIGroupManager::creatGroup() {
+void UIGroupManager::creatGroup()
+{
     if(_mapLstWgtItem.size() > 50)
     {
         int ret = QtMessageBox::question(this, tr("提示"), QString(tr("选择的群成员已超过50人，是否继续？")));
+
         if(ret == QtMessageBox::EM_BUTTON_NO)
-        {
             return;
-        }
     }
 
     QString groupId = QString("%1@conference.%2").arg(QTalk::utils::getMessageId().data()).arg(PLAT.getSelfDomain().c_str());
     _mapGroupMembers[groupId] = _mapLstWgtItem.keys();
     QString groupName = _pGroupNameEdit->text();
+
     if(groupName.isEmpty())
     {
         auto members = _mapGroupMembers[groupId];
         QString selfId = PLAT.getSelfXmppId().data();
+
         if(!members.contains(selfId))
             members.push_front(selfId);
 
         QFontMetricsF nameF(_pGroupNameEdit->font());
-        for(const auto& mem : members)
+
+        for(const auto &mem : members)
         {
             groupName.append(_mapUserName[mem]);
+
             if(nameF.width(groupName) > 200)
             {
                 groupName.append("..");
@@ -485,18 +504,21 @@ void UIGroupManager::creatGroup() {
             else
                 groupName.append(",");
         }
+
         if(groupName.right(1) == ",")
             groupName.chop(1);
     }
+
     //
     GroupManagerMsgManager::creatGroup(groupId.toStdString(), groupName.toStdString());
 }
 
-void UIGroupManager::onCreatGroupRet(bool ret, const std::string &groupId) {
+void UIGroupManager::onCreatGroupRet(bool ret, const std::string &groupId)
+{
     QString gId = QString::fromStdString(groupId);
-    if (ret && _mapGroupMembers.contains(gId)) {
+
+    if (ret && _mapGroupMembers.contains(gId))
         sendAddGroupMemberMessage(gId, _mapGroupMembers.value(gId), false);
-    }
 }
 
 /**
@@ -508,46 +530,41 @@ void UIGroupManager::onBatchAddMember(const QString &ids)
     QString tmpIds = ids;
     tmpIds.replace("\n", "");
     tmpIds.replace(" ", "");
-
     QStringList lstItems = tmpIds.split(";");
     QString domain = QString::fromStdString(PLAT.getSelfDomain());
     std::vector<std::string> arMembers;
-    for(const auto& item : lstItems)
+
+    for(const auto &item : lstItems)
     {
         if(item.isEmpty()) continue;
 
         QString id = item
-                .section("@", 0, 0)
-                .append("@")
-                .append(domain);
+                     .section("@", 0, 0)
+                     .append("@")
+                     .append(domain);
         std::string t = id.toStdString();
         arMembers.push_back(id.toStdString());
-
     }
+
     auto infos = DB_PLAT.getGroupMemberInfo(arMembers);
-    for(const auto& info : infos)
+
+    for(const auto &info : infos)
     {
         QString icon = QString::fromStdString(info.headerSrc);
+
         if(!icon.isEmpty())
-        {
             icon = QString::fromStdString(QTalk::GetHeadPathByUrl(info.headerSrc));
-        }
+
         if(icon.isEmpty() || !QFile::exists(icon) || QFileInfo(icon).isDir())
-        {
-#ifdef _STARTALK
             icon = ":/QTalk/image1/StarTalk_defaultHead.png";
-#else
-            icon = ":/QTalk/image1/headPortrait.png";
-#endif
-        }
 
         addGroupMember(QString::fromStdString(info.xmppId), icon);
     }
 }
 
-QStandardItem* UIGroupManager::creatGroupItem(QStandardItem* item, const std::string& groupId)
+QStandardItem *UIGroupManager::creatGroupItem(QStandardItem *item, const std::string &groupId)
 {
-    auto* subTitleItem = new QStandardItem;
+    auto *subTitleItem = new QStandardItem;
     subTitleItem->setData(EM_ROW_TYPE_SUBTITLE, EM_STAFF_DATATYPE_ROW_TYPE);
     subTitleItem->setData(groupId.data(), EM_STAFF_DATATYPE_TEXT);
     subTitleItem->setData(groupId.data(), EM_STAFF_DATATYPE_XMPPID);
@@ -555,40 +572,32 @@ QStandardItem* UIGroupManager::creatGroupItem(QStandardItem* item, const std::st
 
     if(_groupInfos.find(groupId) != _groupInfos.end())
     {
-        const QTalk::Entity::ImGroupInfo& info = _groupInfos[groupId];
-
-#ifdef _STARTALK
+        const QTalk::Entity::ImGroupInfo &info = _groupInfos[groupId];
         QString defaultGroupHead = ":/QTalk/image1/StarTalk_defaultGroup.png";
-#else
-        QString defaultGroupHead = ":/QTalk/image1/defaultGroupHead.png";
-#endif
         QString iconPath = info.HeaderSrc.empty() ? defaultGroupHead :
                            QString::fromStdString(QTalk::GetHeadPathByUrl(info.HeaderSrc));
 
         if (!QFile::exists(iconPath) || QFileInfo(iconPath).isDir())
-        {
             iconPath = defaultGroupHead;
-        }
 
         subTitleItem->setData(info.Name.data(), EM_STAFF_DATATYPE_TEXT);
         subTitleItem->setData(iconPath, EM_STAFF_DATATYPE_ICONPATH);
     }
 
     item->appendRow(subTitleItem);
-
     return subTitleItem;
 }
 
 
-QStandardItem* UIGroupManager::creatItem(QStandardItem *item, const std::string &xmppId) {
-
-    auto* mainItem = new QStandardItem;
+QStandardItem *UIGroupManager::creatItem(QStandardItem *item, const std::string &xmppId)
+{
+    auto *mainItem = new QStandardItem;
     mainItem->setData(EM_ROW_TYPE_ITEM, EM_STAFF_DATATYPE_ROW_TYPE);
     mainItem->setData(QString(xmppId.data()).section("@", 0, 0), EM_STAFF_DATATYPE_TEXT);
     mainItem->setData(xmppId.data(), EM_STAFF_DATATYPE_XMPPID);
     mainItem->setData(false, EM_DATATYPE_CHECKSTATE);
-
     std::shared_ptr<QTalk::Entity::ImUserInfo> userinfo;
+
     if(_structure.find(xmppId) == _structure.end() || nullptr == _structure[xmppId])
     {
 //        userinfo = std::make_shared<QTalk::Entity::ImUserInfo>();
@@ -606,26 +615,23 @@ QStandardItem* UIGroupManager::creatItem(QStandardItem *item, const std::string 
         userinfo = _structure[xmppId];
 
     QString defaultPath;
-#ifdef _STARTALK
     defaultPath = ":/QTalk/image1/StarTalk_defaultHead.png";
-#else
-    defaultPath = ":/QTalk/image1/headPortrait.png";
-#endif
-
     QString iconPath = defaultPath;
+
     if(nullptr != userinfo)
     {
         iconPath = userinfo->HeaderSrc.empty() ? defaultPath :
-                           QString::fromStdString(QTalk::GetHeadPathByUrl(userinfo->HeaderSrc));
+                   QString::fromStdString(QTalk::GetHeadPathByUrl(userinfo->HeaderSrc));
+
         if (!QFile::exists(iconPath) || QFileInfo(iconPath).isDir())
             iconPath = defaultPath;
+
         std::string name = _mapUserName[xmppId.data()].toStdString();
         mainItem->setData(_mapUserName[xmppId.data()], EM_STAFF_DATATYPE_TEXT);
-
     }
+
     mainItem->setData(iconPath, EM_STAFF_DATATYPE_ICONPATH);
     item->appendRow(mainItem);
-
     return mainItem;
 }
 
@@ -636,7 +642,7 @@ QStandardItem* UIGroupManager::creatItem(QStandardItem *item, const std::string 
 void UIGroupManager::initGroupMembers()
 {
     // title
-    auto* titleItem = new QStandardItem;
+    auto *titleItem = new QStandardItem;
     titleItem->setData(tr("从群组选择"), EM_STAFF_DATATYPE_TEXT);
     titleItem->setData(":/GroupManager/image1/groupList.png", EM_STAFF_DATATYPE_ICONPATH);
     titleItem->setData(EM_ROW_TYPE_TITLE, EM_STAFF_DATATYPE_ROW_TYPE);
@@ -644,16 +650,15 @@ void UIGroupManager::initGroupMembers()
     _pTreeModel->appendRow(titleItem);
 
     // init all group
-    for(const auto& group : _groupmemebers)
+    for(const auto &group : _groupmemebers)
     {
         //
         std::string groupId = group.first;
-        QStandardItem* groupItem = creatGroupItem(titleItem, groupId);
+        QStandardItem *groupItem = creatGroupItem(titleItem, groupId);
+
         //
-        for(const auto& member : group.second)
-        {
+        for(const auto &member : group.second)
             _mapItems[member][EM_GROUPMEMEBER] = creatItem(groupItem, member);
-        }
     }
 }
 
@@ -669,14 +674,15 @@ void UIGroupManager::initGroupMembers()
 //
 void UIGroupManager::initData()
 {
-    auto func = [this]() {
+    auto func = [this]()
+    {
         {
             std::lock_guard<QTalk::util::spin_mutex> lock(sm);
             // 组织架构
             std::vector<std::shared_ptr<QTalk::Entity::ImUserInfo>> structure;
             GroupManagerMsgManager::getStructure(structure);
-
-            std::for_each(structure.begin(), structure.end(), [this](std::shared_ptr<QTalk::Entity::ImUserInfo> info) {
+            std::for_each(structure.begin(), structure.end(), [this](std::shared_ptr<QTalk::Entity::ImUserInfo> info)
+            {
                 if(info)
                 {
                     _structure[info->XmppId] = info;
@@ -684,21 +690,20 @@ void UIGroupManager::initData()
                     _mapUserName[info->XmppId.data()] = name.data();
                 }
             });
-
             flags = (flags << 1);
-
             // 所有群以及群成员
             std::map<std::string, std::set<std::string>> mapGroupMembers;
             GroupManagerMsgManager::getGroupMembers(mapGroupMembers);
+
             if(!mapGroupMembers.empty())
                 _groupmemebers = mapGroupMembers;
 
             flags = (flags << 1);
+
             if(flags == EM_ALL )
-                    emit initDataFinish();
+                emit initDataFinish();
         }
     };
-
     QtConcurrent::run(func);
 }
 
@@ -706,16 +711,17 @@ void UIGroupManager::initData()
  *
  * @param friends
  */
-void UIGroupManager::onRecvGroupList(const std::vector<QTalk::Entity::ImGroupInfo>& groupInfos)
+void UIGroupManager::onRecvGroupList(const std::vector<QTalk::Entity::ImGroupInfo> &groupInfos)
 {
     std::lock_guard<QTalk::util::spin_mutex> lock(sm);
-    for(const auto& info : groupInfos)
-    {
+
+    for(const auto &info : groupInfos)
         _groupInfos[info.GroupId] = info;
-    }
+
     flags = (flags << 1);
+
     if(EM_ALL == flags)
-            emit initDataFinish();
+        emit initDataFinish();
 }
 
 void UIGroupManager::updateUi()
@@ -735,17 +741,19 @@ void UIGroupManager::updateUi()
     initStructure();
 }
 
-void UIGroupManager::onUpdateSession(const std::vector<QTalk::StShareSession> & ss) {
+void UIGroupManager::onUpdateSession(const std::vector<QTalk::StShareSession> &ss)
+{
     std::set<std::string> recent = _arTopUsers;
 
-    for(const auto& s : ss)
+    for(const auto &s : ss)
     {
         if(s.chatType == QTalk::Enum::TwoPersonChat && recent.find(s.xmppId) == recent.end())
             recent.insert(s.xmppId);
     }
-    for(const auto& id : recent)
+
+    for(const auto &id : recent)
     {
-        auto* item = creatItem(_pRecentItem, id);
+        auto *item = creatItem(_pRecentItem, id);
         _mapItems[id][EM_RECENT] = item;
         recentItems.push_back(item);
     }
@@ -774,24 +782,26 @@ void UIGroupManager::onUpdateSession(const std::vector<QTalk::StShareSession> & 
   * @author   cc
   * @date     2018/12/16
   */
-void UIGroupManager::updateUserConfig(const std::vector<QTalk::Entity::ImConfig> &arConfigs) {
-
+void UIGroupManager::updateUserConfig(const std::vector<QTalk::Entity::ImConfig> &arConfigs)
+{
     std::lock_guard<QTalk::util::spin_mutex> lock(sm);
     _arStarContact.clear();
     _arTopUsers.clear();
-
     auto it = arConfigs.begin();
-    for (; it != arConfigs.end(); it++) {
+
+    for (; it != arConfigs.end(); it++)
+    {
         std::string subKey = it->ConfigSubKey;
-        if (it->ConfigKey == "kStarContact") {
+
+        if (it->ConfigKey == "kStarContact")
             _arStarContact.insert(subKey);
-        }
         else if(it->ConfigKey == "kStickJidDic")
         {
             QString xmppId = QString::fromStdString(it->ConfigSubKey).section("<>", 1, 1);
-
             QJsonDocument jsonDocument = QJsonDocument::fromJson(it->ConfigValue.data());
-            if (!jsonDocument.isNull()) {
+
+            if (!jsonDocument.isNull())
+            {
                 QJsonObject jsonObject = jsonDocument.object();
                 int type = jsonObject.value("chatType").toInt();
 
@@ -799,14 +809,14 @@ void UIGroupManager::updateUserConfig(const std::vector<QTalk::Entity::ImConfig>
                     _arTopUsers.insert(xmppId.toStdString());
             }
         }
-
     }
 
     if(flags < EM_ALL)
     {
         flags = (flags << 1);
+
         if(flags == EM_ALL)
-                emit initDataFinish();
+            emit initDataFinish();
     }
     else
     {
@@ -816,18 +826,21 @@ void UIGroupManager::updateUserConfig(const std::vector<QTalk::Entity::ImConfig>
 
 
 void UIGroupManager::updateUserConfig(const std::map<std::string, std::string> &deleteData,
-                                      const std::vector<QTalk::Entity::ImConfig> &arImConfig) {
-
+                                      const std::vector<QTalk::Entity::ImConfig> &)
+{
     std::lock_guard<QTalk::util::spin_mutex> lock(sm);
-    for(const auto& it : deleteData)
+
+    for(const auto &it : deleteData)
     {
-        if (it.second == "kStarContact") {
+        if (it.second == "kStarContact")
+        {
             if(_arStarContact.find(it.first) != _arStarContact.end())
                 _arStarContact.erase(it.first);
         }
         else if(it.second == "kStickJidDic")
         {
             std::string xmppId = QString::fromStdString(it.first).section("<>", 1, 1).toStdString();
+
             if(_arTopUsers.find(xmppId) != _arTopUsers.end())
                 _arTopUsers.erase(xmppId);
         }
@@ -842,11 +855,10 @@ void UIGroupManager::initStarUser()
     _pStarItem->setData(EM_ROW_TYPE_TITLE, EM_STAFF_DATATYPE_ROW_TYPE);
     _pStarItem->setData(false, EM_STAFF_DATATYPE_EXTEND);
     _pTreeModel->appendRow(_pStarItem);
+
     //
-    for(const auto& star : _arStarContact)
-    {
+    for(const auto &star : _arStarContact)
         _mapItems[star][EM_STAR] = creatItem(_pStarItem, star);
-    }
 }
 
 void UIGroupManager::initRecentSession()
@@ -870,20 +882,20 @@ void UIGroupManager::initRecentSessionData()
             if(item)
             {
                 std::string id = item->data(EM_STAFF_DATATYPE_XMPPID).toString().toStdString();
+
                 if(!id.empty() && _mapItems.find(id) != _mapItems.end())
-                {
                     _mapItems[id].erase(EM_RECENT);
-                }
 
                 _pTreeModel->removeRow(item->row(), _pRecentItem->index());
             }
         }
+
         recentItems.clear();
         //
 //        if(_pMsgManager)
         {
-
-            auto result = QtConcurrent::run([this](){
+            auto result = QtConcurrent::run([this]()
+            {
                 std::vector<QTalk::StShareSession> ss;
                 GroupManagerMsgManager::getRecentSession(ss);
                 emit sgUpdateSession(ss);
@@ -898,8 +910,7 @@ void UIGroupManager::initRecentSessionData()
 void UIGroupManager::initStructure()
 {
 //    static int index = 0;
-
-    for(const auto& it : _structure)
+    for(const auto &it : _structure)
     {
 //        if(++index == 10)
 //        {
@@ -907,37 +918,29 @@ void UIGroupManager::initStructure()
 //            index = 0;
 //        }
         //
-        const auto& info = it.second;
+        const auto &info = it.second;
+
         if(info)
         {
             std::string xmppId = info->XmppId;
-
-            auto* mainItem = new QStandardItem;
+            auto *mainItem = new QStandardItem;
             mainItem->setData(xmppId.data(), EM_SEARCH_DATATYPE_XMPPID);
             mainItem->setData(QTalk::Entity::JID(xmppId).username().data(),
-                    EM_SEARCH_DATATYPE_USERID);
+                              EM_SEARCH_DATATYPE_USERID);
             mainItem->setData(false, EM_SEARCH_DATATYPE_CHECKSTATE);
             mainItem->setData(info->SearchIndex.data(), EM_SEARCH_DATATYPE_INDEX);
-
             QString defaultPath;
-#ifdef _STARTALK
             defaultPath = ":/QTalk/image1/StarTalk_defaultHead.png";
-#else
-            defaultPath = ":/QTalk/image1/headPortrait.png";
-#endif
             QString iconPath = info->HeaderSrc.empty() ? defaultPath :
                                QString::fromStdString(QTalk::GetHeadPathByUrl(info->HeaderSrc));
 
             if (!QFile::exists(iconPath) || QFileInfo(iconPath).isDir())
-            {
                 iconPath = defaultPath;
-            }
 
             mainItem->setData(_mapUserName[xmppId.data()], EM_SEARCH_DATATYPE_TEXT);
             mainItem->setData(iconPath, EM_SEARCH_DATATYPE_ICONPATH);
             mainItem->setData(info->DescInfo.data(), EM_SEARCH_DATATYPE_STAFF);
             mainItem->setData(info->DescInfo.data(), Qt::ToolTipRole);
-
             _mapItems[xmppId][EM_STRUCTURE] = mainItem;
             _pSearchSrcModel->appendRow(mainItem);
         }
@@ -948,11 +951,12 @@ void UIGroupManager::initStructure()
  *
  * @param memberId
  */
-void UIGroupManager::onItemDoubleClick(const QString& memberId, const QString& name)
+void UIGroupManager::onItemDoubleClick(const QString &memberId, const QString &name)
 {
     if(EM_TYPE_ADDGROUPMEMBER == _type)
     {
-        int ret =QtMessageBox::question(this, tr("提示"), QString(tr("确认仅邀请<b>%1</b>进群？")).arg(name));
+        int ret = QtMessageBox::question(this, tr("提示"), QString(tr("确认仅邀请<b>%1</b>进群？")).arg(name));
+
         if(ret == QtMessageBox::EM_BUTTON_YES)
         {
             _mapLstWgtItem.clear();
@@ -964,80 +968,76 @@ void UIGroupManager::onItemDoubleClick(const QString& memberId, const QString& n
 
 
 void UIGroupManager::gotIncrementUser(const std::vector<QTalk::Entity::ImUserInfo> &arUserInfo,
-                      const std::vector<std::string> &arDeletes)
+                                      const std::vector<std::string> &arDeletes)
 {
     std::lock_guard<QTalk::util::spin_mutex> lock(sm);
+
     // delete
-    for(const auto& id : arDeletes)
+    for(const auto &id : arDeletes)
     {
         if(_structure.find(id) != _structure.end())
             _structure.erase(id);
+
         //
         if(_mapItems.find(id) != _mapItems.end() && _mapItems[id].find(EM_STRUCTURE) != _mapItems[id].end())
         {
-            auto* item = _mapItems[id][EM_STRUCTURE];
+            auto *item = _mapItems[id][EM_STRUCTURE];
             _pSearchSrcModel->removeRow(item->row());
             //
             _mapItems[id].erase(EM_STRUCTURE);
+
             if(_mapItems[id].empty())
                 _mapItems.erase(id);
         }
     }
+
     // update -> delete first
-    for(const auto& it : arUserInfo)
+    for(const auto &it : arUserInfo)
     {
         std::string id = it.XmppId;
 
         if(_structure.find(id) != _structure.end())
             _structure.erase(id);
+
         //
         if(_mapItems.find(id) != _mapItems.end() && _mapItems[id].find(EM_STRUCTURE) != _mapItems[id].end())
         {
-            auto* item = _mapItems[id][EM_STRUCTURE];
+            auto *item = _mapItems[id][EM_STRUCTURE];
             _pSearchSrcModel->removeRow(item->row());
             //
             _mapItems[id].erase(EM_STRUCTURE);
+
             if(_mapItems[id].empty())
                 _mapItems.erase(id);
         }
     }
+
     // update -> add
-    for(const auto& it : arUserInfo)
+    for(const auto &it : arUserInfo)
     {
         std::string xmppId = it.XmppId;
-
         _structure[xmppId] = std::make_shared<QTalk::Entity::ImUserInfo>(it);
         std::string name = QTalk::getUserNameNoMask(_structure[xmppId]);
         _mapUserName[xmppId.data()] = name.data();
-
-        auto* mainItem = new QStandardItem;
+        auto *mainItem = new QStandardItem;
         mainItem->setData(xmppId.data(), EM_SEARCH_DATATYPE_XMPPID);
         mainItem->setData(QTalk::Entity::JID(xmppId).username().data(),
                           EM_SEARCH_DATATYPE_USERID);
         mainItem->setData(false, EM_SEARCH_DATATYPE_CHECKSTATE);
         mainItem->setData(it.SearchIndex.data(), EM_SEARCH_DATATYPE_INDEX);
-
         QString defaultPath;
-#ifdef _STARTALK
         defaultPath = ":/QTalk/image1/StarTalk_defaultHead.png";
-#else
-        defaultPath = ":/QTalk/image1/headPortrait.png";
-#endif
         QString iconPath = it.HeaderSrc.empty() ? defaultPath :
                            QString::fromStdString(QTalk::GetHeadPathByUrl(it.HeaderSrc));
 
         if (!QFile::exists(iconPath) || QFileInfo(iconPath).isDir())
-        {
             iconPath = defaultPath;
-        }
 
         mainItem->setData(_mapUserName[xmppId.data()], EM_SEARCH_DATATYPE_TEXT);
         mainItem->setData(iconPath, EM_SEARCH_DATATYPE_ICONPATH);
         mainItem->setData(it.DescInfo.data(), EM_SEARCH_DATATYPE_STAFF);
         mainItem->setData(it.DescInfo.data(), Qt::ToolTipRole);
-
         _mapItems[xmppId][EM_STRUCTURE] = mainItem;
         _pSearchSrcModel->appendRow(mainItem);
     }
-
 }

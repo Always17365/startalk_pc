@@ -1006,7 +1006,7 @@ void ChatMainWgt::onQRCodeAct(bool)
     std::string imageLocalFile = ChatMsgManager::getSouceImagePath(netPath.toStdString());
 
     if(!imageLocalFile.empty() && QFile::exists(imageLocalFile.data()) && g_pMainPanel)
-        g_pMainPanel->scanQRcCodeImage(imageLocalFile.data());
+	    ChatViewMainPanel::scanQRcCodeImage(imageLocalFile.data());
 }
 
 void ChatMainWgt::recvBlackListMessage(const QString &messageId)

@@ -2284,37 +2284,4 @@ void Communication::reportLogin()
     obj["exec"] = PLAT.getExecuteName();
     obj["loginTime"] = now * 1000;
     std::string postData = obj.dump();
-    //
-    {
-        std::ostringstream url;
-        url << NavigationManager::instance().getHttpHost()
-            << "/qtalkDump/upload_login_data.qunar";
-        std::string strUrl = url.str();
-        bool ret = false;
-        auto call_back = [&ret](int code, const std::string & resData)
-        {
-            if (resData.empty())
-                return;
-
-            nJson json = Json::parse(resData);
-
-            if (nullptr == json)
-            {
-                error_log("json Parse error {0}", resData);
-                return;
-            }
-
-            ret = Json::get<bool>(json, "ret");
-
-            if (code != 200 || !ret)
-            {
-                std::string errorMsg = Json::get<std::string>(json, "errmsg");
-                error_log("userMedalStatusModify error {0}", errorMsg);
-            }
-        };
-        QTalk::HttpRequest req(strUrl, QTalk::RequestMethod::POST);
-        req.header["Content-Type"] = "application/json;";
-        req.body = postData;
-        addHttpRequest(req, call_back);
-    }
 }

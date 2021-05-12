@@ -4,7 +4,6 @@
 #include <QFileInfo>
 #include <QApplication>
 #include <iostream>
-#include "../QtUtil/Utils/Log.h"
 
 /**
   * @函数名
@@ -15,34 +14,28 @@
 void PlugManager::LoadPluginAllQt() {
     //
     for (const QString& plug : _plugs) {
-#ifdef _MACOS
-#ifdef QT_NO_DEBUG
-        QString plugin = _pluginPath + "lib" + plug + ".dylib";
-#else
-        QString plugin = _pluginPath + "lib" + plug + "d.dylib";
+		QString pluginPath = _pluginPath;
+	    pluginPath.append("/");
+#ifndef Q_OS_WIN
+	    pluginPath.append("lib");
 #endif
-#else
-#ifdef _WINDOWS
-#ifdef QT_NO_DEBUG
-        QString plugin = _pluginPath + plug + ".dll";
-#else
-        QString plugin = _pluginPath + plug + "d.dll";
+	    pluginPath.append(plug);
+#ifdef QT_DEBUG
+	    pluginPath.append("d");
 #endif
+#if defined(Q_OS_WIN)
+	    pluginPath.append(".dll");
+#elif defined(Q_OS_MAC)
+	    pluginPath.append(".dylib");
 #else
-#ifdef QT_NO_DEBUG
-        QString plugin = _pluginPath + "lib" + plug + ".so";
-#else
-        QString plugin = _pluginPath + "lib" + plug + "d.so";
-#endif
-#endif
+	    pluginPath.append(".so");
 #endif
 
-        if (QFile::exists(plugin)) {
-            qInfo() << "plugin has been found:  " << plugin;
-            auto *loader = new QPluginLoader(plugin);
+        if (QFile::exists(pluginPath)) {
+            auto *loader = new QPluginLoader(pluginPath);
             _pluginRegisterQt.insert(plug, loader);
         } else {
-            qWarning() << "plugin file is not exists... path: " << plugin;
+            qWarning() << "plugin file is not exists... path: " << pluginPath;
         }
     }
 }
@@ -110,7 +103,7 @@ std::shared_ptr<QMap<QString, QObject *> > PlugManager::GetAllPluginInstanceQt()
   * @date 2018.9.27
   */
 void PlugManager::setPluginPath(const QString &path) {
-    _pluginPath = path;
+    _pluginPath = QFileInfo(path).absoluteFilePath();
 }
 
 //

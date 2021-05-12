@@ -190,11 +190,7 @@ void LoginPanel::initLayout()
     headhbox->setContentsMargins(0, 10, 0, 0);
     _headPhotoLab = new HeadPhotoLab;
     _headPhotoLab->setParent(this);
-#ifdef _STARTALK
     QString headPath = ":/QTalk/image1/StarTalk_defaultHead.png";
-#else
-    QString headPath = ":/QTalk/image1/headPortrait.png";
-#endif
     _headPhotoLab->setHead(headPath, 52, false, true);
     headhbox->addItem(new QSpacerItem(10, 200, QSizePolicy::Minimum, QSizePolicy::Fixed));
     headhbox->addWidget(_headPhotoLab);
@@ -909,13 +905,7 @@ void LoginPanel::setHead(const QString &headPath)
     if (!headPath.isEmpty() && info.exists() && info.isFile())
         _headPhotoLab->setHead(headPath, 52, false, true);
     else
-    {
-#ifdef _STARTALK
         _headPhotoLab->setHead(":/QTalk/image1/StarTalk_defaultHead.png", 52, false, true);
-#else
-        _headPhotoLab->setHead(":/QTalk/image1/headPortrait.png", 52, false, true);
-#endif
-    }
 }
 
 /**

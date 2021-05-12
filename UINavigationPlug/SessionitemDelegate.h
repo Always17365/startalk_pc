@@ -13,8 +13,7 @@
 #include <QPen>
 #include <QSortFilterProxyModel>
 
-enum ItemData
-{
+enum ItemData {
     ITEM_DATATYPE_CHATTYPE = Qt::UserRole + 1,
     ITEM_DATATYPE_USERID,
     ITEM_DATATYPE_REALJID,
@@ -34,8 +33,7 @@ enum ItemData
 };
 
 
-enum FilterType
-{
+enum FilterType {
     EM_SELECT_ALL = 0,
     EM_SELECT_TOP,
     EM_SELECT_UNREAD,
@@ -45,8 +43,8 @@ enum FilterType
 class SessionSortModel : public QSortFilterProxyModel
 {
 protected:
-    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;
-    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
+    bool lessThan(const QModelIndex &source_left,
+                  const QModelIndex &source_right) const override;
 };
 
 class SessionitemDelegate : public QStyledItemDelegate

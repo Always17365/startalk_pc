@@ -16,32 +16,33 @@
 class QRcode;
 class ScanMainFrm;
 class QLabel;
-class ScanQRcode : public QFrame {
+class ScanQRcode : public QFrame
+{
     Q_OBJECT
 public:
-    explicit ScanQRcode(QRcode* parent);
-    ~ScanQRcode() override;
+    explicit ScanQRcode(QRcode *parent);
 
 public:
-    void scanPixmap(const QPixmap& pix, bool flag = false);
+    static void qzxingDecodeImage(const QPixmap &pix);
 
 protected:
-    bool event(QEvent* e) override;
+    bool event(QEvent *e) override;
 
 private:
     void onScan();
-    void onScanSuccess(const QString&);
+    void onScanSuccess(const QString &);
+    void scanPixmap(const QPixmap &pix);
+    static void showScanResult(const QString &res);
 
 Q_SIGNALS:
-    void sgScanSuccess(const QString&);
+    void sgScanSuccess(const QString &);
 
 private:
-    ScanMainFrm* _pScanFrm;
-    QTimer*      _pTimer;
-    QZXing       _qzxing;
+    ScanMainFrm   *_pScanFrm{};
+    QTimer        *_pTimer{};
 
 private:
-    QRcode*      _pQRcode;
+    QRcode        *_pQRcode{};
 };
 
 

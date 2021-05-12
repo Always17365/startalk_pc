@@ -75,8 +75,6 @@ set(SOURCE_FILES
         AtMessageView.cpp
         AtMessageView.h
         blocks/AtBlock.h
-        MessagePrompt.cpp
-        MessagePrompt.h
         blocks/QuoteBlock.h
         NewMessageTip.cpp
         NewMessageTip.h
@@ -170,7 +168,6 @@ if (APPLE)
             sound/PlayAudioSound.h
             MacNotification.mm
             MacNotification.h )
-    #    set_property(SOURCE lib/http/asihttprequest/ASIDataCompressor.m APPEND_STRING PROPERTY COMPILE_FLAGS "-fno-objc-arc")
     FIND_LIBRARY(AudioToolbox_Library AudioToolbox)
     if (NOT AudioToolbox_Library)
         message(FATAL_ERROR "AudioToolbox not found")
@@ -220,7 +217,10 @@ elseif (WIN32)
             sound/amr/WavOutput.cpp
             sound/amr/WavOutput.h
             sound/amr/wavreader.c
-            sound/amr/wavreader.h)
+            sound/amr/wavreader.h
+
+            MessagePrompt.cpp
+            MessagePrompt.h)
 
     if (PLATFORM_32BIT STREQUAL "ON")
         link_directories(Depends/amr/lib/x86)
@@ -228,7 +228,7 @@ elseif (WIN32)
         link_directories(Depends/amr/lib/x64)
     endif()
 
-    ADD_LIBRARY(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${WIN_SOURCE_FILE} ${DOU_TU_SOURCE})
+    ADD_LIBRARY(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${WIN_SOURCE_FILE})
 
     target_link_libraries(${PROJECT_NAME}
             Qt5::Widgets
@@ -251,7 +251,12 @@ elseif (WIN32)
             qzxing
             libopencore-amrnb.a)
 else ()
-    ADD_LIBRARY(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${DOU_TU_SOURCE})
+    set(SOURCE_FILES_LINUX
+
+        MessagePrompt.cpp
+        MessagePrompt.h)
+
+    ADD_LIBRARY(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${SOURCE_FILES_LINUX})
 
     target_link_libraries(${PROJECT_NAME}
             Qt5::Widgets
@@ -270,6 +275,3 @@ else ()
             WebService
             qzxing)
 endif ()
-
-
-#添加链接库

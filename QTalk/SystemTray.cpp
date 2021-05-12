@@ -19,13 +19,11 @@
 #include "../CustomUi/QtMessageBox.h"
 
 extern bool _bSystemRun;
-SystemTray::SystemTray(MainWindow* mainWnd)
+SystemTray::SystemTray(MainWindow *mainWnd)
     : QObject(mainWnd), _pMainWindow(mainWnd), _timerCount(0)
 {
     _pSysTrayIcon = new QSystemTrayIcon(this);
-
     _pSysTrayIcon->setIcon(QIcon(":/QTalk/image1/StarTalk.png"));
-
     _pSysTrayIcon->show();
     //
     _popWnd = new SystemTrayPopWnd(_pMainWindow);
@@ -33,15 +31,18 @@ SystemTray::SystemTray(MainWindow* mainWnd)
     _popWnd->setFixedWidth(280);
     pSysTrayMenu = new QMenu;
     pSysTrayMenu->setAttribute(Qt::WA_TranslucentBackground, true);
-    auto* sysQuitAct = new QAction(tr("系统退出"));
-    auto* showWmdAct = new QAction(tr("显示面板"));
-    auto* autoLoginAct = new QAction(tr("自动登录"));
-    auto* sendLog = new QAction(tr("快速反馈日志"));
+    auto *sysQuitAct = new QAction(tr("系统退出"));
+    auto *showWmdAct = new QAction(tr("显示面板"));
+    auto *autoLoginAct = new QAction(tr("自动登录"));
+    auto *sendLog = new QAction(tr("快速反馈日志"));
+
     if (_pMainWindow->getLoginPlug())
     {
         bool isAuto = _pMainWindow->getLoginPlug()->getAutoLoginFlag();
+
         if (isAuto) autoLoginAct->setText(tr("取消自动登录"));
     }
+
     pSysTrayMenu->addAction(autoLoginAct);
     pSysTrayMenu->addAction(sendLog);
     pSysTrayMenu->addAction(showWmdAct);
@@ -58,17 +59,24 @@ SystemTray::SystemTray(MainWindow* mainWnd)
     connect(_pSysTrayIcon, &QSystemTrayIcon::activated, this, &SystemTray::activeTray);
     connect(_popWnd, &SystemTrayPopWnd::sgQuit, _pMainWindow, &MainWindow::systemQuit, Qt::QueuedConnection);
     connect(_popWnd, &SystemTrayPopWnd::sgJumtoSession, _pMainWindow, &MainWindow::sgJumtoSession);
-    connect(_popWnd, &SystemTrayPopWnd::sgJumtoSession, [this](const StSessionInfo&){_pMainWindow->wakeUpWindow();});
+    connect(_popWnd, &SystemTrayPopWnd::sgJumtoSession, [this](const StSessionInfo &)
+    {
+        _pMainWindow->wakeUpWindow();
+    });
     connect(_popWnd, &SystemTrayPopWnd::sgFeedback, this, &SystemTray::onSendLog);
     connect(_popWnd, &SystemTrayPopWnd::sgCancelAlert, this, &SystemTray::stopTimer);
-    connect(_popWnd, &SystemTrayPopWnd::sgStartTimer, [this](){
+    connect(_popWnd, &SystemTrayPopWnd::sgStartTimer, [this]()
+    {
 #ifndef Q_OS_MAC
+
         if(!_timer->isActive())
         {
             _timerCount = 0;
             _timer->start();
         }
+
 #endif
+
         if(AppSetting::instance().getStrongWarnFlag())
             QApplication::alert(_pMainWindow);
     });
@@ -76,36 +84,37 @@ SystemTray::SystemTray(MainWindow* mainWnd)
 #ifndef Q_OS_MAC
     connect(_timer, &QTimer::timeout, this, &SystemTray::onTimer);
 #endif
-	connect(sysQuitAct, &QAction::triggered, _pMainWindow, &MainWindow::systemQuit, Qt::QueuedConnection);
-	connect(sendLog, &QAction::triggered, this, &SystemTray::onSendLog);
-	connect(showWmdAct, &QAction::triggered, [this]()
-		{
-			stopTimer();
-			_pMainWindow->wakeUpWindow();
-		});
-	connect(autoLoginAct, &QAction::triggered, [this, autoLoginAct]()
-		{
-			stopTimer();
-			if (_pMainWindow->getLoginPlug())
-			{
-				bool isAuto = _pMainWindow->getLoginPlug()->getAutoLoginFlag();
-				_pMainWindow->setAutoLogin(!isAuto);
-				if (isAuto)
-					autoLoginAct->setText(tr("自动登录"));
-				else
-					autoLoginAct->setText(tr("取消自动登录"));
-			}
-		});
+    connect(sysQuitAct, &QAction::triggered, _pMainWindow, &MainWindow::systemQuit, Qt::QueuedConnection);
+    connect(sendLog, &QAction::triggered, this, &SystemTray::onSendLog);
+    connect(showWmdAct, &QAction::triggered, [this]()
+    {
+        stopTimer();
+        _pMainWindow->wakeUpWindow();
+    });
+    connect(autoLoginAct, &QAction::triggered, [this, autoLoginAct]()
+    {
+        stopTimer();
 
+        if (_pMainWindow->getLoginPlug())
+        {
+            bool isAuto = _pMainWindow->getLoginPlug()->getAutoLoginFlag();
+            _pMainWindow->setAutoLogin(!isAuto);
+
+            if (isAuto)
+                autoLoginAct->setText(tr("自动登录"));
+            else
+                autoLoginAct->setText(tr("取消自动登录"));
+        }
+    });
     //
     bool isSupportsMessages = QSystemTrayIcon::supportsMessages();
     AppSetting::instance().setNativeMessagePromptEnable(isSupportsMessages);
-	//
+    //
 #ifndef Q_OS_MAC
-	auto* hoverTimer = new QTimer;
-	hoverTimer->setInterval(1000);
-	connect(hoverTimer, &QTimer::timeout, this, &SystemTray::onHoverTimer);
-	hoverTimer->start();
+    auto *hoverTimer = new QTimer;
+    hoverTimer->setInterval(1000);
+    connect(hoverTimer, &QTimer::timeout, this, &SystemTray::onHoverTimer);
+    hoverTimer->start();
 #endif
 }
 
@@ -119,8 +128,10 @@ SystemTray::~SystemTray() = default;
   * @date     2018/11/09
   */
 void SystemTray::activeTray(QSystemTrayIcon::ActivationReason reason)
-{    //
+{
+    //
     std::cout << reason << std::endl;
+
     if (reason == QSystemTrayIcon::Trigger )
     {
 #ifdef Q_OS_MAC
@@ -128,7 +139,7 @@ void SystemTray::activeTray(QSystemTrayIcon::ActivationReason reason)
 #endif
 
         if (_pMainWindow)
-			_pMainWindow->wakeUpWindow();
+            _pMainWindow->wakeUpWindow();
     }
 }
 
@@ -152,25 +163,24 @@ void SystemTray::activeTray(QSystemTrayIcon::ActivationReason reason)
 //    }
 //}
 
-void SystemTray::onShowNotify(const QTalk::StNotificationParam &param) {
-
+void SystemTray::onShowNotify(const QTalk::StNotificationParam &param)
+{
     if(_pSysTrayIcon)
         _pSysTrayIcon->showMessage(param.title.data(), param.message.data(), QIcon(param.icon.data()));
 }
 
-void SystemTray::onTimer() {
-
+void SystemTray::onTimer()
+{
     _timerCount ++;
-	
+
     if(_timerCount % 2 == 0)
-    {
         _pSysTrayIcon->setIcon(QIcon(":/QTalk/image1/StarTalk.png"));
-    } else {
-        _pSysTrayIcon->setIcon(QIcon(":/QTalk/image1/transparent.png"));
-    }
+    else
+        _pSysTrayIcon->setIcon(QIcon(":/QTalk/image1/starTalkTip.png"));
 }
 
-void SystemTray::stopTimer() {
+void SystemTray::stopTimer()
+{
     _popWnd->setCancelAlertBtnVisible(false);
 
     if(_popWnd->isVisible())
@@ -178,12 +188,15 @@ void SystemTray::stopTimer() {
         _popWnd->setVisible(false);
         _pMainWindow->wakeUpWindow();
     }
+
 #ifndef Q_OS_MAC
+
     if(_timer->isActive())
     {
         _timer->stop();
         _pSysTrayIcon->setIcon(QIcon(":/QTalk/image1/StarTalk.png"));
     }
+
 #endif
 }
 
@@ -198,45 +211,50 @@ void SystemTray::onWndActived()
 void SystemTray::onSendLog()
 {
     _popWnd->setVisible(false);
-
     int btn = QtMessageBox::question(_pMainWindow, tr("提醒"), "是否反馈日志 ? ");
 
     if(btn == QtMessageBox::EM_BUTTON_NO)
         return;
 
-    QtConcurrent::run([]() {
+    QtConcurrent::run([]()
+    {
         //db 文件
         QString logBasePath;
         logBasePath = QString::fromStdString(PLAT.getAppdataRoamingPath()) + "/logs";
         // zip
         QString logZip = logBasePath + "/log.zip";
+
         if (QFile::exists(logZip))
             QFile::remove(logZip);
+
         //
         bool ret = JlCompress::compressDir(logZip, logBasePath);
-        if (ret) {
+
+        if (ret)
             QTalkMsgManager::sendLogReport("quick report", logZip.toStdString());
-        }
     });
 }
 
-void SystemTray::onMessageClicked() {
+void SystemTray::onMessageClicked()
+{
     if(_pMainWindow && !_pMainWindow->isVisible())
         _pMainWindow->wakeUpWindow();
 }
 
 //
-void SystemTray::onAppDeactivated() {
-
+void SystemTray::onAppDeactivated()
+{
 }
 
-void SystemTray::onHoverTimer() {
+void SystemTray::onHoverTimer()
+{
     bool bSysTray = _pSysTrayIcon->geometry().contains(QCursor::pos());
     bool bPopWnd =  _popWnd->geometry().contains(QCursor::pos());
-    if ((!_popWnd->isVisible() && bSysTray) ||
-        (_popWnd->isVisible() && (bSysTray || bPopWnd))) {
 
-        if (!pSysTrayMenu->isVisible() &&_popWnd->hasNewMessage())
+    if ((!_popWnd->isVisible() && bSysTray) ||
+            (_popWnd->isVisible() && (bSysTray || bPopWnd)))
+    {
+        if (!pSysTrayMenu->isVisible() && _popWnd->hasNewMessage())
         {
             if (!_popWnd->isVisible())
             {
@@ -250,15 +268,16 @@ void SystemTray::onHoverTimer() {
             auto pos = QCursor::pos();
 #ifdef _LINUX
             QScreen *screen = nullptr;
-    auto lstScreens = QApplication::screens();
-    for(QScreen* tmps : lstScreens)
-    {
-        if(tmps->geometry().contains(pos))
-        {
-            screen = tmps;
-            break;
-        }
-    }
+            auto lstScreens = QApplication::screens();
+
+            for(QScreen *tmps : lstScreens)
+            {
+                if(tmps->geometry().contains(pos))
+                {
+                    screen = tmps;
+                    break;
+                }
+            }
 
 #else
             QScreen *screen = QApplication::screenAt(pos);
@@ -268,17 +287,20 @@ void SystemTray::onHoverTimer() {
             auto x = qMin(screenRect.right() - _popWnd->width() - 10, rect.x());
 #ifdef _WINDOWS
             auto y = rect.y() - _popWnd->height() - 5;
-                if (y < screenRect.top())
-                    y = screenRect.top() + 5;
-                else if (y + _popWnd->height() > screenRect.bottom())
-                    y -= (y + _popWnd->height() - screenRect.bottom()) + 5;
-                _popWnd->move(x, y);
+
+            if (y < screenRect.top())
+                y = screenRect.top() + 5;
+            else if (y + _popWnd->height() > screenRect.bottom())
+                y -= (y + _popWnd->height() - screenRect.bottom()) + 5;
+
+            _popWnd->move(x, y);
 #else
             _popWnd->move(x, rect.bottom());
 #endif
         }
     }
-    else {
+    else
+    {
         if (_popWnd->isVisible())
             _popWnd->setVisible(false);
     }

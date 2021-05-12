@@ -1,28 +1,29 @@
 ﻿#include "NavigationItem.h"
 #include <QHBoxLayout>
 
-NavigationItem::NavigationItem(const QUInt8& itemType, QWidget *parent)
-        : QFrame(parent)
-        , _itemWgt(nullptr)
-        , _itemType(itemType)
-        , _selected(false)
+NavigationItem::NavigationItem(const QUInt8 &itemType, QWidget *parent)
+    : QFrame(parent)
+    , _itemWgt(nullptr)
+    , _itemType(itemType)
+    , _selected(false)
 {
     Q_INIT_RESOURCE(ushadowdialog);
-
     setObjectName("NavigationItem");
     _pIconLabel = new HeadPhotoLab;
     _pTextLabel = new QLabel(this);
     //
     _pTextLabel->setObjectName("NavigationItemLabel");
+
     //
     switch (itemType)
     {
         case EM_ITEM_TYPE_START:
-        {
-            _pIconLabel->setHead(":/Resource/starContact.png", 15, false, false);
-            _pTextLabel->setText(tr("星标联系人"));
-            break;
-        }
+            {
+                _pIconLabel->setHead(":/Resource/starContact.png", 15, false, false);
+                _pTextLabel->setText(tr("星标联系人"));
+                break;
+            }
+
 //        case EM_ITEM_TYPE_FRIENDLIST:
 //        {
 //            _pIconLabel->setHead(":/Resource/friendList.png", 15, false, false);
@@ -30,27 +31,26 @@ NavigationItem::NavigationItem(const QUInt8& itemType, QWidget *parent)
 //            break;
 //        }
         case EM_ITEM_TYPE_GROUPLIST:
-        {
-            _pIconLabel->setHead(":/Resource/groupList.png", 15, false, false);
-            _pTextLabel->setText(tr("群组列表"));
-            break;
-        }
+            {
+                _pIconLabel->setHead(":/Resource/groupList.png", 15, false, false);
+                _pTextLabel->setText(tr("群组列表"));
+                break;
+            }
+
         case EM_ITEM_TYPE_STAFF:
-        {
-#if defined(_STARTALK)
-            _pIconLabel->setHead(":/Resource/starTalk_staff.png", 15, false, false);
-#else
-            _pIconLabel->setHead(":/Resource/staff.png", 15, false, false);
-#endif
-            _pTextLabel->setText("Staff");
-            break;
-        }
+            {
+                _pIconLabel->setHead(":/Resource/starTalk_staff.png", 15, false, false);
+                _pTextLabel->setText("Staff");
+                break;
+            }
+
         case EM_ITEM_TYPE_BLACKLIST:
-        {
-            _pIconLabel->setHead(":/Resource/BlackList.png", 15, false, false);
-            _pTextLabel->setText(tr("黑名单"));
-            break;
-        }
+            {
+                _pIconLabel->setHead(":/Resource/BlackList.png", 15, false, false);
+                _pTextLabel->setText(tr("黑名单"));
+                break;
+            }
+
         default:
             break;
     }
@@ -58,33 +58,32 @@ NavigationItem::NavigationItem(const QUInt8& itemType, QWidget *parent)
     //
     _pIconLabel->setFixedWidth(30);
     //
-    auto * layout = new QHBoxLayout(this);
+    auto *layout = new QHBoxLayout(this);
     layout->setSpacing(9);
     layout->setContentsMargins(20, 0, 0, 0);
     layout->addWidget(_pIconLabel);
     layout->addWidget(_pTextLabel);
-
     this->setFixedHeight(50);
 }
 
 NavigationItem::~NavigationItem()
-= default;
+    = default;
 
 /**
-  * @函数名   
-  * @功能描述 
+  * @函数名
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/12/15
   */
-void NavigationItem::registerWgt(QWidget * wgt)
+void NavigationItem::registerWgt(QWidget *wgt)
 {
     _itemWgt = wgt;
 }
 
 /**
-  * @函数名   
-  * @功能描述 
+  * @函数名
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/12/15
@@ -92,10 +91,9 @@ void NavigationItem::registerWgt(QWidget * wgt)
 void NavigationItem::setSelectState(bool selected)
 {
     _selected = selected;
+
     if(_itemWgt)
-    {
         _itemWgt->setVisible(selected);
-    }
 }
 
 void NavigationItem::mousePressEvent(QMouseEvent *e)
@@ -104,6 +102,7 @@ void NavigationItem::mousePressEvent(QMouseEvent *e)
     QFrame::mousePressEvent(e);
 }
 
-QWidget *NavigationItem::getItemWgt() {
+QWidget *NavigationItem::getItemWgt()
+{
     return _itemWgt;
 }

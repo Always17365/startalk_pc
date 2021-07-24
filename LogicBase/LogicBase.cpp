@@ -4,6 +4,7 @@
 
 #include "LogicBase.h"
 #include <future>
+
 #include "MessageManager.h"
 #include "QTalkSecurity.h"
 #include "../QtUtil/Utils/Log.h"
@@ -11,6 +12,7 @@
 #include "../QtUtil/nJson/nJson.h"
 #include "BaseUtil.hpp"
 #include "pb2json.h"
+#include "../include/threadhelper.h"
 
 #if defined(_MACOS)
     #define DEM_CLIENT_TYPE ClientTypeMac
@@ -119,15 +121,12 @@ void LogicBase::onTcpDisconnect(const std::string &error, bool hadError)
     {
         std::lock_guard<QTalk::util::spin_mutex> lock(sm);
 
-        if(!_isConnected && _task && _task->isRuning())
+        if(!_isConnected && _delayTask && _delayTask->isRuning())
             return;
     }
-    std::thread([this, error, hadError]()
+    auto ptr = std::make_shared<ThreadHelper>();
+    ptr->run([this, error, hadError]()
     {
-#ifdef _MACOS
-        pthread_setname_np("tcp disconnect thread");
-#endif
-
         if(_isConnected)
             LogicBaseMsgManager::onUpdateTimeStamp();
 
@@ -165,20 +164,26 @@ void LogicBase::onTcpDisconnect(const std::string &error, bool hadError)
                     bool ret = LogicBaseMsgManager::retryConnecToServer();
 
                     if(!ret)
-                        this->_task->setDelay(10000);
+                    {
+                        std::lock_guard<QTalk::util::spin_mutex> lock(sm);
+                        this->_delayTask->setDelay(10000);
+                    }
 
                     return true;
                 }
             };
+            {
+                std::lock_guard<QTalk::util::spin_mutex> lock(sm);
 
-            if(nullptr == _task)
-                _task = new DelayTask(5000, "-- reconnect ", reconnectFun);
-            else
-                _task->setDelay(5000);
+                if(nullptr == _delayTask)
+                    _delayTask = new DelayTask(5000, "-- reconnect ", reconnectFun);
+                else
+                    _delayTask->setDelay(5000);
 
-            _task->start();
+                _delayTask->start();
+            }
         }
-    }).detach();
+    });
 }
 
 /**
@@ -186,7 +191,8 @@ void LogicBase::onTcpDisconnect(const std::string &error, bool hadError)
  */
 void LogicBase::recvErrorMessage(const std::string &fromId, const XmppMessage &xmppMsg)
 {
-    std::thread([ fromId, xmppMsg]()
+    auto ptr = std::make_shared<ThreadHelper>();
+    ptr->run([ fromId, xmppMsg]()
     {
 #ifdef _MACOS
         pthread_setname_np("recvErrorMessage thread");
@@ -205,7 +211,7 @@ void LogicBase::recvErrorMessage(const std::string &fromId, const XmppMessage &x
                 break;
             }
         }
-    }).detach();
+    });
 }
 
 void onRecvGroupMembers(const std::vector<StMessageBody> &bodys, std::map<std::string, QUInt8> &mapUserRole)
@@ -284,10 +290,11 @@ void LogicBase::onRecvIQMessage(const IQMessageEvt &evt)
 {
     if (evt.value == "bind")
     {
-        std::thread([this, evt]()
+        auto ptr = std::make_shared<ThreadHelper>();
+        ptr->run([this, evt]()
         {
             dealBindMsg(evt);
-        }).detach();
+        });
         return;
     }
 
@@ -306,7 +313,8 @@ void LogicBase::onRecvIQMessage(const IQMessageEvt &evt)
     if(id.empty())
         return;
 
-    std::thread([id, evt]()
+    auto ptr = std::make_shared<ThreadHelper>();
+    ptr->run([id, evt]()
     {
         switch (evt.definedKey)
         {
@@ -334,7 +342,7 @@ void LogicBase::onRecvIQMessage(const IQMessageEvt &evt)
             default:
                 break;
         }
-    }).detach();
+    });
 }
 
 /**
@@ -807,7 +815,8 @@ void LogicBase::onRecvPresenceMessage(const ProtoMessage &message, const Presenc
             }
         }
     };
-    std::thread(presenceFunc).detach();
+    auto ptr = std::make_shared<ThreadHelper>();
+    ptr->run(presenceFunc);
 }
 
 void LogicBase::switchUserStatus(const std::string &status)
@@ -821,11 +830,6 @@ void LogicBase::switchUserStatus(const std::string &status)
         else
             sstatus = status;
 
-//        if("online" == status)
-//        {
-//            _pStack->sendPriority(5);
-//            return;
-//        }
         //
         PresenceMessage message;
         message.set_key("status");
@@ -1682,7 +1686,8 @@ void LogicBase::receiveChatMessage(ProtoMessage &message)
 
     if (isOk)
     {
-        std::thread([ = ]()
+        auto ptr = std::make_shared<ThreadHelper>();
+        ptr->run([ = ]()
         {
 #ifdef _MACOS
             pthread_setname_np("communication receive message thread");
@@ -1824,7 +1829,7 @@ void LogicBase::receiveChatMessage(ProtoMessage &message)
                 e.isCarbon = isCarbon;
                 LogicBaseMsgManager::onRecvChatMessage(e);
             }
-        }).detach();
+        });
     }
 }
 
@@ -1893,8 +1898,13 @@ void LogicBase::sendWebRtcCommand(int msgType, const std::string &peerId, const 
 //
 void LogicBase::stopTask()
 {
-    if(nullptr != _task)
-        _task->stop();
+    std::lock_guard<QTalk::util::spin_mutex> lock(sm);
+
+    if(nullptr != _delayTask)
+    {
+        delete _delayTask;
+        _delayTask = nullptr;
+    }
 }
 
 //

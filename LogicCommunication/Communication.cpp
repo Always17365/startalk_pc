@@ -319,6 +319,9 @@ bool Communication::getNavInfo(const std::string &navAddr, QTalk::StNav &nav)
                 nav.searchUrl = Json::get<std::string>(ability, "new_searchurl");
                 nav.showmsgstat = Json::get<bool>(ability, "showmsgstat", false);
                 nav.qcGrabOrder = Json::get<std::string>(ability, "qcGrabOrder");
+                // 音视频开关
+                nav.bVideoChat = Json::get<bool>(ability, "videoChat", false);
+                nav.bConference = Json::get<bool>(ability, "videoConference", false);
             }
 
             //qcadmin
@@ -398,6 +401,8 @@ void Communication::setLoginNav(const QTalk::StNav &nav)
     // video
     NavigationManager::instance().setVideoUrl(nav.videoUrl);
     NavigationManager::instance().setvideoConference(nav.videoConference);
+    NavigationManager::instance().setChatVideoEnable(nav.bVideoChat);
+    NavigationManager::instance().setConferenceEnable(nav.bConference);
     //
     NavigationManager::instance().setRollbackFlag(nav.rollback);
 }
@@ -1094,7 +1099,6 @@ void Communication::getSessionData()
 {
     // 最新个人配置
     updateUserConfigFromDb();
-
     // 群组列表
     std::vector<QTalk::Entity::ImGroupInfo> groups;
     LogicManager::instance()->getDatabase()->getAllGroup(groups);
@@ -1108,7 +1112,6 @@ void Communication::updateUserConfigFromDb()
 {
     std::vector<QTalk::Entity::ImConfig> arConfig;
     LogicManager::instance()->getDatabase()->getAllConfig(arConfig);
-
     std::map<std::string, std::string> mapConf;
     LogicManager::instance()->getDatabase()->getConfig("kMarkupNames", mapConf);
     DB_PLAT.setMaskNames(mapConf);
@@ -1499,7 +1502,6 @@ void Communication::reportDump(const std::string &ip, const std::string &id, con
             timeinfo = localtime(&rawtime);
             strftime(buffer, 80, "%F %T", timeinfo);
             std::string strTime(buffer);
-
             {
                 // 发邮件
                 std::string strSub = string("QTalk 2.0 崩溃信息 ");
@@ -1656,49 +1658,6 @@ void Communication::changeUserHead(const string &head)
 
             CommMsgManager::changeHeadRetMessage(ret, localHead);
         }
-    }).detach();
-}
-
-/**
- *
- * @param loginTime
- * @param logoutTime
- */
-void Communication::sendUserOnlineState(const QInt64 &loginTime, const QInt64 &logoutTime, const std::string &ip)
-{
-    std::thread([this, loginTime, logoutTime, ip]()
-    {
-#ifdef _MACOS
-        pthread_setname_np("communication sendUserOnlineState thread");
-#endif
-        std::ostringstream url;
-        url << NavigationManager::instance().getHttpHost()
-            << "/statics/pc_statics.qunar"
-            << "?v=" << PLAT.getClientVersion()
-            << "&p=" << PLAT.getPlatformStr()
-            << "&u=" << PLAT.getSelfUserId()
-            << "&k=" << PLAT.getServerAuthKey()
-            << "&d=" << PLAT.getSelfDomain();
-        nJson obj;
-        obj["username"] = PLAT.getSelfUserId();
-        obj["host"] = PLAT.getSelfDomain();
-        obj["resource"] = PLAT.getSelfResource();
-        obj["platform"] = PLAT.getPlatformStr();
-        obj["login_time"] = std::to_string(loginTime);
-        obj["logout_at"] = std::to_string(logoutTime);
-        obj["ip"] = ip;
-        std::string postData = obj.dump();
-        auto callback = [](int code, const std::string & responsData)
-        {
-            if (code == 200)
-                debug_log("sendUserOnlineState success {0}", responsData);
-            else
-                error_log("sendUserOnlineState error {0}", responsData);
-        };
-        HttpRequest req(url.str(), RequestMethod::POST);
-        req.header["Content-Type"] = "application/json;";
-        req.body = postData;
-        addHttpRequest(req, callback);
     }).detach();
 }
 
@@ -1930,7 +1889,6 @@ void Communication::serverCloseSession(const std::string &username, const std::s
 
 void Communication::getSeatList(const QTalk::Entity::UID &uid)
 {
-
 }
 
 void Communication::sendProduct(const std::string &username, const std::string &virtualname,
@@ -2011,10 +1969,9 @@ void Communication::onStaffChanged()
 //
 void Communication::checkUpdater(int ver)
 {
-	// check update
+    // check update
     // todo
     // after download new setupfile and call : CommMsgManager::onCheckUpdate(!file_link.empty(), force);
-
     return;
 }
 

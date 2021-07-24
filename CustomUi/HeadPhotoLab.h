@@ -16,26 +16,26 @@ class CUSTOMUISHARED_EXPORT HeadPhotoLab : public QLabel
 
 public:
     explicit HeadPhotoLab(
-            QString  strHeadPath = QString(),
-            int radius = 0,
-            bool isGrey = false,
-            bool startMovie = false,
-            bool showRect = false,
-            QWidget *parent = nullptr);
+        QString  strHeadPath = QString(),
+        int radius = 0,
+        bool isGrey = false,
+        bool startMovie = false,
+        bool showRect = false,
+        QWidget *parent = nullptr);
 
 public:
-    void setHead(const QString& headPath,
-            int radius,
-            bool isGrey = false,
-            bool startMovie = false,
-            bool showRect = false);
+    void setHead(const QString &headPath,
+                 int radius,
+                 bool isGrey = false,
+                 bool startMovie = false,
+                 bool showRect = false);
 
     void startMovie();
     void stopMovie();
     void setTip(bool tip);
 
 protected:
-    void paintEvent(QPaintEvent* e) override;
+    void paintEvent(QPaintEvent *e) override;
     void initMovie();
 
 private:
@@ -46,7 +46,7 @@ private:
     bool    _showRect{false};
 
 private:
-    QMovie* _mov{nullptr};
+    QMovie *_mov {nullptr};
     QVector<QPixmap> _pixmap;
 
     bool    _showDot{false};

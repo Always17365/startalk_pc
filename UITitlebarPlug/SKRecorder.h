@@ -22,7 +22,7 @@ public:
     }SKRecorderState;
 
 public:
-    explicit SKRecorder(QWidget* parent = Q_NULLPTR, int fixedWidth = 120, int fixedHeight = 32);
+    explicit SKRecorder(QWidget* parent = nullptr, int fixedWidth = 120, int fixedHeight = 32);
     ~SKRecorder() override;
     void setKeyChangeEvent(std::function<void(const QKeySequence& keys)> callback);
     void setShorCut(const QKeySequence& keys);

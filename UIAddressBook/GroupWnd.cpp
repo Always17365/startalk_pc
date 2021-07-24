@@ -121,7 +121,6 @@ GroupWnd::GroupWnd(AddressBookPanel *parent)
     _pSendMsgBtn->setObjectName("SendMessage");
     _pSendMsgBtn->setFixedHeight(32);
     //
-
     auto *bLayout = new QVBoxLayout(bodyFrm);
     bLayout->addLayout(bodyLay);
     bLayout->setSpacing(36);
@@ -168,21 +167,22 @@ GroupWnd::GroupWnd(AddressBookPanel *parent)
     //
     _pGroupMemberPopWnd = new GroupMemberPopWnd(this);
     //
-    connect(showMemberBtn, &LinkButton::clicked, [this]() {
+    connect(showMemberBtn, &LinkButton::clicked, this, [this]()
+    {
         _pGroupMemberPopWnd->showCenter(false, nullptr);
         _pGroupMemberPopWnd->raise();
     });
-
-    connect(_pExitGroupBtn, &QPushButton::clicked, [this]() {
+    connect(_pExitGroupBtn, &QPushButton::clicked, this, [this]()
+    {
         int ret = QtMessageBox::warning(this, tr("警告"), tr("即将退出本群, 是否继续?"),
                                         QtMessageBox::EM_BUTTON_YES | QtMessageBox::EM_BUTTON_NO);
+
         if (ret == QtMessageBox::EM_BUTTON_YES)
         {
             AddressBookMsgManager::quitGroup(_strGroupId.toStdString());
             _mainPanel->showEmptyLabel();
         }
     });
-
     connect(_pSendMsgBtn, &QPushButton::clicked, this, &GroupWnd::sendMessageSlot);
     connect(_pDestroyGroupBtn, &QPushButton::clicked, this, &GroupWnd::onDestroyGroupGroupCard);
     connect(_pSendMailBtn, &QPushButton::clicked, this, &GroupWnd::onSendMail);
@@ -192,13 +192,13 @@ GroupWnd::GroupWnd(AddressBookPanel *parent)
 void GroupWnd::setData(std::shared_ptr<QTalk::Entity::ImGroupInfo> &data)
 {
     QString localHead = QString::fromStdString(QTalk::GetHeadPathByUrl(data->HeaderSrc));
+
     if (QFile::exists(localHead))
         _pHeadLabel->setHead(localHead, 30, false, true);
 
     QString name = QString::fromStdString(data->Name);
     QFontMetricsF f(_pNameLabel->font());
     name = f.elidedText(name, Qt::ElideRight, 200);
-
     _pNameLabel->setText(name);
     _pGroupNameEdit->setText(QString::fromStdString(data->Name));
     _pGroupIdEdit->setText(QString::fromStdString(data->GroupId));
@@ -214,14 +214,11 @@ void GroupWnd::sendMessageSlot()
 {
     StSessionInfo stSession(QTalk::Enum::GroupChat, _strGroupId, _groupName);
     stSession.headPhoto = _srtHead;
-
     emit _mainPanel->sgSwitchCurFun(0);
     emit _mainPanel->sgOpenNewSession(stSession);
 
     if (_pGroupMemberPopWnd->isActiveWindow())
-    {
         _pGroupMemberPopWnd->close();
-    }
 }
 
 void GroupWnd::showGroupMember(const std::map<std::string, QTalk::StUserCard> &userCards, const std::map<std::string, QUInt8> &userRole)
@@ -232,12 +229,14 @@ void GroupWnd::showGroupMember(const std::map<std::string, QTalk::StUserCard> &u
     //
     _pGroupMemberPopWnd->reset();
     auto it = userCards.begin();
+
     for (; it != userCards.end(); it++)
     {
         //
         groupMembers.push_back(it->first);
         //
         std::string name = it->second.nickName;
+
         if (name.empty())
             name = QTalk::getUserNameNoMask(it->first);
 
@@ -245,10 +244,11 @@ void GroupWnd::showGroupMember(const std::map<std::string, QTalk::StUserCard> &u
         QString userName = QString::fromStdString(name);
         QString headSrc = QString::fromStdString(QTalk::GetHeadPathByUrl(it->second.headerSrc));
         QString searchKey = QString::fromStdString(it->second.searchKey);
-
         QUInt8 role = 3;
+
         if (userRole.find(it->first) != userRole.end())
             role = userRole.at(it->first);
+
         //
         bool isOnline = PLAT.isOnline(it->first);
 
@@ -264,6 +264,7 @@ void GroupWnd::showGroupMember(const std::map<std::string, QTalk::StUserCard> &u
         if (isOnline)
             onlineNum++;
     }
+
     _pGroupMemberPopWnd->addEnd();
     _pGroupMemberLabel->setText(QString("( %1/ %2)").arg(onlineNum).arg(userCards.size()));
 }
@@ -281,25 +282,30 @@ void GroupWnd::onSendMail()
 
         QString mailUrl = QString("mailto:");
         auto selfDomain = PLAT.getSelfDomain();
+
         for (const auto &u : groupMembers)
         {
             QTalk::Entity::JID jid(u);
+
             if (selfDomain != jid.domainname())
                 continue;
 
             QString mail = QString("%1@%2; ")
-                               .arg(jid.username().data())
-                               .arg(NavigationManager::instance().getMailSuffix().data());
+                           .arg(jid.username().data())
+                           .arg(NavigationManager::instance().getMailSuffix().data());
             mailUrl.append(mail);
         }
+
         QDesktopServices::openUrl(QUrl(mailUrl));
     }
+
     this->close();
 }
 
 void GroupWnd::onDestroyGroupGroupCard()
 {
     int ret = QtMessageBox::warning(this, tr("警告"), tr("群即将被销毁, 是否继续?"), QtMessageBox::EM_BUTTON_YES | QtMessageBox::EM_BUTTON_NO);
+
     if (ret == QtMessageBox::EM_BUTTON_YES)
     {
         AddressBookMsgManager::destroyGroup(_strGroupId.toStdString());

@@ -9,15 +9,13 @@
 #include <QToolButton>
 
 MedalDetailWnd::MedalDetailWnd(QWidget *parent)
-    :QFrame(parent)
+    : QFrame(parent)
 {
     setFixedWidth(385);
-
     _pTitleLabel = new QLabel(this);
     _pTitleLabel->setObjectName("MedalDetailWnd_TitleLabel");
     _pTitleLabel->setAlignment(Qt::AlignCenter);
-    auto* closeBtn = new QToolButton(this);
-
+    auto *closeBtn = new QToolButton(this);
     _topFrm = new QFrame(this);
     _topFrm->setObjectName("MedalDetailWnd_TitleFrm");
     auto topLay = new QHBoxLayout(_topFrm);
@@ -27,16 +25,16 @@ MedalDetailWnd::MedalDetailWnd(QWidget *parent)
     topLay->addWidget(closeBtn);
     topLay->addWidget(_pTitleLabel);
 #else
-	topLay->setContentsMargins(30, 0, 0, 0);
+    topLay->setContentsMargins(30, 0, 0, 0);
     topLay->addWidget(_pTitleLabel);
     topLay->addWidget(closeBtn);
     closeBtn->setFixedSize(30, 30);
     closeBtn->setObjectName("gwCloseBtn");
 #endif
-    auto* backBtn = new QToolButton(this);
+    auto *backBtn = new QToolButton(this);
     backBtn->setFixedSize(20, 20);
     backBtn->setObjectName("BackBtn");
-    auto* backBtnLay = new QHBoxLayout();
+    auto *backBtnLay = new QHBoxLayout();
     backBtnLay->setContentsMargins(10, 0, 10, 0);
     backBtnLay->addWidget(backBtn);
     backBtnLay->setAlignment(backBtn, Qt::AlignLeft);
@@ -45,7 +43,7 @@ MedalDetailWnd::MedalDetailWnd(QWidget *parent)
     _pTipWgt = new MedalTip(this);
     _pTipWgt->setContentsMargins(0, 10, 0, 10);
     //
-    moreBtn = new UserHeadWgt(tr("更多"), "", true,this);
+    moreBtn = new UserHeadWgt(tr("更多"), "", true, this);
     moreBtn->setFixedSize(30, 30);
     _userLay = new QHBoxLayout;
     _userLay->setContentsMargins(0, 0, 0, 0);
@@ -53,7 +51,7 @@ MedalDetailWnd::MedalDetailWnd(QWidget *parent)
     _userLay->addItem(new QSpacerItem(1, 1, QSizePolicy::Expanding));
     _userLay->addWidget(moreBtn);
     usersCountLabel = new QLabel( this);
-    auto* usersLay = new QVBoxLayout();
+    auto *usersLay = new QVBoxLayout();
     usersLay->setContentsMargins(0, 30, 0, 50);
     usersLay->setSpacing(16);
     usersLay->addWidget(new Line(Qt::Horizontal, this));
@@ -69,7 +67,7 @@ MedalDetailWnd::MedalDetailWnd(QWidget *parent)
     wearTipLabel->setObjectName("wearMedalTipLabel");
     wearTipLabel->setAlignment(Qt::AlignCenter);
     //
-    auto* bodyFrm = new QFrame(this);
+    auto *bodyFrm = new QFrame(this);
     auto *bodyLay = new QVBoxLayout(bodyFrm);
     bodyLay->setContentsMargins(20, 10, 20, 30);
     bodyLay->setSpacing(0);
@@ -86,7 +84,7 @@ MedalDetailWnd::MedalDetailWnd(QWidget *parent)
     bodyLay->setAlignment(wearBtn, Qt::AlignHCenter);
     bodyLay->setAlignment(unloadBtn, Qt::AlignHCenter);
     //
-    auto* mainFrm = new QFrame(this);
+    auto *mainFrm = new QFrame(this);
     mainFrm->setObjectName("MedalDetailWnd_MainFrm");
     auto mainLay = new QVBoxLayout(mainFrm);
     mainLay->setMargin(0);
@@ -97,23 +95,25 @@ MedalDetailWnd::MedalDetailWnd(QWidget *parent)
     mainLay->setStretch(0, 0);
     mainLay->setStretch(1, 0);
     mainLay->setStretch(2, 1);
-
-    auto* lay = new QHBoxLayout(this);
+    auto *lay = new QHBoxLayout(this);
     lay->setMargin(0);
     lay->addWidget(mainFrm);
-
-    connect(closeBtn, &QToolButton::clicked, [parent](){parent->setVisible(false);});
+    connect(closeBtn, &QToolButton::clicked, this, [parent]()
+    {
+        parent->setVisible(false);
+    });
     connect(backBtn, &QToolButton::clicked, this, &MedalDetailWnd::sgShowBack);
     connect(this, &MedalDetailWnd::sgUpdateUsers, this, &MedalDetailWnd::onUpdateUsers);
-    connect(moreBtn, &UserHeadWgt::clicked, [this](){
+    connect(moreBtn, &UserHeadWgt::clicked, this, [this]()
+    {
         emit sgShowUserList(_metalUsers);
     });
-
-    connect(wearBtn, &QPushButton::clicked, [this](){
+    connect(wearBtn, &QPushButton::clicked, this, [this]()
+    {
         emit sgModifyStatus(_medalId, true);
     });
-
-    connect(unloadBtn, &QPushButton::clicked, [this](){
+    connect(unloadBtn, &QPushButton::clicked, this, [this]()
+    {
         emit sgModifyStatus(_medalId, false);
     });
 }
@@ -121,9 +121,10 @@ MedalDetailWnd::MedalDetailWnd(QWidget *parent)
 MedalDetailWnd::~MedalDetailWnd() = default;
 
 
-void MedalDetailWnd::showMedalDetail(const QTalk::Entity::ImMedalList &medalInfo, bool isSelf, int status) {
+void MedalDetailWnd::showMedalDetail(const QTalk::Entity::ImMedalList &medalInfo, bool isSelf, int status)
+{
     // title
-    for (auto* h : _userHeadWnds)
+    for (auto *h : _userHeadWnds)
     {
         _userLay->removeWidget(h);
         h->setVisible(false);
@@ -139,31 +140,36 @@ void MedalDetailWnd::showMedalDetail(const QTalk::Entity::ImMedalList &medalInfo
         unloadBtn->setVisible(true);
         wearBtn->setVisible(true);
         wearTipLabel->setVisible(true);
-        if((status & 0x02) > 0) {
+
+        if((status & 0x02) > 0)
+        {
             wearBtn->setVisible(false);
             wearTipLabel->setText(tr("卸下后勋章将不再展示在姓名后"));
             return;
         }
-        else if((status & 0x01) > 0) {
+        else if((status & 0x01) > 0)
+        {
             unloadBtn->setVisible(false);
             wearTipLabel->setText(tr("佩戴后勋章将展示在姓名后"));
             return;
         }
     }
+
     unloadBtn->setVisible(false);
     wearBtn->setVisible(false);
     wearTipLabel->setVisible(false);
 }
 
-void MedalDetailWnd::onUpdateUsers() {
+void MedalDetailWnd::onUpdateUsers()
+{
     auto size = _metalUsers.size();
     usersCountLabel->setText(tr("%1 位小驼已获得:").arg(_metalUsers.size()));
     moreBtn->setVisible(size > 6);
-
     auto index = 0;
-    for (const auto& u : _metalUsers)
+
+    for (const auto &u : _metalUsers)
     {
-        auto* wgt = new UserHeadWgt(u.userName.data(), u.userHead.data());
+        auto *wgt = new UserHeadWgt(u.userName.data(), u.userHead.data());
         wgt->setFixedSize(30, 30);
         _userLay->insertWidget(index, wgt);
         _userHeadWnds.insert(wgt);
@@ -173,8 +179,10 @@ void MedalDetailWnd::onUpdateUsers() {
     }
 }
 
-void MedalDetailWnd::setMedalUsers(int id, const std::vector<QTalk::StMedalUser> &metalUsers) {
+void MedalDetailWnd::setMedalUsers(int id, const std::vector<QTalk::StMedalUser> &metalUsers)
+{
     QMutexLocker locker(&_mutex);
+
     if(id == _medalId)
     {
         _metalUsers = metalUsers;
@@ -182,7 +190,8 @@ void MedalDetailWnd::setMedalUsers(int id, const std::vector<QTalk::StMedalUser>
     }
 }
 
-void MedalDetailWnd::onModifySuccess(int id, bool isWear) {
+void MedalDetailWnd::onModifySuccess(int id, bool isWear)
+{
     if(id != _medalId)
         return;
 

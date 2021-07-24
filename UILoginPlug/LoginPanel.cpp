@@ -228,7 +228,7 @@ void LoginPanel::initLayout()
     rhbox->addLayout(verLayout);
     leftFrmLay->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding));
     //
-    connect(_cancelLoginBtn, &QPushButton::clicked, [this]()
+    connect(_cancelLoginBtn, &QPushButton::clicked, this,  [this]()
     {
         int ret = QtMessageBox::question(this, tr("提示"), tr("确认取消登录 ? "));
 
@@ -284,16 +284,16 @@ void LoginPanel::connects()
 {
     connect(_loginBtn, &QPushButton::clicked, this, &LoginPanel::onLoginBtnClicked);
     connect(this, &LoginPanel::sgStartLocalServer, this, &LoginPanel::onStartLocalServer, Qt::QueuedConnection);
-    connect(_closeBtn, &QPushButton::clicked, [this]()
+    connect(_closeBtn, &QPushButton::clicked, this, [this]()
     {
         emit systemQuitSignal();
     });
     connect(this, &LoginPanel::sgSynDataSuccess, _pTimer, &QTimer::stop);
-    connect(_severBtn, &QPushButton::clicked, [this](bool)
+    connect(_severBtn, &QPushButton::clicked, this, [this](bool)
     {
         _pNavManager->showCenter(true, this);
     });
-    connect(_userNameEdt, &QLineEdit::textChanged, [this](const QString & name)
+    connect(_userNameEdt, &QLineEdit::textChanged, this,  [this](const QString & name)
     {
         _pDefaultConfig = nullptr;
         QString strName = name;
@@ -394,35 +394,7 @@ bool LoginPanel::eventFilter(QObject *o, QEvent *e)
 //
 void LoginPanel::loadConf()
 {
-    //std::thread([this](){
-    //    QString userDirPath = AppSetting::instance().getUserDirectory().data();
-    //    QDir dir(userDirPath);
-    //    QSet<QString> users;
-    //    auto lst = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
-    //    for(const QFileInfo& info : lst )
-    //    {
-    //        if(info.fileName().contains("@"))
-    //        {
-    //            QString fileName = info.fileName();
-    //            int pos = fileName.lastIndexOf("_");
-    //            fileName = fileName.mid(0, pos);
-    //            users.insert(fileName);
-    //        }
-    //    }
-    //    QString strUsers;
-    //    for(const QString& user : users)
-    //    {
-    //        strUsers.append(user);
-    //        strUsers.append("|");
-    //    }
-    //    if(_pManager)
-    //    {
-    //        UILoginMsgManager::startUpdater(strUsers.toStdString());
-    //    }
-    //}).detach();
-    //
     std::string usrDir = AppSetting::instance().getUserDirectory();
-    //
     _strConfPath = QString("%1/login.data").arg(PLAT.getConfigPath().c_str());
 
     if(nullptr != _pStLoginConfig)
@@ -436,8 +408,6 @@ void LoginPanel::loadConf()
 
         if (_pStLoginConfig->tagName != "loginConf")
         {
-            //
-            // 这里这个文件已经有问题了，要干掉生成新的。by dan.liu
             QFile::remove(_strConfPath);
             _pStLoginConfig->tagName = "loginConf";
             return;
@@ -589,11 +559,11 @@ void LoginPanel::initloginWnd()
     spaceFrm->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     loginLayout->addWidget(spaceFrm);
     loginLayout->addWidget(verLabel);
-    connect(_passworldEdt, &QLineEdit::textChanged, [this] { style()->polish(_passworldEdt); });
-    connect(_userNameEdt, &QLineEdit::textChanged, [this] { style()->polish(_userNameEdt); });
+    connect(_passworldEdt, &QLineEdit::textChanged, this, [this] { style()->polish(_passworldEdt); });
+    connect(_userNameEdt, &QLineEdit::textChanged, this, [this] { style()->polish(_userNameEdt); });
     //
     //_settingBtn
-    connect(_settingBtn, &QPushButton::clicked, [this, spaceFrm](bool checked)
+    connect(_settingBtn, &QPushButton::clicked, this, [this, spaceFrm](bool checked)
     {
         _settingFrm->adjustSize();
         spaceFrm->setFixedSize(_settingFrm->size());
@@ -602,7 +572,7 @@ void LoginPanel::initloginWnd()
     });
     _settingBtn->click();
     //
-    connect(passwordBtn, &QToolButton::clicked, [this](bool checked)
+    connect(passwordBtn, &QToolButton::clicked, this, [this](bool checked)
     {
         _passworldEdt->setEchoMode(checked ? QLineEdit::Normal : QLineEdit::Password);
     });
@@ -642,7 +612,7 @@ void LoginPanel::initLogingWnd()
     _timeTimes = 0;
     _pTimer = new QTimer();
     _pTimer->setInterval(500);
-    connect(_pTimer, &QTimer::timeout, [this, logingLabel]()
+    connect(_pTimer, &QTimer::timeout, this, [this, logingLabel]()
     {
         _timeTimes++;
 
@@ -942,8 +912,8 @@ void LoginPanel::loginSuccess()
 
 void LoginPanel::onStartLocalServer()
 {
+#ifndef QT_DEBUG
     static bool isListen = false;
-#ifndef _DEBUG
     // 监听
     QString strName = PLAT.getSelfUserId().data();
     QString domain = _pNavManager->getDefaultDomain();

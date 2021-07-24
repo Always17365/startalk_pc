@@ -133,7 +133,6 @@ namespace QTalk
             ~nativeSocket() override
             {
                 _bRun = false;
-//                close_socket();
                 delete pool;
                 delete sendPool;
             }
@@ -156,19 +155,19 @@ namespace QTalk
             bool connectToServer(long theTimeout);
 
         private:
-            int             fd{};
-            std::atomic_bool _bRun;
-            std::atomic_bool _bStopByUser;
-            SocketDelegate *_delegate{};
-            std::string    _host;
-            ThreadPool     *pool;
-            ThreadPool     *sendPool;
-            int            _port{};
-            SSL_CTX        *ssl_ctx;
-            SSL            *ssl;
+            SocketDelegate  *_delegate{nullptr};
+            ThreadPool      *pool{nullptr};
+            ThreadPool      *sendPool{nullptr};
+            SSL_CTX         *ssl_ctx{nullptr};
+            SSL             *ssl{nullptr};
+
+            std::atomic_bool _bRun{false};
+            std::atomic_bool _bStopByUser{false};
+            std::string      _host;
+            int              _port{0};
+            int              fd{0};
         };
 
-        //
         Stream *buildNewSocket()
         {
             return new nativeSocket();
@@ -181,10 +180,7 @@ namespace QTalk
     }
 }
 
-QTalk::Socket::nativeSocket::nativeSocket() :
-    fd(0),
-    ssl(nullptr),
-    ssl_ctx(nullptr)
+QTalk::Socket::nativeSocket::nativeSocket()
 {
 #ifdef _WINDOWS
     WORD wVersionRequested;
@@ -197,7 +193,6 @@ QTalk::Socket::nativeSocket::nativeSocket() :
     }
 
 #endif
-    _bStopByUser = false;
     pool = new ThreadPool("native socket pool");
     sendPool = new ThreadPool("native socket send pool");
 }
@@ -285,11 +280,7 @@ bool QTalk::Socket::nativeSocket::connectToServer(long theTimeout)
                     getsockopt(fd, SOL_SOCKET, SO_ERROR, (char *)&error, /*(socklen_t *)*/&len);
 
                     if(error == 0)
-                    {
-//                        flag = 0;
-//                       ioctlsocket(fd, FIONBIO, &flag); //设置为阻塞模式
                         ret = true;
-                    }
                 }
             }
 
@@ -397,11 +388,7 @@ bool QTalk::Socket::nativeSocket::connectToServer(long theTimeout)
                     else if (1 == res)
                     {
                         if (FD_ISSET(fd, &set))
-                        {
-//                            flag &= ~O_NONBLOCK;
-//                            fcntl(fd, F_SETFL, flag);//设置阻塞
                             ret = true;
-                        }
                         else
                             error_log("other error when select:%s\n", strerror(errno));
                     }
@@ -488,7 +475,6 @@ bool QTalk::Socket::nativeSocket::asyncConnect(long theTimeout)
     {
         close_socket();
         error_log("connectToServer failed");
-//        this->_delegate->onSocketDisConnected();
         return false;
     }
 
@@ -536,6 +522,7 @@ bool QTalk::Socket::nativeSocket::asyncConnect(long theTimeout)
                         {
                             if(errno == 0 || errno == 35)
                             {
+                                // TODO
                             }
                             else
                             {
@@ -650,7 +637,6 @@ void QTalk::Socket::nativeSocket::startTLS()
         this->ssl = SSL_new(this->ssl_ctx);      /* create new SSL connection state */
         SSL_set_fd(this->ssl, fd);    /* attach the socket descriptor */
         SSL_set_connect_state(ssl);
-//        int errcode = SSL_connect(ssl);
         bool flag = true;
 
         while (flag)
@@ -696,9 +682,8 @@ void QTalk::Socket::nativeSocket::sendMessage(const std::string &buffer)
                 {
                     int size = SSL_write(this->ssl, buffer.c_str(), static_cast<int>(buffer.length()));
 
-                    if (size != buffer.length())
+                    if (size != static_cast<int>(buffer.size()))
                     {
-                        //
                         int sslError = SSL_get_error(ssl, size);
 
                         if(size == -1 && (sslError == SSL_ERROR_WANT_READ || sslError == SSL_ERROR_WANT_WRITE))
@@ -721,16 +706,12 @@ void QTalk::Socket::nativeSocket::sendMessage(const std::string &buffer)
             {
                 ssize_t size = send(fd, buffer.c_str(), buffer.length(), 0);
 
-                if (size != buffer.size())
+                if (size != static_cast<int>(buffer.size()))
                 {
                     error_log("base socket: TCP: your writen is not complated. size:{0} - buffer.length():{1}",
                               size,
                               buffer.length());
                     _bRun = false;
-                }
-                else
-                {
-                    //info_log("-- send success {} byte buffer", size);
                 }
             }
         }

@@ -8,12 +8,12 @@
 #include <QPushButton>
 #include <QMouseEvent>
 
-CreatGroupPoupWnd::CreatGroupPoupWnd(QWidget* parent)
+CreatGroupPoupWnd::CreatGroupPoupWnd(QWidget *parent)
     : UShadowDialog(parent, true)
 {
     setFixedWidth(300);
     //
-	QLabel* labelTitle = new QLabel(tr("创建群聊"));
+    QLabel *labelTitle = new QLabel(tr("创建群聊"));
     labelTitle->setContentsMargins(10, 0, 0, 0);
     _pLineEdit = new QLineEdit(this);
     _pWarningLabel = new QLabel(this);
@@ -23,7 +23,7 @@ CreatGroupPoupWnd::CreatGroupPoupWnd(QWidget* parent)
     _pTitleFrm = new QFrame(this);
     _pTitleFrm->setFixedHeight(40);
     _pTitleFrm->setObjectName("CreatGroupTitleFrm");
-    auto * titleLay = new QHBoxLayout(_pTitleFrm);
+    auto *titleLay = new QHBoxLayout(_pTitleFrm);
     titleLay->setMargin(5);
     titleLay->setSpacing(0);
     titleLay->addWidget(labelTitle);
@@ -33,16 +33,15 @@ CreatGroupPoupWnd::CreatGroupPoupWnd(QWidget* parent)
     _pLineEdit->setObjectName("CreatGroupName");
     //
     _pLineEdit->setPlaceholderText(tr("请输入群名称"));
-
     _pWarningLabel->setObjectName("CreatGroupWarning");
     //
-    QPushButton* btnYes = new QPushButton(tr("确定"));
-    QPushButton* btnNo = new QPushButton(tr("取消"));
+    QPushButton *btnYes = new QPushButton(tr("确定"));
+    QPushButton *btnNo = new QPushButton(tr("取消"));
     btnYes->setFixedWidth(70);
     btnNo->setFixedWidth(70);
     btnYes->setObjectName("CreatGroupYesBtn");
     btnNo->setObjectName("CreatGroupNoBtn");
-    auto * bottomLay = new QHBoxLayout;
+    auto *bottomLay = new QHBoxLayout;
     bottomLay->setContentsMargins(10, 10, 20, 10);
     bottomLay->addItem(new QSpacerItem(10, 10, QSizePolicy::Expanding));
     bottomLay->addWidget(btnYes);
@@ -50,7 +49,7 @@ CreatGroupPoupWnd::CreatGroupPoupWnd(QWidget* parent)
     //
     QFrame *mainFrm = new QFrame(this);
     mainFrm->setObjectName("mainFrm");
-    auto * layout = new QVBoxLayout(mainFrm);
+    auto *layout = new QVBoxLayout(mainFrm);
     layout->setMargin(4);
     layout->setSpacing(10);
     layout->addWidget(_pTitleFrm);
@@ -58,20 +57,17 @@ CreatGroupPoupWnd::CreatGroupPoupWnd(QWidget* parent)
     layout->addWidget(_pWarningLabel);
     layout->addLayout(bottomLay);
     //
-    auto* lay = new QHBoxLayout(_pCenternWgt);
+    auto *lay = new QHBoxLayout(_pCenternWgt);
     lay->setMargin(0);
     lay->setSpacing(0);
     lay->addWidget(mainFrm);
-
     setMoverAble(true, _pTitleFrm);
-
-    connect(btnYes, &QPushButton::clicked, [this]()
+    connect(btnYes, &QPushButton::clicked, this, [this]()
     {
         emit sgCreatGroupSignal();
         this->close();
     });
-
-    connect(btnNo, &QPushButton::clicked, [this]()
+    connect(btnNo, &QPushButton::clicked, this, [this]()
     {
         this->close();
     });
@@ -79,10 +75,10 @@ CreatGroupPoupWnd::CreatGroupPoupWnd(QWidget* parent)
 
 CreatGroupPoupWnd::~CreatGroupPoupWnd()
 {
-
 }
 
-QString CreatGroupPoupWnd::getGroupName() {
+QString CreatGroupPoupWnd::getGroupName()
+{
     return _pLineEdit->text();
 }
 

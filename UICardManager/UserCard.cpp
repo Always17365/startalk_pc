@@ -287,11 +287,11 @@ void user_card::initUi()
     connect(_pMailBtn, &QPushButton::clicked, this, &user_card::sendMailSlot);
     connect(_pBtnStar, &QPushButton::clicked, this, &user_card::starUserSlot);
     connect(_pAddBlackListAct, &QAction::triggered, this, &user_card::addBlackListSlot);
-    connect(closeBtn, &QPushButton::clicked, [this]()
+    connect(closeBtn, &QPushButton::clicked, this, [this]()
     {
         this->close();
     });
-    connect(btnMore, &QPushButton::clicked, [this]()
+    connect(btnMore, &QPushButton::clicked, this, [this]()
     {
         _pMenu->exec(QCursor::pos());
     });
@@ -299,19 +299,19 @@ void user_card::initUi()
 //    _pModMoodBtn->setCheckable(true);
     _pUserMarks->installEventFilter(this);
     _pUserMoodEdit->installEventFilter(this);
-    connect(_editMaskBtn, &QPushButton::clicked, [this](bool)
+    connect(_editMaskBtn, &QPushButton::clicked, this, [this](bool)
     {
         _pUserMarks->setReadOnly(false);
         _editMaskBtn->setVisible(false);
         _pUserMarks->setFocus();
     });
-    connect(_pModMoodBtn, &QPushButton::clicked, [this](bool)
+    connect(_pModMoodBtn, &QPushButton::clicked, this, [this](bool)
     {
         _pUserMoodEdit->setReadOnly(false);
         _pModMoodBtn->setVisible(false);
         _pUserMoodEdit->setFocus();
     });
-    connect(_pUserMarks, &QLineEdit::textChanged, [this]()
+    connect(_pUserMarks, &QLineEdit::textChanged, this, [this]()
     {
         QString text = _pUserMarks->text();
 
@@ -324,7 +324,7 @@ void user_card::initUi()
             _pUserMarks->setFixedWidth(width + 10);
         }
     });
-    connect(_pUserMoodEdit, &QLineEdit::textChanged, [this]()
+    connect(_pUserMoodEdit, &QLineEdit::textChanged, this, [this]()
     {
         QString text = _pUserMoodEdit->text();
 
@@ -752,7 +752,7 @@ void user_card::onShowMedalDetail(int id)
     {
         _pMedalDetailWnd = new MedalDetailWnd(_pStackedShell);
         _pStackedShell->addWidget(_pMedalDetailWnd);
-        connect(_pMedalDetailWnd, &MedalDetailWnd::sgShowBack, [this]()
+        connect(_pMedalDetailWnd, &MedalDetailWnd::sgShowBack, this, [this]()
         {
             if(_pUserMedalWnd && _pStackedShell)
                 _pStackedShell->setCurrentWgt(_pUserMedalWnd);
@@ -787,7 +787,7 @@ void user_card::onShowUserList(const std::vector<QTalk::StMedalUser> &useList)
     {
         _pUserListWnd = new UserListWnd(_pStackedShell);
         _pStackedShell->addWidget(_pUserListWnd);
-        connect(_pUserListWnd, &UserListWnd::sgShowBack, [this]()
+        connect(_pUserListWnd, &UserListWnd::sgShowBack, this, [this]()
         {
             if(_pMedalDetailWnd && _pStackedShell)
                 _pStackedShell->setCurrentWgt(_pMedalDetailWnd);

@@ -265,12 +265,12 @@ void GroupMember::initUi()
     _pContextMenu->addAction(_removeGroupAction);
     _pMemberList->installEventFilter(this);
     connect(_pSearchBtn, &QPushButton::clicked, this, &GroupMember::onSearchBtnClick);
-    connect(_pSearchLineEdit, &QLineEdit::textChanged, [this](const QString & text)
+    connect(_pSearchLineEdit, &QLineEdit::textChanged, this, [this](const QString & text)
     {
         QString strContent = _pSearchLineEdit->text();
         _pModel->setFilterRegExp(strContent.toLower());
     });
-    connect(_pMemberList, &QListView::doubleClicked, [](const QModelIndex & index)
+    connect(_pMemberList, &QListView::doubleClicked, this, [](const QModelIndex & index)
     {
         if(!index.isValid())
             return;
@@ -282,7 +282,7 @@ void GroupMember::initUi()
         stSession.headPhoto = strUserHead;
         emit g_pMainPanel->sgOpenNewSession(stSession);
     });
-    connect(showCardAct, &QAction::triggered, [this](bool)
+    connect(showCardAct, &QAction::triggered, this, [this](bool)
     {
         QModelIndex index = _pMemberList->currentIndex();
 
@@ -292,7 +292,7 @@ void GroupMember::initUi()
             g_pMainPanel->showUserCard(strUserId);
         }
     });
-    connect(_setAdminAction, &QAction::triggered, [this](bool)
+    connect(_setAdminAction, &QAction::triggered, this, [this](bool)
     {
         QModelIndex index = _pMemberList->currentIndex();
 
@@ -310,7 +310,7 @@ void GroupMember::initUi()
                 error_log("set admin error id:{0} nick:{1} type{2}", xmppId, nick, type);
         }
     });
-    connect(_removeGroupAction, &QAction::triggered, [this](bool)
+    connect(_removeGroupAction, &QAction::triggered, this, [this](bool)
     {
         QModelIndex index = _pMemberList->currentIndex();
 

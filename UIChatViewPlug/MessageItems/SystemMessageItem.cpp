@@ -21,8 +21,8 @@
 
 SystemMessageItem::SystemMessageItem(const StNetMessageResult &msgInfo,
                                      QWidget *parent):MessageItemBase(msgInfo,parent),
-                                                      titleLabel(Q_NULLPTR),
-                                                      promptLabel(Q_NULLPTR)
+                                                      titleLabel(nullptr),
+                                                      promptLabel(nullptr)
 {
     init();
 }

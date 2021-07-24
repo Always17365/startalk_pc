@@ -14,7 +14,8 @@
  * database operator
  * tips: There is no need to use "_dbPool" for reading operations
  */
-class DATABASEPLUGSHARED_EXPORT DataBasePlug : public IDatabasePlug {
+class DATABASEPLUGSHARED_EXPORT DataBasePlug : public IDatabasePlug
+{
 
 public:
     DataBasePlug();
@@ -24,7 +25,7 @@ private:
 
     // IDatabasePlug interface
 public:
-    bool OpenDB(const std::string &dbPath, std::string& errorMsg) override ;
+    bool OpenDB(const std::string &dbPath, std::string &errorMsg) override ;
     // IDatabasePlug interface
     void ClearDBData() override ;
 
@@ -52,8 +53,8 @@ public:
     long long getMaxTimeStampByChatType(QTalk::Enum::ChatType chatType) override;
     long long getMaxTimeStamp();
     bool setUserCardInfo(const std::vector<QTalk::StUserCard> &userInfos) override;
-    bool insertOrUpdateUserMood(const std::string &userId, const std::string &userMood, const int &version) ;
-    bool insertOrUpdateUserSuppl(std::shared_ptr<QTalk::Entity::ImUserSupplement> imUserSup) ;
+    bool insertOrUpdateUserMood(const std::string &userId, const std::string &userMood, const int &version) override;
+    bool insertOrUpdateUserSuppl(std::shared_ptr<QTalk::Entity::ImUserSupplement> imUserSup) override;
     bool insertOrUpdateUserPhoneNo(const std::string &userId, const std::string &phoneNo) override ;
 
 public://user
@@ -92,17 +93,17 @@ public: //message
 
     bool updateReadMask(const std::map<std::string, QInt64> &readMasks) override;
     //
-    bool getUserMessage(const long long &time, const std::string &userName,const std::string &realJid,
+    bool getUserMessage(const long long &time, const std::string &userName, const std::string &realJid,
                         std::vector<QTalk::Entity::ImMessageInfo> &msgList) override;
 
-    void updateMessageExtendInfo(const std::string& msgId, const std::string& info) override ;
+    void updateMessageExtendInfo(const std::string &msgId, const std::string &info) override ;
 
     // get image or "photo-text"
-    void getBeforeImageMessage(const std::string& messageId,
-                                       std::vector<std::pair<std::string, std::string>> & msgs) override ;
+    void getBeforeImageMessage(const std::string &messageId,
+                               std::vector<std::pair<std::string, std::string>> &msgs) override ;
 
-    void getNextImageMessage(const std::string& messageId,
-                                     std::vector<std::pair<std::string, std::string>> & msgs) override;
+    void getNextImageMessage(const std::string &messageId,
+                             std::vector<std::pair<std::string, std::string>> &msgs) override;
     // local message
     void getLocalMessage(const long long &time, const std::string &userId, const std::string &realJid,
                          std::vector<QTalk::Entity::ImMessageInfo> &msgList) override;
@@ -114,15 +115,15 @@ public: //message
                          std::vector<QTalk::Entity::ImMessageInfo> &msgList) override;
 
     void getLinkMessage(const long long &time, const std::string &userId, const std::string &realJid,
-                         std::vector<QTalk::Entity::ImMessageInfo> &msgList) override;
+                        std::vector<QTalk::Entity::ImMessageInfo> &msgList) override;
 
     void getSearchMessage(const long long &time, const std::string &userId, const std::string &realJid,
-                          const std::string& searchKey, std::vector<QTalk::Entity::ImMessageInfo> &msgList) override ;
+                          const std::string &searchKey, std::vector<QTalk::Entity::ImMessageInfo> &msgList) override ;
 
     void getAfterMessage(const long long &time, const std::string &userId, const std::string &realJid,
                          std::vector<QTalk::Entity::ImMessageInfo> &msgList) override ;
 
-    void updateMessageReadFlags(const std::map<std::string, int>& readFlags) override;
+    void updateMessageReadFlags(const std::map<std::string, int> &readFlags) override;
 
 public://group
     bool insertGroupInfo(const QTalk::Entity::ImGroupInfo &userInfo) override ;
@@ -139,7 +140,7 @@ public://group
     std::shared_ptr<QTalk::Entity::ImGroupInfo> getGroupInfoByXmppId(const std::string &xmppids) override ;
     // get group member by id
     bool getGroupMemberById(const std::string &groupId, std::map<std::string, QTalk::StUserCard> &member,
-                                    std::map<std::string, QUInt8> &userRole) override;
+                            std::map<std::string, QUInt8> &userRole) override;
     //
     bool getGroupMemberInfo(const std::vector<std::string> &members, std::vector<QTalk::StUserCard> &userInfos) override;
 
@@ -154,7 +155,7 @@ public://group
     bool getGroupMessageLastUpdateTime(const std::string &messageId, QInt64 &time) override;
 
     bool getGroupUnreadedCount(const std::map<std::string, QInt64> &readMasks,
-                                       std::map<std::string, int> &unreadedCount) override;
+                               std::map<std::string, int> &unreadedCount) override;
 
     bool getGroupCardById(std::shared_ptr<QTalk::Entity::ImGroupInfo> &group) override;
 
@@ -198,22 +199,22 @@ public://Im_Cache_Data
 public://快捷回复
     void batchInsertQuickReply(const std::string &data) override;
     void getQuickReplyVersion(QInt64 version[]) override;
-    void getQuickGroups(std::vector<QTalk::Entity::ImQRgroup>& groups) override;
-    void getQuickContentByGroup(std::vector<QTalk::Entity::IMQRContent>& contents,int id) override;
+    void getQuickGroups(std::vector<QTalk::Entity::ImQRgroup> &groups) override;
+    void getQuickContentByGroup(std::vector<QTalk::Entity::IMQRContent> &contents, int id) override;
 
 public:
-    void getCareUsers(std::set<std::string>& users) override ;
+    void getCareUsers(std::set<std::string> &users) override ;
 
 public:
-    void insertMedalList(const std::vector<QTalk::Entity::ImMedalList>& medals) override;
-    void insertMedals(const std::vector<QTalk::Entity::ImUserStatusMedal>& medals) override ;
-    void getUserMedal(const std::string& xmppId, std::set<QTalk::StUserMedal>& stMedal) override ;
-    void getMedalList(std::vector<QTalk::Entity::ImMedalList>& medals) override ;
-    void getMedalUsers(int medalId, std::vector<QTalk::StMedalUser>& metalUsers) override;
-    void modifyUserMedalStatus(const std::string& userId, int medalId, int status) override ;
+    void insertMedalList(const std::vector<QTalk::Entity::ImMedalList> &medals) override;
+    void insertMedals(const std::vector<QTalk::Entity::ImUserStatusMedal> &medals) override ;
+    void getUserMedal(const std::string &xmppId, std::set<QTalk::StUserMedal> &stMedal) override ;
+    void getMedalList(std::vector<QTalk::Entity::ImMedalList> &medals) override ;
+    void getMedalUsers(int medalId, std::vector<QTalk::StMedalUser> &metalUsers) override;
+    void modifyUserMedalStatus(const std::string &userId, int medalId, int status) override ;
 
 public:
-    void addExceptCpu(double cpu, long long time, const std::string& stack);
+    void addExceptCpu(double cpu, long long time, const std::string &stack) override;
 
 private:
     qtalk::sqlite::database *_dataBass = nullptr;

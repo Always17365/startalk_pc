@@ -15,7 +15,7 @@ class TipMessageItem : public QFrame
 {
 	Q_OBJECT
 public:
-    explicit TipMessageItem(QWidget *parent = Q_NULLPTR);
+    explicit TipMessageItem(QWidget *parent = nullptr);
     ~TipMessageItem() override;
 
 public:

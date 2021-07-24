@@ -179,14 +179,14 @@ void NavManager::initUi()
     layout->setSpacing(0);
     layout->setStretch(1, 1);
     // 关闭按钮
-    connect(_pCloseBtn, &QPushButton::clicked, [this](bool)
+    connect(_pCloseBtn, &QPushButton::clicked, this, [this](bool)
     {
         this->setVisible(false);
     });
     connect(_pNavView, &NavView::saveConfSignal, this, &NavManager::onSaveConf);
     connect(_pNavView, &NavView::addNavSinal, this, &NavManager::onAddNav);
     connect(_pNavView, &NavView::sgNavChanged, this, &NavManager::onNavChanged, Qt::QueuedConnection);
-    connect(_pNavView, &NavView::sgClose, [this]()
+    connect(_pNavView, &NavView::sgClose, this, [this]()
     {
         this->setVisible(false);
     });

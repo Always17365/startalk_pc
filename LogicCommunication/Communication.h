@@ -3,7 +3,7 @@
 #ifndef _COMMUNICATION_H_
 #define _COMMUNICATION_H_
 #if _MSC_VER >= 1600
-#pragma execution_character_set("utf-8")
+    #pragma execution_character_set("utf-8")
 #endif
 
 #include "communication_global.h"
@@ -31,13 +31,14 @@ class SearchManager;
 class OfflineMessageManager;
 class UserConfig;
 class HotLinesConfig;
-class LOGICMANAGER_EXPORT Communication : public ILogicObject {
+class LOGICMANAGER_EXPORT Communication : public ILogicObject
+{
 public:
     Communication();
     ~Communication() override;
 
 public:
-    bool OnLogin(const std::string& userName, const std::string& password);
+    bool OnLogin(const std::string &userName, const std::string &password);
     bool
     AsyncConnect(const std::string &userName, const std::string &password, const std::string &host, int port);
 
@@ -46,8 +47,8 @@ public:
 
 public:
     void addHttpRequest(const QTalk::HttpRequest &req,
-            const std::function<void(int, const std::string &)>& callback,
-            bool = true);
+                        const std::function<void(int, const std::string &)> &callback,
+                        bool = true);
 
 public:
     void dealBindMsg();
@@ -63,13 +64,13 @@ public:
     void synUsersUserStatus();
     // 获取某人的历史消息
     void getUserHistoryMessage(const QInt64 &time, const QUInt8 &chatType,
-                               const QTalk::Entity::UID& uid,
+                               const QTalk::Entity::UID &uid,
                                std::vector<QTalk::Entity::ImMessageInfo> &msgList);
     // 获取网络聊天记录(不落地)
     void getNetHistoryMessage(const QInt64 &time, const QUInt8 &chatType,
-                                const QTalk::Entity::UID& uid,
-                               const std::string &direction,
-                               std::vector<QTalk::Entity::ImMessageInfo> &msgList);
+                              const QTalk::Entity::UID &uid,
+                              const std::string &direction,
+                              std::vector<QTalk::Entity::ImMessageInfo> &msgList);
 
     //批量获取头像信息
     void batchUpdateHead(const std::vector<std::string> &arXmppids);
@@ -99,21 +100,18 @@ public:
     // 动态获取oa部分 ui组件
     bool geiOaUiData(std::vector<QTalk::StOAUIData> &arOAUIData);
 
-    // 向服务器同步在离线时长
-    void sendUserOnlineState(const QInt64& loginTime, const QInt64& logoutTime, const std::string& ip);
-
     // 发送点击统计
-    void sendOperatorStatistics(const std::string& ip, const std::vector<QTalk::StActLog>& operators);
+    void sendOperatorStatistics(const std::string &ip, const std::vector<QTalk::StActLog> &operators);
 
     //
     void reportLog(const std::string &desc, const std::string &logPath);
-    void reportDump(const std::string&ip, const std::string& id, const std::string &dmp_path, QInt64 time);
+    void reportDump(const std::string &ip, const std::string &id, const std::string &dmp_path, QInt64 time);
 
     void saveUserConfig();
 
     void clearSystemCache();
 
-    void getUserCard(std::shared_ptr<QTalk::Entity::ImUserInfo>& info);
+    void getUserCard(std::shared_ptr<QTalk::Entity::ImUserInfo> &info);
     // 移除会话
     void removeSession(const string &peerId);
     //
@@ -121,7 +119,7 @@ public:
     //
     void getUserMedal(bool = false);
     //
-    void getMedalUser(int medalId, std::vector<QTalk::StMedalUser>& metalUsers);
+    void getMedalUser(int medalId, std::vector<QTalk::StMedalUser> &metalUsers);
     //
     bool modifyUserMedalStatus(int medalId, bool wear);
     //
@@ -133,13 +131,13 @@ public: // 群组相关
     void getGroupCardInfo(std::shared_ptr<QTalk::Entity::ImGroupInfo> &e);
 
     // 设置群管理员
-    void setGroupAdmin(const std::string& groupId, const std::string &nickName,
-            const std::string &memberJid, bool isAdmin);
+    void setGroupAdmin(const std::string &groupId, const std::string &nickName,
+                       const std::string &memberJid, bool isAdmin);
 
     // 移除群成员
-    void removeGroupMember(const std::string& groupId,
-            const std::string& nickName,
-            const std::string& memberJid);
+    void removeGroupMember(const std::string &groupId,
+                           const std::string &nickName,
+                           const std::string &memberJid);
 
     // 退出群
     void quitGroup(const std::string &groupId);
@@ -150,7 +148,7 @@ public: // 群组相关
 
 public:
     //
-    void onRecvGroupMembers(const std::string &groupId, const std::map<std::string, QUInt8>& mapUserRole);
+    void onRecvGroupMembers(const std::string &groupId, const std::map<std::string, QUInt8> &mapUserRole);
     //
     void onCreateGroupComplete(const std::string &groupId, bool ret);
     //
@@ -158,7 +156,7 @@ public:
     //
 //    void onRecvFriendList(const std::vector<QTalk::Entity::IMFriendList> &friends);
     //
-    void onUserJoinGroup(const std::string& groupId, const std::string& memberId, int affiliation);
+    void onUserJoinGroup(const std::string &groupId, const std::string &memberId, int affiliation);
     //
     void onStaffChanged();
     //
@@ -171,16 +169,16 @@ private:
 public:
     void setServiceSeat(int sid, int seat);
     void serverCloseSession(const std::string &username, const std::string &virtualname);
-    void sendProduct(const std::string& username, const std::string &virtualname,
-            const std::string &product, const std::string &type);
-    void getSeatList(const QTalk::Entity::UID& uid);
-    void sessionTransfer(const QTalk::Entity::UID& uid, const std::string &newCser,const std::string& reason);
+    void sendProduct(const std::string &username, const std::string &virtualname,
+                     const std::string &product, const std::string &type);
+    void getSeatList(const QTalk::Entity::UID &uid);
+    void sessionTransfer(const QTalk::Entity::UID &uid, const std::string &newCser, const std::string &reason);
     void sendWechat(const QTalk::Entity::UID &uid);
 
 //qchat 登录相关
 public:
     std::string getQchatQvt(const std::string &userName, const std::string &password);
-    void getQchatTokenByQVT(const std::string &qvt,std::map<std::string,std::string> &map);
+    void getQchatTokenByQVT(const std::string &qvt, std::map<std::string, std::string> &map);
 
 public:
     // 最近聊天
@@ -190,7 +188,7 @@ public:
 
 public:
     //新登录获取token
-    void getNewLoginToken(const std::string& u, const std::string& p, std::map<std::string,std::string> &info);
+    void getNewLoginToken(const std::string &u, const std::string &p, std::map<std::string, std::string> &info);
 
 public:
 //    CommMsgManager *_pMsgManager;

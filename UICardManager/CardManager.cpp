@@ -34,7 +34,7 @@ void CardManager::shwoUserCard(const QString &userId)
     else flag = true;
 
     _pUserCard = new user_card(this);
-    connect(_pUserCard, &user_card::sgJumpToStructre, [this](const QString & structreName)
+    connect(_pUserCard, &user_card::sgJumpToStructre, this, [this](const QString & structreName)
     {
         emit sgSwitchCurFun(1);
         emit sgJumpToStructre(structreName);

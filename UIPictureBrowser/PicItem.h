@@ -16,7 +16,8 @@
 #include <QMutexLocker>
 
 
-class PicItem : public QGraphicsItem {
+class PicItem : public QGraphicsItem
+{
 public:
     explicit PicItem(int &scaleVal);
 
@@ -34,8 +35,8 @@ public:
 
 protected:
     QPixmap _pixmap;
-    QMovie *_pMovie;
-    qreal _proportion;
+    QMovie *_pMovie { nullptr };
+    qreal _proportion {1};
 
 private:
     QMutex _mutex;

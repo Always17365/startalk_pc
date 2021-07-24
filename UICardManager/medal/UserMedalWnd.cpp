@@ -141,11 +141,11 @@ UserMedalWnd::UserMedalWnd(const QString &userName,
     auto *lay = new QHBoxLayout(this);
     lay->setMargin(0);
     lay->addWidget(mainFrm);
-    connect(closeBtn, &QToolButton::clicked, [parent]()
+    connect(closeBtn, &QToolButton::clicked, this, [parent]()
     {
         parent->setVisible(false);
     });
-    connect(_pMainWgt, &QTableWidget::cellPressed, [this](int row, int col)
+    connect(_pMainWgt, &QTableWidget::cellPressed, this, [this](int row, int col)
     {
         QWidget *wgt = _pMainWgt->cellWidget(row, col);
         auto *itemWgt = qobject_cast<UserMedalItem *>(wgt);

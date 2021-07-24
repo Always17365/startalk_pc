@@ -40,7 +40,7 @@ void CodeShowWnd::initUi()
     auto *lay = new QHBoxLayout(_pCenternWgt);
     lay->setMargin(0);
     lay->addWidget(_pCodeShell);
-    connect(_pCodeShell, &CodeShell::closeWnd, [this]()
+    connect(_pCodeShell, &CodeShell::closeWnd, this, [this]()
     {
         setVisible(false);
     });

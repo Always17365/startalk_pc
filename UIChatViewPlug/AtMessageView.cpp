@@ -285,7 +285,6 @@ void AtMessageView::updateFilter()
 
 void AtMessageView::confirmAtUser(const QString &xmppId, const QString &name)
 {
-    QModelIndex index = _atView->currentIndex();
     this->setVisible(false);
     _pInputWgt->setFocus();
     _pInputWgt->insertAt(_pos, name, xmppId);

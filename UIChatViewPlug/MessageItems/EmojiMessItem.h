@@ -11,18 +11,18 @@ class EmojiMessItem : public MessageItemBase
 public:
     EmojiMessItem(const StNetMessageResult &msgInfo,
                   QString path,
-                   const QSizeF& size,
-                   QWidget *parent = nullptr);
+                  const QSizeF &size,
+                  QWidget *parent = nullptr);
 
     // MessageItemBase interface
 public:
     QSize itemWdtSize() override;
-    void onImageDownloaded(const QString& path);
+    void onImageDownloaded(const QString &path);
 
     // QWidget interface
 protected:
     void resizeEvent(QResizeEvent *event) override;
-    bool event(QEvent* e) override ;
+    bool event(QEvent *e) override ;
 
 private:
     void init();
@@ -39,9 +39,9 @@ Q_SIGNALS:
     void sgItemChanged();
 
 private:
-    QLabel *_imageLab;
-    QMovie *_movie;
-    bool    _isGIF;
+    QLabel *_imageLab{nullptr};
+    QMovie *_movie{nullptr};
+    bool    _isGIF{false};
 
     QSize _headPixSize;
     QMargins _mainMargin;

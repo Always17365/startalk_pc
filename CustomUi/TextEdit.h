@@ -11,11 +11,12 @@
 class CUSTOMUISHARED_EXPORT TextEdit : public QTextEdit
 {
 public:
-    TextEdit(QWidget* parent = nullptr);
+    TextEdit(QWidget *parent = nullptr);
     ~TextEdit();
 
 public:
-    enum Flag {
+    enum Flag
+    {
         EM_NO_FLAGS = 0,
         EM_NO_EDIT  = 1,
         EM_NO_BORDER = 2,
@@ -26,7 +27,7 @@ public:
 
 public:
     void setFlag(int flags = EM_NO_FLAGS);
-    void setText(const QString& text);
+    void setText(const QString &text);
 
 public:
     void setRowCount(int rowCount);
@@ -37,10 +38,10 @@ private:
     int getLineCount();
 
 private:
-    bool _autoAdjustHeight;
-    int  _maxRowCount;
-    int  _lineHeight;
-    int  _flags;
+    bool _autoAdjustHeight {false};
+    int  _maxRowCount { 999 };
+    int  _lineHeight  { 0 };
+    int  _flags       { 0 };
 };
 
 

@@ -10,7 +10,7 @@ class TextBrowser : public QTextBrowser
 {
 	Q_OBJECT
 public:
-    explicit TextBrowser(QWidget* parent = Q_NULLPTR);
+    explicit TextBrowser(QWidget* parent = nullptr);
     // QWidget interface
 public:
     QSize sizeHint() const override;

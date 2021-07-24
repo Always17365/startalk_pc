@@ -22,9 +22,9 @@ extern ChatViewMainPanel *g_pMainPanel;
 
 NoteMessageItem::NoteMessageItem(const StNetMessageResult &msgInfo, QWidget *parent):
         MessageItemBase(msgInfo,parent),
-        titleLabel(Q_NULLPTR),
-        iconLabel(Q_NULLPTR),
-        priceLabel(Q_NULLPTR)
+        titleLabel(nullptr),
+        iconLabel(nullptr),
+        priceLabel(nullptr)
 {
     init();
 }

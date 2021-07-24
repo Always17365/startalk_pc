@@ -2,7 +2,7 @@
 // Created by cc on 2019-02-28.
 //
 #if _MSC_VER >= 1600
-#pragma execution_character_set("utf-8")
+    #pragma execution_character_set("utf-8")
 #endif
 #ifndef QTALK_V2_CODESHOWWND_H
 #define QTALK_V2_CODESHOWWND_H
@@ -17,14 +17,15 @@
 * @create: 2019-02-28 21:52
 **/
 class ChatViewItem;
-class CodeShowWnd : public UShadowDialog{
-	Q_OBJECT
+class CodeShowWnd : public UShadowDialog
+{
+    Q_OBJECT
 public:
-    explicit CodeShowWnd(QWidget* parent = nullptr);
+    explicit CodeShowWnd(QWidget *parent = nullptr);
     ~CodeShowWnd() override;
 
 public:
-    void showCode(const QString& type, const QString& language, const QString& content);
+    void showCode(const QString &type, const QString &language, const QString &content);
 
 private:
     void initUi();
@@ -32,8 +33,8 @@ private:
     void loadCodeFile(const QString &type, const QString &language);
 
 private:
-    CodeShell* _pCodeShell;
-    QWebEngineView* _pWebView;
+    CodeShell      *_pCodeShell{nullptr};
+    QWebEngineView *_pWebView  {nullptr};
 
 private:
     QString _strCodeContent;

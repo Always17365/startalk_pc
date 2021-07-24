@@ -21,7 +21,7 @@
 
 MeetingRemindItem::MeetingRemindItem(const StNetMessageResult &msgInfo,
                                      QWidget *parent):MessageItemBase(msgInfo,parent),
-                                                      contentLabel(Q_NULLPTR)
+                                                      contentLabel(nullptr)
 {
     init();
 }

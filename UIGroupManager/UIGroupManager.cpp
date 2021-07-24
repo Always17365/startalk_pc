@@ -228,14 +228,14 @@ void UIGroupManager::initUi()
     layout->addWidget(titleFrm, 0);
     layout->addWidget(mainFrm);
     _batchAddMemberWnd = new BatchAddMemberWnd(this);
-    connect(cancelBtn, &QPushButton::clicked, [this]()
+    connect(cancelBtn, &QPushButton::clicked, this, [this]()
     {
         this->setVisible(false);
     });
 //    connect(splitter, &QSplitter::splitterMoved, [this](int pos, int index) {
 //        qreal maxW = _pTreeWgt->width();
 //    });
-    connect(okBtn, &QPushButton::clicked, [this]()
+    connect(okBtn, &QPushButton::clicked, this, [this]()
     {
         switch (_type)
         {
@@ -257,7 +257,7 @@ void UIGroupManager::initUi()
 
         this->setVisible(false);
     });
-    connect(_pSearchItemDelegate, &SearchItemDelegate::itemChanged, [this](QModelIndex index)
+    connect(_pSearchItemDelegate, &SearchItemDelegate::itemChanged, this, [this](QModelIndex index)
     {
         QString memberId = index.data(EM_SEARCH_DATATYPE_XMPPID).toString();
         QString headSrc = index.data(EM_SEARCH_DATATYPE_ICONPATH).toString();
@@ -272,13 +272,13 @@ void UIGroupManager::initUi()
                 removeGroupMeber(memberId);
         }
     });
-    connect(_pSearchItemDelegate, &SearchItemDelegate::sgItemDbClicked, [this](QModelIndex index)
+    connect(_pSearchItemDelegate, &SearchItemDelegate::sgItemDbClicked, this, [this](QModelIndex index)
     {
         QString id = index.data(EM_SEARCH_DATATYPE_XMPPID).toString();
         QString name = index.data(EM_SEARCH_DATATYPE_TEXT).toString();
         onItemDoubleClick(id, name);
     });
-    connect(_pItemDelegate, &TreeItemDelegate::sgItemDbClicked, [this](QModelIndex index)
+    connect(_pItemDelegate, &TreeItemDelegate::sgItemDbClicked, this, [this](QModelIndex index)
     {
         int type = index.data(EM_STAFF_DATATYPE_ROW_TYPE).toInt();
 
@@ -289,7 +289,7 @@ void UIGroupManager::initUi()
             onItemDoubleClick(id, name);
         }
     });
-    connect(_pSearchWgt, &SearchWgt::textChanged, [this](const QString & text)
+    connect(_pSearchWgt, &SearchWgt::textChanged, this, [this](const QString & text)
     {
         _pSearchModel->setFilterRegExp(text.toLower());
         //
@@ -297,7 +297,7 @@ void UIGroupManager::initUi()
         _pSearchView->setVisible(!isEmpty);
         _pTreeWgt->setVisible(isEmpty);
     });
-    connect(_batchAddMemberBtn, &QPushButton::clicked, [this]()
+    connect(_batchAddMemberBtn, &QPushButton::clicked, this, [this]()
     {
         QPoint pos = this->geometry().topRight();
         _batchAddMemberWnd->clear();
@@ -305,11 +305,11 @@ void UIGroupManager::initUi()
         _batchAddMemberWnd->showModel();
     });
     connect(_batchAddMemberWnd, &BatchAddMemberWnd::sgBatchAddGroupMember, this, &UIGroupManager::onBatchAddMember);
-    connect(listItemDelegate, &ChoseItemDelegate::removeItem, [this](const QString & id)
+    connect(listItemDelegate, &ChoseItemDelegate::removeItem, this, [this](const QString & id)
     {
         removeGroupMeber(id);
     });
-    connect(_pItemDelegate, &TreeItemDelegate::itemChanged, [this](QModelIndex index)
+    connect(_pItemDelegate, &TreeItemDelegate::itemChanged, this, [this](QModelIndex index)
     {
         int rowType = index.data(EM_STAFF_DATATYPE_ROW_TYPE).toInt();
 
@@ -759,22 +759,6 @@ void UIGroupManager::onUpdateSession(const std::vector<QTalk::StShareSession> &s
     }
 }
 
-//void UIGroupManager::initFriends()
-//{
-//    _pFriendItem = new QStandardItem;
-//    _pFriendItem->setData(tr("从好友选择"), EM_STAFF_DATATYPE_TEXT);
-//    _pFriendItem->setData(":/GroupManager/image1/friendList.png", EM_STAFF_DATATYPE_ICONPATH);
-//    _pFriendItem->setData(EM_ROW_TYPE_TITLE, EM_STAFF_DATATYPE_ROW_TYPE);
-//    _pFriendItem->setData(false, EM_STAFF_DATATYPE_EXTEND);
-//    //
-//    _pTreeModel->appendRow(_pFriendItem);
-//    //
-//    for(const auto& frie : _friends)
-//    {
-//        _mapItems[frie.XmppId][EM_FRIEND] = creatItem(_pFriendItem, frie.XmppId);
-//    }
-//}
-
 /**
   * @函数名
   * @功能描述
@@ -912,11 +896,6 @@ void UIGroupManager::initStructure()
 //    static int index = 0;
     for(const auto &it : _structure)
     {
-//        if(++index == 10)
-//        {
-//            QApplication::processEvents(QEventLoop::AllEvents, 100);
-//            index = 0;
-//        }
         //
         const auto &info = it.second;
 

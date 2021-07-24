@@ -56,7 +56,7 @@ namespace QTalk
 
         ProtobufStack::~ProtobufStack()
         {
-            _task->stop();
+            delete _task;
 
             if (nullptr != _pSocket)
             {
@@ -67,18 +67,17 @@ namespace QTalk
 
         void ProtobufStack::onMessageReceived(ProtoMessage *message)
         {
-            if(!_pLogicBase->_isConnected)
-            {
-                _pLogicBase->_isConnected = true;
-                _pLogicBase->stopTask();
-            }
+            _pLogicBase->stopTask();
 
             if(_task)
             {
                 if(_task->isRuning())
                     _task->update();
                 else
+                {
                     _task->start();
+                    info_log(" --- start end");
+                }
             }
 
             static bool hasError = false;

@@ -7,7 +7,7 @@
 #include <QEvent>
 #include <QKeyEvent>
 
-SearchWgt::SearchWgt(QWidget* parent)
+SearchWgt::SearchWgt(QWidget *parent)
     : QFrame(parent)
 {
     init();
@@ -15,7 +15,6 @@ SearchWgt::SearchWgt(QWidget* parent)
 
 SearchWgt::~SearchWgt()
 {
-
 }
 
 void SearchWgt::init()
@@ -25,21 +24,17 @@ void SearchWgt::init()
     _pBtn = new QToolButton(this);
     _pSearchEdit = new QLineEdit(this);
     _pBtn->setFixedWidth(20);
-
     _pSearchEdit->setPlaceholderText(tr("搜索"));
-
     _pBtn->setObjectName("SearchIcon");
     _pSearchEdit->setObjectName("SearchEdit");
-
-    auto * layout = new QHBoxLayout(this);
+    auto *layout = new QHBoxLayout(this);
     layout->setContentsMargins(5, 0, 5, 0);
     layout->setSpacing(5);
     layout->addWidget(_pBtn);
     layout->addWidget(_pSearchEdit);
-
     _pSearchEdit->installEventFilter(this);
-
-    connect(_pSearchEdit, &QLineEdit::textChanged, [this](const QString& text){
+    connect(_pSearchEdit, &QLineEdit::textChanged, this, [this](const QString & text)
+    {
         emit textChanged(text);
     });
 }
@@ -63,12 +58,12 @@ bool SearchWgt::eventFilter(QObject *o, QEvent *e)
 //            }
         }
     }
-    return QFrame::eventFilter(o ,e);
+
+    return QFrame::eventFilter(o, e);
 }
 
-void SearchWgt::clearText() {
+void SearchWgt::clearText()
+{
     if(nullptr != _pSearchEdit)
-    {
         _pSearchEdit->clear();
-    }
 }

@@ -78,12 +78,12 @@ void ChangeHeadWnd::initUi()
     lay->addWidget(bodyFrm, 1);
     lay->addWidget(new Line(this), 0);
     lay->addWidget(_bottomFrm, 0);
-    connect(closeBtn, &QToolButton::clicked, [this]()
+    connect(closeBtn, &QToolButton::clicked, this, [this]()
     {
         setVisible(false);
     });
     connect(changeBtn, &QPushButton::clicked, this, &ChangeHeadWnd::showChangeHeadWnd);
-    connect(makeSureBtn, &QPushButton::clicked, [this]()
+    connect(makeSureBtn, &QPushButton::clicked, this, [this]()
     {
         emit sgChangeHead(_headPath);
         this->setVisible(false);

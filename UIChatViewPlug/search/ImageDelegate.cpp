@@ -14,15 +14,17 @@
 #include "../../Platform/Platform.h"
 
 extern ChatViewMainPanel *g_pMainPanel;
-ImageDelegate::ImageDelegate(QTableView* parent)
-        :QStyledItemDelegate(parent), _parentWgt(parent) {
+ImageDelegate::ImageDelegate(QTableView *parent)
+    : QStyledItemDelegate(parent), _parentWgt(parent)
+{
 }
 
-QWidget* ImageDelegate::creatWgt(const QStyleOptionViewItem &option, const QModelIndex &index)
+QWidget *ImageDelegate::creatWgt(const QStyleOptionViewItem &option, const QModelIndex &index)
 {
     StImageResult info = index.data(SEARCH_USER_INFO).value<StImageResult>();
-    auto* netImage = new NetImageLabel(info.imageLink);
-    connect(netImage, &NetImageLabel::clicked, [info](){
+    auto *netImage = new NetImageLabel(info.imageLink);
+    connect(netImage, &NetImageLabel::clicked, this, [info]()
+    {
         QString imagePath = QTalk::GetImagePathByUrl(info.imageLink.toStdString()).data();
         emit g_pMainPanel->showChatPicture(info.msg_id, info.content, info.index);
     });
@@ -32,7 +34,8 @@ QWidget* ImageDelegate::creatWgt(const QStyleOptionViewItem &option, const QMode
 
 void ImageDelegate::dealWidget(const QStyleOptionViewItem &option, const QModelIndex &index)
 {
-    QWidget* indexWgt = _parentWgt->indexWidget(index);
+    QWidget *indexWgt = _parentWgt->indexWidget(index);
+
     if (indexWgt)
     {
         auto w = _parentWgt->columnWidth(index.column());
@@ -48,17 +51,18 @@ void ImageDelegate::dealWidget(const QStyleOptionViewItem &option, const QModelI
     }
 }
 
-void ImageDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
+void ImageDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
     painter->save();
     painter->setRenderHint(QPainter::TextAntialiasing);
-
     QRect rect = option.rect;
     auto data = index.data(SEARCH_USER_ITEM_TYPE);
     painter->fillRect(rect, QTalk::StyleDefine::instance().getSearchNormalColor());
+
     if(data.isValid())
     {
-
         int type = data.toInt();
+
         if(type == 1)
         {
             _parentWgt->setRowHeight(index.row(), 50);
@@ -67,6 +71,7 @@ void ImageDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
         else
         {
             painter->setPen(Qt::NoPen);
+
             if (option.state & QStyle::State_Selected)
             {
                 QPen pen(QTalk::StyleDefine::instance().getImageSelectBorderColor());
@@ -76,12 +81,14 @@ void ImageDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
             }
             else
                 painter->setBrush(QTalk::StyleDefine::instance().getSearchSelectColor());
-            painter->drawRoundedRect(rect.x() + 4, rect.y() + 4, rect.width() - 8, rect.height() - 8, 4, 4);
 
-            auto* pThis = const_cast<ImageDelegate*>(this);
+            painter->drawRoundedRect(rect.x() + 4, rect.y() + 4, rect.width() - 8, rect.height() - 8, 4, 4);
+            auto *pThis = const_cast<ImageDelegate *>(this);
+
             if (pThis)
                 pThis->dealWidget(option, index);
         }
     }
+
     painter->restore();
 }

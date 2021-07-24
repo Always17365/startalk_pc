@@ -25,7 +25,7 @@
 extern ChatViewMainPanel *g_pMainPanel;
 class VideoMaskFrame : public QFrame {
 public:
-   explicit VideoMaskFrame(int direction = 0, QFrame *parent = Q_NULLPTR)
+   explicit VideoMaskFrame(int direction = 0, QFrame *parent = nullptr)
    : QFrame(parent) {
         this->setAttribute(Qt::WA_TranslucentBackground,true);
     };

@@ -1,5 +1,5 @@
 ﻿#if _MSC_VER >= 1600
-#pragma execution_character_set("utf-8")
+    #pragma execution_character_set("utf-8")
 #endif
 #ifndef SEACHEDITPANEL_H
 #define SEACHEDITPANEL_H
@@ -29,19 +29,22 @@ class SeachEditPanel : public QFrame
     Q_OBJECT
 public:
     explicit SeachEditPanel(QWidget *parent = nullptr);
-	~SeachEditPanel() override;
-	//
+    ~SeachEditPanel() override;
+    //
     void closeSearch();
 
-    void setEditFocus() {_searchEdt->setFocus();}
+    void setEditFocus()
+    {
+        _searchEdt->setFocus();
+    }
 
 public slots:
 
     // QWidget interface
 protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
-    bool eventFilter(QObject* o, QEvent* e) override;
-    bool event(QEvent* e) override ;
+    bool eventFilter(QObject *o, QEvent *e) override;
+    bool event(QEvent *e) override ;
 
 Q_SIGNALS:
     void sgStartSearch(const QString &value);
@@ -55,13 +58,13 @@ private:
     void initPanel();
 
 private:
-    QToolButton * _searchBtn;
-    QToolButton*  _clearBtn;
+    QToolButton  *_searchBtn{nullptr};
+    QToolButton  *_clearBtn{nullptr};
     Property _property;
-    bool _isEditing;
+    bool     _isEditing {false};
 
 public:
-    SearchEdit * _searchEdt;
+    SearchEdit *_searchEdt {nullptr};
 };
 
 #endif // SEACHEDITPANEL_H

@@ -114,7 +114,7 @@ UserListWnd::UserListWnd(QWidget *parent)
     auto *lay = new QHBoxLayout(this);
     lay->setMargin(0);
     lay->addWidget(mainFrm);
-    connect(closeBtn, &QToolButton::clicked, [parent]()
+    connect(closeBtn, &QToolButton::clicked, this, [parent]()
     {
         parent->setVisible(false);
     });

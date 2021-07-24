@@ -14,7 +14,7 @@ class AudioVideoItem : public MessageItemBase {
 
 Q_OBJECT
 public:
-    explicit AudioVideoItem(const StNetMessageResult &msgInfo, QWidget *parent = Q_NULLPTR);
+    explicit AudioVideoItem(const StNetMessageResult &msgInfo, QWidget *parent = nullptr);
     ~AudioVideoItem() override = default;;
 
 public:

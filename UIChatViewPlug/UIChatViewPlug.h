@@ -20,15 +20,15 @@ public:
 
     // UIPluginInterface interface
 public:
-    QWidget *widget();
+    QWidget *widget() override;
 
-    void setStyleSheet(const QString& sheet) override;
-
-private:
-    void init();
+    void setStyleSheet(const QString &sheet) override;
 
 private:
-    ChatViewMainPanel * _mainPanel;
+    void init() override;
+
+private:
+    ChatViewMainPanel *_mainPanel;
 };
 
 #endif // UICHATVIEW_H

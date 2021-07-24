@@ -6,15 +6,14 @@
 #include <QToolButton>
 #include <QHBoxLayout>
 
-CodeShell::CodeShell(const QString& title, QWidget* contentWgt, QWidget* parent)
-    : QFrame(parent), _title(title), _pContentWgt(contentWgt)
+CodeShell::CodeShell(const QString &title, QWidget *contentWgt, QWidget *parent)
+    : QFrame(parent), _pContentWgt(contentWgt), _title(title)
 {
     initUi();
 }
 
 CodeShell::~CodeShell()
 {
-
 }
 
 /**
@@ -28,11 +27,11 @@ void CodeShell::initUi()
     _pTitleLabel = new QLabel(_title, this);
     _pTitleLabel->setObjectName("TitleLabel");
     _pTitleLabel->setAlignment(Qt::AlignCenter);
-    auto* closeBtn = new QToolButton(this);
+    auto *closeBtn = new QToolButton(this);
     _pTitleFrm = new QFrame(this);
     _pTitleFrm->setFixedHeight(50);
     _pTitleFrm->setObjectName("titleFrm");
-    auto* titleLay = new QHBoxLayout(_pTitleFrm);
+    auto *titleLay = new QHBoxLayout(_pTitleFrm);
 #ifdef _MACOS
     titleLay->addWidget(closeBtn);
     titleLay->addWidget(_pTitleLabel);
@@ -51,10 +50,8 @@ void CodeShell::initUi()
     _pCodeLanguage = new QComboBox(this);
     _pCodeStyle->setObjectName("CodeStyle");
     _pCodeLanguage->setObjectName("CodeLanguage");
-
-    auto* toolFrm = new QFrame(this);
-    auto* toolLay = new QHBoxLayout(toolFrm);
-
+    auto *toolFrm = new QFrame(this);
+    auto *toolLay = new QHBoxLayout(toolFrm);
     toolLay->setMargin(0);
     toolLay->setSpacing(20);
     toolLay->addWidget(new QLabel(tr("代码风格"), this), 0);
@@ -63,22 +60,19 @@ void CodeShell::initUi()
     toolLay->addWidget(new QLabel(tr("编程语言"), this), 0);
     toolLay->addWidget(_pCodeLanguage);
     toolLay->addItem(new QSpacerItem(10, 10, QSizePolicy::Expanding));
-
     // main
-    QFrame* bodyFrm = new QFrame(this);
+    QFrame *bodyFrm = new QFrame(this);
     bodyFrm->setObjectName("bodyFrm");
-    auto* bodyLay = new QVBoxLayout(bodyFrm);
+    auto *bodyLay = new QVBoxLayout(bodyFrm);
     bodyLay->setSpacing(20);
     bodyLay->setContentsMargins(30, 20, 30, 20);
     bodyLay->addWidget(toolFrm, 0);
     bodyLay->addWidget(_pContentWgt, 1);
-
     _pMainLay = new QVBoxLayout(this);
     _pMainLay->setMargin(0);
     _pMainLay->setSpacing(0);
     _pMainLay->addWidget(_pTitleFrm, 0);
     _pMainLay->addWidget(bodyFrm, 1);
-
     QStringList styles;
     styles << "a11y-dark"
            << "a11y-light"
@@ -144,7 +138,6 @@ void CodeShell::initUi()
            << "xcode"
            << "xt256"
            << "zenburn";
-
     QStringList languages;
     languages
             << "plaintext"
@@ -173,18 +166,18 @@ void CodeShell::initUi()
             << "makefile";
     _pCodeStyle->addItems(styles);
     _pCodeLanguage->addItems(languages);
-
-    connect(closeBtn, &QToolButton::clicked, [this](){emit closeWnd();});
-
-    auto changeFun = [this](const QString&){
+    connect(closeBtn, &QToolButton::clicked, this, [this]()
+    {
+        emit closeWnd();
+    });
+    auto changeFun = [this](const QString &)
+    {
         QString style = _pCodeStyle->currentText();
         QString language = _pCodeLanguage->currentText();
-
         emit styleChanged(style, language);
     };
-
-    connect(_pCodeStyle, &QComboBox::currentTextChanged, changeFun);
-    connect(_pCodeLanguage, &QComboBox::currentTextChanged, changeFun);
+    connect(_pCodeStyle, &QComboBox::currentTextChanged, this, changeFun);
+    connect(_pCodeLanguage, &QComboBox::currentTextChanged, this, changeFun);
 }
 
 QString CodeShell::getCodeStyle()
@@ -197,26 +190,26 @@ QString CodeShell::getCodeLanguage()
     return _pCodeLanguage->currentText();
 }
 
-bool CodeShell::setCodeStyle(const QString &style) {
-
+bool CodeShell::setCodeStyle(const QString &style)
+{
     int styleIndex = _pCodeStyle->findText(style);
+
     if(styleIndex != -1)
         _pCodeStyle->setCurrentIndex(styleIndex);
     else
         _pCodeStyle->setCurrentIndex(0);
 
     return styleIndex != -1;
-
 }
 
-bool CodeShell::setCodeLanguage(const QString &language) {
-
+bool CodeShell::setCodeLanguage(const QString &language)
+{
     int styleIndex = _pCodeLanguage->findText(language);
+
     if(styleIndex != -1)
         _pCodeLanguage->setCurrentIndex(styleIndex);
     else
         _pCodeLanguage->setCurrentIndex(0);
 
     return styleIndex != -1;
-
 }

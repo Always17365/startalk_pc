@@ -22,7 +22,7 @@ extern ChatViewMainPanel *g_pMainPanel;
 AudioVideoItem::AudioVideoItem(const StNetMessageResult &msgInfo, QWidget *parent) :
         MessageItemBase(msgInfo, parent),
         _pIconLabel(nullptr),
-        _contentLab(Q_NULLPTR){
+        _contentLab(nullptr){
     init();
 }
 

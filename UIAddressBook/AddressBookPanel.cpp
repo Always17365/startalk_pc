@@ -615,17 +615,6 @@ void AddressBookPanel::creatGroup(const QString &structure, const QString &group
     }
 }
 
-///**
-//  * @函数名   sysTreeData
-//  * @功能描述 同步数据
-//  * @参数
-//     void
-//  * @author   cc
-//  * @date     2018/12/23
-//  */
-//void AddressBookPanel::sysTreeData(void *model) {
-//    _pStaffModel = (QStandardItemModel *) model;
-//}
 
 void AddressBookPanel::onCreatGroupRet(const std::string &groupId)
 {
@@ -905,23 +894,12 @@ void AddressBookPanel::updateUi()
             //
             it++;
         }
-
-        //        _pTreeWgt->setColumnWidth(EM_COLUMNTYPE_COMTENT, 230);
-        //        _pTreeWgt->setColumnWidth(EM_COLUMNTYPE_CHECKBOX, 30);
     }
-
-    //    emit setTreeDataFinised();
 }
 
 //
 void AddressBookPanel::creatChildItem(const StStrcuture *os, QStandardItem *parentItem)
 {
-    //    static int index = 0;
-    //    if(++index == 10)
-    //    {
-    //        QApplication::processEvents(QEventLoop::AllEvents, 100);
-    //        index = 0;
-    //    }
     if (os)
     {
         auto it = os->mapChild.begin();
@@ -966,85 +944,9 @@ void AddressBookPanel::creatChildItem(const StStrcuture *os, QStandardItem *pare
     }
 }
 
-void AddressBookPanel::gotIncrementUser(const std::vector<QTalk::Entity::ImUserInfo> &arUserInfo,
-                                        const std::vector<std::string> &arDeletes)
+void AddressBookPanel::gotIncrementUser(const std::vector<QTalk::Entity::ImUserInfo> &,
+                                        const std::vector<std::string> &)
 {
-    // todo 先全部刷 不考虑增量
-    //    // add
-    //    for(const auto& it : arUserInfo)
-    //    {
-    //        std::string xmppId = it.XmppId;
-    //
-    //        QStringList sto = QString::fromStdString(it.DescInfo).split("/");
-    //
-    //        if(nullptr == _pstStrcuture) break;
-    //
-    //        StStrcuture *tmp = _pstStrcuture;
-    //        for (int i = 0; i < sto.size(); i++)
-    //        {
-    //            const QString &o = sto.at(i);
-    //
-    //            if (o.isEmpty()) continue;
-    //
-    //            if (nullptr == tmp->mapChild[o])
-    //            {
-    //                tmp->mapChild[o] = new StStrcuture;
-    //                tmp->mapChild[o]->curStrcutureName = getStrName(sto, i);
-    //                //
-    //                auto *item = new QStandardItem();
-    //                item->setData(o, EM_STAFF_DATATYPE_TEXT);
-    //                item->setData(":/GroupManager/image1/structure.png", EM_STAFF_DATATYPE_ICONPATH);
-    //                item->setData(true, EM_STAFF_DATATYPE_HASCHILD);
-    //                item->setData(getStrName(sto, i), EM_STAFF_DATATYPE_STRUCTURE);
-    //                //
-    //                if(tmp->item)
-    //                    tmp->item->appendRow(item);
-    //                else
-    //                    _pStaffModel->appendRow(item);
-    //
-    //                tmp->mapChild[o]->item = item;
-    //            }
-    //
-    //            tmp = tmp->mapChild[o];
-    //
-    //            if (i == sto.size() - 1) {
-    //                auto info = std::make_shared<QTalk::Entity::ImUserInfo>(it);
-    //                tmp->oUsers.push_back(info);
-    //                //
-    //                QStandardItem *item = new QStandardItem(QString(info->Name.c_str()));
-    //                QString headrSrc = QString(QTalk::GetHeadPathByUrl(info->HeaderSrc).c_str());
-    //                if (QFileInfo(headrSrc).isDir() || !QFile::exists(headrSrc)) {
-    //                    headrSrc = ":/QTalk/image1/StarTalk_defaultHead.png";
-    //                }
-    //                item->setData(QString::fromStdString(info->Name), EM_STAFF_DATATYPE_TEXT);
-    //                item->setData(headrSrc, EM_STAFF_DATATYPE_ICONPATH);
-    //                item->setData(false, EM_STAFF_DATATYPE_HASCHILD);
-    //                item->setData(QString(info->XmppId.c_str()), EM_STAFF_DATATYPE_XMPPID);
-    //                item->setData(QString(info->SearchIndex.c_str()), EM_DATATYPE_SEARCHKEY);
-    //                auto *checkItem = new QStandardItem();
-    //                checkItem->setData(false, EM_DATATYPE_CHECKSTATE);
-    //
-    //                if(tmp->item)
-    //                    tmp->item->appendRow(QList<QStandardItem *>() << item << checkItem);
-    //                else
-    //                    _pStaffModel->appendRow(QList<QStandardItem *>() << item << checkItem);
-    //
-    //                _staffItems[info->XmppId] = item;
-    //            }
-    //        }
-    //    }
-    //    // delete
-    //    for(const auto& id : arDeletes)
-    //    {
-    //        //
-    //        if(_staffItems.find(id) != _staffItems.end())
-    //        {
-    //            auto* item = _staffItems[id];
-    //            _pStaffModel->removeRow(item->row(), item->parent()->index());
-    //            //
-    //            _staffItems.erase(id);
-    //        }
-    //    }
     // 清楚数据
     delete _pstStrcuture;
     _pstStrcuture = nullptr;

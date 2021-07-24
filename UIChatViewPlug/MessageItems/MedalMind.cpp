@@ -16,8 +16,8 @@
 extern ChatViewMainPanel *g_pMainPanel;
 MedalMind::MedalMind(const StNetMessageResult &msgInfo, QWidget *parent) :
         MessageItemBase(msgInfo, parent),
-        _iconLab(Q_NULLPTR),
-        _contentLab(Q_NULLPTR),
+        _iconLab(nullptr),
+        _contentLab(nullptr),
         _titleLab(nullptr){
     init();
 }

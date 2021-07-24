@@ -72,7 +72,6 @@ namespace QTalk
         std::string uploadLog;
         std::string checkUpdateUrl;
 
-        std::string videoUrl;
 
         std::string qcadminHost;
 
@@ -88,6 +87,12 @@ namespace QTalk
         bool rollback{};
 
         std::string videoConference;
+
+        //
+        bool        bVideoChat  {false};
+        bool        bConference {false};
+
+        std::string videoUrl;
     };
 
     struct StOAUIData

@@ -298,12 +298,12 @@ void MainPanel::init()
             this, &MainPanel::onClearSearch, Qt::QueuedConnection);
     connect(_pSearchResultPanel, &SearchResultPanel::sgShowFileRecordWnd,
             this, &MainPanel::onClearSearch, Qt::QueuedConnection);
-    connect(_dropMenu, &DropMenu::sgShowAboutWnd, [this]()
+    connect(_dropMenu, &DropMenu::sgShowAboutWnd, this, [this]()
     {
         if (nullptr != _pAboutWnd)
             _pAboutWnd->showCenter(true, _pCtrlWdt);
     });
-    connect(_dropMenu, &DropMenu::sgShowSystemSetting, [this]()
+    connect(_dropMenu, &DropMenu::sgShowSystemSetting, this, [this]()
     {
         if (nullptr != _pSystemSettingWnd)
         {
@@ -316,12 +316,12 @@ void MainPanel::init()
     connect(_dropMenu, &DropMenu::sgDoUpdateClient, this, &MainPanel::sgDoUpdateClient);
     connect(_pSystemSettingWnd, &SystemSettingWnd::sgSetAutoLogin, this, &MainPanel::sgSetAutoLogin);
     connect(_pSystemSettingWnd, &SystemSettingWnd::sgFeedbackLog, this, &MainPanel::feedbackLog);
-    connect(_pSystemSettingWnd, &SystemSettingWnd::saveConfig, [this]()
+    connect(_pSystemSettingWnd, &SystemSettingWnd::saveConfig, this, [this]()
     {
         emit sgSaveSysConfig();
         TitlebarMsgManager::saveConfig();
     });
-    connect(_pSystemSettingWnd, &SystemSettingWnd::sgClearSystemCache, [this]()
+    connect(_pSystemSettingWnd, &SystemSettingWnd::sgClearSystemCache, this, [this]()
     {
         int ret = QtMessageBox::question(this, tr("友情提示"), tr("是否要清除应用缓存，清除后应用会自动重启？"), QtMessageBox::EM_BUTTON_YES | QtMessageBox::EM_BUTTON_NO);
 
@@ -343,20 +343,20 @@ void MainPanel::init()
             QApplication::exit(0);
         }
     });
-    connect(_pChangeHeadWnd, &ChangeHeadWnd::sgChangeHead, [this](const QString & headPath)
+    connect(_pChangeHeadWnd, &ChangeHeadWnd::sgChangeHead, this, [this](const QString & headPath)
     {
         if (headPath.isEmpty() || headPath == _headPath)
             return;
 
         TitlebarMsgManager::changeUserHead(headPath.toLocal8Bit().toStdString());
     });
-    connect(_pSearchResultPanel, &SearchResultPanel::sgSetEditFocus, [this]()
+    connect(_pSearchResultPanel, &SearchResultPanel::sgSetEditFocus, this, [this]()
     {
         this->activateWindow();
         _searchFrm->_searchEdt->setFocus();
         emit sgOperator(tr("搜索"));
     });
-    connect(_pQuickBtn, &QToolButton::clicked, [this]()
+    connect(_pQuickBtn, &QToolButton::clicked, this, [this]()
     {
         QPoint pos;
         auto geo = this->geometry();
@@ -364,7 +364,7 @@ void MainPanel::init()
         pos.setX(mapToGlobal(_pQuickBtn->geometry().topLeft()).x());
         _pQuickMenu->exec(pos);
     });
-    connect(creatGroupAct, &QAction::triggered, [this]()
+    connect(creatGroupAct, &QAction::triggered, this, [this]()
     {
         QString userCard = QString::fromStdString(PLAT.getSelfXmppId());
         emit creatGroup(userCard);
@@ -421,7 +421,7 @@ void MainPanel::connects()
     connect(_searchFrm, &SeachEditPanel::sgSelectUp, _pSearchResultPanel, &SearchResultPanel::sgSelectUp);
     connect(_searchFrm, &SeachEditPanel::sgSelectDown, _pSearchResultPanel, &SearchResultPanel::sgSelectDown);
     connect(_searchFrm, &SeachEditPanel::sgSelectItem, _pSearchResultPanel, &SearchResultPanel::sgSelectItem);
-    connect(_searchFrm, &SeachEditPanel::sgKeyEsc, [this]()
+    connect(_searchFrm, &SeachEditPanel::sgKeyEsc, this, [this]()
     {
         if (_pSearchResultPanel->isVisible())
             _pSearchResultPanel->setVisible(false);
@@ -429,7 +429,7 @@ void MainPanel::connects()
     connect(_pSearchResultPanel, &SearchResultPanel::sgOpenSearch, this, &MainPanel::onSearchResultVisible);
     connect(_searchFrm, &SeachEditPanel::sgStartSearch, _pSearchResultPanel, &SearchResultPanel::addSearchReq);
     //    connect(_sessionBtn, &SessionBtn::clicked, this, &MainPanel::sgJumpToNewMessage);
-    connect(_dropMenu, &DropMenu::showSelfUserCard, [this]()
+    connect(_dropMenu, &DropMenu::showSelfUserCard, this, [this]()
     {
         QString userCard = QString::fromStdString(PLAT.getSelfXmppId());
         emit showSelfUserCard(userCard);

@@ -15,13 +15,13 @@
 
 #include "../qtutil_global.h"
 
-namespace QTalk {
-    namespace utils {
-        namespace strings {
+namespace QTalk
+{
+    namespace utils
+    {
+        namespace strings
+        {
             std::string QTALK_UTIL_EXPORT struct2string(void *ptr, size_t size);
-
-            bool QTALK_UTIL_EXPORT
-            string2struct(std::string &input, std::function<void(void *, int)> callback);
         };
 
         std::string QTALK_UTIL_EXPORT string_to_hex(const std::string &input, size_t len);
@@ -38,7 +38,7 @@ namespace QTalk {
 
         std::string QTALK_UTIL_EXPORT decodeWithGZip(std::string *input);
 
-        std::string QTALK_UTIL_EXPORT UrlEncode(const std::string& str);
+        std::string QTALK_UTIL_EXPORT UrlEncode(const std::string &str);
 
         void QTALK_UTIL_EXPORT generateUUID(char *str);
 
@@ -46,17 +46,15 @@ namespace QTalk {
 
         std::string QTALK_UTIL_EXPORT getMessageId();
 
-        std::string QTALK_UTIL_EXPORT replaceAll(const std::string& srcStr, char matStr, const std::string& dstStr);
+        std::string QTALK_UTIL_EXPORT replaceAll(const std::string &srcStr, char matStr, const std::string &dstStr);
 
-        std::string QTALK_UTIL_EXPORT getFileMd5(const std::string& filePath);
+        std::string QTALK_UTIL_EXPORT getFileMd5(const std::string &filePath);
 
-        std::string QTALK_UTIL_EXPORT getFileSuffix(const std::string& filePath);
-
-        // 暂时不可用
-        std::string QTALK_UTIL_EXPORT getImageSuffix(const std::string& filePath);
+        std::string QTALK_UTIL_EXPORT getFileSuffix(const std::string &filePath);
 
         template<typename T>
-        class SharedQueue {
+        class SharedQueue
+        {
         public:
             SharedQueue();
 
@@ -89,43 +87,50 @@ namespace QTalk {
         SharedQueue<T>::~SharedQueue() {}
 
         template<typename T>
-        T &SharedQueue<T>::front() {
+        T &SharedQueue<T>::front()
+        {
             std::unique_lock<std::mutex> mlock(mutex_);
-            while (queue_.empty()) {
+
+            while (queue_.empty())
                 cond_.wait(mlock);
-            }
+
             return queue_.front();
         }
 
         template<typename T>
-        T &SharedQueue<T>::back() {
+        T &SharedQueue<T>::back()
+        {
             std::unique_lock<std::mutex> mlock(mutex_);
-            while (queue_.empty()) {
+
+            while (queue_.empty())
                 cond_.wait(mlock);
-            }
+
             return queue_.back();
         }
 
         template<typename T>
-        void SharedQueue<T>::pop_front() {
+        void SharedQueue<T>::pop_front()
+        {
             std::unique_lock<std::mutex> mlock(mutex_);
-            while (queue_.empty()) {
+
+            while (queue_.empty())
                 cond_.wait(mlock);
-            }
+
             queue_.pop_front();
         }
 
         template<typename T>
-        void SharedQueue<T>::push_back(const T &item) {
+        void SharedQueue<T>::push_back(const T &item)
+        {
             std::unique_lock<std::mutex> mlock(mutex_);
             queue_.push_back(item);
             mlock.unlock();     // unlock before notificiation to minimize mutex con
             cond_.notify_one(); // notify one waiting thread
-
         }
 
         template<typename T>
-        void SharedQueue<T>::push_back(T &&item) {
+        void SharedQueue<T>::push_back(T &&item)
+        {
             std::unique_lock<std::mutex> mlock(mutex_);
             queue_.push_back(std::move(item));
             mlock.unlock();     // unlock before notificiation to minimize mutex con
@@ -133,7 +138,8 @@ namespace QTalk {
         }
 
         template<typename T>
-        int SharedQueue<T>::size() {
+        int SharedQueue<T>::size()
+        {
             std::unique_lock<std::mutex> mlock(mutex_);
             int size = queue_.size();
             mlock.unlock();

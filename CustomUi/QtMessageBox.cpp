@@ -12,7 +12,7 @@
 #include <QClipboard>
 #include <QDesktopServices>
 
-    QtMessageBox::QtMessageBox(QWidget* parent, int type, const QString& message, const QString& subMessage, int buttons)
+QtMessageBox::QtMessageBox(QWidget *parent, int type, const QString &message, const QString &subMessage, int buttons)
     : UShadowDialog(parent, true), _retButton(EM_BUTTON_INVALID)
 {
     setFixedWidth(380);
@@ -20,7 +20,7 @@
     if(parent == nullptr)
         this->setParent(UICom::getInstance()->getAcltiveMainWnd());
 
-    auto* pixLabel = new QLabel(this);
+    auto *pixLabel = new QLabel(this);
     mainMessageLabel = new QLabel(this);
     subMessageLabel = new QLabel(this);
     mainMessageLabel->setTextFormat(Qt::PlainText);
@@ -34,7 +34,7 @@
     subMessageLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
     subMessageLabel->setAlignment(Qt::AlignTop);
     //
-    auto * leftLay = new QVBoxLayout;
+    auto *leftLay = new QVBoxLayout;
     leftLay->setMargin(0);
     leftLay->addWidget(pixLabel);
     leftLay->addItem(new QSpacerItem(1, 1, QSizePolicy::Fixed, QSizePolicy::Expanding));
@@ -46,65 +46,71 @@
     //
     auto *buttonLay = new QHBoxLayout;
     buttonLay->addItem(new QSpacerItem(1, 1, QSizePolicy::Expanding));
+
     if(buttons & EM_BUTTON_NO)
     {
-        auto * noButton = new QPushButton(tr("取消"), this);
+        auto *noButton = new QPushButton(tr("取消"), this);
         noButton->setObjectName("NoButton");
         buttonLay->addWidget(noButton);
         noButton->setFixedSize(72, 32);
-        connect(noButton, &QPushButton::clicked, [this](){
+        connect(noButton, &QPushButton::clicked, this, [this]()
+        {
             _retButton = EM_BUTTON_NO;
             this->setVisible(false);
             _evtLoop->exit();
         });
     }
+
     if(buttons & EM_BUTTON_CANCEL_UPDATE)
     {
-        auto * noButton = new QPushButton(tr("暂不更新"), this);
+        auto *noButton = new QPushButton(tr("暂不更新"), this);
         noButton->setObjectName("NoButton");
         buttonLay->addWidget(noButton);
         noButton->setFixedSize(72, 32);
-        connect(noButton, &QPushButton::clicked, [this](){
+        connect(noButton, &QPushButton::clicked, this, [this]()
+        {
             _retButton = EM_BUTTON_CANCEL_UPDATE;
             this->setVisible(false);
             _evtLoop->exit();
         });
     }
+
     if(buttons & EM_BUTTON_YES)
     {
         auto *yesButton = new QPushButton(tr("确定"), this);
         yesButton->setObjectName("YesButton");
         buttonLay->addWidget(yesButton);
         yesButton->setFixedSize(72, 32);
-
-        connect(yesButton, &QPushButton::clicked, [this](){
+        connect(yesButton, &QPushButton::clicked, this, [this]()
+        {
             _retButton = EM_BUTTON_YES;
             this->setVisible(false);
             _evtLoop->exit();
         });
     }
+
     if(buttons & EM_BUTTON_DELETE)
     {
         auto *deleteButton = new QPushButton(tr("删除"), this);
         deleteButton->setObjectName("DeleteButton");
         buttonLay->addWidget(deleteButton);
         deleteButton->setFixedSize(72, 32);
-        connect(deleteButton, &QPushButton::clicked, [this](){
+        connect(deleteButton, &QPushButton::clicked, this, [this]()
+        {
             _retButton = EM_BUTTON_DELETE;
             this->setVisible(false);
             _evtLoop->exit();
         });
     }
-    rightLay->addLayout(buttonLay);
 
-    QFrame* mainFrm = new QFrame(this);
+    rightLay->addLayout(buttonLay);
+    QFrame *mainFrm = new QFrame(this);
     mainFrm->setObjectName("MessageBox");
     auto *mainLay = new QHBoxLayout(mainFrm);
     mainLay->setContentsMargins(32, 32, 32, 20);
     mainLay->setSpacing(16);
     mainLay->addLayout(leftLay);
     mainLay->addLayout(rightLay);
-
     auto *lay = new QHBoxLayout(_pCenternWgt);
     lay->addWidget(mainFrm);
     lay->setMargin(0);
@@ -116,28 +122,34 @@
         case EM_LEVEL_SUCCESS:
             pixLabel->setPixmap(QPixmap(":/success"));
             break;
+
         case EM_LEVEL_INFO:
             pixLabel->setPixmap(QPixmap(":/information"));
             break;
+
         case EM_LEVEL_QUESTION:
             pixLabel->setPixmap(QPixmap(":/question"));
             break;
+
         case EM_LEVEL_WARNING:
             pixLabel->setPixmap(QPixmap(":/warning"));
             break;
+
         case EM_LEVEL_ERROR:
             pixLabel->setPixmap(QPixmap(":/error"));
             break;
+
         default:
             break;
     }
+
     mainMessageLabel->setText(message);
     subMessageLabel->setText(subMessage);
 #ifdef _MACOS
     macAdjustWindows();
 #endif
-
-    connect(subMessageLabel, &QLabel::linkActivated, [this](const QString& link){
+    connect(subMessageLabel, &QLabel::linkActivated, this, [this](const QString & link)
+    {
         QDesktopServices::openUrl(QUrl(link));
         _retButton = EM_BUTTON_YES;
         this->setVisible(false);
@@ -147,36 +159,40 @@
 
 QtMessageBox::~QtMessageBox() = default;
 
-int QtMessageBox::information(QWidget *parent, const QString &message, const QString &subMessage, int buttons) {
-
-    auto* box = new QtMessageBox(parent, EM_LEVEL_INFO, message, subMessage, buttons);
+int QtMessageBox::information(QWidget *parent, const QString &message, const QString &subMessage, int buttons)
+{
+    auto *box = new QtMessageBox(parent, EM_LEVEL_INFO, message, subMessage, buttons);
     box->showModel();
     box->_evtLoop->exec();
     return box->_retButton;
 }
 
-int QtMessageBox::success(QWidget *parent, const QString &message, const QString &subMessage, int buttons) {
-    auto* box = new QtMessageBox(parent, EM_LEVEL_SUCCESS, message, subMessage, buttons);
+int QtMessageBox::success(QWidget *parent, const QString &message, const QString &subMessage, int buttons)
+{
+    auto *box = new QtMessageBox(parent, EM_LEVEL_SUCCESS, message, subMessage, buttons);
     box->showModel();
     return box->_retButton;
 }
 
-int QtMessageBox::question(QWidget *parent, const QString &message, const QString &subMessage, int buttons) {
-    auto* box = new QtMessageBox(parent, EM_LEVEL_QUESTION, message, subMessage, buttons);
-    box->showModel();
-    box->_evtLoop->exec();
-    return box->_retButton;
-}
-
-int QtMessageBox::warning(QWidget *parent, const QString &message, const QString &subMessage, int buttons) {
-    auto* box = new QtMessageBox(parent, EM_LEVEL_WARNING, message, subMessage, buttons);
+int QtMessageBox::question(QWidget *parent, const QString &message, const QString &subMessage, int buttons)
+{
+    auto *box = new QtMessageBox(parent, EM_LEVEL_QUESTION, message, subMessage, buttons);
     box->showModel();
     box->_evtLoop->exec();
     return box->_retButton;
 }
 
-int QtMessageBox::error(QWidget *parent, const QString &message, const QString &subMessage, int buttons) {
-    auto* box = new QtMessageBox(parent, EM_LEVEL_ERROR, message, subMessage, buttons);
+int QtMessageBox::warning(QWidget *parent, const QString &message, const QString &subMessage, int buttons)
+{
+    auto *box = new QtMessageBox(parent, EM_LEVEL_WARNING, message, subMessage, buttons);
+    box->showModel();
+    box->_evtLoop->exec();
+    return box->_retButton;
+}
+
+int QtMessageBox::error(QWidget *parent, const QString &message, const QString &subMessage, int buttons)
+{
+    auto *box = new QtMessageBox(parent, EM_LEVEL_ERROR, message, subMessage, buttons);
     box->showModel();
     box->_evtLoop->exec();
     return box->_retButton;
@@ -201,13 +217,16 @@ void QtMessageBox::keyPressEvent(QKeyEvent *e)
         this->setVisible(false);
         _evtLoop->exit();
     }
+
 #ifdef _MACOS
+
     if(e->modifiers() == Qt::ControlModifier && e->key() == Qt::Key_W)
     {
         _retButton = EM_BUTTON_NO;
         this->setVisible(false);
         _evtLoop->exit();
     }
+
 #endif
     UShadowDialog::keyPressEvent(e);
 }

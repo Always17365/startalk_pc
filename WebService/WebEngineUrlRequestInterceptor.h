@@ -12,7 +12,7 @@ class WebView;
 class WebEngineUrlRequestInterceptor : public QWebEngineUrlRequestInterceptor{
     Q_OBJECT
 public:
-    explicit WebEngineUrlRequestInterceptor(WebView* webView, QObject *parent = Q_NULLPTR);
+    explicit WebEngineUrlRequestInterceptor(WebView* webView, QObject *parent = nullptr);
     void interceptRequest(QWebEngineUrlRequestInfo &info);
 
 private:

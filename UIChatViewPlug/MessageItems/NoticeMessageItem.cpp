@@ -18,8 +18,8 @@
 #include <QTextEdit>
 NoticeMessageItem::NoticeMessageItem(const StNetMessageResult &msgInfo,
                                  QWidget *parent):MessageItemBase(msgInfo,parent),
-                                                  titleLabel(Q_NULLPTR),
-                                                  contentLabel(Q_NULLPTR)
+                                                  titleLabel(nullptr),
+                                                  contentLabel(nullptr)
 {
     init();
 }

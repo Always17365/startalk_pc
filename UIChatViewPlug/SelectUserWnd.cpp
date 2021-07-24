@@ -73,7 +73,6 @@ SelectUserWndDelegate::paint(QPainter *painter,
 
     if (option.state & QStyle::State_Selected)
         painter->fillRect(rect, QTalk::StyleDefine::instance().getNavSelectColor());
-
     else
         painter->fillRect(rect, QTalk::StyleDefine::instance().getNavNormalColor());
 
@@ -100,7 +99,6 @@ SelectUserWndDelegate::paint(QPainter *painter,
     {
         if (chatType == QTalk::Enum::GroupChat)
             headPath = ":/QTalk/image1/StarTalk_defaultGroup.png";
-
         else
             headPath = ":/QTalk/image1/StarTalk_defaultHead.png";
     }
@@ -124,7 +122,6 @@ SelectUserWndDelegate::paint(QPainter *painter,
 
     if (isCheck)
         checkIcon = ":/chatview/image1/toolBar/checkbox_checked.png";
-
     else
         checkIcon = ":/chatview/image1/toolBar/checkbox_unchecked.png";
 
@@ -257,15 +254,15 @@ void SelectUserWnd::initUi()
     //
     setMoverAble(true);
     //
-    connect(titleFrm->getCloseBtn(), &QToolButton::clicked, [this]()
+    connect(titleFrm->getCloseBtn(), &QToolButton::clicked, this, [this]()
     {
         this->close();
     });
-    connect(cancelBtn, &QPushButton::clicked, [this]()
+    connect(cancelBtn, &QPushButton::clicked, this, [this]()
     {
         this->close();
     });
-    connect(okBtn, &QPushButton::clicked, [this]()
+    connect(okBtn, &QPushButton::clicked, this, [this]()
     {
         _evtRet = 1;
         this->close();
@@ -277,7 +274,7 @@ void SelectUserWnd::initUi()
             &SelectUserWnd::onItemCheckChanged);
     connect(selectUserWndDelegate, &SelectUserWndDelegate::itemDbClicked, this,
             &SelectUserWnd::onItemDbClicked);
-    connect(_pSearchEdit, &Search_Edit::textChanged, [this](const QString & text)
+    connect(_pSearchEdit, &Search_Edit::textChanged, this, [this](const QString & text)
     {
         _searchQueue->push(text.toStdString());
     });
@@ -433,7 +430,6 @@ void SelectUserWnd::onItemCheckChanged(const QModelIndex &index)
 
     if (isChecked)
         _selectedIds[uid] = chatType;
-
     else
         _selectedIds.erase(uid);
 }

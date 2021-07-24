@@ -9,18 +9,18 @@
 #include <QLabel>
 
 
-class MedalMind : public MessageItemBase {
+class MedalMind : public MessageItemBase
+{
 
-Q_OBJECT
+    Q_OBJECT
 public:
-    explicit MedalMind(const StNetMessageResult &msgInfo, QWidget *parent = Q_NULLPTR);
-    ~MedalMind() override = default;
+    explicit MedalMind(const StNetMessageResult &msgInfo, QWidget *parent = nullptr);
 
 public:
     QSize itemWdtSize() override;
 
 protected:
-    void mousePressEvent(QMouseEvent* e) override;
+    void mousePressEvent(QMouseEvent *e) override;
 
 private:
     void init();
@@ -30,20 +30,20 @@ private:
     void initContentLayout();
 
 private:
-    QLabel *_iconLab;
-    QLabel *_titleLab;
-    QLabel *_contentLab;
+    QLabel *_iconLab   {nullptr};
+    QLabel *_titleLab  {nullptr};
+    QLabel *_contentLab{nullptr};
 
-    QSize _headPixSize;
+    QSize    _headPixSize;
     QMargins _mainMargin;
     QMargins _leftMargin;
     QMargins _rightMargin;
-    QSize _contentSize;
-    int _mainSpacing;
+    QSize    _contentSize;
 
-    int _leftSpacing;
-    int _rightSpacing;
-    int _nameLabHeight;
+    int _mainSpacing  {0};
+    int _leftSpacing  {0};
+    int _rightSpacing {0};
+    int _nameLabHeight{0};
 };
 
 

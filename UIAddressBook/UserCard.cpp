@@ -228,7 +228,7 @@ void UserCard::initUi()
     connect(_pMailBtn, &QPushButton::clicked, this, &UserCard::sendMailSlot);
     connect(_pBtnStar, &QPushButton::clicked, this, &UserCard::starUserSlot);
     connect(_pAddBlackListAct, &QAction::triggered, this, &UserCard::addBlackListSlot);
-    connect(btnMore, &QPushButton::clicked, [this]()
+    connect(btnMore, &QPushButton::clicked, this, [this]()
     {
         _pMenu->exec(QCursor::pos());
     });

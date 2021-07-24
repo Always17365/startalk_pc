@@ -5,135 +5,151 @@
 #ifndef STLAZYQUEUE_H
 #define STLAZYQUEUE_H
 
-#define QUEUE_DEBUG 0
-
-
 #include <mutex>
 #include <queue>
 #include <thread>
-
 #include <iostream>
 #include <functional>
 #include <atomic>
+#include <condition_variable>
 #include "../QtUtil/Utils/Log.h"
+#include "../include/threadhelper.h"
 
-//#define NANO_SECOND_MULTIPLIER  1000000  // 1 millisecond = 1,000,000 Nanoseconds
 const unsigned long INTERVAL_MS = 10 ;
 
 template<typename T>
-class STLazyQueue {
+class STLazyQueue
+{
 public:
-    inline void init(unsigned long delayMs, std::function<int(STLazyQueue<T> *)> &func) {
+    inline void init(unsigned long delayMs, std::function<int(STLazyQueue<T> *)> &func)
+    {
+        localFunc = [this, func, delayMs]()
+        {
+            _run.store(true);
 
-        localFunc = [this, func, delayMs]() {
-
-            while (!empty()) {
-
-                std::lock_guard<std::mutex> lock(runner_mutex);
-                if(!_run)
+            while (true)
+            {
+                if(!_run.load())
                     break;
-                unsigned long size = this->size();
 
+                if(empty())
+                {
+                    std::unique_lock <std::mutex> lck(_waitMutex);
+                    _wait.wait(lck);
+                }
+
+                unsigned long size = this->size();
                 const std::chrono::milliseconds ms(delayMs);
                 std::this_thread::sleep_for(ms);
 
-                if(!_run)
+                if(!_run.load())
                     break;
+
                 unsigned long newSize = this->size();
 
-                if (size != newSize) {
-
+                if (size != newSize)
                     continue;
-                } else {
-                    if(!_run)
+                else
+                {
+                    if(!_run.load())
                         break;
-                    if (!this->empty()) {
 
-//                        int count = this->size();
+                    if (!empty())
+                    {
+                        func(this);
 
-                        try {
-                            if(!_run)
-                                break;
-                            //
-                            func(this);
-                        } catch (std::exception &exception) {
-                            error_log("error occoured in LazyQueue, {}", exception.what());
-                        }
-
+                        // clear
+                        if(!empty()) clear();
                     }
                 }
             }
         };
     }
 
-    explicit STLazyQueue(std::function<int(STLazyQueue<T> *)> &func) {
+    explicit STLazyQueue(std::function<int(STLazyQueue<T> *)> &func)
+    {
         init(INTERVAL_MS, func);
     }
 
-    STLazyQueue(unsigned long delayMs, std::function<int(STLazyQueue<T> *)> &func)  {
+    STLazyQueue(unsigned long delayMs, std::function<int(STLazyQueue<T> *)> &func)
+    {
         init(delayMs, func);
     }
 
     ~STLazyQueue()
     {
-        std::lock_guard<std::mutex> r_lock(runner_mutex);
-        _run = false;
+        _run.store(false);
+        _wait.notify_all();
+
+        if(_thread)
+            _thread->join();
     }
 
-    void checkRunner() {
-        if(_run && m_queque.size() == 1) {
-            std::thread runner(localFunc);
-            runner.detach();
+    void checkRunner()
+    {
+        if(_run.load() && m_queque.size() == 1)
+        {
+            if(nullptr == _thread)
+                _thread = new std::thread(localFunc);
+
+            _wait.notify_one();
         }
     }
 
-    void push(const T &value) {
-        std::lock_guard<std::mutex> lock(m_mutex);
+    void push(const T &value)
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
         m_queque.push(value);
         checkRunner();
     }
 
-    unsigned long size() {
-        std::lock_guard<std::mutex> lock(m_mutex);
+    unsigned long size()
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
         return m_queque.size();
     }
 
-    bool empty() {
-        std::lock_guard<std::mutex> lock(m_mutex);
+    bool empty()
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
         return m_queque.empty();
     }
 
-    T tail() {
-        std::lock_guard<std::mutex> lock(m_mutex);
+    T tail()
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
         return m_queque.back();
     }
 
-    T front() {
-        std::lock_guard<std::mutex> lock(m_mutex);
+    T front()
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
         return m_queque.front();
     }
 
-    void pop() {
-        std::lock_guard<std::mutex> lock(m_mutex);
+    void pop()
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
         m_queque.pop();
     }
 
-    void clear() {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        while(!m_queque.empty()) m_queque.pop();;
+    void clear()
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
+
+        while(!m_queque.empty()) m_queque.pop();
     }
 
 private:
-
-	unsigned long _delayMs;
-
-    std::atomic<int> _checkCounter;
+    unsigned long         _delayMs{0};
     std::function<void()> localFunc;
-    std::queue<T> m_queque;
-    mutable std::mutex m_mutex;
-    mutable std::mutex runner_mutex;
+    std::queue<T>         m_queque;
+    mutable std::mutex    _mutex;
 
-    bool _run = true;
+    std::atomic<bool>     _run {true};
+    std::mutex            _waitMutex;
+    std::thread          *_thread{nullptr};
+    std::condition_variable _wait;
 };
 
 #endif //STLAZYQUEUE_H

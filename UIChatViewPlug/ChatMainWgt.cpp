@@ -117,13 +117,6 @@ ChatMainWgt::ChatMainWgt(ChatViewItem *pViewItem)
 
         if (q != nullptr && !q->empty())
         {
-            while (!q->empty())
-            {
-                isOk &= q->front();
-                q->pop();
-                runningCount++;
-            }
-
             if(pThis)
                 emit pThis->adjustItems(isOk);
         }
@@ -136,12 +129,6 @@ ChatMainWgt::ChatMainWgt(ChatViewItem *pViewItem)
 
         if (q != nullptr && !q->empty())
         {
-            while (!q->empty())
-            {
-                q->pop();
-                runningCount++;
-            }
-
             if(pThis)
                 emit pThis->sgSelectItem();
         }
@@ -188,7 +175,7 @@ void ChatMainWgt::connects()
     connect(quoteAct, &QAction::triggered, this, &ChatMainWgt::onQuoteAct);
     connect(collectionAct, &QAction::triggered, this, &ChatMainWgt::onCollectionAct);
     connect(qrcodeAct, &QAction::triggered, this, &ChatMainWgt::onQRCodeAct);
-    connect(shareMessageAct, &QAction::triggered, [this]()
+    connect(shareMessageAct, &QAction::triggered, this, [this]()
     {
         if(!_selectEnable)
             _pViewItem->setShareMessageState(true);
@@ -1006,7 +993,7 @@ void ChatMainWgt::onQRCodeAct(bool)
     std::string imageLocalFile = ChatMsgManager::getSouceImagePath(netPath.toStdString());
 
     if(!imageLocalFile.empty() && QFile::exists(imageLocalFile.data()) && g_pMainPanel)
-	    ChatViewMainPanel::scanQRcCodeImage(imageLocalFile.data());
+        ChatViewMainPanel::scanQRcCodeImage(imageLocalFile.data());
 }
 
 void ChatMainWgt::recvBlackListMessage(const QString &messageId)

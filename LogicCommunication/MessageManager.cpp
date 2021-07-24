@@ -958,19 +958,10 @@ void CommMsgListener::onEvent(ChangeHeadMessage &e)
         _pComm->changeUserHead(e.userHead);
 }
 
-void CommMsgListener::onEvent(UserOnlineState &e)
+void CommMsgListener::onEvent(UserOnlineState &)
 {
-    if (e.getCanceled())
-        return;
-
-    if (nullptr != _pComm)
-        _pComm->sendUserOnlineState(e.login_t, e.logout_t, e.ip);
 }
 
-/**
- *
- * @param e
- */
 void CommMsgListener::onEvent(OperatorStatistics &e)
 {
     if (e.getCanceled())

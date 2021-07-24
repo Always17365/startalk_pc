@@ -13,36 +13,40 @@
 #include <QPainterPath>
 
 extern ChatViewMainPanel *g_pMainPanel;
-NetImageLabel::NetImageLabel(QString link, QWidget* parent)
-    :QFrame(parent), _image_link(std::move(link))
+NetImageLabel::NetImageLabel(QString link, QWidget *parent)
+    : QFrame(parent), _image_link(std::move(link))
 {
     setFixedSize(30, 30);
     std::string imgPath = QTalk::GetImagePathByUrl(_image_link.toStdString());
-
-    connect(this, &NetImageLabel::sgDownloadSuccess, [this](){this->update();});
-
+    connect(this, &NetImageLabel::sgDownloadSuccess, this, [this]()
+    {
+        this->update();
+    });
     QFileInfo info(QString::fromStdString(imgPath));
+
     if(!_image_link.isEmpty() && (!info.exists() || info.isDir()))
     {
-        QT_CONCURRENT_FUNC([this](){
+        QT_CONCURRENT_FUNC([this]()
+        {
             std::string downloadFile = ChatMsgManager::getLocalFilePath(_image_link.toStdString());
+
             if(!downloadFile.empty())
                 emit sgDownloadSuccess();
         });
     }
 }
 
-void NetImageLabel::paintEvent(QPaintEvent *event) {
-
+void NetImageLabel::paintEvent(QPaintEvent *event)
+{
     QPainter painter(this);
     QRect rect = this->contentsRect();
-
-    auto load_default_image = [rect, &painter](){
+    auto load_default_image = [rect, &painter]()
+    {
         auto image = QTalk::qimage::loadImage(":/chatview/image1/default.png", false);
         painter.drawPixmap(rect, image);
     };
-
     QString imgPath = _local_path;
+
     if(imgPath.isEmpty())
         imgPath = QTalk::GetImagePathByUrl(_image_link.toStdString()).data();
 
@@ -50,7 +54,8 @@ void NetImageLabel::paintEvent(QPaintEvent *event) {
     {
         qreal dpi = QTalk::qimage::dpi();
         QPixmap image = QTalk::qimage::loadImage(imgPath,
-                                                            false, true, rect.width() * dpi, rect.height() * dpi);
+                        false, true, rect.width() * dpi, rect.height() * dpi);
+
         if(image.isNull())
             load_default_image();
         else
@@ -76,7 +81,6 @@ void NetImageLabel::paintEvent(QPaintEvent *event) {
         painter.setPen(Qt::NoPen);
         painter.setBrush(QColor(0, 0, 0, 100));
         painter.drawEllipse((w - ew) / 2, (h - ew) / 2, ew, ew);
-
         auto path = QPainterPath();
         path.moveTo((w - sw) / 2 + 1, (h - sw) / 2);
         path.lineTo((w - sw) / 2 + sw + 1, (h - sw) / 2 + sw / 2);
@@ -89,7 +93,8 @@ void NetImageLabel::paintEvent(QPaintEvent *event) {
 }
 
 // show local image
-void NetImageLabel::setLocalImage(const QString &local) {
+void NetImageLabel::setLocalImage(const QString &local)
+{
     _local_path = local;
     update();
 }
@@ -102,9 +107,10 @@ void NetImageLabel::showVideoMask()
 }
 
 //
-bool NetImageLabel::event(QEvent *e) {
-
+bool NetImageLabel::event(QEvent *e)
+{
     if(e->type() == QEvent::MouseButtonPress)
         emit clicked();
+
     return QFrame::event(e);
 }

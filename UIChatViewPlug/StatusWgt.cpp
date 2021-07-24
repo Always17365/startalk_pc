@@ -24,24 +24,29 @@ void StatusLabel::setStatus(Status sts)
 {
     _sts = sts;
     update();
+
     switch (sts)
     {
-    case EM_STS_ONLINE:
-        setToolTip(tr("在线"));
-        break;
-    case EM_STS_BUSY:
-        setToolTip(tr("繁忙"));
-        break;
-    case EM_STS_AWAY:
-        setToolTip(tr("离开"));
-        break;
-    case EM_STS_OFFLINE:
-        setToolTip(tr("离线"));
-        break;
-    default:
-    case EM_STS_INVALID:
-        setToolTip("");
-        break;
+        case EM_STS_ONLINE:
+            setToolTip(tr("在线"));
+            break;
+
+        case EM_STS_BUSY:
+            setToolTip(tr("繁忙"));
+            break;
+
+        case EM_STS_AWAY:
+            setToolTip(tr("离开"));
+            break;
+
+        case EM_STS_OFFLINE:
+            setToolTip(tr("离线"));
+            break;
+
+        default:
+        case EM_STS_INVALID:
+            setToolTip("");
+            break;
     }
 }
 
@@ -51,24 +56,30 @@ void StatusLabel::paintEvent(QPaintEvent *e)
     painter.begin(this);
     //
     QColor brushColor;
+
     switch (_sts)
     {
-    case EM_STS_ONLINE:
-        brushColor = QColor(82, 196, 26);
-        break;
-    case EM_STS_BUSY:
-        brushColor = QColor(250, 173, 20);
-        break;
-    case EM_STS_AWAY:
-        brushColor = QColor(255, 78, 63);
-        break;
-    case EM_STS_OFFLINE:
-        brushColor = QColor(181, 181, 181);
-        break;
-    default:
-    case EM_STS_INVALID:
-        return;
+        case EM_STS_ONLINE:
+            brushColor = QColor(82, 196, 26);
+            break;
+
+        case EM_STS_BUSY:
+            brushColor = QColor(250, 173, 20);
+            break;
+
+        case EM_STS_AWAY:
+            brushColor = QColor(255, 78, 63);
+            break;
+
+        case EM_STS_OFFLINE:
+            brushColor = QColor(181, 181, 181);
+            break;
+
+        default:
+        case EM_STS_INVALID:
+            return;
     }
+
     //
     painter.setBrush(QBrush(brushColor));
     painter.setPen(Qt::NoPen);
@@ -85,7 +96,6 @@ StatusWgt::StatusWgt(QWidget *parent)
     : QFrame(parent), _isGroupChat(false)
 {
     initUi();
-
     connect(this, &StatusWgt::updateName, this, &StatusWgt::setName);
     connect(this, &StatusWgt::updateMood, this, &StatusWgt::setMood);
 }
@@ -105,7 +115,6 @@ void StatusWgt::switchUser(QUInt8 t, const QTalk::Entity::UID &uid, const QStrin
     _isGroupChat = (t == QTalk::Enum::ChatType::GroupChat);
     _isConsultServer = (t == QTalk::Enum::ChatType::ConsultServer);
     _uid = uid;
-
     //    _pEdit->setVisible(_isGroupChat);
     _pLabelPlat->setVisible(false);
     _pStsLabel->setVisible(!_isGroupChat);
@@ -114,9 +123,7 @@ void StatusWgt::switchUser(QUInt8 t, const QTalk::Entity::UID &uid, const QStrin
     _medalWgt->setVisible(t == QTalk::Enum::TwoPersonChat);
 
     if (t == QTalk::Enum::TwoPersonChat)
-    {
         onUpdateMedal();
-    }
 
     if (_isGroupChat)
     {
@@ -132,7 +139,6 @@ void StatusWgt::switchUser(QUInt8 t, const QTalk::Entity::UID &uid, const QStrin
 
     QFontMetricsF uf(_pLabelChatUser->font());
     QString name = uf.elidedText(userName, Qt::ElideRight, 300);
-
     QFontMetricsF mf(_pmood->font());
 
     //群用户名为空时从数据库取一次 其他的每次都从数据库取
@@ -141,13 +147,12 @@ void StatusWgt::switchUser(QUInt8 t, const QTalk::Entity::UID &uid, const QStrin
         if (_isGroupChat)
         {
             if (!userName.isEmpty())
-            {
                 setName(name);
-            }
             else
             {
                 std::shared_ptr<QTalk::Entity::ImGroupInfo> groupInfo = DB_PLAT.getGroupInfo(
-                    uid.usrId());
+                            uid.usrId());
+
                 if (groupInfo)
                     setName(QString::fromStdString(groupInfo->Name));
                 else
@@ -157,7 +162,8 @@ void StatusWgt::switchUser(QUInt8 t, const QTalk::Entity::UID &uid, const QStrin
         else
         {
             std::shared_ptr<QTalk::Entity::ImUserInfo> userInfo = DB_PLAT.getUserInfo(
-                uid.realId());
+                        uid.realId());
+
             if (userInfo)
             {
                 setName(QString::fromStdString(QTalk::getUserName(userInfo)));
@@ -171,11 +177,13 @@ void StatusWgt::switchUser(QUInt8 t, const QTalk::Entity::UID &uid, const QStrin
             else
             {
                 _pmood->setText("");
+
                 if (userName.isEmpty())
                     setName(uid.qReadJid().section("@", 0, 0));
                 else
                     setName(name);
             }
+
             // 显示状态
             auto status = PLAT.getUserStatus(uid.realId());
             updateUserSts(status.data());
@@ -184,26 +192,18 @@ void StatusWgt::switchUser(QUInt8 t, const QTalk::Entity::UID &uid, const QStrin
 }
 
 /**
- * 
+ *
  */
 void StatusWgt::updateUserSts(const QString &sts)
 {
     if (sts == "online")
-    {
         _pStsLabel->setStatus(EM_STS_ONLINE);
-    }
     else if (sts == "busy")
-    {
         _pStsLabel->setStatus(EM_STS_BUSY);
-    }
     else if (sts == "away")
-    {
         _pStsLabel->setStatus(EM_STS_AWAY);
-    }
     else if (sts == "offline")
-    {
         _pStsLabel->setStatus(EM_STS_OFFLINE);
-    }
 }
 
 /**
@@ -232,7 +232,6 @@ void StatusWgt::initUi()
     _pBtnLock = new QPushButton(this);
     //    _pEdit = new QPushButton(this);
     _medalWgt = new MedalWgt(15, this);
-
     _pLabelChatUser->setObjectName("ChatUser");
     _pLabelPlat->setObjectName("UserDept");
     _pmood->setObjectName("Mood");
@@ -243,11 +242,9 @@ void StatusWgt::initUi()
     _pLabelChatUser->installEventFilter(this);
     _pStsLabel->setFixedWidth(12);
     _pLabelPlat->setFixedSize(20, 20);
-
     _pmood->setTextFormat(Qt::PlainText);
     //
     _pBtnStructure->setToolTip(tr("组织架构"));
-
     //
     _pBtnStructure->setFixedSize(DEM_BTN_ICON_LEN, DEM_BTN_ICON_LEN);
     //    _pEdit->setFixedSize(DEM_BTN_ICON_LEN, DEM_BTN_ICON_LEN);
@@ -261,10 +258,8 @@ void StatusWgt::initUi()
     }
 
     //    std::string coEdit = AppSetting::instance().getCoEdit();
-
     auto *layout = new QHBoxLayout(this);
     layout->setContentsMargins(10, 10, 15, 10);
-
     auto *vlayout = new QVBoxLayout();
     auto *hlayout = new QHBoxLayout();
     hlayout->addWidget(_pStsLabel);
@@ -272,11 +267,9 @@ void StatusWgt::initUi()
     hlayout->addWidget(_pLabelPlat);
     hlayout->addWidget(_medalWgt);
     hlayout->addItem(new QSpacerItem(10, 10, QSizePolicy::Expanding));
-
     vlayout->addLayout(hlayout);
     _pmood->setContentsMargins(18, 0, 0, 0);
     vlayout->addWidget(_pmood);
-
     layout->addLayout(vlayout);
     layout->addItem(new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Fixed));
     layout->addWidget(_pBtnStructure);
@@ -286,7 +279,8 @@ void StatusWgt::initUi()
     layout->setAlignment(vlayout, Qt::AlignVCenter);
     setLayout(layout);
     _pBtnLock->setVisible(false);
-    connect(_pBtnAddGroup, &QPushButton::clicked, [this]() {
+    connect(_pBtnAddGroup, &QPushButton::clicked, this, [this]()
+    {
         if (g_pMainPanel)
         {
             if (_isGroupChat)
@@ -301,8 +295,8 @@ void StatusWgt::initUi()
             }
         }
     });
-
-    connect(_pBtnStructure, &QPushButton::clicked, [this]() {
+    connect(_pBtnStructure, &QPushButton::clicked, this, [this]()
+    {
         if (g_pMainPanel)
         {
             emit g_pMainPanel->sgOperator(tr("组织架构"));
@@ -310,7 +304,6 @@ void StatusWgt::initUi()
             emit g_pMainPanel->sgJumpToStructre(_uid.qReadJid());
         }
     });
-
     //    connect(_pEdit, &QPushButton::clicked, [this, coEdit]() {
     //
     //        const std::string groupId = _uid.usrId();
@@ -341,17 +334,15 @@ void StatusWgt::setName(const QString &name)
 
 void StatusWgt::showResource(const std::string &resource)
 {
-
     _pLabelPlat->setVisible(true);
     QString res = QString::fromStdString(resource);
     QStringList lst = res.split("]");
     QString version, plat;
+
     for (const auto &item : lst)
     {
         if (item.startsWith("V[") || item.startsWith("_V["))
-        {
             version = item.mid(item.indexOf('[') + 1, item.size() - 1);
-        }
         else if (item.startsWith("P[") || item.startsWith("_P["))
         {
             auto index = item.indexOf('[');
@@ -365,22 +356,16 @@ void StatusWgt::showResource(const std::string &resource)
             version = QString("%1_%2").arg(plat, version);
 
         if (plat == "Mac" ||
-            plat == "LINUX" ||
-            plat == "PC64" ||
-            plat == "PC32")
-        {
+                plat == "LINUX" ||
+                plat == "PC64" ||
+                plat == "PC32")
             _pLabelPlat->setHead(":/chatview/image1/StatusBar/pc_plat.png", 9, false, false, true);
-        }
         else
-        {
             _pLabelPlat->setHead(":/chatview/image1/StatusBar/phone_plat.png", 9, false, false, true);
-        }
     }
 
     if (!version.isEmpty())
-    {
         _pLabelPlat->setToolTip(version);
-    }
 }
 
 /**
@@ -391,17 +376,12 @@ void StatusWgt::showResource(const std::string &resource)
  */
 bool StatusWgt::eventFilter(QObject *o, QEvent *e)
 {
-
     if (o == _pLabelChatUser)
     {
         if (e->type() == QEvent::Enter)
-        {
             setCursor(Qt::PointingHandCursor);
-        }
         else if (e->type() == QEvent::Leave)
-        {
             setCursor(Qt::ArrowCursor);
-        }
         else if (e->type() == QEvent::MouseButtonPress)
         {
             if (_isGroupChat)
@@ -410,6 +390,7 @@ bool StatusWgt::eventFilter(QObject *o, QEvent *e)
                 emit g_pMainPanel->showUserCard(_uid.qReadJid());
         }
     }
+
     return QObject::eventFilter(o, e);
 }
 

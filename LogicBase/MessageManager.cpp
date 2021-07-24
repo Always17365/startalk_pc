@@ -3,9 +3,10 @@
 //
 
 #include "MessageManager.h"
+#include <future>
 #include "../EventBus/EventBus.h"
 #include "LogicBase.h"
-#include <future>
+#include "../include/threadhelper.h"
 
 void LogicBaseMsgManager::sendLoginProcessMessage(const std::string &message)
 {
@@ -334,11 +335,12 @@ void LogicBaseMsgListener::onEvent(PreSendMessageEvt &e)
 {
     if(e.getCanceled()) return;
 
-    std::thread([this, e]()
+    auto helper = std::make_shared<ThreadHelper>();
+    helper->run([this, e]()
     {
         if(_pLogicBase)
             _pLogicBase->parseSendMessageIntoDb(e.message, e.message.Type);
-    }).detach();
+    });
 }
 
 void LogicBaseMsgListener::onEvent(SWebRtcCommand &e)

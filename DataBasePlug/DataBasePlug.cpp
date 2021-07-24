@@ -10,7 +10,6 @@
 #include "UserSupplementDao.h"
 #include "DbConfig.h"
 #include "../Platform/Platform.h"
-//#include "FriendListDao.h"
 #include "../entity/IM_Session.h"
 #include "../include/perfcounter.h"
 #include "CacheDataDao.h"
@@ -161,23 +160,6 @@ void DataBasePlug::ClearDBData()
         error_log("IM_User_Status_Medal clear database failed");
 }
 
-/**
-  * @函数名
-  * @功能描述 插入会话信息
-  * @参数
-  * @date 2018.9.21
-  */
-//bool DataBasePlug::insertSessionInfo(const QTalk::Entity::ImSessionInfo &imSessionInfo) {
-//    bool ret = false;
-//    auto func = _dbPool.enqueue([this, &ret, imSessionInfo]() {
-//        SessionListDao dao(_dataBass);
-//        ret = dao.insertSessionInfo(imSessionInfo);
-//    });
-//    func.get();
-//    return ret;
-//}
-
-
 bool DataBasePlug::bulkDeleteSessions(const std::vector<std::string> &peerIds)
 {
     bool ret = false;
@@ -193,40 +175,6 @@ bool DataBasePlug::bulkDeleteSessions(const std::vector<std::string> &peerIds)
     func.get();
     return ret;
 }
-
-/**
- *
- * @param sessionList
- * @return
- */
-//bool DataBasePlug::bulkInsertSessionInfo(const std::vector<QTalk::Entity::ImSessionInfo> &sessionList) {
-//    bool ret = false;
-//    auto func = _dbPool.enqueue([this, &ret, sessionList]() {
-//        perf_counter("bulkInsertSessionInfo size is {0}", sessionList.size());
-//        SessionListDao dao(_dataBass);
-//        ret = dao.bulkInsertSessionInfo(sessionList);
-//    });
-//    func.get();
-//    return ret;
-//}
-
-///**
-//  * @函数名
-//  * @功能描述 获取所有会话信息
-//  * @参数
-//  * @date 2018.9.21
-//  */
-//std::shared_ptr<std::vector<std::shared_ptr<QTalk::Entity::ImSessionInfo> > > DataBasePlug::QueryImSessionInfos() {
-//    std::shared_ptr<std::vector<std::shared_ptr<QTalk::Entity::ImSessionInfo> > > ret;
-//    auto func = _dbPool.enqueue([this, &ret]() {
-//        perf_counter("QueryImSessionInfos");
-//        SessionListDao dao(_dataBass);
-//        ret = dao.QueryImSessionInfos();
-//    });
-//    func.get();
-//
-//    return ret;
-//}
 
 /**
  * 获取最新的session
@@ -697,11 +645,6 @@ void DataBasePlug::CreatTables()
         error_log("IM_User  create database table  failed");
     }
 
-//    FriendListDao friendDao(_dataBass);
-//    if (!_dataBass->tableExists("IM_Friend_List") && !friendDao.creatTable()) {
-//         "IM_Friend_List create database table  failed";
-//        error_log("IM_Friend_List  create database table  failed");
-//    }
     GroupDao grpDao(_dataBass);
 
     if (!_dataBass->tableExists("IM_Group") && !grpDao.creatTable())

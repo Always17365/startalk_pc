@@ -12,9 +12,11 @@
 
 #pragma once
 
-namespace qtalk {
+namespace qtalk
+{
 
-    namespace sqlite {
+    namespace sqlite
+    {
 
         extern const int OPEN_FLAGS_DEFAULT;
 
@@ -22,7 +24,8 @@ namespace qtalk {
 
         int getLibVersionNumber() noexcept;
 
-        class exception : public std::runtime_error {
+        class exception : public std::runtime_error
+        {
         public:
             exception(sqlite3 *sqlite, int ret);
 
@@ -37,8 +40,10 @@ namespace qtalk {
             int _extendedErrcode; ///< Detailed error code if any
         };
 
-        inline void check(const int aRet, sqlite3 *sqlite) {
-            if (SQLITE_OK != aRet) {
+        inline void check(const int aRet, sqlite3 *sqlite)
+        {
+            if (SQLITE_OK != aRet)
+            {
                 std::string errmessage = sqlite3_errmsg(sqlite);
                 throw exception(errmessage.c_str());
             }
@@ -48,7 +53,8 @@ namespace qtalk {
 
         class statement;
 
-        class database {
+        class database
+        {
             friend statement;
 
         public:
@@ -61,7 +67,8 @@ namespace qtalk {
 
             bool tableExists(const char *tableName);
 
-            inline bool tableExists(const std::string &aTableName) {
+            inline bool tableExists(const std::string &aTableName)
+            {
                 return tableExists(aTableName.c_str());
             }
 
@@ -79,16 +86,18 @@ namespace qtalk {
 
             const char *getErrorMsg() const noexcept;
 
-            const std::string &getFilename() const noexcept {
+            const std::string &getFilename() const noexcept
+            {
                 return _filename;
             }
 
         private:
-            sqlite3 *_sqlite;
+            sqlite3 *_sqlite{nullptr};
             std::string _filename;
         };
 
-        class statement {
+        class statement
+        {
 
             friend column;
         public:
@@ -110,13 +119,15 @@ namespace qtalk {
 
 #if (LONG_MAX == INT_MAX)
 
-            void bind(const int index, const long value) {
+            void bind(const int index, const long value)
+            {
                 bind(index, static_cast<int>(value));
             }
 
 #else
 
-            void bind(const int index, const long value) {
+            void bind(const int index, const long value)
+            {
                 bind(index, static_cast<long long>(value));
             }
 
@@ -163,43 +174,53 @@ namespace qtalk {
             void bind(const char *apName); // bind NULL value
 
 
-            inline void bind(const std::string &aName, const int aValue) {
+            inline void bind(const std::string &aName, const int aValue)
+            {
                 bind(aName.c_str(), aValue);
             }
 
-            inline void bind(const std::string &aName, const unsigned aValue) {
+            inline void bind(const std::string &aName, const unsigned aValue)
+            {
                 bind(aName.c_str(), aValue);
             }
 
-            inline void bind(const std::string &aName, const long long aValue) {
+            inline void bind(const std::string &aName, const long long aValue)
+            {
                 bind(aName.c_str(), aValue);
             }
 
-            inline void bind(const std::string &aName, const double aValue) {
+            inline void bind(const std::string &aName, const double aValue)
+            {
                 bind(aName.c_str(), aValue);
             }
 
-            inline void bind(const std::string &aName, const std::string &aValue) {
+            inline void bind(const std::string &aName, const std::string &aValue)
+            {
                 bind(aName.c_str(), aValue);
             }
 
-            inline void bind(const std::string &aName, const char *apValue) {
+            inline void bind(const std::string &aName, const char *apValue)
+            {
                 bind(aName.c_str(), apValue);
             }
 
-            inline void bind(const std::string &aName, const void *apValue, const int aSize) {
+            inline void bind(const std::string &aName, const void *apValue, const int aSize)
+            {
                 bind(aName.c_str(), apValue, aSize);
             }
 
-            inline void bindNoCopy(const std::string &aName, const std::string &aValue) {
+            inline void bindNoCopy(const std::string &aName, const std::string &aValue)
+            {
                 bindNoCopy(aName.c_str(), aValue);
             }
 
-            inline void bindNoCopy(const std::string &aName, const char *apValue) {
+            inline void bindNoCopy(const std::string &aName, const char *apValue)
+            {
                 bindNoCopy(aName.c_str(), apValue);
             }
 
-            inline void bindNoCopy(const std::string &aName, const void *apValue, const int aSize) {
+            inline void bindNoCopy(const std::string &aName, const void *apValue, const int aSize)
+            {
                 bindNoCopy(aName.c_str(), apValue, aSize);
             }
 
@@ -215,23 +236,26 @@ namespace qtalk {
 
             column getColumn(const int index);
 
-            inline void checkIndex(const int aIndex) const {
-                if ((aIndex < 0) || (aIndex >= mColumnCount)) {
+            inline void checkIndex(const int aIndex) const
+            {
+                if ((aIndex < 0) || (aIndex >= mColumnCount))
                     throw qtalk::sqlite::exception("Column index out of range.");
-                }
             }
 
-            inline void checkRow() const {
-                if (false == mbHasRow) {
+            inline void checkRow() const
+            {
+                if (false == mbHasRow)
+                {
                     throw qtalk::sqlite::exception(
-                            "No row to get a column from. executeNext() was not called, or returned false.");
+                        "No row to get a column from. executeNext() was not called, or returned false.");
                 }
             }
 
 
         private:
 
-            class Ptr {
+            class Ptr
+            {
             public:
                 // Prepare the statement and initialize its reference counter
                 Ptr(sqlite3 *apSQLite, std::string &aQuery);
@@ -243,12 +267,14 @@ namespace qtalk {
                 ~Ptr();
 
                 /// Inline cast operator returning the pointer to SQLite Database Connection Handle
-                inline operator sqlite3 *() const {
+                inline operator sqlite3 *() const
+                {
                     return mpSQLite;
                 }
 
                 /// Inline cast operator returning the pointer to SQLite Statement Object
-                inline operator sqlite3_stmt *() const {
+                inline operator sqlite3_stmt *() const
+                {
                     return mpStmt;
                 }
 
@@ -274,7 +300,8 @@ namespace qtalk {
             int tryExecuteNext() noexcept;
         };
 
-        class column {
+        class column
+        {
         public:
             column(statement::Ptr &stmt, int index) noexcept;
 
@@ -284,13 +311,13 @@ namespace qtalk {
 
 #ifdef SQLITE_ENABLE_COLUMN_METADATA
             /**
-     * @brief Return a pointer to the table column name that is the origin of this result column
-     *
-     *  Require definition of the SQLITE_ENABLE_COLUMN_METADATA preprocessor macro :
-     * - when building the SQLite library itself (which is the case for the Debian libsqlite3 binary for instance),
-     * - and also when compiling this wrapper.
-     */
-    const char* getOriginName() const noexcept; // nothrow
+            * @brief Return a pointer to the table column name that is the origin of this result column
+            *
+            *  Require definition of the SQLITE_ENABLE_COLUMN_METADATA preprocessor macro :
+            * - when building the SQLite library itself (which is the case for the Debian libsqlite3 binary for instance),
+            * - and also when compiling this wrapper.
+            */
+            const char *getOriginName() const noexcept; // nothrow
 #endif
 
             /// Return the integer value of the column.
@@ -374,48 +401,56 @@ namespace qtalk {
             int getBytes() const noexcept;
 
             /// Alias returning the number of bytes used by the text (or blob) value of the column
-            inline int size() const noexcept {
+            inline int size() const noexcept
+            {
                 return getBytes();
             }
 
             /// Inline cast operator to int
-            inline operator int() const {
+            inline operator int() const
+            {
                 return getInt();
             }
 
             /// Inline cast operator to 32bits unsigned integer
-            inline operator unsigned int() const {
+            inline operator unsigned int() const
+            {
                 return getUInt();
             }
 
 #if (LONG_MAX == INT_MAX) // sizeof(long)==4 means the data model of the system is ILP32 (32bits OS or Windows 64bits)
 
             /// Inline cast operator to 32bits long
-            inline operator long() const {
+            inline operator long() const
+            {
                 return getInt();
             }
 
             /// Inline cast operator to 32bits unsigned long
-            inline operator unsigned long() const {
+            inline operator unsigned long() const
+            {
                 return getUInt();
             }
 
 #else // sizeof(long)==8 means the data model of the system is LLP64 (64bits Linux)
 
             /// Inline cast operator to 64bits long when the data model of the system is ILP64 (Linux 64 bits...)
-            inline operator long() const {
+            inline operator long() const
+            {
                 return getInt64();
             }
 
 #endif
 
             /// Inline cast operator to 64bits integer
-            inline operator long long() const {
+            inline operator long long() const
+            {
                 return getInt64();
             }
 
             /// Inline cast operator to double
-            inline operator double() const {
+            inline operator double() const
+            {
                 return getDouble();
             }
 
@@ -424,7 +459,8 @@ namespace qtalk {
              *
              * @see getText
              */
-            inline operator const char *() const {
+            inline operator const char *() const
+            {
                 return getText();
             }
 
@@ -433,7 +469,8 @@ namespace qtalk {
              *
              * @see getBlob
              */
-            inline operator const void *() const {
+            inline operator const void *() const
+            {
                 return getBlob();
             }
 
@@ -450,7 +487,8 @@ namespace qtalk {
              *
              * @see getString
              */
-            inline operator std::string() const {
+            inline operator std::string() const
+            {
                 return getString();
             }
 
@@ -462,15 +500,15 @@ namespace qtalk {
         };
 
         /**
- * @brief Standard std::ostream text inserter
- *
- * Insert the text value of the Column object, using getText(), into the provided stream.
- *
- * @param[in] aStream   Stream to use
- * @param[in] aColumn   Column object to insert into the provided stream
- *
- * @return  Reference to the stream used
- */
+        * @brief Standard std::ostream text inserter
+        *
+        * Insert the text value of the Column object, using getText(), into the provided stream.
+        *
+        * @param[in] aStream   Stream to use
+        * @param[in] aColumn   Column object to insert into the provided stream
+        *
+        * @return  Reference to the stream used
+        */
         std::ostream &operator<<(std::ostream &aStream, const column &aColumn);
 
 //#if __cplusplus >= 201402L || (defined(_MSC_VER) && _MSC_VER >= 1900)

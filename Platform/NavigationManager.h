@@ -40,19 +40,17 @@ private:
 
     std::string foundConfigUrl;
     //
+    bool        bVideoChat  {false};
+    bool        bConference {false};
     std::string videoUrl;
     std::string videoConference;
 
     // 请求地址
     std::string healthcheckUrl; //网络检测地址
-    std::string qcGrabOrderUrl; //抢单
-    std::string qcOrderManager; //订单管理
-    std::string accountConfigUrl; //账号管理
     bool readFlag{};
     //
     std::string searchUrl;
 
-    // 广告相关
     std::string adUrl;
     int adSec{};
 
@@ -144,6 +142,12 @@ public://ability
     void setSearchUrl(const std::string &searchUrl);
     std::string getSearchUrl();
 
+    void setChatVideoEnable(bool);
+    bool getChatVideoEnable();
+
+    void setConferenceEnable(bool);
+    bool getConferenceEnable();
+
 public://qcadmin
     void setQcadminHost(const std::string &adminHost);
     std::string getQcadminHost();
@@ -160,12 +164,6 @@ public: // client
 
 public://other
     std::string getHealthCheckUrl();
-
-    std::string getQCGrabOrderUrl();
-
-    std::string getQCOrderManager();
-
-    std::string getAccountConfigUrl();
 
     bool getReadFlag();
 

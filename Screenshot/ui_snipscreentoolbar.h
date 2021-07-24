@@ -1306,7 +1306,7 @@ public:
 
     void retranslateUi(QWidget *SnipScreenToolBar)
     {
-        SnipScreenToolBar->setWindowTitle(QApplication::translate("SnipScreenToolBar", "Form", Q_NULLPTR));
+        SnipScreenToolBar->setWindowTitle(QApplication::translate("SnipScreenToolBar", "Form", nullptr));
         point_up_2->setText(QString());
         point_up_4->setText(QString());
         point_up_8->setText(QString());

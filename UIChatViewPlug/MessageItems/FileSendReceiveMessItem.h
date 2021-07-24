@@ -12,7 +12,7 @@ class FileSendReceiveMessItem : public MessageItemBase
 {
     Q_OBJECT
 public:
-    explicit FileSendReceiveMessItem(const StNetMessageResult &msgInfo, QWidget *parent = Q_NULLPTR);
+    explicit FileSendReceiveMessItem(const StNetMessageResult &msgInfo, QWidget *parent = nullptr);
     ~FileSendReceiveMessItem() override = default;
     // QWidget interface
 public:
@@ -57,21 +57,21 @@ private slots:
     void onOpenFile(bool = false);
 
 private:
-    QFrame *_contentTopFrm;
-    HeadPhotoLab *_contentTopFrmIconLab;
-    QLabel *_contentTopFrmFileNameLab;
-    QLabel *_contentTopFrmFileSizeLab;
+    QFrame       *_contentTopFrm{nullptr};
+    HeadPhotoLab *_contentTopFrmIconLab{nullptr};
+    QLabel       *_contentTopFrmFileNameLab{nullptr};
+    QLabel       *_contentTopFrmFileSizeLab{nullptr};
 
-    QFrame *_contentButtomFrm;
-    QLabel *_contentButtomFrmMessLab;
-    QPushButton *_contentButtomFrmDownLoadBtn;
-    QToolButton *_contentButtomFrmMenuBtn;
-    FileRoundProgressBar *_contentButtomFrmProgressBar;
-    QPushButton *_contentButtomFrmOPenFileBtn;            // 打开文件btn
+    QFrame *_contentButtomFrm{nullptr};
+    QLabel *_contentButtomFrmMessLab{nullptr};
+    QPushButton *_contentButtomFrmDownLoadBtn{nullptr};
+    QToolButton *_contentButtomFrmMenuBtn{nullptr};
+    FileRoundProgressBar *_contentButtomFrmProgressBar{nullptr};
+    QPushButton *_contentButtomFrmOPenFileBtn{nullptr};
 
-    QMenu *_downLoadMenu;
-    QAction *_saveAsAct;// 另存为
-    QAction *_openFileAct;
+    QMenu   *_downLoadMenu{nullptr};
+    QAction *_saveAsAct{nullptr};
+    QAction *_openFileAct{nullptr};
 
     QSize _headPixSize;
     QMargins _mainMargin;
@@ -94,14 +94,11 @@ private:
     int _contentTopFrmFileNameLabHeight{};
     int _contentTopFrmFileSizeLabHeight{};
     int _contentTopFrmHlaySpacing{};
-//    QString _strLocalPath;
     QMap<QString, QString> _fileIcons;
-//    CustomMenu *_downLoadMenu;
-    bool isDownLoad;
-    bool isUpLoad;
-    //
-    bool _openDir;
-    bool _openFile;
+    bool isDownLoad{false};
+    bool isUpLoad{false};
+    bool _openDir{false};
+    bool _openFile{false};
 };
 
 #endif // FILESENDRECEIVEMESSITEM_H

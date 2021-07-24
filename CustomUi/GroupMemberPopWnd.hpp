@@ -47,7 +47,7 @@ enum
 class GroupItemPopSortModel : public QSortFilterProxyModel
 {
 public:
-    explicit GroupItemPopSortModel(QObject *parent = Q_NULLPTR)
+    explicit GroupItemPopSortModel(QObject *parent = nullptr)
         : QSortFilterProxyModel(parent)
     {
     }
@@ -79,7 +79,7 @@ class GroupItemPopDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 public:
-    explicit GroupItemPopDelegate(QObject *parent = Q_NULLPTR)
+    explicit GroupItemPopDelegate(QObject *parent = nullptr)
         : QStyledItemDelegate(parent)
     {
     }

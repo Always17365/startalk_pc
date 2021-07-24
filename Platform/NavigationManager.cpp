@@ -175,21 +175,6 @@ std::string NavigationManager::getHealthCheckUrl()
     return this->healthcheckUrl;
 }
 
-std::string NavigationManager::getQCGrabOrderUrl()
-{
-    return this->qcGrabOrderUrl;
-}
-
-std::string NavigationManager::getQCOrderManager()
-{
-    return this->qcOrderManager;
-}
-
-std::string NavigationManager::getAccountConfigUrl()
-{
-    return this->accountConfigUrl;
-}
-
 bool NavigationManager::getReadFlag()
 {
     return this->readFlag;
@@ -314,4 +299,24 @@ void NavigationManager::setRollbackFlag(bool flag)
 bool NavigationManager::getRollbackFlag()
 {
     return rollback;
+}
+
+void NavigationManager::setChatVideoEnable(bool enable)
+{
+    this->bVideoChat = enable;
+}
+
+bool NavigationManager::getChatVideoEnable()
+{
+    return bVideoChat;
+}
+
+void NavigationManager::setConferenceEnable(bool enable)
+{
+    this->bConference = enable;
+}
+
+bool NavigationManager::getConferenceEnable()
+{
+    return bConference;
 }

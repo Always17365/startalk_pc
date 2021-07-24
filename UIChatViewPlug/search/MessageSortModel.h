@@ -15,7 +15,7 @@
 class MessageSortModel : public QSortFilterProxyModel {
     Q_OBJECT
 public:
-    explicit MessageSortModel(QObject *parent = Q_NULLPTR);
+    explicit MessageSortModel(QObject *parent = nullptr);
 
 protected:
     bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;

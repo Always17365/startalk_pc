@@ -14,17 +14,16 @@
 #include <QDebug>
 #include <QSharedPointer>
 
-NTMessageBox::NTMessageBox(QWidget* parent, const QString& message, int buttons)
-        : UShadowDialog(parent, true), _retButton(EM_BUTTON_INVALID)
+NTMessageBox::NTMessageBox(QWidget *parent, const QString &message, int buttons)
+    : UShadowDialog(parent, true), _retButton(EM_BUTTON_INVALID)
 {
     setFixedWidth(298);
-
     mainMessageLabel = new QLabel(this);
     //
     mainMessageLabel->setAlignment(Qt::AlignTop);
     mainMessageLabel->setObjectName("MessageBoxMessage");
     //
-    auto * leftLay = new QVBoxLayout;
+    auto *leftLay = new QVBoxLayout;
     leftLay->setMargin(0);
     leftLay->addItem(new QSpacerItem(1, 1, QSizePolicy::Fixed, QSizePolicy::Expanding));
     //
@@ -34,13 +33,15 @@ NTMessageBox::NTMessageBox(QWidget* parent, const QString& message, int buttons)
     //
     auto *buttonLay = new QHBoxLayout;
     buttonLay->addItem(new QSpacerItem(1, 1, QSizePolicy::Expanding));
+
     if(buttons & EM_BUTTON_NO)
     {
-        auto * noButton = new QPushButton(tr("取消"), this);
+        auto *noButton = new QPushButton(tr("取消"), this);
         noButton->setObjectName("NoButton");
         buttonLay->addWidget(noButton);
         noButton->setFixedSize(72, 32);
-        connect(noButton, &QPushButton::clicked, [this](){
+        connect(noButton, &QPushButton::clicked, this, [this]()
+        {
             _retButton = EM_BUTTON_NO;
             this->setVisible(false);
             _evtLoop->exit();
@@ -53,8 +54,8 @@ NTMessageBox::NTMessageBox(QWidget* parent, const QString& message, int buttons)
         yesButton->setObjectName("YesButton");
         buttonLay->addWidget(yesButton);
         yesButton->setFixedSize(72, 32);
-
-        connect(yesButton, &QPushButton::clicked, [this](){
+        connect(yesButton, &QPushButton::clicked, this, [this]()
+        {
             _retButton = EM_BUTTON_YES;
             this->setVisible(false);
             _evtLoop->exit();
@@ -62,21 +63,18 @@ NTMessageBox::NTMessageBox(QWidget* parent, const QString& message, int buttons)
     }
 
     rightLay->addLayout(buttonLay);
-
-    auto* mainFrm = new QFrame(this);
+    auto *mainFrm = new QFrame(this);
     mainFrm->setObjectName("MessageBox");
     auto *mainLay = new QHBoxLayout(mainFrm);
     mainLay->setContentsMargins(32, 32, 32, 20);
     mainLay->setSpacing(16);
     mainLay->addLayout(leftLay);
     mainLay->addLayout(rightLay);
-
     auto *lay = new QHBoxLayout(_pCenternWgt);
     lay->addWidget(mainFrm);
     lay->setMargin(0);
     setMoverAble(true);
     _evtLoop = new QEventLoop(this);
-
     mainMessageLabel->setText(message);
 #ifdef _MACOS
     macAdjustWindows();
@@ -88,7 +86,8 @@ NTMessageBox::~NTMessageBox()
     qInfo() << mainMessageLabel->text() << "delete";
 }
 
-void NTMessageBox::keyPressEvent(QKeyEvent *e) {
+void NTMessageBox::keyPressEvent(QKeyEvent *e)
+{
     if(e == QKeySequence::Copy)
     {
         QString text = QString("%1").arg(mainMessageLabel->text());
@@ -106,18 +105,22 @@ void NTMessageBox::keyPressEvent(QKeyEvent *e) {
         this->setVisible(false);
         _evtLoop->exit();
     }
+
 #ifdef _MACOS
+
     if(e->modifiers() == Qt::ControlModifier && e->key() == Qt::Key_W)
     {
         _retButton = EM_BUTTON_NO;
         this->setVisible(false);
         _evtLoop->exit();
     }
+
 #endif
     UShadowDialog::keyPressEvent(e);
 }
 
-int NTMessageBox::showMessage(QWidget *parent, const QString &message, int buttons) {
+int NTMessageBox::showMessage(QWidget *parent, const QString &message, int buttons)
+{
     auto _box = QSharedPointer<NTMessageBox>(new NTMessageBox(parent, message, buttons));
     _box->showModel();
     _box->_evtLoop->exec();

@@ -26,77 +26,82 @@
 
 
 
-class SCREENSHOT_EXPORT FullScreenWidget : public QWidget{
+class SCREENSHOT_EXPORT FullScreenWidget : public QWidget
+{
 
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	FullScreenWidget(); //构造函数
+    FullScreenWidget(); //构造函数
     ~FullScreenWidget() override;
-	void Start();
+    void Start();
 
-    QPixmap& selectPixmap();
-    QPainter* getPainter();
+    QPixmap &selectPixmap();
+    QPainter *getPainter();
 
 
     // 子类根据需要进行重载的方法
-    virtual void showPictureEditContextMenu(const QPoint& pos);
-    virtual void showPictureEditBar(const QRect& rec);
-    virtual void finishPixmap(const QPixmap& finishPixmap);
-	bool JietuFinshed(QMouseEvent * event);
-	bool JietuCancel(QMouseEvent * event);
+    virtual void showPictureEditContextMenu(const QPoint &pos);
+    virtual void showPictureEditBar(const QRect &rec);
+    virtual void finishPixmap(const QPixmap &finishPixmap);
+    bool JietuFinshed(QMouseEvent *event);
+    bool JietuCancel(QMouseEvent *event);
 protected:
     QRect getSelectedRect(); //获取选取
-	QRect getRelativeSelectedRect(); //获取相对屏幕的Rect;
-	void showModel();
+    QRect getRelativeSelectedRect(); //获取相对屏幕的Rect;
+    void showModel();
 
 private:
     //进行截屏的状态
-    enum shotState{initShot,beginSelectShot,goingSelectShot,finishSelectShot,lbclick,endShot,beginMoveShot,finishMoveShot,beginControl,finishControl,lockSelect};
+    enum shotState {initShot, beginSelectShot, goingSelectShot, finishSelectShot, lbclick, endShot, beginMoveShot, finishMoveShot, beginControl, finishControl, lockSelect};
     //移动选区中的8个控制点，按照顺时针方向从左上控制点到左中控制点分配编号为1～8
-    enum controlPointEnum{moveControl0,moveControl1,moveControl2,moveControl3,moveControl4,moveControl5,moveControl6,moveControl7,moveControl8};
+    enum controlPointEnum {moveControl0, moveControl1, moveControl2, moveControl3, moveControl4, moveControl5, moveControl6, moveControl7, moveControl8};
 
 protected:
-	void loadBackgroundPixmap();
-	void loadBackgroundCursorPixmap();
+    void loadBackgroundPixmap();
+    void loadBackgroundCursorPixmap();
     void cancelSelectedRect(bool checked = false); //取消选择区域
     void loadBackgroundPixmap(const QPixmap &bgPixmap, int x, int y, int width, int height); //加载背景pixmap槽函数，设置x,y,width,height
     QPixmap getFullScreenPixmap(); //获取全屏的Pixmap
 
-	
-	QRect getRect(const QPoint &beginPoint, const QPoint &endPoint); //根据两个点获取选取坐标
-	void initFullScreenWidget(); //初始化抓全屏的相关参数
-	bool isInSelectedRect(const QPoint &point); //判断该点是否在选中区域
-	//void initSelectedMenu();//初始化右键菜单
+
+    QRect getRect(const QPoint &beginPoint, const QPoint &endPoint); //根据两个点获取选取坐标
+    void initFullScreenWidget(); //初始化抓全屏的相关参数
+    bool isInSelectedRect(const QPoint &point); //判断该点是否在选中区域
+    //void initSelectedMenu();//初始化右键菜单
 
     // 画图
-	void drawTipsText(); //在屏幕上打印提示信息
-	virtual void drawSelectedPixmap(); //在屏幕上画选取的屏幕
+    void drawTipsText(); //在屏幕上打印提示信息
+    virtual void drawSelectedPixmap(); //在屏幕上画选取的屏幕
     void drawHoverWindowPixmap();
     void drawXYWHInfo(); //打印选取的x,y,h,w值信息
     void draw8ControlPoint(const QRect &rect); // 画8个控制点位
     void drawShotPictureInfo(); // 画图片信息
 
-	void updateBeginEndPointValue(const QRect &rect);  //当移动选取后，对beginPoint,endPoint坐标进行重新修改
-	void checkMoveEndPoint(); //对移动的选区进行判断
-	void updateMouseShape(const QPoint &point); //更新鼠标的当前状态
-	void updateMoveControlMouseShape(controlPointEnum controlValue);
-	controlPointEnum getMoveControlState(const QPoint &point); //获取移动控制点状态
-	QRect getMoveAllSelectedRect(); //获取移动整个选中的选区
-	QRect getMoveControlSelectedRect();//获取移动控制点的选区
-	int getMinValue(int num1, int num2);//获取两个数中的最小值
+    void updateBeginEndPointValue(const QRect &rect);  //当移动选取后，对beginPoint,endPoint坐标进行重新修改
+    void checkMoveEndPoint(); //对移动的选区进行判断
+    void updateMouseShape(const QPoint &point); //更新鼠标的当前状态
+    void updateMoveControlMouseShape(controlPointEnum controlValue);
+    controlPointEnum getMoveControlState(const QPoint &point); //获取移动控制点状态
+    QRect getMoveAllSelectedRect(); //获取移动整个选中的选区
+    QRect getMoveControlSelectedRect();//获取移动控制点的选区
+    int getMinValue(int num1, int num2);//获取两个数中的最小值
     QRect GetCursorInRect();
     void LockSelectRange();
     void reset();
+
 protected:
-	//重写基类方法
-	void paintEvent(QPaintEvent *event);
-	void mousePressEvent(QMouseEvent *event);
-	void mouseReleaseEvent(QMouseEvent *event);  
-	void mouseMoveEvent(QMouseEvent *event);
-	void mouseDoubleClickEvent(QMouseEvent *event);
-    void contextMenuEvent(QContextMenuEvent *event);
-	QRect m_toolbarrect;
+    //重写基类方法
+    void paintEvent(QPaintEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
+
+protected:
+    QRect m_toolbarrect;
+
 private:
     FullScreenPrivate m_d;
     // 桌面大小
@@ -113,9 +118,9 @@ private:
     QRect rcRect; //右中点
 
     QPainter painter;
-    QPoint beginPoint,m_endPoint,moveBeginPoint,moveEndPoint;
+    QPoint beginPoint, m_endPoint, moveBeginPoint, moveEndPoint;
     QRect m_selectedRect; //选择区域
-    QPixmap loadPixmap,shotPixmap;
+    QPixmap loadPixmap, shotPixmap;
     QPixmap catchPixmap; // 用于放大截取大图
     QImage loadImage; // 大原图，用于取色
     shotState currentShotState; //当前的截屏状态
@@ -129,13 +134,13 @@ private:
     int screenheight; //整个屏幕的高度
     int screenx; //选区的X
     int screeny; //选区的Y
-    int tipWidth,tipHeight,infoWidth,infoHeight,toolbarWidth,toolbarHeight; //加载初始框的宽度，高度；显示坐标信息的宽度，高度
+    int tipWidth, tipHeight, infoWidth, infoHeight, toolbarWidth, toolbarHeight; //加载初始框的宽度，高度；显示坐标信息的宽度，高度
 
-    // 
+    //
     const static QColor s_main_qcolor;
     const static QColor s_qcolor_50trans;
     const static QColor s_black_60trans;
-	QPoint mInitBeginRect, mInitEndRect;
+    QPoint mInitBeginRect, mInitEndRect;
 };
 
 #endif

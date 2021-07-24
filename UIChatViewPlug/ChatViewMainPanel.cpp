@@ -1693,7 +1693,7 @@ void play(const QString &filePath, VoiceMessageItem *msgItem)
         spAudioOutput.reset(new QAudioOutput(format));
         spOutputDevice.reset(new WavOutput(spArrData));
         WavOutput *od = spOutputDevice.data();
-        QObject::connect(od, &WavOutput::sgFinish, [msgItem, spArrData]()
+        QObject::connect(od, &WavOutput::sgFinish, this, [msgItem, spArrData]()
         {
             spAudioOutput->stop();
             delete spArrData;
@@ -1716,7 +1716,7 @@ void ChatViewMainPanel::playVoice(const std::string &localFile,
 
         _pVoicePlayer->setMedia(QUrl::fromLocalFile(localFile.data()));
         _pVoicePlayer->play();
-        connect(_pVoicePlayer, &QMediaPlayer::stateChanged, [msgItem](
+        connect(_pVoicePlayer, &QMediaPlayer::stateChanged, this,  [msgItem](
                     QMediaPlayer::State newState)
         {
             if (newState == QMediaPlayer::StoppedState)
@@ -3331,7 +3331,7 @@ void ChatViewMainPanel::downloadFileWithProcess(const QString &url,
     qint64 *last = new qint64;
     *t = QDateTime::currentMSecsSinceEpoch();
     *last = 0;
-    connect(reply, &QNetworkReply::downloadProgress, [this, key, t,
+    connect(reply, &QNetworkReply::downloadProgress, this, [this, key, t,
                   last](qint64 bytesReceived, qint64 bytesTotal)
     {
         qint64 now = QDateTime::currentMSecsSinceEpoch();
@@ -3349,7 +3349,7 @@ void ChatViewMainPanel::downloadFileWithProcess(const QString &url,
         *t = now;
         *last = bytesReceived;
     });
-    connect(reply, &QNetworkReply::readyRead, [this, wgtPointer, file, reply]()
+    connect(reply, &QNetworkReply::readyRead, this, [this, wgtPointer, file, reply]()
     {
         auto data = reply->readAll();
         auto len = file->write(data);
@@ -3375,7 +3375,7 @@ void ChatViewMainPanel::downloadFileWithProcess(const QString &url,
     connect(reply, SIGNAL(sslErrors(const QList<QSslError> &)), this,
             SLOT(onSSLError(const QList<QSslError> &)));
     //
-    connect(reply, &QNetworkReply::finished, [wgtPointer, reply, file, t, last,
+    connect(reply, &QNetworkReply::finished, this, [wgtPointer, reply, file, t, last,
                         path, key]()
     {
         auto data = reply->readAll();

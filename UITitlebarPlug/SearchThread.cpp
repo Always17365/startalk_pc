@@ -9,31 +9,35 @@
 
 
 SearchThread::SearchThread(SearchResultPanel *searchPanel)
-        : _pSearchPanel(searchPanel), _isRun(false), _lastTime(0), _searchSts(false) {
-
-
+    : _pSearchPanel(searchPanel), _lastTime(0), _searchSts(false)
+{
     std::function<int(STLazyQueue<std::string> *)> func =
+        [this](STLazyQueue<std::string> *queue) -> int
+    {
 
-            [this](STLazyQueue<std::string> *queue) -> int {
+        int runningCount = 0;
 
-                int runningCount = 0;
-                if (queue != nullptr && !queue->empty()) {
-                    const QString lastOne = queue->empty() ? "" : QString::fromStdString(queue->tail());
-                    while (!queue->empty()) {
-                        runningCount++;
-                        queue->pop();
-                    }
-                    QMutexLocker locker(&_mutex);
-                    emit sgSearchStart(lastOne);
-                }
+        if (queue != nullptr && !queue->empty())
+        {
+            const QString lastOne = queue->empty() ? "" : QString::fromStdString(queue->tail());
 
-                return runningCount;
-            };
+            while (!queue->empty())
+            {
+                runningCount++;
+                queue->pop();
+            }
 
+            QMutexLocker locker(&_mutex);
+            emit sgSearchStart(lastOne);
+        }
+
+        return runningCount;
+    };
     _searchQueue = new STLazyQueue<std::string>(40, func);
 }
 
-SearchThread::~SearchThread() {
+SearchThread::~SearchThread()
+{
     _isRun = false;
 }
 
@@ -53,7 +57,8 @@ SearchThread::~SearchThread() {
 //    }
 //}
 
-void SearchThread::addSearchReq(const QString &req) {
+void SearchThread::addSearchReq(const QString &req)
+{
     _searchSts = true;
     _lastReq = req;
     _searchQueue->push(req.toStdString());

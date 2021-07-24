@@ -8,29 +8,25 @@
 #include <QLabel>
 #include <QPushButton>
 
-BatchAddMemberWnd::BatchAddMemberWnd(QWidget* parent)
+BatchAddMemberWnd::BatchAddMemberWnd(QWidget *parent)
     : UShadowDialog(parent, true, true)
 {
-
-    QFrame* titleFrm = new QFrame(this);
+    QFrame *titleFrm = new QFrame(this);
     titleFrm->setFixedHeight(50);
     titleFrm->setObjectName("titleFrm");
-    QLabel* titleLabel = new QLabel(tr("批量邀请群成员"), this);
+    QLabel *titleLabel = new QLabel(tr("批量邀请群成员"), this);
     titleLabel->setObjectName("TitleLabel");
-
-    auto * titleLay = new QHBoxLayout(titleFrm);
+    auto *titleLay = new QHBoxLayout(titleFrm);
     titleLay->setContentsMargins(20, 0, 20, 0);
     titleLay->addWidget(titleLabel);
-
     _pEidt = new AddGroupEdit(this);
     _pEidt->setObjectName("TextEdit");
     _pEidt->setContentsMargins(9, 6, 9, 6);
-
-    QPushButton* cancelBtn = new QPushButton(tr("取消"));
-    QPushButton* okBtn = new QPushButton(tr("确定"));
-    QFrame* btnFrm = new QFrame(this);
+    QPushButton *cancelBtn = new QPushButton(tr("取消"));
+    QPushButton *okBtn = new QPushButton(tr("确定"));
+    QFrame *btnFrm = new QFrame(this);
     btnFrm->setObjectName("bodyFrm");
-    auto* btnFLay = new QHBoxLayout(btnFrm);
+    auto *btnFLay = new QHBoxLayout(btnFrm);
     btnFLay->addItem(new QSpacerItem(10, 10, QSizePolicy::Expanding));
     btnFLay->addWidget(cancelBtn);
     btnFLay->addWidget(okBtn);
@@ -38,39 +34,38 @@ BatchAddMemberWnd::BatchAddMemberWnd(QWidget* parent)
     okBtn->setObjectName("makeSureButton");
     cancelBtn->setFixedSize(72, 32);
     okBtn->setFixedSize(72, 32);
-
-    QFrame* mainFrm = new QFrame(this);
-    auto* mainlay = new QVBoxLayout(mainFrm);
+    QFrame *mainFrm = new QFrame(this);
+    auto *mainlay = new QVBoxLayout(mainFrm);
     mainlay->setMargin(0);
     mainlay->setSpacing(0);
     mainlay->addWidget(titleFrm);
     mainlay->addWidget(_pEidt);
     mainlay->addWidget(btnFrm);
-
-    auto* lay = new QVBoxLayout(_pCenternWgt);
+    auto *lay = new QVBoxLayout(_pCenternWgt);
     lay->setMargin(0);
     lay->addWidget(mainFrm);
-
-    connect(cancelBtn, &QPushButton::clicked, [this](){
+    connect(cancelBtn, &QPushButton::clicked, this, [this]()
+    {
         this->setVisible(false);
     });
-    connect(okBtn, &QPushButton::clicked, [this](){
+    connect(okBtn, &QPushButton::clicked, this, [this]()
+    {
         QString text = _pEidt->toPlainText();
         emit sgBatchAddGroupMember(text);
         this->setVisible(false);
     });
-
     setMoverAble(true, titleFrm);
     setFixedSize(300, 500);
 }
 
-BatchAddMemberWnd::~BatchAddMemberWnd() {
-
+BatchAddMemberWnd::~BatchAddMemberWnd()
+{
 }
 
 /**
  *
  */
-void BatchAddMemberWnd::clear() {
+void BatchAddMemberWnd::clear()
+{
     _pEidt->clear();
 }

@@ -132,7 +132,7 @@ private:
 //    STLazyQueue<QTalk::Entity::ImMessageInfo> *msgInfoProcedure;
 
 private:
-    DelayTask         *_task = nullptr;
+    DelayTask         *_delayTask {nullptr};
     bool              _autoReconnectToServer {};
     std::string       _host{};
 };

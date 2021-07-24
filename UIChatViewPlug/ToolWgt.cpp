@@ -26,18 +26,18 @@
 #include "../CustomUi/QtMessageBox.h"
 #include "search/LocalSearchMainWgt.h"
 #ifdef _MACOS
-#include "../Screenshot/mac/SnipScreenTool.h"
+    #include "../Screenshot/mac/SnipScreenTool.h"
 #else
-#include "../Screenshot/SnipScreenTool.h"
+    #include "../Screenshot/SnipScreenTool.h"
 #endif
 
 
 #define DEM_BTN_ICON_LEN  30
-extern ChatViewMainPanel* g_pMainPanel;
-ToolWgt::ToolWgt(InputWgt* pInputWgt, ChatViewItem* chatItem)
-    :QFrame(), _pInputWgt(pInputWgt), _pChatItem(chatItem)
+extern ChatViewMainPanel *g_pMainPanel;
+ToolWgt::ToolWgt(InputWgt *pInputWgt, ChatViewItem *chatItem)
+    : QFrame(), _pInputWgt(pInputWgt), _pChatItem(chatItem)
 {
-	initUi();
+    initUi();
 }
 
 
@@ -55,15 +55,15 @@ ToolWgt::~ToolWgt()
   */
 void ToolWgt::initUi()
 {
-	this->setObjectName("ToolWgt");
-	//
-	_pBtnEmoticon = new QPushButton( this);
-	_pBtnScreenshot = new QPushButton( this);
-	_pBtnScreenshotSet = new QPushButton( this);
-	_pBtnFile = new QPushButton( this);
+    this->setObjectName("ToolWgt");
+    //
+    _pBtnEmoticon = new QPushButton( this);
+    _pBtnScreenshot = new QPushButton( this);
+    _pBtnScreenshotSet = new QPushButton( this);
+    _pBtnFile = new QPushButton( this);
     _pBtnCode = new QPushButton( this);
     _pBtnMultifunction = new QPushButton(this);
-	//
+    //
     _pBtnEmoticon->setFocusPolicy(Qt::NoFocus);
     _pBtnScreenshot->setFocusPolicy(Qt::NoFocus);
     _pBtnScreenshotSet->setFocusPolicy(Qt::NoFocus);
@@ -76,7 +76,6 @@ void ToolWgt::initUi()
     _pScreenShotHideWnd = new QAction(tr("截屏时隐藏当前窗口"), _pMenu);
     _pScreenShotHideWnd->setCheckable(true);
     _pMenu->addAction(_pScreenShotHideWnd);
-
     //
     _pBtnEmoticon->setObjectName("Emoticon");
     _pBtnScreenshot->setObjectName("Screenshot");
@@ -98,78 +97,70 @@ void ToolWgt::initUi()
     _pBtnFile->setFixedSize(DEM_BTN_ICON_LEN, DEM_BTN_ICON_LEN);
     _pBtnCode->setFixedSize(DEM_BTN_ICON_LEN, DEM_BTN_ICON_LEN);
     _pBtnMultifunction->setFixedSize(DEM_BTN_ICON_LEN, DEM_BTN_ICON_LEN);
-
     _pBtnVideo = new QPushButton( this);
     _pBtnVideo->setFocusPolicy(Qt::NoFocus);
     _pBtnVideo->setObjectName("Video");
     _pBtnVideo->setToolTip(tr("实时视频"));
     _pBtnVideo->setFixedSize(DEM_BTN_ICON_LEN, DEM_BTN_ICON_LEN);
-
     _pBtnHistory = new QPushButton( this);
     _pBtnHistory->setFocusPolicy(Qt::NoFocus);
     _pBtnHistory->setObjectName("History");
     _pBtnHistory->setToolTip(tr("历史消息"));
     _pBtnHistory->setFixedSize(DEM_BTN_ICON_LEN, DEM_BTN_ICON_LEN);
-
     _pBtnShock = new QPushButton( this);
     _pBtnShock->setFocusPolicy(Qt::NoFocus);
     _pBtnShock->setObjectName("Shock");
     _pBtnShock->setToolTip(tr("窗口抖动"));
     _pBtnShock->setFixedSize(DEM_BTN_ICON_LEN, DEM_BTN_ICON_LEN);
-
     //
-    auto * screenShotLayout = new QHBoxLayout;
-	screenShotLayout->setMargin(0);
-	screenShotLayout->setSpacing(0);
-	screenShotLayout->addWidget(_pBtnScreenshot);
-	screenShotLayout->addWidget(_pBtnScreenshotSet);
-    auto * layout = new QHBoxLayout(this);
-	layout->setSpacing(13);
-	layout->addWidget(_pBtnEmoticon);
-	layout->addLayout(screenShotLayout);
-	layout->addWidget(_pBtnFile);
+    auto *screenShotLayout = new QHBoxLayout;
+    screenShotLayout->setMargin(0);
+    screenShotLayout->setSpacing(0);
+    screenShotLayout->addWidget(_pBtnScreenshot);
+    screenShotLayout->addWidget(_pBtnScreenshotSet);
+    auto *layout = new QHBoxLayout(this);
+    layout->setSpacing(13);
+    layout->addWidget(_pBtnEmoticon);
+    layout->addLayout(screenShotLayout);
+    layout->addWidget(_pBtnFile);
     layout->addWidget(_pBtnMultifunction);
     layout->addWidget(_pBtnVideo);
     layout->addWidget(_pBtnCode);
     layout->addWidget(_pBtnHistory);
     layout->addWidget(_pBtnShock);
-	_pBtnVideo->setVisible(false);
-    auto* rightLayout = new QHBoxLayout;
-    layout->addLayout(rightLayout,1);
-
-	layout->addItem(new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Fixed));
-	//
-	setLayout(layout);
-	//
+    _pBtnVideo->setVisible(false);
+    auto *rightLayout = new QHBoxLayout;
+    layout->addLayout(rightLayout, 1);
+    layout->addItem(new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Fixed));
+    //
+    setLayout(layout);
+    //
     _pMultiMenu = new QMenu(this);
     _pMultiMenu->setAttribute(Qt::WA_TranslucentBackground, true);
     _pMultiMenu->setAttribute(Qt::WA_TranslucentBackground, true);
-
-    auto* scanQRCode = new QAction(tr("扫一扫"), this);
-
+    auto *scanQRCode = new QAction(tr("扫一扫"), this);
     _pMultiMenu->addAction(scanQRCode);
-
-    connect(scanQRCode, &QAction::triggered, [](bool){
+    connect(scanQRCode, &QAction::triggered, this, [](bool)
+    {
         emit g_pMainPanel->showQRcode();
     });
-
-	//_pBtnFile
-	connect(_pBtnFile, &QPushButton::clicked, this, &ToolWgt::onFileBtnClicked);
-	//
-	connect(_pBtnScreenshot, &QPushButton::clicked, this, &ToolWgt::onBtnScreenshot);
-	connect(_pBtnEmoticon, &QPushButton::clicked, this, &ToolWgt::onpBtnEmoticon);
-	connect(_pBtnScreenshotSet, &QPushButton::clicked, [&]()
-	{
-	    bool hideWnd = AppSetting::instance().getScreentShotHideWndFlag();
+    //_pBtnFile
+    connect(_pBtnFile, &QPushButton::clicked, this, &ToolWgt::onFileBtnClicked);
+    //
+    connect(_pBtnScreenshot, &QPushButton::clicked, this, &ToolWgt::onBtnScreenshot);
+    connect(_pBtnEmoticon, &QPushButton::clicked, this, &ToolWgt::onpBtnEmoticon);
+    connect(_pBtnScreenshotSet, &QPushButton::clicked, this, [this]()
+    {
+        bool hideWnd = AppSetting::instance().getScreentShotHideWndFlag();
         _pScreenShotHideWnd->setChecked(hideWnd);
-		_pMenu->exec(QCursor::pos());
-	});
-
-    connect(_pScreenShotHideWnd, &QAction::triggered, [](bool isChecked){
+        _pMenu->exec(QCursor::pos());
+    });
+    connect(_pScreenShotHideWnd, &QAction::triggered, this, [](bool isChecked)
+    {
         AppSetting::instance().setScreentShotHideWndFlag(isChecked);
     });
-
-    connect(_pBtnCode, &QPushButton::clicked, [this](){
+    connect(_pBtnCode, &QPushButton::clicked, this, [this]()
+    {
         if(g_pMainPanel)
         {
             emit g_pMainPanel->sgOperator(tr("发送代码"));
@@ -177,25 +168,25 @@ void ToolWgt::initUi()
         }
     });
     connect(_pBtnHistory, &QPushButton::clicked, this, &ToolWgt::showSearchWnd);
-    connect(_pBtnMultifunction, &QPushButton::clicked, [this](){
+    connect(_pBtnMultifunction, &QPushButton::clicked, this, [this]()
+    {
         _pMultiMenu->exec(QCursor::pos());
     });
-
-    connect(_pBtnShock, &QPushButton::clicked, [this](){
-
+    connect(_pBtnShock, &QPushButton::clicked, this, [this]()
+    {
         static long long time = 0;
         long long cur_t = QDateTime::currentMSecsSinceEpoch();
+
         if(cur_t - time > 1000 * 5)
         {
             time = cur_t;
             g_pMainPanel->sendShockMessage(_pChatItem->_uid, _pChatItem->_chatType);
 //            emit g_pMainPanel->sgShockWnd();
         }
-        else {
+        else
             LiteMessageBox::failed(tr("抖动太频繁, 待会再试吧!"), 2000);
-        }
-
     });
+    connect(_pBtnVideo, &QPushButton::clicked, this, &ToolWgt::onVideoClicked);
 }
 
 /**
@@ -208,22 +199,21 @@ void ToolWgt::initUi()
 void ToolWgt::onFileBtnClicked()
 {
     emit g_pMainPanel->sgOperator(tr("发送文件"));
-
     QString strHistoryFileDir = QString::fromStdString(PLAT.getHistoryDir());
     QString strFilePath = QFileDialog::getOpenFileName(g_pMainPanel, tr("选择需要发送的文件"), strHistoryFileDir);
-	if (!strFilePath.isEmpty() && _pInputWgt)
-	{
+
+    if (!strFilePath.isEmpty() && _pInputWgt)
+    {
         PLAT.setHistoryDir(strFilePath.toStdString());
-		_pInputWgt->dealFile(strFilePath, true);
-	}
+        _pInputWgt->dealFile(strFilePath, true);
+    }
 
-	_pInputWgt->setFocus();
-
+    _pInputWgt->setFocus();
 }
 
 /**
-  * @函数名   
-  * @功能描述 
+  * @函数名
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/17
@@ -231,24 +221,25 @@ void ToolWgt::onFileBtnClicked()
 void ToolWgt::onBtnScreenshot()
 {
     emit g_pMainPanel->sgOperator(tr("截图"));
-
-	int waitSecond = 0;
+    int waitSecond = 0;
     bool hideWnd = AppSetting::instance().getScreentShotHideWndFlag();
-	if (hideWnd)
-	{
-		waitSecond = 200;
-		UICom::getInstance()->getAcltiveMainWnd()->hide();
-	}
-	QTimer::singleShot(waitSecond, [this]()
-	{
+
+    if (hideWnd)
+    {
+        waitSecond = 200;
+        UICom::getInstance()->getAcltiveMainWnd()->hide();
+    }
+
+    QTimer::singleShot(waitSecond, [this]()
+    {
         SnipScreenTool::getInstance()->setConversionId(_pChatItem->conversionId());
-		SnipScreenTool::getInstance()->Init().Start();
-	});
+        SnipScreenTool::getInstance()->Init().Start();
+    });
 }
 
 /**
-  * @函数名   
-  * @功能描述 
+  * @函数名
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/17
@@ -256,8 +247,7 @@ void ToolWgt::onBtnScreenshot()
 void ToolWgt::onpBtnEmoticon()
 {
     emit g_pMainPanel->sgOperator(tr("表情"));
-
-	QPoint pos = this->geometry().topLeft();
+    QPoint pos = this->geometry().topLeft();
     pos = mapToGlobal(pos);
     EmoticonMainWgt::instance()->setConversionId(_pChatItem->conversionId());
 //    EmoticonMainWgt::instance()->setVisible(false);
@@ -266,6 +256,16 @@ void ToolWgt::onpBtnEmoticon()
     EmoticonMainWgt::instance()->setFocus();
 }
 
-void ToolWgt::switchSession(const int &) {
+void ToolWgt::switchSession(const int &)
+{
     _pBtnShock->setVisible(_pChatItem->_chatType == QTalk::Enum::TwoPersonChat);
+    bool isOk = (_pChatItem->_chatType == QTalk::Enum::TwoPersonChat && NavigationManager::instance().getChatVideoEnable()) ||
+                (_pChatItem->_chatType == QTalk::Enum::GroupChat && NavigationManager::instance().getConferenceEnable());
+    isOk &= !NavigationManager::instance().getVideoUrl().empty();
+    _pBtnVideo->setVisible(isOk);
+}
+
+//
+void ToolWgt::onVideoClicked()
+{
 }

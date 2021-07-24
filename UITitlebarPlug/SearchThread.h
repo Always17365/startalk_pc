@@ -11,8 +11,9 @@
 
 class SearchResultPanel;
 
-class SearchThread : public QObject {
-Q_OBJECT
+class SearchThread : public QObject
+{
+    Q_OBJECT
 public:
     SearchThread(SearchResultPanel *searchPanel);
 
@@ -38,7 +39,7 @@ private:
     QString _lastReq;
     long long _lastTime;
 
-    bool _isRun;
+    bool _isRun{false};
     bool _searchSts;
     QMutex _mutex;
 };

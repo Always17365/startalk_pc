@@ -1,15 +1,25 @@
-//
-// Created by cc on 2019/12/12.
-//
+#ifndef THREADHELPER_H
+#define THREADHELPER_H
 
-#ifndef QTALK_V2_THREADHELPER_H
-#define QTALK_V2_THREADHELPER_H
+#include <thread>
+#include <functional>
 
-void setThreadName(const char* name)
+class ThreadHelper
 {
-#ifdef _MACOS
-    pthread_setname_np(name);
-#endif
-}
+public:
+    inline ~ThreadHelper()
+    {
+        _thead->join();
+    }
 
-#endif //QTALK_V2_THREADHELPER_H
+public:
+    inline void run(const std::function<void()> &func)
+    {
+        _thead = new std::thread(func);
+    }
+
+private:
+    std::thread *_thead{nullptr};
+};
+
+#endif // THREADHELPER_H

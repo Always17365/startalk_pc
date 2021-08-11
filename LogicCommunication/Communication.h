@@ -30,7 +30,6 @@ class OnLineManager;
 class SearchManager;
 class OfflineMessageManager;
 class UserConfig;
-class HotLinesConfig;
 class LOGICMANAGER_EXPORT Communication : public ILogicObject
 {
 public:
@@ -40,10 +39,10 @@ public:
 public:
     bool OnLogin(const std::string &userName, const std::string &password);
     bool
-    AsyncConnect(const std::string &userName, const std::string &password, const std::string &host, int port);
+    AsyncConnect(const std::string &userName, const std::string &password,
+                 const std::string &host, int port);
 
     bool tryConnectToServer();
-    bool tryConnectToServerByQVT();
 
 public:
     void addHttpRequest(const QTalk::HttpRequest &req,
@@ -77,15 +76,18 @@ public:
     //创建群组
     void createGroup(const std::string &groupId, const std::string &groupName);
     //邀请用户入群
-    void inviteGroupMembers(std::vector<std::string> &users, const std::string &groupId);
+    void inviteGroupMembers(std::vector<std::string> &users,
+                            const std::string &groupId);
     // 获取群成员
     void getGroupMemberById(const std::string &groupId);
     //
     void getNetEmoticon(GetNetEmoticon &e);
 
-    void downloadUserHeadByStUserCard(const std::vector<QTalk::StUserCard> &arUserInfo);
+    void downloadUserHeadByStUserCard(const std::vector<QTalk::StUserCard>
+                                      &arUserInfo);
     //
-    void getStructure(std::vector<std::shared_ptr<QTalk::Entity::ImUserInfo>> &structure);
+    void getStructure(std::vector<std::shared_ptr<QTalk::Entity::ImUserInfo>>
+                      &structure);
 
     // 获取会话信息
     void getSessionData();
@@ -94,18 +96,21 @@ public:
     //
     void getStructureCount(const std::string &keyName, int &count);
     //
-    void getStructureMember(const std::string &keyName, std::vector<std::string> &arMember);
+    void getStructureMember(const std::string &keyName,
+                            std::vector<std::string> &arMember);
     //
     void downloadCollection(const std::vector<std::string> &arDownloads);
     // 动态获取oa部分 ui组件
     bool geiOaUiData(std::vector<QTalk::StOAUIData> &arOAUIData);
 
     // 发送点击统计
-    void sendOperatorStatistics(const std::string &ip, const std::vector<QTalk::StActLog> &operators);
+    void sendOperatorStatistics(const std::string &ip,
+                                const std::vector<QTalk::StActLog> &operators);
 
     //
     void reportLog(const std::string &desc, const std::string &logPath);
-    void reportDump(const std::string &ip, const std::string &id, const std::string &dmp_path, QInt64 time);
+    void reportDump(const std::string &ip, const std::string &id,
+                    const std::string &dmp_path, QInt64 time);
 
     void saveUserConfig();
 
@@ -126,7 +131,6 @@ public:
     void reportLogin();
 
 public: // 群组相关
-
     //
     void getGroupCardInfo(std::shared_ptr<QTalk::Entity::ImGroupInfo> &e);
 
@@ -148,15 +152,17 @@ public: // 群组相关
 
 public:
     //
-    void onRecvGroupMembers(const std::string &groupId, const std::map<std::string, QUInt8> &mapUserRole);
+    void onRecvGroupMembers(const std::string &groupId,
+                            const std::map<std::string, QUInt8> &mapUserRole);
     //
     void onCreateGroupComplete(const std::string &groupId, bool ret);
     //
     void onInviteGroupMembers(const std::string &groupId);
     //
-//    void onRecvFriendList(const std::vector<QTalk::Entity::IMFriendList> &friends);
+    //    void onRecvFriendList(const std::vector<QTalk::Entity::IMFriendList> &friends);
     //
-    void onUserJoinGroup(const std::string &groupId, const std::string &memberId, int affiliation);
+    void onUserJoinGroup(const std::string &groupId, const std::string &memberId,
+                         int affiliation);
     //
     void onStaffChanged();
     //
@@ -164,21 +170,7 @@ public:
 
 private:
     // 获取好友列表
-//    void getFriendList();
-
-public:
-    void setServiceSeat(int sid, int seat);
-    void serverCloseSession(const std::string &username, const std::string &virtualname);
-    void sendProduct(const std::string &username, const std::string &virtualname,
-                     const std::string &product, const std::string &type);
-    void getSeatList(const QTalk::Entity::UID &uid);
-    void sessionTransfer(const QTalk::Entity::UID &uid, const std::string &newCser, const std::string &reason);
-    void sendWechat(const QTalk::Entity::UID &uid);
-
-//qchat 登录相关
-public:
-    std::string getQchatQvt(const std::string &userName, const std::string &password);
-    void getQchatTokenByQVT(const std::string &qvt, std::map<std::string, std::string> &map);
+    //    void getFriendList();
 
 public:
     // 最近聊天
@@ -188,23 +180,21 @@ public:
 
 public:
     //新登录获取token
-    void getNewLoginToken(const std::string &u, const std::string &p, std::map<std::string, std::string> &info);
+    void getNewLoginToken(const std::string &u, const std::string &p,
+                          std::map<std::string, std::string> &info);
 
 public:
-//    CommMsgManager *_pMsgManager;
-    FileHelper *_pFileHelper;
-    UserManager *_pUserManager;
-    GroupManager *_pUserGroupManager;
-    OnLineManager *_pOnLineManager;
-    SearchManager *_pSearchManager;
-    UserConfig *_pUserConfig;
-    HotLinesConfig *_pHotLinesConfig;
+    FileHelper    *_pFileHelper{nullptr};
+    UserManager   *_pUserManager{nullptr};
+    GroupManager  *_pUserGroupManager{nullptr};
+    OnLineManager *_pOnLineManager{nullptr};
+    SearchManager *_pSearchManager{nullptr};
+    UserConfig    *_pUserConfig{nullptr};
 
-    OfflineMessageManager *_pOfflineMessageManager;
-
+    OfflineMessageManager *_pOfflineMessageManager{nullptr};
 
 private:
-    CommMsgListener *_pMsgListener;
+    CommMsgListener *_pMsgListener{nullptr};
 
     QTalk::util::spin_mutex sm;
 
@@ -215,10 +205,10 @@ private:
     std::string _userName;
     std::string _password;
     std::string _host;
-    int _port;
+    int _port{0};
 
 private:
-    static const int _threadPoolCount = 3;
+    static const int _threadPoolCount {3};
     STLazyQueue<std::pair<std::string, UserCardMapParam>> *userCardQueue;
     std::vector<ThreadPool *> _httpPool;
 };

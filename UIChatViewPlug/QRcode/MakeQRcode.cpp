@@ -3,6 +3,7 @@
 //
 
 #include "MakeQRcode.h"
+
 #include <QPushButton>
 #include <QHBoxLayout>
 #include <QTextEdit>
@@ -13,11 +14,12 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QMimeData>
+#include <../qzxing/QZXing>
+
 #include "TipButton.h"
 #include "QRcode.h"
 #include "../ChatViewMainPanel.h"
 #include "../../include/Line.h"
-#include "../../qzxing/QZXing"
 #include "../../Platform/Platform.h"
 #include "../../CustomUi/QtMessageBox.h"
 
@@ -65,18 +67,17 @@ MakeQRcode::MakeQRcode(QRcode *parent)
     _pMenu->addAction(copyAct);
     _pMenu->addAction(saveAct);
     //
-    connect(submitBtn, &QPushButton::clicked, this,  [this]()
-    {
+    connect(submitBtn, &QPushButton::clicked, this,  [this]() {
         QString encodeStr = _pInputEdit->toPlainText();
 
-        if(encodeStr.isEmpty())
+        if (encodeStr.isEmpty()) {
             return;
+        }
 
         QImage img = QZXing::encodeData(encodeStr,
                                         QZXing::EncoderFormat_QR_CODE, {140, 140});
 
-        if(!img.isNull())
-        {
+        if (!img.isNull()) {
             _pixmap = QPixmap::fromImage(img);
             _pQRCodeLabel->setPixmap(_pixmap);
         }
@@ -98,20 +99,21 @@ void MakeQRcode::resetWnd()
 
 bool MakeQRcode::event(QEvent *e)
 {
-    if(e->type() == QEvent::Show)
+    if (e->type() == QEvent::Show) {
         resetWnd();
+    }
 
     return QFrame::event(e);
 }
 
 bool MakeQRcode::eventFilter(QObject *o, QEvent *e)
 {
-    if(o == _pQRCodeLabel && e->type() == QEvent::MouseButtonPress)
-    {
+    if (o == _pQRCodeLabel && e->type() == QEvent::MouseButtonPress) {
         auto *evt = (QMouseEvent *)e;
 
-        if(evt->button() == Qt::RightButton)
+        if (evt->button() == Qt::RightButton) {
             _pMenu->exec(QCursor::pos());
+        }
     }
 
     return QObject::eventFilter(o, e);
@@ -119,14 +121,14 @@ bool MakeQRcode::eventFilter(QObject *o, QEvent *e)
 
 void MakeQRcode::onCopyAct(bool)
 {
-    if (!_pixmap.isNull())
-    {
-        QString localPath = QString("%1/image/temp/").arg(PLAT.getAppdataRoamingUserPath().c_str());
-        QString fileName = localPath + QDateTime::currentDateTime().toString("yyyyMMddhhmmsszzz.png");
+    if (!_pixmap.isNull()) {
+        QString localPath = QString("%1/image/temp/").arg(
+                                PLAT.getAppdataRoamingUserPath().c_str());
+        QString fileName = localPath +
+                           QDateTime::currentDateTime().toString("yyyyMMddhhmmsszzz.png");
         bool bret = _pixmap.save(fileName, "PNG");
 
-        if (bret)
-        {
+        if (bret) {
             // 将截图放到 剪切板
             auto *mimeData = new QMimeData;
             mimeData->setUrls(QList<QUrl>() << QUrl::fromLocalFile(fileName));
@@ -137,27 +139,29 @@ void MakeQRcode::onCopyAct(bool)
 
 void MakeQRcode::onSaveAct(bool)
 {
-    if(!_pixmap.isNull())
-    {
+    if (!_pixmap.isNull()) {
         std::string histor = PLAT.getHistoryDir();
-        QString fileName = QFileDialog::getSaveFileName(g_pMainPanel, tr("请选择需要保存的目录"), histor.data());
+        QString fileName = QFileDialog::getSaveFileName(g_pMainPanel,
+                                                        tr("请选择需要保存的目录"), histor.data());
 
-        if(!fileName.isEmpty())
-        {
+        if (!fileName.isEmpty()) {
             QFileInfo info(fileName);
             QString suffix = info.suffix();
 
-            if(suffix.isEmpty())
+            if (suffix.isEmpty()) {
                 fileName += ".png";
-            else
+            } else {
                 fileName += ".png";
+            }
 
             bool isOk = _pixmap.save(fileName, "png");
 
-            if(isOk)
-                QtMessageBox::information(g_pMainPanel, tr("提示"), QString(tr("文件已成功保存至: %1")).arg(fileName));
-            else
+            if (isOk) {
+                QtMessageBox::information(g_pMainPanel, tr("提示"),
+                                          QString(tr("文件已成功保存至: %1")).arg(fileName));
+            } else {
                 QtMessageBox::warning(g_pMainPanel, tr("错误"), tr("文件保存失败"));
+            }
         }
     }
 }

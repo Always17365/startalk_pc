@@ -5,11 +5,12 @@
 #include <QDebug>
 
 // 发送登陆消息
-bool UILoginMsgManager::SendLoginMessage(const std::string& userName, const std::string& password)
+bool UILoginMsgManager::SendLoginMessage(const std::string &userName,
+                                         const std::string &password)
 {
     LoginMessage msg(userName, password);
     EventBus::FireEvent(msg);
-	return msg.ret;
+    return msg.ret;
 }
 
 /**
@@ -17,9 +18,9 @@ bool UILoginMsgManager::SendLoginMessage(const std::string& userName, const std:
  */
 bool UILoginMsgManager::getNavInfo(const std::string &navAddr)
 {
-	GetNavAddrInfo e(navAddr);
-	EventBus::FireEvent(e);
-	return e.ret;
+    GetNavAddrInfo e(navAddr);
+    EventBus::FireEvent(e);
+    return e.ret;
 }
 
 
@@ -35,39 +36,6 @@ std::string UILoginMsgManager::getNavDomain(const std::string &addr)
     return e.doamin;
 }
 
-/**
- * 将qvt存入db
- * @param qvt
- * @return
- */
-bool UILoginMsgManager::saveQvtToDB(const std::string &qvt) {
-    SaveQchatQVTToDB e(qvt);
-    EventBus::FireEvent(e);
-    return true;
-}
-
-/**
- * qchat 从db获取qvt
- * @return
- */
-std::string UILoginMsgManager::getQchatQvt() {
-    GetQchatQVTFromDB e;
-    EventBus::FireEvent(e);
-    return e.strQVT;
-}
-
-/**
- * qchat用qvt换取token
- * @param qvt
- * @return
- */
-std::map<std::string,std::string> UILoginMsgManager::getQchatToken(const std::string &qvt)
-{
-	GetQchatToken e(qvt);
-	EventBus::FireEvent(e);
-	return e.userMap;
-}
-
 void UILoginMsgManager::startUpdater(const std::string &users)
 {
     StartUpdaterEvt e(users);
@@ -77,17 +45,17 @@ void UILoginMsgManager::startUpdater(const std::string &users)
 /**
  * UILoginMsgListener
  */
-UILoginMsgListener::UILoginMsgListener(LoginPanel* pLoginPanel)
-	:_pLoginPanel(pLoginPanel)
+UILoginMsgListener::UILoginMsgListener(LoginPanel *pLoginPanel)
+    : _pLoginPanel(pLoginPanel)
 {
-	EventBus::AddHandler<LoginSuccessMessage>(*this);
-	EventBus::AddHandler<SynOfflineSuccees>(*this);
-	EventBus::AddHandler<AuthFailed>(*this);
-	EventBus::AddHandler<GotStructureMessage>(*this);
-	EventBus::AddHandler<GotUserGroup>(*this);
-	EventBus::AddHandler<LoginErrMessage>(*this);
-	EventBus::AddHandler<ChangeHeadRetMessage>(*this);
-	EventBus::AddHandler<LoginProcessMessage>(*this);
+    EventBus::AddHandler<LoginSuccessMessage>(*this);
+    EventBus::AddHandler<SynOfflineSuccees>(*this);
+    EventBus::AddHandler<AuthFailed>(*this);
+    EventBus::AddHandler<GotStructureMessage>(*this);
+    EventBus::AddHandler<GotUserGroup>(*this);
+    EventBus::AddHandler<LoginErrMessage>(*this);
+    EventBus::AddHandler<ChangeHeadRetMessage>(*this);
+    EventBus::AddHandler<LoginProcessMessage>(*this);
 }
 
 UILoginMsgListener::~UILoginMsgListener()
@@ -96,65 +64,64 @@ UILoginMsgListener::~UILoginMsgListener()
 }
 
 //
-void UILoginMsgListener::onEvent(LoginSuccessMessage& e)
+void UILoginMsgListener::onEvent(LoginSuccessMessage &e)
 {
-	if (e.getCanceled())
-	{
-		return;
-	}
-	if (nullptr != _pLoginPanel)
-	{
+    if (e.getCanceled()) {
+        return;
+    }
+
+    if (nullptr != _pLoginPanel) {
         _pLoginPanel->loginSuccess();
     }
 }
 
 void UILoginMsgListener::onEvent(SynOfflineSuccees &e)
 {
-    if (e.getCanceled())
-    {
+    if (e.getCanceled()) {
         return;
     }
-    if (nullptr != _pLoginPanel)
-    {
+
+    if (nullptr != _pLoginPanel) {
         _pLoginPanel->onSynDataSuccess();
     }
 }
 
 void UILoginMsgListener::onEvent(AuthFailed &e)
 {
-	if (e.getCanceled()) return;
+    if (e.getCanceled()) {
+        return;
+    }
 
-	if (nullptr != _pLoginPanel)
-	{
-		_pLoginPanel->loginError(e.message);
-	}
+    if (nullptr != _pLoginPanel) {
+        _pLoginPanel->loginError(e.message);
+    }
 }
 
 //
 void UILoginMsgListener::onEvent(GotStructureMessage &e)
 {
-	if (e.getCanceled())
-	{
-		return;
-	}
-//	if (nullptr != _pLoginPanel)
-//	{
-//		debug_log("--------------GotStructureMessage--------------");
-//		_pLoginPanel->onGotLoginstauts("正在获取群信息");
-//	}
+    if (e.getCanceled()) {
+        return;
+    }
+
+    //  if (nullptr != _pLoginPanel)
+    //  {
+    //      debug_log("--------------GotStructureMessage--------------");
+    //      _pLoginPanel->onGotLoginstauts("正在获取群信息");
+    //  }
 }
 
 void UILoginMsgListener::onEvent(GotUserGroup &e)
 {
-	if (e.getCanceled())
-	{
-		return;
-	}
-//	if (nullptr != _pLoginPanel)
-//	{
-//		debug_log("--------------GotUserGroup--------------");
-//		_pLoginPanel->onGotLoginstauts("正在拉取离线消息");
-//	}
+    if (e.getCanceled()) {
+        return;
+    }
+
+    //  if (nullptr != _pLoginPanel)
+    //  {
+    //      debug_log("--------------GotUserGroup--------------");
+    //      _pLoginPanel->onGotLoginstauts("正在拉取离线消息");
+    //  }
 }
 
 /**
@@ -163,12 +130,11 @@ void UILoginMsgListener::onEvent(GotUserGroup &e)
  */
 void UILoginMsgListener::onEvent(LoginErrMessage &e)
 {
-    if (e.getCanceled())
-    {
+    if (e.getCanceled()) {
         return;
     }
-    if (nullptr != _pLoginPanel)
-    {
+
+    if (nullptr != _pLoginPanel) {
         debug_log(e.errorMessage);
         _pLoginPanel->loginError(e.errorMessage);
     }
@@ -177,20 +143,22 @@ void UILoginMsgListener::onEvent(LoginErrMessage &e)
 
 void UILoginMsgListener::onEvent(ChangeHeadRetMessage &e)
 {
-    if(e.getCanceled()) return;;
+    if (e.getCanceled()) {
+        return;
+    };
 
-    if(e.ret && nullptr != _pLoginPanel)
-    {
+    if (e.ret && nullptr != _pLoginPanel) {
         _pLoginPanel->saveHeadPath();
     }
 }
 
-void UILoginMsgListener::onEvent(LoginProcessMessage& e)
+void UILoginMsgListener::onEvent(LoginProcessMessage &e)
 {
-    if(e.getCanceled()) return;;
+    if (e.getCanceled()) {
+        return;
+    };
 
-    if(nullptr != _pLoginPanel)
-    {
+    if (nullptr != _pLoginPanel) {
         debug_log("-------------- {0} --------------", e.message);
         _pLoginPanel->onGotLoginStatus(e.message.data());
     }

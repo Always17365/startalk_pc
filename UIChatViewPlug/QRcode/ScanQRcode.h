@@ -6,7 +6,7 @@
 #define QTALK_V2_SCANQRCODE_H
 
 #include <QFrame>
-#include "../../qzxing/QZXing"
+#include "../qzxing/QZXing.h"
 
 /**
 * @description: ScanQRcode

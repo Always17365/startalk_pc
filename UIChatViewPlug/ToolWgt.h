@@ -25,9 +25,6 @@ private:
     void onFileBtnClicked();
     void onBtnScreenshot();
     void onpBtnEmoticon();
-    void sendJsonPrud(const QString &products);
-    void sendQuickReply(const std::string &text);
-    void sessionTransfer(const std::string &newJid, const std::string &reason);
     void onVideoClicked();
 
 public:
@@ -47,7 +44,6 @@ private:
     QPushButton *_pBtnFile{};
     QPushButton *_pBtnVideo{};
     QPushButton *_pBtnHistory{};
-//	QPushButton* _pBtnShare{};
     QPushButton *_pBtnMultifunction{};
     QMenu       *_pMenu{};
     QAction     *_pScreenShotHideWnd{};

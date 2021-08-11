@@ -23,8 +23,9 @@ class QSpinBox;
 class SettingCheckBox : public QCheckBox
 {
 public:
-    explicit SettingCheckBox(const QString& text = QString(), bool defaultVal = false, QWidget* parent = nullptr)
-        :QCheckBox(text, parent)
+    explicit SettingCheckBox(const QString &text = QString(),
+                             bool defaultVal = false, QWidget *parent = nullptr)
+        : QCheckBox(text, parent)
     {
         setChecked(defaultVal);
         setObjectName("SettingCheckBox");
@@ -33,75 +34,81 @@ public:
 
 };
 
-class NoSlidingHandoverComboBox : public QComboBox {
+class NoSlidingHandoverComboBox : public QComboBox
+{
 public:
-    explicit NoSlidingHandoverComboBox(QWidget* parent = nullptr)
-            :QComboBox(parent) {
+    explicit NoSlidingHandoverComboBox(QWidget *parent = nullptr)
+        : QComboBox(parent)
+    {
         setObjectName("NoSlidingHandoverComboBox");
     }
 
 protected:
-    void wheelEvent(QWheelEvent* e) override
+    void wheelEvent(QWheelEvent *e) override
     {
 
     }
 
-    void showPopup() override  {
+    void showPopup() override
+    {
         QComboBox::showPopup();
         QWidget *popup = this->findChild<QFrame *>();
-        if(popup) {
+
+        if (popup) {
             popup->setMaximumHeight(300);
             popup->move(parentWidget()->mapToGlobal(this->geometry().bottomLeft()));
         }
     }
 };
 
-class ComboBoxDelegate : public QStyledItemDelegate {
+class ComboBoxDelegate : public QStyledItemDelegate
+{
     Q_OBJECT
 public:
 protected:
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
-    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QModelIndex &index) const override;
+    QSize sizeHint(const QStyleOptionViewItem &option,
+                   const QModelIndex &index) const override;
 };
 
-class SystemSettingWnd  : public UShadowDialog{
+class SystemSettingWnd  : public UShadowDialog
+{
     Q_OBJECT
 public:
-    explicit SystemSettingWnd(QWidget * parent = nullptr);
+    explicit SystemSettingWnd(QWidget *parent = nullptr);
     ~SystemSettingWnd() override;
 
 Q_SIGNALS:
     void sgSetAutoLogin(bool);
-    void sgFeedbackLog(const QString&);
+    void sgFeedbackLog(const QString &);
     void sgUpdateHotKey();
-	void saveConfig();
+    void saveConfig();
     void sgClearSystemCache();
     void msgSoundChanged();
 
 protected:
-    bool eventFilter(QObject* o, QEvent* e) override;
-	void hideEvent(QHideEvent* e) override;
-
-private slots:
-    void operatingModeButtonsToggled(int, bool);
+    bool eventFilter(QObject *o, QEvent *e) override;
+    void hideEvent(QHideEvent *e) override;
 
 private:
     void initUi();
     void initSetting(int type);
 
 private:
-    void initMsgNotify(QVBoxLayout* itemLay);
-    void initHotCut(QVBoxLayout* itemLay);
-    void initSession(QVBoxLayout* itemLay);
-    void initAutoReply(QVBoxLayout* itemLay);
-    void initFolder(QVBoxLayout* itemLay);
-    void initFontSetting(QVBoxLayout* itemLay);
-    void initOtherSetting(QVBoxLayout* itemLay);
-    void initVersionInfo(QVBoxLayout* itemLay);
-    void initFeedback(QVBoxLayout* itemLay);
+    void initMsgNotify(QVBoxLayout *itemLay);
+    void initHotCut(QVBoxLayout *itemLay);
+    void initSession(QVBoxLayout *itemLay);
+    void initAutoReply(QVBoxLayout *itemLay);
+    void initFolder(QVBoxLayout *itemLay);
+    void initFontSetting(QVBoxLayout *itemLay);
+    void initOtherSetting(QVBoxLayout *itemLay);
+    void initVersionInfo(QVBoxLayout *itemLay);
+    void initFeedback(QVBoxLayout *itemLay);
 
 private:
-    SKRecorder* addSortCutItem(const QString& text, const QKeySequence& keys, QVBoxLayout* layout,std::function<void(const QKeySequence& keys)> callback);
+    SKRecorder *addSortCutItem(const QString &text, const QKeySequence &keys,
+                               QVBoxLayout *layout, std::function<void(const QKeySequence &keys)> callback);
 
 private slots:
     void setAutoReplyMessage();
@@ -114,23 +121,22 @@ private slots:
 
 private:
     QListWidget *_settingListWidget{};
-    QVBoxLayout * _pNavlayout{};
-    QMap<QListWidgetItem*, ActionLabel*> _mapSettingItems{};
-    QMap<QFrame*, ActionLabel*> _mapSettingWgt{};
+    QVBoxLayout *_pNavlayout{};
+    QMap<QListWidgetItem *, ActionLabel *> _mapSettingItems{};
+    QMap<QFrame *, ActionLabel *> _mapSettingWgt{};
 
     QSpinBox *_autoReplyStartTimeSpinBox{};
     QSpinBox *_autoReplyEndTimeSpinBox{};
 
 private:
-    QTextEdit* _pAutoReplyEdit{};
-//    QComboBox* _pAutoPeplyCombobox{};
+    QTextEdit *_pAutoReplyEdit{};
+    //    QComboBox* _pAutoPeplyCombobox{};
 
-    SettingCheckBox* blackTheme{};
+    SettingCheckBox *blackTheme{};
 
 private:
 
-    enum settingType
-    {
+    enum settingType {
         EM_SETTING_MESSAGE,
         EM_SETTING_HOTKEY,
         EM_SETTING_AUTOREPLY,
@@ -142,7 +148,7 @@ private:
         EM_SETTING_SUGGESTION,
         // todo 暂时不显示
 
-//        EM_SETTING_FRIEND,
+        //        EM_SETTING_FRIEND,
     };
 
     enum {EM_USER_FOLDER, EM_FILE_FOLDER};

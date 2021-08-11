@@ -36,26 +36,27 @@ class LogicBaseMsgManager : public Object
 {
 public:
     // 登录状态信息
-    static void sendLoginProcessMessage(const std::string& message);
+    static void sendLoginProcessMessage(const std::string &message);
     // 登录失败消息
-    static void sendLoginErrMessage(const std::string& message);
+    static void sendLoginErrMessage(const std::string &message);
     // 验证失败消息
-    static void onAuthFailed(const std::string& message);
+    static void onAuthFailed(const std::string &message);
     // 断链消息
     static void onDisconnectToServer();
     // 发送的消息被服务器拒绝
-    static void recvBlackListMessage(const std::string& messageFrom, const std::string& messageId);
+    static void recvBlackListMessage(const std::string &messageFrom,
+                                     const std::string &messageId);
     // 发送 http 请求
-    static void sendHttpReq(const QTalk::HttpRequest& request, const std::function<void(int, const std::string &)>& callback);
+    static void sendHttpReq(const QTalk::HttpRequest &request,
+                            const std::function<void(int, const std::string &)> &callback);
 
 public:
-    static void onRecvGroupMembers(const std::string& groupId, std::map<std::string, QUInt8> mapUserRole);
+    static void onRecvGroupMembers(const std::string &groupId,
+                                   std::map<std::string, QUInt8> mapUserRole);
     //
-    static void creatGroupResult(const std::string& groupId, bool ret);
+    static void creatGroupResult(const std::string &groupId, bool ret);
     //
-    static void onInviteGroupMembers(const std::string& groupId);
-    //
-//    static void onGetFriends(const std::vector<QTalk::Entity::IMFriendList> &friends);
+    static void onInviteGroupMembers(const std::string &groupId);
     //
     static void onDealBind();
     //
@@ -66,34 +67,40 @@ public:
     //
     static void onUpdateGroupInfo(std::shared_ptr<QTalk::StGroupInfo> info);
     //
-    static void onSwitchUserStatus(const std::string& status);
+    static void onSwitchUserStatus(const std::string &status);
     //
     static void onUserConfigChanged();
     //
-    static void onUserJoinGroup(const std::string& groupId, const std::string& memberId, int affiliation);
+    static void onUserJoinGroup(const std::string &groupId,
+                                const std::string &memberId, int affiliation);
     //
     static void onStaffChanged();
     //
-    static void onFeedLog(const std::string& text);
+    static void onFeedLog(const std::string &text);
     //
-    static void onDestroyGroup(const std::string& groupId, bool isDestroy);
+    static void onDestroyGroup(const std::string &groupId, bool isDestroy);
     //
-    static void onRemoveGroupMember(const std::string& groupId, const std::string& memberId);
+    static void onRemoveGroupMember(const std::string &groupId,
+                                    const std::string &memberId);
     //
-    static void updateRevokeMessage(const QTalk::Entity::UID& uid, const std::string& fromId, const std::string& messageId, const QInt64& time);
+    static void updateRevokeMessage(const QTalk::Entity::UID &uid,
+                                    const std::string &fromId, const std::string &messageId, const QInt64 &time);
     //
-    static void updateSignalChatReadState(const std::string& userId,const std::string& realJid, const std::map<std::string, QInt32>& readMasks);
+    static void updateSignalChatReadState(const std::string &userId,
+                                          const std::string &realJid, const std::map<std::string, QInt32> &readMasks);
     //
-    static void updateGroupChatReadState(const std::string& groupId, const std::map<std::string, int >& readedCount);
+    static void updateGroupChatReadState(const std::string &groupId,
+                                         const std::map<std::string, int > &readedCount);
     //
     static void onRecvVideo(const std::string &peerId);
     //
-    static void onRecvChatMessage(R_Message& e);
-    static void onGetHotLines();
+    static void onRecvChatMessage(R_Message &e);
     //
-    static void updateMState(const std::string& userId, const std::string& realJid, const std::string& messageId, const QInt64 &time);
+    static void updateMState(const std::string &userId, const std::string &realJid,
+                             const std::string &messageId, const QInt64 &time);
 
-    static void onRecvWebRtcCommand(int msgType, const std::string& jid, const std::string &command, bool isCarbon);
+    static void onRecvWebRtcCommand(int msgType, const std::string &jid,
+                                    const std::string &command, bool isCarbon);
     //
     static void onMedalListChanged();
     //
@@ -103,23 +110,23 @@ public:
 
 public:
     static void refreshNav();
-    static void goBackLoginWnd(const std::string& reson = "");
+    static void goBackLoginWnd(const std::string &reson = "");
     static void systemQuit();
 };
 
 //
 class LogicBase;
 class LogicBaseMsgListener : public EventHandler<S_RevokeMessage>
-        , public EventHandler<SwitchUserStatusEvt>
-        , public EventHandler<ReadedMessage>
-        , public EventHandler<HeartBeat>
-        , public EventHandler<ForwardMessage>
-        , public EventHandler<S_Message>
-        , public EventHandler<PreSendMessageEvt>
-        , public EventHandler<SWebRtcCommand>
+    , public EventHandler<SwitchUserStatusEvt>
+    , public EventHandler<ReadedMessage>
+    , public EventHandler<HeartBeat>
+    , public EventHandler<ForwardMessage>
+    , public EventHandler<S_Message>
+    , public EventHandler<PreSendMessageEvt>
+    , public EventHandler<SWebRtcCommand>
 {
 public:
-    explicit LogicBaseMsgListener(LogicBase* pLogicBase);
+    explicit LogicBaseMsgListener(LogicBase *pLogicBase);
     ~LogicBaseMsgListener() override;
 
 public:

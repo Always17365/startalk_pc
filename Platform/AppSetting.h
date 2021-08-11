@@ -9,7 +9,8 @@
 #include "platform_global.h"
 #include "../include/Spinlock.h"
 
-class PLATFORMSHARED_EXPORT AppSetting{
+class PLATFORMSHARED_EXPORT AppSetting
+{
 
 public:
     AppSetting() ;
@@ -22,21 +23,21 @@ public:
         MostBig,
     };
 
-//    enum AddFriendMode {
-//        AllAgree,           //全部接受
-//        QuestionAndAnswer,  //需要问答
-//        NeedAgree,          //需要确认
-//    };
+    //    enum AddFriendMode {
+    //        AllAgree,           //全部接受
+    //        QuestionAndAnswer,  //需要问答
+    //        NeedAgree,          //需要确认
+    //    };
 
 public:
     std::string saveAppSetting();
-	void initAppSetting(const std::string& setting);
+    void initAppSetting(const std::string &setting);
     // 消息通知
     bool getNewMsgAudioNotify();     //新消息声音提醒
     void setNewMsgAudioNotify(bool flag);
-	std::string getgetNewMsgAudioPath();   //
-	void setgetNewMsgAudioPath(const std::string& path);   //
-    bool getNewMsgTipWindowNotify();    
+    std::string getgetNewMsgAudioPath();   //
+    void setgetNewMsgAudioPath(const std::string &path);   //
+    bool getNewMsgTipWindowNotify();
     void setNewMsgTipWindowNotify(bool flag);
     bool getPhoneAnyReceive();       //手机端随时接收推送
     void setPhoneAnyReceive(bool flag);
@@ -47,9 +48,9 @@ public:
     bool getHotCutEnable();          //热键是否开启
     void setHotCutEnable(bool flag);
     std::string getScreenshotHotKey();        //截图快捷键
-    void setScreenshotHotKey(const std::string& hotKey);
+    void setScreenshotHotKey(const std::string &hotKey);
     std::string getWakeWndHotKey();        //截图快捷键
-    void setWakeWndHotKey(const std::string& hotKey);
+    void setWakeWndHotKey(const std::string &hotKey);
 
     void setScreentShotHideWndFlag(bool hide);
     bool getScreentShotHideWndFlag();
@@ -72,8 +73,8 @@ public:
     void setAwaysAutoReply(bool flag);
     std::string getAutoReplyMsg();
     void setAutoReplyMsg(std::string msg);
-//    std::string getAutoReplyCusMsg();
-//    void setAutoReplyCusMsg(std::string msg);
+    //    std::string getAutoReplyCusMsg();
+    //    void setAutoReplyCusMsg(std::string msg);
 
     void setAutoReplyStartTime(int time);
     void setAutoReplyEndTime(int time);
@@ -83,20 +84,20 @@ public:
 
     // 文件目录
     std::string getUserDirectory();
-    void setUserDirectory(const std::string& userDirectory);
+    void setUserDirectory(const std::string &userDirectory);
     std::string getFileSaveDirectory();
-    void setFileSaveDirectory(const std::string& fileSaveDirectory);
+    void setFileSaveDirectory(const std::string &fileSaveDirectory);
     // 皮肤设置
     int getThemeMode();
     void setThemeMode(int mode);
     std::string getFont();
-    void setFont(const std::string& font);
+    void setFont(const std::string &font);
     // 其他设置
     bool getSelfStart();            // 开机自启动
     void setSelfStart(bool flag);
 
-//    void setLogLevel(int level);
-//    int getLogLevel();
+    //    void setLogLevel(int level);
+    //    int getLogLevel();
 
     bool getAutoLoginEnable();            // 是否自动登录
     void setAutoLoginEnable(bool flag);
@@ -115,9 +116,6 @@ public:
     void setUseNativeMessagePrompt(bool flag) { _useNativeMessagePrompt = flag; };
     bool getUseNativeMessagePrompt() { return _supportNativeMessagePrompt && _useNativeMessagePrompt; };
 
-//    void setCoEdit(const std::string& coEdit);
-//    std::string getCoEdit();
-
     enum {FONT_LEVEL_NORMAL = 0, FONT_LEVEL_BIG, FONT_LEVEL_SMALL};
     void setFontLevel(int level);
     int getFontLevel();
@@ -134,10 +132,9 @@ public:
     bool enableProxy();
 
 private:
-
     // 消息通知
     bool _newMsgAudioNotify;     //新消息声音提醒
-	std::string _newMsgAudioPath;
+    std::string _newMsgAudioPath;
     bool _newMsgTipWindowNotify;    //新消息声音提醒
     bool _phoneAnyReceive;       //手机端随时接收推送
     bool _strongWarn;
@@ -156,9 +153,9 @@ private:
     // 自动回复
     bool _leaveCheckEnable;
     int  _leaveMinute{5};
-//    bool _autoReplyPreset;
+    //    bool _autoReplyPreset;
     std::string _autoReplyMsg;
-//    std::string _autoReplyCusMsg;
+    //    std::string _autoReplyCusMsg;
     int _autoReplyStartTime{0};
     int _autoReplyEndTime{24};
     bool _awaysAutoReply{false};
@@ -179,7 +176,7 @@ private:
     bool _openOaWithAppBrowser;
     bool _showSendMessageBtn;
     int _channel;
-//    int _logLevel;
+    //    int _logLevel;
     //
     bool _supportNativeMessagePrompt;
     bool _useNativeMessagePrompt;
@@ -194,7 +191,7 @@ private:
     QTalk::util::spin_mutex sm;
 
 public:
-	static AppSetting& instance();
+    static AppSetting &instance();
 };
 
 

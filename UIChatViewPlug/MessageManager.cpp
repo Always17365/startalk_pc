@@ -53,8 +53,8 @@ std::string ChatMsgManager::getSouceImagePath(const std::string &netFilePath)
 }
 
 /**
-  * @函数名   
-  * @功能描述 
+  * @函数名
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/01
@@ -74,7 +74,8 @@ std::string ChatMsgManager::getLocalHeadPath(const std::string &netHeadPath)
   * @author   cc
   * @date     2018/09/28
   */
-VectorMessage ChatMsgManager::getUserHistoryMessage(const QInt64 &time, const QUInt8 &chatType, const QTalk::Entity::UID &uid)
+VectorMessage ChatMsgManager::getUserHistoryMessage(const QInt64 &time,
+                                                    const QUInt8 &chatType, const QTalk::Entity::UID &uid)
 {
     HistoryMessage e;
     e.time = time;
@@ -91,7 +92,8 @@ VectorMessage ChatMsgManager::getUserHistoryMessage(const QInt64 &time, const QU
  * @param uid
  * @return
  */
-VectorMessage ChatMsgManager::getUserLocalHistoryMessage(const QInt64 &time, const QTalk::Entity::UID &uid)
+VectorMessage ChatMsgManager::getUserLocalHistoryMessage(const QInt64 &time,
+                                                         const QTalk::Entity::UID &uid)
 {
     LocalHistoryMessage e;
     e.time = time;
@@ -117,7 +119,7 @@ void ChatMsgManager::getGroupInfo(const std::string &groupId)
 }
 
 /**
-  * @函数名   
+  * @函数名
   * @功能描述 发送message
   * @参数
   * @author   cc
@@ -149,7 +151,8 @@ void ChatMsgManager::preSendMessage(const QTalk::Entity::ImMessageInfo &message)
   * @参数
   * @date 2018.10.22
   */
-void ChatMsgManager::sendDownLoadFile(const std::string &strLocalPath, const std::string &strUri, const std::string &processKey)
+void ChatMsgManager::sendDownLoadFile(const std::string &strLocalPath,
+                                      const std::string &strUri, const std::string &processKey)
 {
     DownloadFileWithProcess event;
     event.strLocalPath = strLocalPath;
@@ -159,18 +162,21 @@ void ChatMsgManager::sendDownLoadFile(const std::string &strLocalPath, const std
 }
 
 //
-void ChatMsgManager::sendRevokeMessage(const QTalk::Entity::UID &uid, const std::string &from, const std::string &messageId, const QInt8 &chatType)
+void ChatMsgManager::sendRevokeMessage(const QTalk::Entity::UID &uid,
+                                       const std::string &from, const std::string &messageId, const QInt8 &chatType)
 {
     S_RevokeMessage e(uid, from, messageId, chatType);
     EventBus::FireEvent(e);
 }
 
-void ChatMsgManager::setUserSetting(bool isSetting, const std::string &key, const std::string &subKey,
+void ChatMsgManager::setUserSetting(bool isSetting, const std::string &key,
+                                    const std::string &subKey,
                                     const std::string &val)
 {
 
     UserSettingMsg e;
-    e.operatorType = isSetting ? UserSettingMsg::EM_OPERATOR_CANCEL : UserSettingMsg::EM_OPERATOR_SET;
+    e.operatorType = isSetting ? UserSettingMsg::EM_OPERATOR_CANCEL :
+                     UserSettingMsg::EM_OPERATOR_SET;
     e.key = key;
     e.subKey = subKey;
     e.value = val;
@@ -181,13 +187,15 @@ void ChatMsgManager::setUserSetting(bool isSetting, const std::string &key, cons
  *
  * @param logPath
  */
-void ChatMsgManager::sendLogReport(const std::string &desc, const std::string &logPath)
+void ChatMsgManager::sendLogReport(const std::string &desc,
+                                   const std::string &logPath)
 {
     LogReportMessage e(desc, logPath);
     EventBus::FireEvent(e);
 }
 
-void ChatMsgManager::setGroupAdmin(const std::string &groupId, const std::string &nick, const std::string &memberJid, bool isAdmin)
+void ChatMsgManager::setGroupAdmin(const std::string &groupId,
+                                   const std::string &nick, const std::string &memberJid, bool isAdmin)
 {
     SetGroupAdmin e;
     e.groupId = groupId;
@@ -197,7 +205,8 @@ void ChatMsgManager::setGroupAdmin(const std::string &groupId, const std::string
     EventBus::FireEvent(e);
 }
 
-void ChatMsgManager::removeGroupMember(const std::string &groupId, const std::string &nick, const std::string &memberJid)
+void ChatMsgManager::removeGroupMember(const std::string &groupId,
+                                       const std::string &nick, const std::string &memberJid)
 {
     RemoveGroupMember e;
     e.groupId = groupId;
@@ -206,13 +215,15 @@ void ChatMsgManager::removeGroupMember(const std::string &groupId, const std::st
     EventBus::FireEvent(e);
 }
 
-void ChatMsgManager::getUserInfo(std::shared_ptr<QTalk::Entity::ImUserInfo> &info)
+void ChatMsgManager::getUserInfo(std::shared_ptr<QTalk::Entity::ImUserInfo>
+                                 &info)
 {
     UserCardInfo e(info);
     EventBus::FireEvent(e);
 }
 
-std::string ChatMsgManager::uploadFile(const std::string &localFile, bool withprocess, const std::string &processKey)
+std::string ChatMsgManager::uploadFile(const std::string &localFile,
+                                       bool withprocess, const std::string &processKey)
 {
     UploadFileEvt e(localFile, withprocess, processKey);
     EventBus::FireEvent(e);
@@ -236,62 +247,22 @@ void ChatMsgManager::getContactsSession(std::vector<QTalk::StShareSession> &ss)
  * @param messsageId
  * @param users
  */
-void ChatMsgManager::forwardMesssage(const std::string &messsageId, const std::map<std::string, int> &users)
+void ChatMsgManager::forwardMesssage(const std::string &messsageId,
+                                     const std::map<std::string, int> &users)
 {
     ForwardMessage e(messsageId, users);
     EventBus::FireEvent(e);
 }
 
-void ChatMsgManager::addGroupMember(const std::vector<std::string> &members, const std::string &groupId)
+void ChatMsgManager::addGroupMember(const std::vector<std::string> &members,
+                                    const std::string &groupId)
 {
     AddGroupMember e(members, groupId);
     EventBus::FireEvent(e);
 }
 
-void ChatMsgManager::serverCloseSession(const std::string &username, const std::string &virtualname)
-{
-    ServerCloseSessionEvt e(username, virtualname);
-    EventBus::FireEvent(e);
-}
-
-void ChatMsgManager::getSeatList(const QTalk::Entity::UID &uid)
-{
-    GetSeatListEvt e(uid);
-    EventBus::FireEvent(e);
-}
-
-void ChatMsgManager::sendProduct(const std::string &userQName, const std::string &virtualId, const std::string &product, const std::string &type)
-{
-    SendProductEvt e(userQName, virtualId, product, type);
-    EventBus::FireEvent(e);
-}
-
-void ChatMsgManager::sessionTransfer(const QTalk::Entity::UID &uid, const std::string &newCsrName,
-                                     const std::string &reason)
-{
-    SessionTransferEvt e(uid, newCsrName, reason);
-    EventBus::FireEvent(e);
-}
-
-void ChatMsgManager::sendWechat(const QTalk::Entity::UID &uid)
-{
-    SendWechatEvt e(uid);
-    EventBus::FireEvent(e);
-}
-
-void ChatMsgManager::getQuickGroups(std::vector<QTalk::Entity::ImQRgroup> &groups)
-{
-    QuickGroupEvt evt(groups);
-    EventBus::FireEvent(evt);
-}
-
-void ChatMsgManager::getQuickContentByGroup(std::vector<QTalk::Entity::IMQRContent> &contents, int id)
-{
-    QuickContentByGroupEvt evt(contents, id);
-    EventBus::FireEvent(evt);
-}
-
-VectorMessage ChatMsgManager::getUserFileHistoryMessage(const QInt64 &time, const QTalk::Entity::UID &uid)
+VectorMessage ChatMsgManager::getUserFileHistoryMessage(const QInt64 &time,
+                                                        const QTalk::Entity::UID &uid)
 {
 
     FileHistoryMessage e;
@@ -303,7 +274,8 @@ VectorMessage ChatMsgManager::getUserFileHistoryMessage(const QInt64 &time, cons
     return e.msgList;
 }
 
-VectorMessage ChatMsgManager::getUserImageHistoryMessage(const QInt64 &time, const QTalk::Entity::UID &uid)
+VectorMessage ChatMsgManager::getUserImageHistoryMessage(const QInt64 &time,
+                                                         const QTalk::Entity::UID &uid)
 {
 
     ImageHistoryMessage e;
@@ -315,7 +287,8 @@ VectorMessage ChatMsgManager::getUserImageHistoryMessage(const QInt64 &time, con
     return e.msgList;
 }
 
-VectorMessage ChatMsgManager::getUserLinkHistoryMessage(const QInt64 &time, const QTalk::Entity::UID &uid)
+VectorMessage ChatMsgManager::getUserLinkHistoryMessage(const QInt64 &time,
+                                                        const QTalk::Entity::UID &uid)
 {
 
     LinkHistoryMessage e;
@@ -328,7 +301,8 @@ VectorMessage ChatMsgManager::getUserLinkHistoryMessage(const QInt64 &time, cons
 }
 
 VectorMessage
-ChatMsgManager::getSearchMessage(const QInt64 &time, const QTalk::Entity::UID &uid, const std::string &text)
+ChatMsgManager::getSearchMessage(const QInt64 &time,
+                                 const QTalk::Entity::UID &uid, const std::string &text)
 {
 
     SearchHistoryMessage e;
@@ -342,7 +316,8 @@ ChatMsgManager::getSearchMessage(const QInt64 &time, const QTalk::Entity::UID &u
 }
 
 VectorMessage
-ChatMsgManager::getAfterMessage(const QInt64 &time, const QTalk::Entity::UID &uid)
+ChatMsgManager::getAfterMessage(const QInt64 &time,
+                                const QTalk::Entity::UID &uid)
 {
 
     AfterMessage e;
@@ -354,14 +329,8 @@ ChatMsgManager::getAfterMessage(const QInt64 &time, const QTalk::Entity::UID &ui
     return e.msgList;
 }
 
-void ChatMsgManager::hotLineMessageList(const std::string &xmppId)
-{
-    HotLineMessageListEvt e;
-    e.xmppId = xmppId;
-    EventBus::FireEvent(e);
-}
-
-void ChatMsgManager::postInterface(const std::string &url, const std::string &params)
+void ChatMsgManager::postInterface(const std::string &url,
+                                   const std::string &params)
 {
     S_AddHttpQeq req;
     req.request.url = url;
@@ -369,12 +338,11 @@ void ChatMsgManager::postInterface(const std::string &url, const std::string &pa
     req.request.body = params;
     req.request.header["Content-Type"] = "application/json;";
 
-    req.callback = [](int code, const std::string &responseData) {
-        if (code == 200)
-        {
-        }
-        else
+    req.callback = [](int code, const std::string & responseData) {
+        if (code == 200) {
+        } else {
             error_log(responseData);
+        }
     };
 
     EventBus::FireEvent(req);
@@ -388,24 +356,27 @@ std::string ChatMsgManager::sendGetRequest(const std::string &url)
 
     int c = 0;
     std::string d;
-    req.callback = [&c, &d](int code, const std::string &responseData) {
+    req.callback = [&c, &d](int code, const std::string & responseData) {
         c = code;
         d = responseData;
-        if (code == 200)
-        {
-        }
-        else
+
+        if (code == 200) {
+        } else {
             error_log(responseData);
+        }
     };
 
     EventBus::FireEvent(req);
-    if (c == 200)
+
+    if (c == 200) {
         return d;
-    else
+    } else {
         return "";
+    }
 }
 
-void ChatMsgManager::updateMessageExtendInfo(const std::string &msgId, const std::string &info)
+void ChatMsgManager::updateMessageExtendInfo(const std::string &msgId,
+                                             const std::string &info)
 {
 
     UpdateMsgExtendInfo evt;
@@ -414,7 +385,8 @@ void ChatMsgManager::updateMessageExtendInfo(const std::string &msgId, const std
     EventBus::FireEvent(evt);
 }
 
-void ChatMsgManager::sendWebRtcCommand(int msgType, const std::string &json, const std::string &id)
+void ChatMsgManager::sendWebRtcCommand(int msgType, const std::string &json,
+                                       const std::string &id)
 {
 
     SWebRtcCommand e;
@@ -424,7 +396,8 @@ void ChatMsgManager::sendWebRtcCommand(int msgType, const std::string &json, con
     EventBus::FireEvent(e);
 }
 
-void ChatMsgManager::getUserMedal(const std::string &xmppId, std::set<QTalk::StUserMedal> &medal)
+void ChatMsgManager::getUserMedal(const std::string &xmppId,
+                                  std::set<QTalk::StUserMedal> &medal)
 {
     UserMedalEvt e(xmppId, medal);
     EventBus::FireEvent(e);
@@ -453,7 +426,8 @@ ChatMsgManager::getNetHistoryMessage(const QInt64 &time,
 }
 
 //
-void ChatMsgManager::updateGroupTopic(const std::string &groupId, const std::string &groupTopic)
+void ChatMsgManager::updateGroupTopic(const std::string &groupId,
+                                      const std::string &groupTopic)
 {
     UpdateGroupTopicEvt e;
     e.groupId = groupId;
@@ -500,31 +474,29 @@ ChatMsgListener::~ChatMsgListener()
 
 void ChatMsgListener::onEvent(R_Message &e)
 {
-    if (e.getCanceled())
-    {
+    if (e.getCanceled()) {
         return;
     }
-    if (g_pMainPanel)
-    {
+
+    if (g_pMainPanel) {
         g_pMainPanel->onRecvMessage(e, e.isCarbon);
     }
 }
 
 /**
-  * @函数名   
-  * @功能描述 
+  * @函数名
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/08
   */
 void ChatMsgListener::onEvent(GroupMemberMessage &e)
 {
-    if (e.getCanceled())
-    {
+    if (e.getCanceled()) {
         return;
     }
-    if (nullptr != g_pMainPanel)
-    {
+
+    if (nullptr != g_pMainPanel) {
         g_pMainPanel->updateGroupMember(e);
     }
 }
@@ -538,19 +510,18 @@ void ChatMsgListener::onEvent(GroupMemberMessage &e)
   */
 void ChatMsgListener::onEvent(UserCardMessgae &e)
 {
-    if (e.getCanceled())
-    {
+    if (e.getCanceled()) {
         return;
     }
-    if (nullptr != g_pMainPanel)
-    {
+
+    if (nullptr != g_pMainPanel) {
         g_pMainPanel->updateUserHeadPath(e.userCards);
     }
 }
 
 /**
-  * @函数名   
-  * @功能描述 
+  * @函数名
+  * @功能描述
   * @参数     GroupTopicEvt 群公告
      void
   * @author   cc
@@ -558,17 +529,17 @@ void ChatMsgListener::onEvent(UserCardMessgae &e)
   */
 void ChatMsgListener::onEvent(GroupTopicEvt &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (nullptr != g_pMainPanel)
-    {
+    if (nullptr != g_pMainPanel) {
         g_pMainPanel->updateGroupTopic(e.groupId, e.groupTopic);
     }
 }
 
 /**
-  * @函数名   
+  * @函数名
   * @功能描述 更新在线人数 头像
   * @参数
   * @author   cc
@@ -576,84 +547,84 @@ void ChatMsgListener::onEvent(GroupTopicEvt &e)
   */
 void ChatMsgListener::onEvent(UpdateOnlineEvent &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (nullptr != g_pMainPanel)
-    {
+    if (nullptr != g_pMainPanel) {
         g_pMainPanel->updateHead();
     }
 }
 
 /**
-  * @函数名   
-  * @功能描述 
+  * @函数名
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/19
   */
 void ChatMsgListener::onEvent(FileProcessMessage &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (nullptr != g_pMainPanel)
-    {
+    if (nullptr != g_pMainPanel) {
         g_pMainPanel->onRecvFileProcessMessage(e);
     }
 }
 
 /**
-  * @函数名   
-  * @功能描述 
+  * @函数名
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/25
   */
 void ChatMsgListener::onEvent(DisconnectToServer &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (nullptr != g_pMainPanel)
-    {
+    if (nullptr != g_pMainPanel) {
         // 连接状态
         g_pMainPanel->setConnectStatus(false);
     }
 }
 
 /**
-  * @函数名   
-  * @功能描述 
+  * @函数名
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/25
   */
 void ChatMsgListener::onEvent(LoginSuccessMessage &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (nullptr != g_pMainPanel)
-    {
+    if (nullptr != g_pMainPanel) {
         g_pMainPanel->setConnectStatus(true);
     }
 }
 
 /**
-  * @函数名   
-  * @功能描述 
+  * @函数名
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/26
   */
 void ChatMsgListener::onEvent(UpdateGroupMember &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (nullptr != g_pMainPanel)
-    {
+    if (nullptr != g_pMainPanel) {
         g_pMainPanel->updateGroupMemberInfo(e.groupId, e.userCards);
     }
 }
@@ -661,51 +632,53 @@ void ChatMsgListener::onEvent(UpdateGroupMember &e)
 void ChatMsgListener::onEvent(SignalReadState &e)
 {
 
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (nullptr != g_pMainPanel)
-    {
-        g_pMainPanel->gotReadState(QTalk::Entity::UID(e.userId, e.realJid), e.mapReadState);
+    if (nullptr != g_pMainPanel) {
+        g_pMainPanel->gotReadState(QTalk::Entity::UID(e.userId, e.realJid),
+                                   e.mapReadState);
     }
 }
 
 void ChatMsgListener::onEvent(MStateEvt &e)
 {
-    if (nullptr != g_pMainPanel)
-    {
-        g_pMainPanel->gotMState(QTalk::Entity::UID(e.userId, e.realJid), e.messageId, e.time);
+    if (nullptr != g_pMainPanel) {
+        g_pMainPanel->gotMState(QTalk::Entity::UID(e.userId, e.realJid), e.messageId,
+                                e.time);
     }
 }
 
 void ChatMsgListener::onEvent(RevokeMessage &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (nullptr != g_pMainPanel)
-    {
+    if (nullptr != g_pMainPanel) {
         g_pMainPanel->updateRevokeMessage(e.uid, e.messageFrom, e.messageId, e.time);
     }
 }
 
 void ChatMsgListener::onEvent(UpdateUserConfigMsg &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
-    if (g_pMainPanel)
-    {
+    }
+
+    if (g_pMainPanel) {
         g_pMainPanel->updateUserConfig(e.arConfigs);
     }
 }
 
 void ChatMsgListener::onEvent(DestroyGroupRet &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (g_pMainPanel)
-    {
+    if (g_pMainPanel) {
         g_pMainPanel->onDestroyGroup(e.groupId, e.isDestroy);
     }
 }
@@ -716,22 +689,22 @@ void ChatMsgListener::onEvent(DestroyGroupRet &e)
  */
 void ChatMsgListener::onEvent(R_BlackListMessage &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (g_pMainPanel)
-    {
+    if (g_pMainPanel) {
         g_pMainPanel->recvBlackMessage(e.messageFrom, e.messageId);
     }
 }
 
 void ChatMsgListener::onEvent(UpdateGroupInfoRet &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (g_pMainPanel)
-    {
+    if (g_pMainPanel) {
         g_pMainPanel->updateGroupInfo(e.groupinfo);
     }
 }
@@ -742,33 +715,39 @@ void ChatMsgListener::onEvent(UpdateGroupInfoRet &e)
  */
 void ChatMsgListener::onEvent(RemoveGroupMemberRet &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
+
     ;
-    if (g_pMainPanel)
-    {
+
+    if (g_pMainPanel) {
         g_pMainPanel->onRemoveGroupMember(e.groupId, e.memberId);
     }
 }
 
 void ChatMsgListener::onEvent(LogReportMessageRet &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
+
     ;
-    if (g_pMainPanel)
-    {
+
+    if (g_pMainPanel) {
         g_pMainPanel->onLogReportMessageRet(e._success, e._strLogRetMsg);
     }
 }
 
 void ChatMsgListener::onEvent(GetUsersOnlineSucessEvent &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
+
     ;
-    if (g_pMainPanel)
-    {
+
+    if (g_pMainPanel) {
         g_pMainPanel->recvUserStatus(e._user, e._status);
     }
 }
@@ -779,8 +758,10 @@ void ChatMsgListener::onEvent(GetUsersOnlineSucessEvent &e)
  */
 void ChatMsgListener::onEvent(RecvVideoMessage &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
+
     //    if (g_pMainPanel) {
     //        g_pMainPanel->onRecvVideo(e._userId);
     //    }
@@ -788,16 +769,15 @@ void ChatMsgListener::onEvent(RecvVideoMessage &e)
 
 void ChatMsgListener::onEvent(GroupMemberChangeRet &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
-    if (g_pMainPanel)
-    {
-        if (e.isAdd)
-        {
-            g_pMainPanel->onRecvAddGroupMember(e.groupId, e.memberJid, e.nick, e.affiliation);
-        }
-        else if (e.isRemove)
-        {
+    }
+
+    if (g_pMainPanel) {
+        if (e.isAdd) {
+            g_pMainPanel->onRecvAddGroupMember(e.groupId, e.memberJid, e.nick,
+                                               e.affiliation);
+        } else if (e.isRemove) {
             g_pMainPanel->onRecvRemoveGroupMember(e.groupId, e.memberJid);
         }
     }
@@ -809,33 +789,33 @@ void ChatMsgListener::onEvent(GroupMemberChangeRet &e)
  */
 void ChatMsgListener::onEvent(ChangeHeadRetMessage &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (e.ret && g_pMainPanel)
-    {
+    if (e.ret && g_pMainPanel) {
         g_pMainPanel->onChangeHeadSuccess(e.localHead);
     }
 }
 
 void ChatMsgListener::onEvent(UpdateMoodRet &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (g_pMainPanel)
-    {
+    if (g_pMainPanel) {
         g_pMainPanel->onUpdateMoodSuccess(e.userId, e.mood);
     }
 }
 
 void ChatMsgListener::onEvent(FeedBackLogEvt &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (g_pMainPanel)
-    {
+    if (g_pMainPanel) {
         g_pMainPanel->packAndSendLog(QString::fromStdString(e.text));
     }
 }
@@ -843,29 +823,32 @@ void ChatMsgListener::onEvent(FeedBackLogEvt &e)
 void ChatMsgListener::onEvent(IncrementConfig &e)
 {
 
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (g_pMainPanel)
-    {
+    if (g_pMainPanel) {
         g_pMainPanel->updateUserConfig(e.deleteData, e.arImConfig);
     }
 }
 
 void ChatMsgListener::onEvent(WebRtcCommand &e)
 {
-    if (g_pMainPanel)
+    if (g_pMainPanel) {
         g_pMainPanel->onRecvWebRtcCommand(e.msgType, e.jid, e.cmd, e.isCarbon);
+    }
 }
 
 void ChatMsgListener::onEvent(UserMedalChangedEvt &e)
 {
-    if (g_pMainPanel)
+    if (g_pMainPanel) {
         g_pMainPanel->onUserMadelChanged(e.userMedals);
+    }
 }
 
 void ChatMsgListener::onEvent(LoginProcessMessage &e)
 {
-    if (g_pMainPanel)
+    if (g_pMainPanel) {
         g_pMainPanel->onRecvLoginProcessMessage(e.message.data());
+    }
 }

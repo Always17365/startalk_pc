@@ -1,10 +1,6 @@
 project(Platform)
 
-
-
 include_directories(.)
-
-
 
 #
 set(SOURCE_FILES

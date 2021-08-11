@@ -40,7 +40,8 @@ void LogicBaseMsgManager::onDisconnectToServer()
  * @param messageFrom 对方id
  * @param messageId   消息id
  */
-void LogicBaseMsgManager::recvBlackListMessage(const std::string &messageFrom, const std::string &messageId)
+void LogicBaseMsgManager::recvBlackListMessage(const std::string &messageFrom,
+                                               const std::string &messageId)
 {
     R_BlackListMessage e;
     e.messageFrom = messageFrom;
@@ -48,7 +49,8 @@ void LogicBaseMsgManager::recvBlackListMessage(const std::string &messageFrom, c
     EventBus::FireEvent(e);
 }
 
-void LogicBaseMsgManager::sendHttpReq(const QTalk::HttpRequest &request, const std::function<void(int, const std::string &)> &callback)
+void LogicBaseMsgManager::sendHttpReq(const QTalk::HttpRequest &request,
+                                      const std::function<void(int, const std::string &)> &callback)
 {
     S_AddHttpQeq e;
     e.request = request;
@@ -57,7 +59,8 @@ void LogicBaseMsgManager::sendHttpReq(const QTalk::HttpRequest &request, const s
 }
 
 /** socket */
-void LogicBaseMsgManager::onRecvGroupMembers(const std::string &groupId, std::map<std::string, QUInt8> mapUserRole)
+void LogicBaseMsgManager::onRecvGroupMembers(const std::string &groupId,
+                                             std::map<std::string, QUInt8> mapUserRole)
 {
     S_RecvGroupMemberEvt e;
     e.groupId = groupId;
@@ -109,7 +112,8 @@ void LogicBaseMsgManager::synSeverData()
     EventBus::FireEvent(e);
 }
 
-void LogicBaseMsgManager::onUpdateGroupInfo(std::shared_ptr<QTalk::StGroupInfo> info)
+void LogicBaseMsgManager::onUpdateGroupInfo(std::shared_ptr<QTalk::StGroupInfo>
+                                            info)
 {
     UpdateGroupInfoRet e;
     e.groupinfo = info;
@@ -128,7 +132,8 @@ void LogicBaseMsgManager::onUserConfigChanged()
     EventBus::FireEvent(e);
 }
 
-void LogicBaseMsgManager::onUserJoinGroup(const std::string &groupId, const std::string &memberId, int affiliation)
+void LogicBaseMsgManager::onUserJoinGroup(const std::string &groupId,
+                                          const std::string &memberId, int affiliation)
 {
     S_UserJoinGroup e;
     e.groupId = groupId;
@@ -149,7 +154,8 @@ void LogicBaseMsgManager::onFeedLog(const std::string &text)
     EventBus::FireEvent(e);
 }
 
-void LogicBaseMsgManager::onDestroyGroup(const std::string &groupId, bool isDestroy)
+void LogicBaseMsgManager::onDestroyGroup(const std::string &groupId,
+                                         bool isDestroy)
 {
     DestroyGroupRet e;
     e.groupId = groupId;
@@ -157,37 +163,35 @@ void LogicBaseMsgManager::onDestroyGroup(const std::string &groupId, bool isDest
     EventBus::FireEvent(e);
 }
 
-void LogicBaseMsgManager::onRemoveGroupMember(const std::string &groupId, const std::string &memberId)
+void LogicBaseMsgManager::onRemoveGroupMember(const std::string &groupId,
+                                              const std::string &memberId)
 {
     RemoveGroupMemberRet e(groupId, memberId);
     EventBus::FireEvent(e);
 }
 
 void
-LogicBaseMsgManager::updateRevokeMessage(const QTalk::Entity::UID &uid, const std::string &fromId,
-        const string &messageId, const QInt64 &time)
+LogicBaseMsgManager::updateRevokeMessage(const QTalk::Entity::UID &uid,
+                                         const std::string &fromId,
+                                         const string &messageId, const QInt64 &time)
 {
     RevokeMessage e(uid, fromId, messageId);
     e.time = time;
     EventBus::FireEvent(e);
 }
 
-void LogicBaseMsgManager::updateSignalChatReadState(const std::string &userId, const std::string &realJid, const std::map<std::string, QInt32> &readMasks)
+void LogicBaseMsgManager::updateSignalChatReadState(const std::string &userId,
+                                                    const std::string &realJid, const std::map<std::string, QInt32> &readMasks)
 {
     SignalReadState e( readMasks, userId, realJid);
     EventBus::FireEvent(e);
 }
 
 void
-LogicBaseMsgManager::updateGroupChatReadState(const std::string &groupId, const std::map<std::string, int> &readedCount)
+LogicBaseMsgManager::updateGroupChatReadState(const std::string &groupId,
+                                              const std::map<std::string, int> &readedCount)
 {
     GroupReadState e(readedCount, groupId);
-    EventBus::FireEvent(e);
-}
-
-void LogicBaseMsgManager::onGetHotLines()
-{
-    GetHotLines e;
     EventBus::FireEvent(e);
 }
 
@@ -207,7 +211,8 @@ void LogicBaseMsgManager::onRecvChatMessage(R_Message &e)
 }
 
 void
-LogicBaseMsgManager::updateMState(const std::string &userId, const std::string &realJid,
+LogicBaseMsgManager::updateMState(const std::string &userId,
+                                  const std::string &realJid,
                                   const std::string &messageId, const QInt64 &time)
 {
     MStateEvt evt;
@@ -218,7 +223,8 @@ LogicBaseMsgManager::updateMState(const std::string &userId, const std::string &
     EventBus::FireEvent(evt);
 }
 
-void LogicBaseMsgManager::onRecvWebRtcCommand(int msgType, const std::string &jid, const std::string &command, bool isCarbon)
+void LogicBaseMsgManager::onRecvWebRtcCommand(int msgType,
+                                              const std::string &jid, const std::string &command, bool isCarbon)
 {
     WebRtcCommand e;
     e.msgType = msgType;
@@ -286,30 +292,35 @@ LogicBaseMsgListener::~LogicBaseMsgListener()
 
 void LogicBaseMsgListener::onEvent(S_RevokeMessage &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pLogicBase)
+    if (_pLogicBase) {
         _pLogicBase->sendRovokeMessage(e.uid, e.messageFrom, e.messageId, e.chatType);
+    }
 }
 
 
 void LogicBaseMsgListener::onEvent(SwitchUserStatusEvt &e)
 {
-    if(_pLogicBase)
+    if (_pLogicBase) {
         _pLogicBase->switchUserStatus(e.user_status);
+    }
 }
 
 void LogicBaseMsgListener::onEvent(ReadedMessage &e)
 {
-    if (_pLogicBase)
+    if (_pLogicBase) {
         _pLogicBase->dealReadedMessage(e.messageId, e.userId, e.chatType);
+    }
 }
 
 void LogicBaseMsgListener::onEvent(HeartBeat &)
 {
-    if (_pLogicBase)
+    if (_pLogicBase) {
         _pLogicBase->sendHeartbeat();
+    }
 }
 
 /**
@@ -320,31 +331,36 @@ void LogicBaseMsgListener::onEvent(HeartBeat &)
   */
 void LogicBaseMsgListener::onEvent(S_Message &e)
 {
-    if (nullptr != _pLogicBase)
+    if (nullptr != _pLogicBase) {
         _pLogicBase->sendMessage(e.message);
+    }
 }
 
 
 void LogicBaseMsgListener::onEvent(ForwardMessage &e)
 {
-    if (_pLogicBase)
+    if (_pLogicBase) {
         _pLogicBase->forwardMessage(e.messageId, e.users);
+    }
 }
 
 void LogicBaseMsgListener::onEvent(PreSendMessageEvt &e)
 {
-    if(e.getCanceled()) return;
+    if (e.getCanceled()) {
+        return;
+    }
 
     auto helper = std::make_shared<ThreadHelper>();
-    helper->run([this, e]()
-    {
-        if(_pLogicBase)
+    helper->run([this, e]() {
+        if (_pLogicBase) {
             _pLogicBase->parseSendMessageIntoDb(e.message, e.message.Type);
+        }
     });
 }
 
 void LogicBaseMsgListener::onEvent(SWebRtcCommand &e)
 {
-    if(_pLogicBase)
+    if (_pLogicBase) {
         _pLogicBase->sendWebRtcCommand(e.msgType, e.jid, e.cmd);
+    }
 }

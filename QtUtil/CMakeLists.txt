@@ -10,6 +10,7 @@ elseif (UNIX)
     link_libraries(uuid)
 else ()
     ADD_DEFINITIONS(-D_WINDOWS)
+    ADD_DEFINITIONS(-DZLIB_WINAPI)
     link_libraries(uuid)
 
 endif ()
@@ -105,10 +106,12 @@ endif ()
 ADD_LIBRARY(${PROJECT_NAME} SHARED ${SOURCE_FILES} )
 
 if (WIN32)
-        target_link_libraries(${PROJECT_NAME}
-                libcurl libcrypto libssl zlibstat)
+    target_link_libraries(${PROJECT_NAME}
+                libcurl
+                libcrypto
+                libssl
+                zlibstat)
 else ()
-
     target_link_libraries(${PROJECT_NAME}
             curl
             z

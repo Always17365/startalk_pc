@@ -18,11 +18,11 @@
 #ifndef _WINDOWS
     #define APPLICATION_VERSION "2.0 "  GLOBAL_VERSION
 #else
-    #ifdef PLATFORM_WIN32
+    #ifdef WIN32
         #define APPLICATION_VERSION "2.0 Windows(x86) " GLOBAL_VERSION
     #else
         #define APPLICATION_VERSION "2.0 Windows(x64) " GLOBAL_VERSION
-    #endif // PLATFORM_WNI32
+    #endif // WIN32
 #endif // _WINDOWS
 
 time_t PLATFORMSHARED_EXPORT build_time();

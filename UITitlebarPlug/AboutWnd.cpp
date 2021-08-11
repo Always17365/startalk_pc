@@ -3,9 +3,11 @@
 //
 
 #include "AboutWnd.h"
+
 #include <QVBoxLayout>
-#include "../Platform/Platform.h"
 #include <QToolButton>
+
+#include "../Platform/Platform.h"
 
 AboutWnd::AboutWnd(QWidget *parent)
     : UShadowDialog(parent, true, false)
@@ -16,8 +18,7 @@ AboutWnd::AboutWnd(QWidget *parent)
 
 AboutWnd::~AboutWnd()
 {
-    if(nullptr != _pVersionLabel)
-    {
+    if (nullptr != _pVersionLabel) {
         delete _pVersionLabel;
         _pVersionLabel = nullptr;
     }
@@ -32,7 +33,7 @@ void AboutWnd::initUi()
     auto *titleLay = new QHBoxLayout(titleFrm);
     titleLay->setContentsMargins(10, 10, 10, 10);
     auto *closeBtn = new QToolButton();
-#ifdef _MACOS
+#ifdef Q_OS_MAC
     closeBtn->setFixedSize(10, 10);
     titleLay->addWidget(closeBtn);
     closeBtn->setObjectName("gmCloseBtn");
@@ -45,13 +46,9 @@ void AboutWnd::initUi()
 #endif
     //
     QFrame *mainFrm = new QFrame(this);
-#if defined(_STARTALK)
     mainFrm->setObjectName("AboutMainFrm");
     this->setStyleSheet("background:url(:/title/image1/aboutStarTalk.png);");
-#else
-    mainFrm->setObjectName("AboutMainFrm");
-    mainFrm->setStyleSheet("background:url(:/title/image1/aboutQtalk.png);");
-#endif
+
     auto *mainLay = new QVBoxLayout(mainFrm);
     mainLay->setContentsMargins(0, 0, 0, 20);
     //
@@ -59,12 +56,14 @@ void AboutWnd::initUi()
     std::string build = PLAT.get_build_date_time();
     _pVersionLabel = new QLabel(QString("Version: (%1)").arg(version.data()), this);
     _pCopyrightLabel = new QLabel(" Copyright ©2021 StarTalk.com", this);
-    _pBuildDateTimeLabel = new QLabel(QString("build At: %1").arg(build.data()), this);
+    _pBuildDateTimeLabel =
+        new QLabel(QString("build At: %1").arg(build.data()), this);
     _pVersionLabel->setObjectName("AboutVersionLabel");
     _pBuildDateTimeLabel->setObjectName("AboutVersionLabel");
     _pCopyrightLabel->setObjectName("AboutCopyrightLabel");
     mainLay->addWidget(titleFrm);
-    mainLay->addItem(new QSpacerItem(10, 10, QSizePolicy::Fixed, QSizePolicy::Expanding));
+    mainLay->addItem(new QSpacerItem(10, 10, QSizePolicy::Fixed,
+                                     QSizePolicy::Expanding));
     mainLay->addWidget(_pVersionLabel);
     mainLay->addWidget(_pBuildDateTimeLabel);
     mainLay->addWidget(_pCopyrightLabel);
@@ -75,8 +74,7 @@ void AboutWnd::initUi()
     lay->setMargin(0);
     lay->addWidget(mainFrm);
     _pCopyrightLabel->setVisible(false);
-    connect(closeBtn, &QToolButton::clicked, this, [this]()
-    {
+    connect(closeBtn, &QToolButton::clicked, this, [this]() {
         this->setVisible(false);
     });
 }

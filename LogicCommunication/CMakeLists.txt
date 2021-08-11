@@ -38,9 +38,7 @@ set(SOURCE_FILES
         SearchManager.cpp
         SearchManager.h
         UserConfig.cpp
-        UserConfig.h
-        HotLinesConfig.h
-        HotLinesConfig.cpp)
+        UserConfig.h)
 
 set(LIBRARY_OUTPUT_PATH ../bin)
 set(CMAKE_DEBUG_POSTFIX "d")
@@ -48,22 +46,19 @@ set(CMAKE_DEBUG_POSTFIX "d")
 ADD_LIBRARY(${PROJECT_NAME} SHARED ${SOURCE_FILES})
 
 #添加链接库
+target_link_libraries(${PROJECT_NAME}
+        EventBus
+        QtUtil
+        LogicManager
+        Platform)
 
 if (WIN32)
     target_link_libraries(${PROJECT_NAME}
-            EventBus
-            QtUtil
-            LogicManager
-            Platform
             libssl
             libcrypto
             libprotobuf)
 else ()
     target_link_libraries(${PROJECT_NAME}
-            EventBus
-            QtUtil
-            LogicManager
-            Platform
             ssl
             crypto
             protobuf)

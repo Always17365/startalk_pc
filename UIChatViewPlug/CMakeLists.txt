@@ -16,6 +16,7 @@ else ()
     ADD_DEFINITIONS(-DUICHATVIEW_LIBRARY)
     #    find_package(OPENCORE-AMRWB opencore-amrwb)
 endif ()
+ADD_DEFINITIONS(-DENABLE_ENCODER_GENERIC -DENABLE_ENCODER_QR_CODE)
 
 find_package(Qt5Widgets)
 find_package(Qt5WebEngineWidgets)

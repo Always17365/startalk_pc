@@ -24,8 +24,7 @@ struct StNav {
     bool    debug;
 };
 
-enum
-{
+enum {
     ITEM_DATA_NAME = Qt::UserRole + 1,
     ITEM_DATA_CHECKED,
     ITEM_DATA_Link,
@@ -42,13 +41,16 @@ public:
     ~NavItemDelegate() override;
 
 Q_SIGNALS:
-    void itemClicked(const QString&);
-    void showDetail(const QString&);
+    void itemClicked(const QString &);
+    void showDetail(const QString &);
 
 protected:
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
-    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
-    bool editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index) override;
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QModelIndex &index) const override;
+    QSize sizeHint(const QStyleOptionViewItem &option,
+                   const QModelIndex &index) const override;
+    bool editorEvent(QEvent *event, QAbstractItemModel *model,
+                     const QStyleOptionViewItem &option, const QModelIndex &index) override;
 };
 
 /**
@@ -57,9 +59,8 @@ protected:
 class NavMainView : public QFrame
 {
     Q_OBJECT
-
 public:
-    explicit NavMainView(const StNav& nav, QWidget* parnet = nullptr);
+    explicit NavMainView(const StNav &nav, QWidget *parnet = nullptr);
     ~NavMainView() override;
 
 protected:
@@ -67,16 +68,16 @@ protected:
 
 Q_SIGNALS:
     void sgBack();
-    void deleteSignal(const QString&);
-    void navAddrChanged(const QString&, const QString&); // name, addr
-    void navDebugChanged(const QString&, bool); // name, debug
+    void deleteSignal(const QString &);
+    void navAddrChanged(const QString &, const QString &); // name, addr
+    void navDebugChanged(const QString &, bool); // name, debug
 
 private:
-    QLabel*    _pQRCodeLabel;
-    QLineEdit* _pNameEdit;
-    QLineEdit* _pHostEdit;
-    QTextEdit* _pAddressEdit;
-    QPushButton* _pDeleteBtn;
+    QLabel    *_pQRCodeLabel;
+    QLineEdit *_pNameEdit;
+    QLineEdit *_pHostEdit;
+    QTextEdit *_pAddressEdit;
+    QPushButton *_pDeleteBtn;
 
 public:
     StNav        _nav;
@@ -90,46 +91,48 @@ class NavView : public QFrame
 {
     Q_OBJECT
 public:
-    NavView(QMap<QString, StNav>& mapNav, QString& defalutNav, QWidget* wgt = nullptr);
+    NavView(QMap<QString, StNav> &mapNav, QString &defalutNav,
+            QWidget *wgt = nullptr);
     ~NavView() override;
 
 public:
-    bool checkName(const QString& name);
-    void onItemClicked(const QString& name);
-    void onShowDetail(const QString& name);
+    bool checkName(const QString &name);
+    void onItemClicked(const QString &name);
+    void onShowDetail(const QString &name);
 
 Q_SIGNALS:
-    void addItemSignal(const StNav&);
+    void addItemSignal(const StNav &);
     void saveConfSignal();
-    void addNavSinal(const QString &name, const QString &navAddr, const bool &isDebug);
+    void addNavSinal(const QString &name, const QString &navAddr,
+                     const bool &isDebug);
     void sgClose();
     void sgNavChanged();
 
 private:
-    void addItem(const StNav& stNav);
-    void onSelectChange(const QString& name);
-    void onDeleteItem(const QString& name);
-    void onNavAddrChanged(const QString& name, const QString& addr);
-    void onNavDebugChanged(const QString& name, bool debug);
+    void addItem(const StNav &stNav);
+    void onSelectChange(const QString &name);
+    void onDeleteItem(const QString &name);
+    void onNavAddrChanged(const QString &name, const QString &addr);
+    void onNavDebugChanged(const QString &name, bool debug);
     void onBack();
 
 private:
-    QListView*  _itemView;
-    QStandardItemModel* _itemModel;
-    NavItemDelegate*    _itemDelegate;
-    QPushButton*        _addBtn;
-    QStackedWidget*     _itemStackWgt;
+    QListView  *_itemView;
+    QStandardItemModel *_itemModel;
+    NavItemDelegate    *_itemDelegate;
+    QPushButton        *_addBtn;
+    QStackedWidget     *_itemStackWgt;
 
-    AddNavWnd*          _pAddNavWnd;
-    QFrame* _mainFrm;
-
-private:
-    QMap<QString, NavMainView*> _mapMainView;
-    QMap<QString, QStandardItem*> _mapListItem;
+    AddNavWnd          *_pAddNavWnd;
+    QFrame *_mainFrm;
 
 private:
-    QString& _defaultName;
-    QMap<QString, StNav>& _mapNav;
+    QMap<QString, NavMainView *> _mapMainView;
+    QMap<QString, QStandardItem *> _mapListItem;
+
+private:
+    QString &_defaultName;
+    QMap<QString, StNav> &_mapNav;
 };
 
 

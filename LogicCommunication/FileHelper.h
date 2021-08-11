@@ -10,7 +10,8 @@
 
 class Communication;
 
-class FileHelper {
+class FileHelper
+{
 public:
     explicit FileHelper(Communication *pComm);
 
@@ -19,9 +20,11 @@ public:
 public:
     std::string getNetImgFilePath(const std::string &filePath);
 
-    std::string getLocalImgFilePath(const std::string &filePath, const std::string &dirPostfix, bool thumb = false);
+    std::string getLocalImgFilePath(const std::string &filePath,
+                                    const std::string &dirPostfix, bool thumb = false);
 
-    std::string getEmotionPath(const std::string &pid, const std::string &sid, const std::string &fileName);
+    std::string getEmotionPath(const std::string &pid, const std::string &sid,
+                               const std::string &fileName);
 
     QInt64 getFileSize(const std::string &filePath);
 
@@ -36,18 +39,22 @@ public:
     void batchDownloadHead(const std::vector<std::string> &urls);
 
     void getNetFileInfo(const std::string &filePath,
-                        const std::function<void(const std::string &, const std::string &)>& callbackFun);
+                        const std::function<void(const std::string &, const std::string &)>
+                        &callbackFun);
 
-    std::string uploadFile(const std::string& localPath, bool withProcess, const std::string& processKey);
+    std::string uploadFile(const std::string &localPath, bool withProcess,
+                           const std::string &processKey);
 
     void uploadLogFile(const std::string &localFile,
                        std::function<void(const std::string &, const std::string &)> callbackFun);
 
-    void downloadFile(const std::string &uri, const std::string &localPath, bool addCallBack, const std::string& processKey = std::string());
+    void downloadFile(const std::string &uri, const std::string &localPath,
+                      bool addCallBack, const std::string &processKey = std::string());
 
-   // void checkAndDowloadFile(const std::string &uri, const std::string &md5);
+    // void checkAndDowloadFile(const std::string &uri, const std::string &md5);
 
-    std::string downloadEmoticonIcon(const std::string &uri, const std::string &pkgId);
+    std::string downloadEmoticonIcon(const std::string &uri,
+                                     const std::string &pkgId);
 
     bool DownloadPubKey();
 
@@ -65,22 +72,23 @@ public:
 
     // 根据文件内容获取文件md5
     static std::string getFileDataMD5(const std::string *fileData);
-
-    bool writeQvtToFile(const std::string &qvt);
-    std::string getQvtFromFile();
     //
     static bool writeFile(const std::string &filePath, const std::string *data);
 
 protected:
 
-    std::string checkImgFileKey(const std::string &key, QInt64 fileSize, const std::string &suffix);
+    std::string checkImgFileKey(const std::string &key, QInt64 fileSize,
+                                const std::string &suffix);
 
-    std::string checkFileKey(const std::string &key, QInt64 fileSize, const std::string &suffix);
+    std::string checkFileKey(const std::string &key, QInt64 fileSize,
+                             const std::string &suffix);
 
-    std::string uploadImg(const std::string &filePath, const std::string &key, QInt64 size, const std::string &suffix);
+    std::string uploadImg(const std::string &filePath, const std::string &key,
+                          QInt64 size, const std::string &suffix);
 
     std::string uploadFile(const std::string &filePath, const std::string &key,
-            QInt64 size, const std::string &suffix, bool withProcess = true, const std::string& processKey = std::string());
+                           QInt64 size, const std::string &suffix, bool withProcess = true,
+                           const std::string &processKey = std::string());
 
 private:
     std::mutex _mutex;

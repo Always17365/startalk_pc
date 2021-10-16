@@ -9,12 +9,12 @@
     #include <windowsx.h>
 #endif
 #include "UShadowWnd.h"
-#include "../QtUtil/Utils/Log.h"
+#include "Util/Log.h"
 #include <QHBoxLayout>
 #include <QGridLayout>
 #include <QtGui>
 #include <QGraphicsDropShadowEffect>
-#include "../UICom/uicom.h"
+#include "Util/ui/uicom.h"
 
 UShadowDialog::UShadowDialog(QWidget *parent, bool radius, bool hasBorder) :
     QDialog(parent),
@@ -37,7 +37,7 @@ UShadowDialog::UShadowDialog(QWidget *parent, bool radius, bool hasBorder) :
     this->setWindowFlags(flags);
     //setAttribute(Qt::WA_AlwaysShowToolTips, true);
     setAttribute(Qt::WA_TranslucentBackground, true);
-//    setAttribute(Qt::WA_MacNoShadow, true);
+    //    setAttribute(Qt::WA_MacNoShadow, true);
     setAttribute(Qt::WA_QuitOnClose, false);
     _pCenternWgt = new QWidget(this);
     auto *lay = new QHBoxLayout(this);
@@ -62,11 +62,9 @@ void UShadowDialog::mousePressEvent(QMouseEvent *e)
     QPoint pos = e->pos();
 
     // 移动
-    if(!_isResizing && _moveAble && _pMoveContentWgt)
-    {
+    if (!_isResizing && _moveAble && _pMoveContentWgt) {
         if ((_pMoveContentWgt == this && realContentsRect().contains(pos)) ||
-                (_pMoveContentWgt->geometry().contains(pos)))
-        {
+            (_pMoveContentWgt->geometry().contains(pos))) {
             _movePressed = true;
             _moveStartPos = pos;
         }
@@ -80,8 +78,7 @@ void UShadowDialog::mouseMoveEvent(QMouseEvent *e)
     QPoint pos = e->pos();
 
     // 移动
-    if(_moveAble && _movePressed)
-    {
+    if (_moveAble && _movePressed) {
         QPoint movePos = pos - _moveStartPos;
         this->move(mapToGlobal(movePos));
     }
@@ -105,8 +102,7 @@ void UShadowDialog::closeEvent(QCloseEvent *e)
 void UShadowDialog::mouseReleaseEvent(QMouseEvent *e)
 {
     // 移动
-    if(_moveAble && _movePressed)
-    {
+    if (_moveAble && _movePressed) {
         _movePressed = false;
         e->accept();
         return;
@@ -123,11 +119,13 @@ void UShadowDialog::keyPressEvent(QKeyEvent *e)
 {
 #ifdef _MACOS
 
-    if(e->key() == Qt::Key_Escape || e->key() == Qt::Key_Space)
+    if (e->key() == Qt::Key_Escape || e->key() == Qt::Key_Space) {
         this->close();
+    }
 
-    if(e->modifiers() == Qt::ControlModifier && e->key() == Qt::Key_W)
+    if (e->modifiers() == Qt::ControlModifier && e->key() == Qt::Key_W) {
         this->setVisible(false);
+    }
 
 #endif
     QDialog::keyPressEvent(e);
@@ -144,10 +142,10 @@ void UShadowDialog::setResizable(bool resizable)
 
 int UShadowDialog::showModel()
 {
-//    Qt::NonModal 不阻塞
-//    Qt::WindowModal 阻塞父窗口，所有祖先窗口及其子窗口
-//    Qt::ApplicationModal 阻塞整个应用程序
-//    this->setWindowModality(Qt::ApplicationModal);
+    //    Qt::NonModal 不阻塞
+    //    Qt::WindowModal 阻塞父窗口，所有祖先窗口及其子窗口
+    //    Qt::ApplicationModal 阻塞整个应用程序
+    //    this->setWindowModality(Qt::ApplicationModal);
     this->show();
     //_evtLoop = new QEventLoop(this);
     //_evtLoop->exec();
@@ -167,22 +165,20 @@ int UShadowDialog::showCenter(bool model, QWidget *parent)
 #endif
     QRect deskRect = {};
 
-    if (nullptr == screen)
-    {
-        for(auto *sen : qApp->screens())
-        {
-            if (sen->geometry().contains(parent->geometry()))
-            {
+    if (nullptr == screen) {
+        for (auto *sen : qApp->screens()) {
+            if (sen->geometry().contains(parent->geometry())) {
                 screen = sen;
                 break;
             }
         }
     }
 
-    if(nullptr == screen)
+    if (nullptr == screen) {
         deskRect = ActiveWnd->geometry();
-    else
+    } else {
         deskRect = screen->geometry();
+    }
 
     move((deskRect.width() - width()) / 2 + deskRect.x(), (deskRect.height() - height()) / 2 + deskRect.y()
 #ifdef QT_OS_MAC
@@ -190,10 +186,9 @@ int UShadowDialog::showCenter(bool model, QWidget *parent)
 #endif
         );
 
-    if(model)
+    if (model) {
         showModel();
-    else
-    {
+    } else {
     }
 
     return _evtRet;
@@ -216,12 +211,12 @@ QRect UShadowDialog::realContentsRect()
 
 void UShadowDialog::changeEvent(QEvent *event)
 {
-    if(event->type() == QEvent::WindowStateChange && _hasBorder)
-    {
+    if (event->type() == QEvent::WindowStateChange && _hasBorder) {
         auto sts = this->windowState();
 
-        if((sts & Qt::WindowMaximized) || (sts & Qt::WindowFullScreen) || (sts & Qt::WindowNoState))
+        if ((sts & Qt::WindowMaximized) || (sts & Qt::WindowFullScreen) || (sts & Qt::WindowNoState)) {
             repaint();
+        }
     }
 
     QWidget::changeEvent(event);
@@ -230,8 +225,7 @@ void UShadowDialog::changeEvent(QEvent *event)
 
 void UShadowDialog::paintEvent(QPaintEvent *e)
 {
-    if(_hasBorder)
-    {
+    if (_hasBorder) {
         QPainter painter(this);
         painter.setPen(QColor(197, 197, 197));
         QRect rect = _pCenternWgt->contentsRect();
@@ -247,11 +241,11 @@ void UShadowDialog::paintEvent(QPaintEvent *e)
 void UShadowDialog::macAdjustWindows()
 {
     setWindowFlags(this->windowFlags() | Qt::Tool);
-//    WId windowObject = this->winId();
-//    auto * nsviewObject = reinterpret_cast<objc_object *>(windowObject);
-//    objc_object * nsWindowObject = objc_msgSend(nsviewObject, sel_registerName("window"));
-//    int NSWindowCollectionBehaviorCanJoinAllSpaces = 1 << 0;
-//    objc_msgSend(nsWindowObject, sel_registerName("setCollectionBehavior:"), NSWindowCollectionBehaviorCanJoinAllSpaces);
+    //    WId windowObject = this->winId();
+    //    auto * nsviewObject = reinterpret_cast<objc_object *>(windowObject);
+    //    objc_object * nsWindowObject = objc_msgSend(nsviewObject, sel_registerName("window"));
+    //    int NSWindowCollectionBehaviorCanJoinAllSpaces = 1 << 0;
+    //    objc_msgSend(nsWindowObject, sel_registerName("setCollectionBehavior:"), NSWindowCollectionBehaviorCanJoinAllSpaces);
 }
 
 #endif

@@ -2,8 +2,8 @@
 // Created by cc on 18-12-24.
 //
 
-#ifndef QTALK_V2_SESSIONBTN_H
-#define QTALK_V2_SESSIONBTN_H
+#ifndef STALK_V2_SESSIONBTN_H
+#define STALK_V2_SESSIONBTN_H
 
 
 #include <QToolButton>
@@ -30,4 +30,4 @@ private:
 };
 
 
-#endif //QTALK_V2_SESSIONBTN_H
+#endif //STALK_V2_SESSIONBTN_H

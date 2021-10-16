@@ -3,9 +3,9 @@
 //
 
 #include "UserSupplementDao.h"
-#include "../QtUtil/Utils/Log.h"
+#include "Util/Log.h"
 
-UserSupplementDao::UserSupplementDao(qtalk::sqlite::database *sqlDb)
+UserSupplementDao::UserSupplementDao(st::sqlite::database *sqlDb)
     :DaoInterface(sqlDb, "IM_UserSupplement")
 {
 
@@ -30,7 +30,7 @@ bool UserSupplementDao::creatTable()
                       "`ExtendedFlag`	BLOB, "
                       "PRIMARY KEY(`XmppId`) ) ";
 
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
 
     return query.executeStep();
 }
@@ -48,7 +48,7 @@ bool UserSupplementDao::insertOrUpdateUserMood(const std::string &userId, const 
     else
         sql = "UPDATE `IM_UserSupplement` SET `UserMood` = ?, `UserMoodVersion` = ? WHERE `XmppId` = ?";
 
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     try
     {
         query.bind(1, userMood);
@@ -73,7 +73,7 @@ int UserSupplementDao::checkRecordCount(const std::string &userId)
     int ret = 0;
 
     std::string sql = "SELECT COUNT(`XmppId`) FROM `IM_UserSupplement` WHERE XmppId = ?";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     try
     {
         query.bind(1, userId);
@@ -103,7 +103,7 @@ bool UserSupplementDao::insertOrUpdateUserPhoneNo(const std::string &userId, con
     else
         sql = "UPDATE `IM_UserSupplement` SET `PhoneNo` = ? WHERE `XmppId` = ?";
 
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     try
     {
         query.bind(1, phoneNo);
@@ -117,7 +117,7 @@ bool UserSupplementDao::insertOrUpdateUserPhoneNo(const std::string &userId, con
     }
 }
 
-bool UserSupplementDao::insertOrUpdateUserSuppl(std::shared_ptr<QTalk::Entity::ImUserSupplement> imUserSup)
+bool UserSupplementDao::insertOrUpdateUserSuppl(std::shared_ptr<st::entity::ImUserSupplement> imUserSup)
 {
     if (!_pSqlDb)
     {
@@ -128,7 +128,7 @@ bool UserSupplementDao::insertOrUpdateUserSuppl(std::shared_ptr<QTalk::Entity::I
                       "`LeaderId`, `LeaderName`, `PhoneNo`, `MailAddr`) "
                       "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
 
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     try
     {
         query.bind(1, imUserSup->XmppId);

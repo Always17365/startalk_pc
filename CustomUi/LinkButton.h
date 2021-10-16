@@ -2,8 +2,8 @@
 // Created by cc on 18-11-7.
 //
 
-#ifndef QTALK_V2_LINKBUTTON_H
-#define QTALK_V2_LINKBUTTON_H
+#ifndef STALK_V2_LINKBUTTON_H
+#define STALK_V2_LINKBUTTON_H
 
 #include "customui_global.h"
 #include <QLabel>
@@ -35,4 +35,4 @@ private:
 };
 
 
-#endif //QTALK_V2_LINKBUTTON_H
+#endif //STALK_V2_LINKBUTTON_H

@@ -7,7 +7,7 @@
 #include <QVBoxLayout>
 #include <QToolButton>
 
-#include "../Platform/Platform.h"
+#include "DataCenter/Platform.h"
 
 AboutWnd::AboutWnd(QWidget *parent)
     : UShadowDialog(parent, true, false)
@@ -52,8 +52,8 @@ void AboutWnd::initUi()
     auto *mainLay = new QVBoxLayout(mainFrm);
     mainLay->setContentsMargins(0, 0, 0, 20);
     //
-    std::string version = PLAT.getGlobalVersion();
-    std::string build = PLAT.get_build_date_time();
+    std::string version = DC.getGlobalVersion();
+    std::string build = DC.get_build_date_time();
     _pVersionLabel = new QLabel(QString("Version: (%1)").arg(version.data()), this);
     _pCopyrightLabel = new QLabel(" Copyright ©2021 StarTalk.com", this);
     _pBuildDateTimeLabel =

@@ -2,20 +2,19 @@
 // Created by cc on 2018-12-25.
 //
 
-#ifndef QTALK_V2_NAVMANAGER_H
-#define QTALK_V2_NAVMANAGER_H
+#ifndef STALK_V2_NAVMANAGER_H
+#define STALK_V2_NAVMANAGER_H
 
-#include "../CustomUi/UShadowWnd.h"
+#include "CustomUi/UShadowWnd.h"
 #include <QPushButton>
 #include <QMap>
-#include "../QtUtil/lib/ini/ConfigLoader.h"
-#include "../UICom/qconfig/qconfig.h"
+#include "Util/ini/ConfigLoader.h"
 #include "NavView.h"
 
 class LoginPanel;
 class NavManager : public UShadowDialog
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
     explicit NavManager(LoginPanel *loginPanel);
 
@@ -33,17 +32,17 @@ protected:
     void onNavChanged();
 
 private:
-    LoginPanel*          _pLoginPanel;
-    NavView*             _pNavView{};
+    LoginPanel          *_pLoginPanel;
+    NavView             *_pNavView{};
 
 private://data
     QMap<QString, StNav> _mapNav;
     QString              _defaultKey;
 
 private:
-    QPushButton* _pCloseBtn{}; // 关闭按钮
+    QPushButton *_pCloseBtn{}; // 关闭按钮
 
 };
 
 
-#endif //QTALK_V2_NAVMANAGER_H
+#endif //STALK_V2_NAVMANAGER_H

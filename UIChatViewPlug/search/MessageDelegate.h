@@ -2,8 +2,8 @@
 // Created by cc on 2019/11/05.
 //
 
-#ifndef QTALK_V2_MESSAGEDELEGATE_H
-#define QTALK_V2_MESSAGEDELEGATE_H
+#ifndef STALK_V2_MESSAGEDELEGATE_H
+#define STALK_V2_MESSAGEDELEGATE_H
 
 #include <QStyledItemDelegate>
 #include <QListView>
@@ -44,4 +44,4 @@ private:
 };
 
 
-#endif //QTALK_V2_MESSAGEDELEGATE_H
+#endif //STALK_V2_MESSAGEDELEGATE_H

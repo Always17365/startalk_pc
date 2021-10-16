@@ -1,12 +1,12 @@
 ﻿#include "GroupMemberDao.h"
-#include "../QtUtil/Utils/Log.h"
+#include "Util/Log.h"
 #include <time.h>
 #ifdef _WINDOWS
 #include<windows.h>
 #endif
 
 
-GroupMemberDao::GroupMemberDao(qtalk::sqlite::database *sqlDb)
+GroupMemberDao::GroupMemberDao(st::sqlite::database *sqlDb)
         : DaoInterface(sqlDb, "IM_Group_Member") {
 
 }
@@ -34,7 +34,7 @@ bool GroupMemberDao::creatTable() {
                       "`ExtendedFlag`   BLOB, "
                       "PRIMARY KEY(`MemberId`,`GroupId`))";
 
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
 
     try {
         bool ret = query.executeStep();
@@ -55,7 +55,7 @@ bool GroupMemberDao::creatTable() {
   * @author   cc
   * @date     2018/10/03
   */
-bool GroupMemberDao::getGroupMemberById(const std::string &groupId, std::map<std::string, QTalk::StUserCard> &members,
+bool GroupMemberDao::getGroupMemberById(const std::string &groupId, std::map<std::string, st::StUserCard> &members,
                                         std::map<std::string, QUInt8> &userRole) {
     if (!_pSqlDb) {
         return false;
@@ -65,12 +65,12 @@ bool GroupMemberDao::getGroupMemberById(const std::string &groupId, std::map<std
     std::string sql = "SELECT U.`XmppId`, U.`HeaderSrc`, U.`Name` as name, G.`Affiliation` as role, U.`SearchIndex`"
                       "FROM IM_Group_Member AS G JOIN IM_User AS U ON G.`MemberId` = U.`XmppId` "
                       "WHERE `GroupId` = ? ORDER BY role DESC;";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     try {
         query.bind(1, groupId);
 
         while (query.executeNext()) {
-            QTalk::StUserCard member;
+            st::StUserCard member;
             member.xmppId = query.getColumn(0).getString();
             member.headerSrc = query.getColumn(1).getString();
             member.userName = query.getColumn(2).getString();
@@ -105,7 +105,7 @@ bool GroupMemberDao::bulkInsertGroupMember(const std::string &groupId, const std
 
     // 获取所有用户
     std::string sql = "INSERT OR REPLACE INTO IM_Group_Member (`GroupId`, `MemberId`, `Affiliation`) values (?, ?, ?);";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     try {
         _pSqlDb->exec("begin immediate;");
 
@@ -142,7 +142,7 @@ bool GroupMemberDao::bulkDeleteGroupMember(const std::vector<std::string> &group
 
     std::string sql = "DELETE FROM IM_Group_Member WHERE `GroupId` = ?;";
 
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     try {
         _pSqlDb->exec("begin immediate;");
         for (const std::string& id : groupIds) {
@@ -180,7 +180,7 @@ void GroupMemberDao::getCareUsers(std::set<std::string>& users)
                       "union "
                       "select distinct xmppid from IM_SessionList where ChatType = 0";
 
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     time_t now = time(0);
     long long lastTime = (now - 5 * 24 * 60 * 60) * 1000;
     query.bind(1, lastTime);
@@ -202,7 +202,7 @@ void GroupMemberDao::getAllGroupMembers(std::map<std::string, std::set<std::stri
 
     std::string sql = "select memberId, GroupId from IM_Group_Member";
 
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
 
     while (query.executeNext())
     {

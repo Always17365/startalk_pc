@@ -3,10 +3,10 @@
 //
 
 #include "SystemTrayPopWnd.h"
-#include "../CustomUi/ImageLabel.h"
-#include "../UICom/qimage/qimage.h"
-#include "../include/Line.h"
-#include "../UICom/StyleDefine.h"
+#include "CustomUi/ImageLabel.h"
+#include "Util/ui/qimage/qimage.h"
+#include "CustomUi/Line.h"
+#include "Util/ui/StyleDefine.h"
 #include <QVBoxLayout>
 #include <QPainter>
 #include <QScrollBar>
@@ -33,8 +33,8 @@ void ImageTextLabel::paintEvent(QPaintEvent *e) {
     auto contentWidth = textWidth + imageSize + 5;
     auto x = (int)(rect.width() - contentWidth) / 2;
     {
-        auto dpi = QTalk::qimage::dpi();
-        auto pixmap = QTalk::qimage::loadImage(_path, false, true, imageSize * dpi);
+        auto dpi = st::qimage::dpi();
+        auto pixmap = st::qimage::loadImage(_path, false, true, imageSize * dpi);
         painter.drawPixmap({x, rect.y() + (rect.height() - imageSize) / 2, imageSize, imageSize}, pixmap);
     }
 
@@ -63,7 +63,7 @@ void SystemTrayDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 //    if (option.state & QStyle::State_MouseOver)
 //
 //    else
-//        painter->fillRect(rect, QTalk::StyleDefine::instance().getSearchNormalColor());
+//        painter->fillRect(rect, st::StyleDefine::instance().getSearchNormalColor());
 
     painter->fillRect(rect, QColor(255, 255, 255));
     auto name = index.data(EM_SYSTEM_TRAY_NAME).toString();
@@ -71,8 +71,8 @@ void SystemTrayDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 
     // icon
     {
-        auto dpi = QTalk::qimage::dpi();
-        auto pixmap = QTalk::qimage::loadImage(":/QTalk/image1/newMessage.png", true, true, 24 * dpi);
+        auto dpi = st::qimage::dpi();
+        auto pixmap = st::qimage::loadImage(":/QTalk/image1/newMessage.png", true, true, 24 * dpi);
         QRect imageRect(12 + rect.x(), (rect.height() - 24) / 2 + rect.y(), 24, 24);
         painter->drawPixmap(imageRect, pixmap);
     }
@@ -236,7 +236,7 @@ bool SystemTrayPopWnd::eventFilter(QObject* o, QEvent* e)
 }
 
 //
-void SystemTrayPopWnd::onNewMessage(int chatType, const QTalk::Entity::UID& uid, const QString& name, qint64 lastUpdateTime, int unread)
+void SystemTrayPopWnd::onNewMessage(int chatType, const st::entity::UID& uid, const QString& name, qint64 lastUpdateTime, int unread)
 {
     //
     auto sortData = [](const StNewMessageData& a, const StNewMessageData& b){
@@ -261,7 +261,7 @@ void SystemTrayPopWnd::onNewMessage(int chatType, const QTalk::Entity::UID& uid,
         _items[data.uid] = item;
     };
 
-    auto removeItem = [this, sortData, addItem](const QTalk::Entity::UID &uid){
+    auto removeItem = [this, sortData, addItem](const st::entity::UID &uid){
         auto itemFind = _items.find(uid);
         if(itemFind != _items.end())
         {
@@ -326,7 +326,7 @@ void SystemTrayPopWnd::onNewMessage(int chatType, const QTalk::Entity::UID& uid,
         //
         if(_items.size() > 4)
         {
-            QTalk::Entity::UID delUid;
+            st::entity::UID delUid;
             qint64 minTime = LLONG_MAX;
             for (const auto& it : _items)
             {
@@ -335,7 +335,7 @@ void SystemTrayPopWnd::onNewMessage(int chatType, const QTalk::Entity::UID& uid,
                 auto realJid = it.second->data(EM_SYSTEM_TRAY_REAL_JID).toString();
                 minTime = qMin(tempT, minTime);
                 if(minTime == tempT)
-                    delUid = QTalk::Entity::UID(userId, realJid);
+                    delUid = st::entity::UID(userId, realJid);
             }
 
             auto delItem = _items[delUid];

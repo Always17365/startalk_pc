@@ -2,15 +2,15 @@
 // Created by QITMAC000260 on 2019-08-13.
 //
 
-#ifndef QTALK_V2_ILOGICBASE_H
-#define QTALK_V2_ILOGICBASE_H
+#ifndef STALK_V2_ILOGICBASE_H
+#define STALK_V2_ILOGICBASE_H
 
 #include "ILogicObject.h"
 #include <string>
 #include <functional>
 #include <map>
 #include <vector>
-#include "../include/CommonDefine.h"
+#include "include/CommonDefine.h"
 
 class ILogicBase : public ILogicObject {
 public:
@@ -60,4 +60,4 @@ public:
     virtual void startAutoReconnectToServer(const std::string & checkNetworkHost = "") = 0;
 };
 
-#endif //QTALK_V2_ILOGICBASE_H
+#endif //STALK_V2_ILOGICBASE_H

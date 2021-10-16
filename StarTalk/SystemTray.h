@@ -2,14 +2,14 @@
 // Created by cc on 18-12-10.
 //
 
-#ifndef QTALK_V2_SYSTEMTRAY_H
-#define QTALK_V2_SYSTEMTRAY_H
+#ifndef STALK_V2_SYSTEMTRAY_H
+#define STALK_V2_SYSTEMTRAY_H
 
 
 #include <QObject>
 #include <QSystemTrayIcon>
 #include <QTimer>
-#include "../include/CommonStrcut.h"
+#include "include/CommonStrcut.h"
 #include "SystemTrayPopWnd.h"
 
 class MainWindow;
@@ -21,11 +21,11 @@ public:
     ~SystemTray() override;
 
 public slots:
-    void onShowNotify(const QTalk::StNotificationParam&);
+    void onShowNotify(const st::StNotificationParam&);
     void onAppDeactivated();
 
 Q_SIGNALS:
-    void sgShowUnreadMessage(int, const QTalk::Entity::UID&, const QString&, qint64, int);
+    void sgShowUnreadMessage(int, const st::entity::UID&, const QString&, qint64, int);
 
 public:
     void onWndActived();
@@ -53,4 +53,4 @@ private:
 };
 
 
-#endif //QTALK_V2_SYSTEMTRAY_H
+#endif //STALK_V2_SYSTEMTRAY_H

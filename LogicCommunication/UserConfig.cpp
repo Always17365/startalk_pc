@@ -5,11 +5,11 @@
 #include "UserConfig.h"
 #include <iostream>
 #include "Communication.h"
-#include "../Platform/Platform.h"
-#include "../Platform/dbPlatForm.h"
-#include "../Platform/NavigationManager.h"
-#include "../QtUtil/Utils/Log.h"
-#include "../QtUtil/nJson/nJson.h"
+#include "DataCenter/Platform.h"
+#include "DataCenter/dbPlatForm.h"
+#include "DataCenter/NavigationManager.h"
+#include "Util/Log.h"
+#include "Util/nJson/nJson.h"
 
 void updateDbByJson(nJson jsObj, bool sendEvt);
 
@@ -27,17 +27,17 @@ void UserConfig::getUserConfigFromServer(bool sendEvt) {
     std::ostringstream url;
     url << NavigationManager::instance().getHttpHost()
         << "/configuration/getincreclientconfig.qunar"
-        << "?v=" << PLAT.getClientVersion()
-        << "&p=" << PLAT.getPlatformStr()
-        << "&u=" << PLAT.getSelfUserId()
-        << "&k=" << PLAT.getServerAuthKey()
-        << "&d=" << PLAT.getSelfDomain();
+        << "?v=" << DC.getClientVersion()
+        << "&p=" << DC.getPlatformStr()
+        << "&u=" << DC.getSelfUserId()
+        << "&k=" << DC.getServerAuthKey()
+        << "&d=" << DC.getSelfDomain();
 
     std::string strUrl = url.str();
 
     nJson obj;
-    obj["username"] = PLAT.getSelfUserId();
-    obj["host"] = PLAT.getSelfDomain();
+    obj["username"] = DC.getSelfUserId();
+    obj["host"] = DC.getSelfDomain();
     obj["version"] = configVersion;
     std::string postData = obj.dump();
     //
@@ -54,7 +54,7 @@ void UserConfig::getUserConfigFromServer(bool sendEvt) {
     };
 
     if (_pComm) {
-        QTalk::HttpRequest req(strUrl, QTalk::RequestMethod::POST);
+        st::HttpRequest req(strUrl, st::RequestMethod::POST);
         req.header["Content-Type"] = "application/json;";
         req.body = postData;
         _pComm->addHttpRequest(req, callback);
@@ -76,11 +76,11 @@ void UserConfig::updateUserSetting(QUInt8 operatorType, const std::string &key, 
     std::string strUrl = url.str();
     //
     nJson obj;
-    obj["username"] = PLAT.getSelfUserId();
-    obj["host"] = PLAT.getSelfDomain();
-    obj["resource"] = PLAT.getSelfResource();
+    obj["username"] = DC.getSelfUserId();
+    obj["host"] = DC.getSelfDomain();
+    obj["resource"] = DC.getSelfResource();
     obj["version"] = configVersion;
-    obj["operate_plat"] = PLAT.getPlatformStr();
+    obj["operate_plat"] = DC.getPlatformStr();
     obj["type"] = operatorType;
     obj["key"] = key;
     obj["subkey"] = subKey;
@@ -101,7 +101,7 @@ void UserConfig::updateUserSetting(QUInt8 operatorType, const std::string &key, 
     };
 
     if (_pComm) {
-        QTalk::HttpRequest req(strUrl, QTalk::RequestMethod::POST);
+        st::HttpRequest req(strUrl, st::RequestMethod::POST);
         req.header["Content-Type"] = "application/json;";
         req.body = body;
 
@@ -112,7 +112,7 @@ void UserConfig::updateUserSetting(QUInt8 operatorType, const std::string &key, 
 
 void updateDbByJson(nJson jsObj, bool sendEvt) {
     std::map<std::string, std::string> deleteData;
-    std::vector<QTalk::Entity::ImConfig> arImConfig;
+    std::vector<st::entity::ImConfig> arImConfig;
 
     bool ret = Json::get<bool>(jsObj, "ret");
     bool isMaskName = false;
@@ -136,7 +136,7 @@ void updateDbByJson(nJson jsObj, bool sendEvt) {
                     deleteData[subKey] = key;
                 } else {
                     std::string configValue = Json::get<std::string >(info, "configinfo");
-                    QTalk::Entity::ImConfig imconf;
+                    st::entity::ImConfig imconf;
                     imconf.ConfigKey = key;
                     imconf.ConfigSubKey = subKey;
                     imconf.ConfigValue = configValue;

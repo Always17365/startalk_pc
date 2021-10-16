@@ -8,14 +8,14 @@
 #include <QFile>
 #include <QPainterPath>
 #include <QFileInfo>
-#include "../CustomUi/HeadPhotoLab.h"
-#include "../UICom/qimage/qimage.h"
-#include "../UICom/StyleDefine.h"
-#include "../Platform/AppSetting.h"
+#include "CustomUi/HeadPhotoLab.h"
+#include "Util/ui/qimage/qimage.h"
+#include "Util/ui/StyleDefine.h"
+#include "DataCenter/AppSetting.h"
 
 #define HEAD_WIDTH 24
 
-using namespace QTalk;
+using namespace st;
 GroupItemDelegate::GroupItemDelegate(QWidget *parent)
         : QStyledItemDelegate(parent), _parentWgt(parent)
 {
@@ -41,7 +41,7 @@ void GroupItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
     if(strText.isEmpty())
         strText = index.data(EM_ITEMDATA_TYPE_USERNAME).toString();
     painter->setPen(QPen(StyleDefine::instance().getChatGroupFontColor()));
-    QTalk::setPainterFont(painter, AppSetting::instance().getFontLevel());
+    st::setPainterFont(painter, AppSetting::instance().getFontLevel());
     painter->drawText(QRect(rect.x() + 30, rect.y(), rect.width() - 30 - 30, rect.height()), Qt::AlignVCenter, strText);
     QString headPath = index.data(EM_ITEMDATA_TYPE_HEADPATH).toString();
     bool isOnline = index.data(EM_ITEMDATA_TYPE_ISONLINE).toBool();
@@ -50,18 +50,18 @@ void GroupItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
     QFileInfo headFileInfo(headPath);
     if(headFileInfo.exists())
     {
-        int dpi = QTalk::qimage::dpi();
+        int dpi = st::qimage::dpi();
         QPixmap pixmap;
         if(headFileInfo.suffix().toLower() == "gif")
         {
-            headPath = QTalk::qimage::getGifImagePathNoMark(headPath);
-            pixmap = QTalk::qimage::loadImage(headPath, false, true, HEAD_WIDTH * dpi);
+            headPath = st::qimage::getGifImagePathNoMark(headPath);
+            pixmap = st::qimage::loadImage(headPath, false, true, HEAD_WIDTH * dpi);
         }
         else
-            pixmap = QTalk::qimage::loadImage(headPath, false, true, HEAD_WIDTH * dpi);
+            pixmap = st::qimage::loadImage(headPath, false, true, HEAD_WIDTH * dpi);
 
         if(!isOnline)
-            pixmap = QTalk::qimage::generateGreyPixmap(pixmap);
+            pixmap = st::qimage::generateGreyPixmap(pixmap);
 
         QPainterPath path;
         QRect headRect(rect.x() + 1, rect.y() + 8, HEAD_WIDTH, HEAD_WIDTH);
@@ -75,7 +75,7 @@ void GroupItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
         painter->drawPixmap((HEAD_WIDTH - w) / 2 + headRect.x(),
                             (HEAD_WIDTH - h) / 2 + headRect.y(), w, h, pixmap);
 
-        painter->fillPath(path, QTalk::StyleDefine::instance().getHeadPhotoMaskColor());
+        painter->fillPath(path, st::StyleDefine::instance().getHeadPhotoMaskColor());
     }
     // 画成员权限
     int8_t role = index.data(EM_ITEMDATA_TYPE_USERTYPE).toUInt();

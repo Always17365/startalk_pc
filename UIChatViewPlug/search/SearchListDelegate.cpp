@@ -3,9 +3,9 @@
 //
 
 #include "SearchListDelegate.h"
-#include "../../UICom/StyleDefine.h"
-#include "../../UICom/qimage/qimage.h"
-#include "../../Platform/AppSetting.h"
+#include "Util/ui/StyleDefine.h"
+#include "Util/ui/qimage/qimage.h"
+#include "DataCenter/AppSetting.h"
 #include <QPainter>
 #include <QFileInfo>
 #include <QEvent>
@@ -34,11 +34,11 @@ void SearchListDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 
     if (option.state & QStyle::State_Selected)
     {
-        auto color = QTalk::StyleDefine::instance().getSearchSelectColor();
+        auto color = st::StyleDefine::instance().getSearchSelectColor();
         painter->fillRect(rect, color);
     }
     else
-        painter->fillRect(rect, QTalk::StyleDefine::instance().getSearchNormalColor());
+        painter->fillRect(rect, st::StyleDefine::instance().getSearchNormalColor());
 
     auto itemType = index.data(EM_SEARCH_LIST_DATA_ROLE).toInt();
 
@@ -54,14 +54,14 @@ void SearchListDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
                 painter->setPen(Qt::NoPen);
                 QRect headRect(rect.x() + 16, (rect.height() - HEAD_WIDTH) / 2 + rect.y(),
                                HEAD_WIDTH, HEAD_WIDTH);
-                int dpi = QTalk::qimage::dpi();
+                int dpi = st::qimage::dpi();
                 QString icon = index.data(EM_SEARCH_LIST_DATA_HEAD).toString();
                 QFileInfo iconInfo(icon);
 
                 if(!iconInfo.exists() || iconInfo.isDir() )
                     icon =  ":/QTalk/image1/StarTalk_defaultHead.png";
 
-                QPixmap pixmap = QTalk::qimage::loadImage(icon, false, true, HEAD_WIDTH * dpi);
+                QPixmap pixmap = st::qimage::loadImage(icon, false, true, HEAD_WIDTH * dpi);
                 QPainterPath path;
                 painter->setBrush(QColor(240, 240, 240, 200));
                 painter->drawEllipse(headRect);
@@ -75,17 +75,17 @@ void SearchListDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
                 painter->restore();
                 painter->save();
                 // name
-                painter->setPen(QTalk::StyleDefine::instance().getNavNameFontColor());
+                painter->setPen(st::StyleDefine::instance().getNavNameFontColor());
                 QRect nameRect;
                 int x = rect.x() + 16 + HEAD_WIDTH + 8;
                 h = rect.height() / 2;
                 int maxW = rect.width() - x - 16;
                 nameRect = QRect(x, 0 + rect.y(), maxW, h);
-                QTalk::setPainterFont(painter, AppSetting::instance().getFontLevel(), 14);
+                st::setPainterFont(painter, AppSetting::instance().getFontLevel(), 14);
                 painter->drawText(nameRect, Qt::AlignVCenter | Qt::AlignBottom, name);
                 // sub message
-                painter->setPen(QTalk::StyleDefine::instance().getNavContentFontColor());
-                QTalk::setPainterFont(painter, AppSetting::instance().getFontLevel(), 12);
+                painter->setPen(st::StyleDefine::instance().getNavContentFontColor());
+                st::setPainterFont(painter, AppSetting::instance().getFontLevel(), 12);
                 QFontMetricsF itemSubF(painter->font());
                 QRect subRect = QRect(x, h + rect.y(), maxW, h);
                 QString text = itemSubF.elidedText(subMessage, Qt::ElideRight, maxW);
@@ -97,8 +97,8 @@ void SearchListDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 
         case EM_SEARCH_LIST_ROLE_GET_MORE:
             {
-                QTalk::setPainterFont(painter, AppSetting::instance().getFontLevel(), 14);
-                painter->setPen(QTalk::StyleDefine::instance().getNavContentFontColor());
+                st::setPainterFont(painter, AppSetting::instance().getFontLevel(), 14);
+                painter->setPen(st::StyleDefine::instance().getNavContentFontColor());
                 painter->drawText(rect, Qt::AlignCenter, tr("查看更多"));
                 break;
             }

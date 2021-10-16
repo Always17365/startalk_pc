@@ -7,14 +7,15 @@
 
 
 #include <string>
-#include "../QtUtil/Entity/JID.h"
+#include "Util/Entity/JID.h"
 
-namespace QTalk {
-    namespace Security {
-        std::string  pwd_key_plain(const std::string &user, const std::string &password, int loginType);
-        std::string  chatRsaEncrypt(const std::string &value);
-        std::string  normalRsaEncrypt(const std::string &value);
-    }
+namespace st {
+namespace Security {
+std::string  pwd_key_plain(const std::string &user, const std::string &password,
+                           int loginType);
+std::string  chatRsaEncrypt(const std::string &value);
+std::string  normalRsaEncrypt(const std::string &value);
+}
 }
 
 

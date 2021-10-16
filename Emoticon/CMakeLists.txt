@@ -1,11 +1,9 @@
 project(Emoticon)
 
 include_directories(.)
-include_directories(/usr/include/x86_64-linux-gnu/qt5/QtXml)
 
 # 打开Qt的Moc功能和ui文件QRC文件处理功能
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 find_package(Qt5Widgets)
@@ -41,6 +39,7 @@ if(APPLE)
     ADD_DEFINITIONS(-D_MACOS)
 elseif(UNIX)
     ADD_DEFINITIONS(-D_LINUX)
+    include_directories(/usr/include/x86_64-linux-gnu/qt5/QtXml)
 else()
     ADD_DEFINITIONS(-D_WINDOWS)
     ADD_DEFINITIONS(-DEMOTICON_LIB)
@@ -61,6 +60,6 @@ target_link_libraries(${PROJECT_NAME}
         Qt5::Xml
         Qt5::Concurrent
         CustomUi
-        Platform
+        DataCenter
         EventBus
         quazip)

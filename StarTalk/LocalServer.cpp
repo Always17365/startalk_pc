@@ -9,8 +9,8 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QDebug>
-#include "../Platform/Platform.h"
-#include "../Platform/dbPlatForm.h"
+#include "DataCenter/Platform.h"
+#include "DataCenter/dbPlatForm.h"
 #ifdef _WINDOWS
     #include <windows.h>
 #else
@@ -81,9 +81,9 @@ void sendBaseInfo(QLocalSocket *socket)
     obj.insert("type", package_response);
     obj.insert("response_type", request_base_info);
     QJsonObject detail;
-    detail.insert("login_user", PLAT.getSelfXmppId().data());
-    detail.insert("login_nav", PLAT.getLoginNav().data());
-    detail.insert("ckey", PLAT.getClientAuthKey().data());
+    detail.insert("login_user", DC.getSelfXmppId().data());
+    detail.insert("login_nav", DC.getLoginNav().data());
+    detail.insert("ckey", DC.getClientAuthKey().data());
     obj.insert("data", detail);
     QJsonDocument document;
     document.setObject(obj);

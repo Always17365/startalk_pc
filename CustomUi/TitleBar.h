@@ -2,8 +2,8 @@
 // Created by cc on 2019/11/05.
 //
 
-#ifndef QTALK_V2_TITLEBAR_H
-#define QTALK_V2_TITLEBAR_H
+#ifndef STALK_V2_TITLEBAR_H
+#define STALK_V2_TITLEBAR_H
 
 #include <QFrame>
 #include <QLabel>
@@ -29,4 +29,4 @@ private:
 };
 
 
-#endif //QTALK_V2_TITLEBAR_H
+#endif //STALK_V2_TITLEBAR_H

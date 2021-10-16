@@ -16,7 +16,7 @@
 #include <QApplication>
 #include "EmoPreviewWgt.h"
 #include "EmoIconWgt.h"
-#include "../Platform/Platform.h"
+#include "DataCenter/Platform.h"
 #include "MessageManager.h"
 #include "EmoCellWidget.h"
 #include "EmoticonManager.h"
@@ -124,7 +124,7 @@ QString EmoticonMainWgt::getEmoticonLocalFilePath(const QString &pkgId, const QS
 
         if(itFind != mapEmo.end())
         {
-            const std::string &strDirPath = PLAT.getLocalEmoticonPath(pkgId.toStdString());
+            const std::string &strDirPath = DC.getLocalEmoticonPath(pkgId.toStdString());
             realFilePath = QString("%1/%2").arg(strDirPath.c_str()).arg(itFind->fileorg);
         }
     }
@@ -135,7 +135,7 @@ QString EmoticonMainWgt::getEmoticonLocalFilePath(const QString &pkgId, const QS
         fileName.replace("/", "");
         fileName = QString("%1_%2").arg(pkgId, fileName);
         // temp 路径下表情
-        const QString &strDirPath = QString(PLAT.getTempEmoticonPath(pkgId.toStdString()).c_str());
+        const QString &strDirPath = QString(DC.getTempEmoticonPath(pkgId.toStdString()).c_str());
 
         if (QDir(strDirPath).exists())
         {
@@ -165,7 +165,7 @@ void EmoticonMainWgt::removeLocalEmoticon(const QString &pkgid, const QString &i
 {
     QtConcurrent::run([this, pkgid, iconPath]()
     {
-        std::string localEmoDir = PLAT.getLocalEmoticonPath(pkgid.toStdString());
+        std::string localEmoDir = DC.getLocalEmoticonPath(pkgid.toStdString());
         QDir dir(QString(localEmoDir.c_str()));
 
         if (dir.exists())
@@ -213,7 +213,7 @@ void EmoticonMainWgt::downloadNetEmoticon(const QString &pkgId)
 
             if (it != _arNetEmoInfo.end())
             {
-                std::string localPath = PLAT.getLocalEmoticonPacketPath(pkgId.toStdString());
+                std::string localPath = DC.getLocalEmoticonPacketPath(pkgId.toStdString());
                 _pMessageManager->downloadNetEmoticon((*it)->emoFile, localPath, pkgId.toStdString());
             }
         }
@@ -244,11 +244,11 @@ void EmoticonMainWgt::installEmoticon(const QString &pkgId)
     QtConcurrent::run([this, pkgId]()
     {
         QString pkgPath = QString::fromStdString(
-                              PLAT.getLocalEmoticonPacketPath(pkgId.toStdString()));
+                              DC.getLocalEmoticonPacketPath(pkgId.toStdString()));
 
         while (!QFile::exists(pkgPath)) {}
 
-        QString emoDir = QString("%1/emoticon").arg(PLAT.getAppdataRoamingPath().c_str());
+        QString emoDir = QString("%1/emoticon").arg(DC.getAppdataRoamingPath().c_str());
         QStringList lstFile = JlCompress::extractDir(pkgPath, emoDir);
         int tmpIndex = 0;
 
@@ -574,9 +574,9 @@ void EmoticonMainWgt::getNetEmoticon()
   */
 void EmoticonMainWgt::addLocalEmoticon(const QString &pkgId)
 {
-    QDir xmlDir(QString(PLAT.getLocalEmoticonPath(pkgId.toStdString()).c_str()));
+    QDir xmlDir(QString(DC.getLocalEmoticonPath(pkgId.toStdString()).c_str()));
     QFileInfoList xmlLst = xmlDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot);
-    QDir iconDir(PLAT.getEmoticonIconPath().c_str());
+    QDir iconDir(DC.getEmoticonIconPath().c_str());
     QFileInfoList fileLst = iconDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot);
     auto xmlFind = std::find_if(xmlLst.begin(), xmlLst.end(), [pkgId](const QFileInfo & info)
     {
@@ -692,13 +692,13 @@ void EmoticonMainWgt::getLocalEmoticon()
 {
     QtConcurrent::run([this]()
     {
-        QDir iconDir(PLAT.getEmoticonIconPath().c_str());
+        QDir iconDir(DC.getEmoticonIconPath().c_str());
         QFileInfoList fileLst = iconDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot);
 
         for(const QFileInfo &info : fileLst)
         {
             QString pkgid = info.baseName();
-            QDir xmlDir(QString(PLAT.getLocalEmoticonPath(pkgid.toStdString()).c_str()));
+            QDir xmlDir(QString(DC.getLocalEmoticonPath(pkgid.toStdString()).c_str()));
             QFileInfoList xmlLst = xmlDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot);
             auto xmlFind = std::find_if(xmlLst.begin(), xmlLst.end(), [pkgid](const QFileInfo & info)
             {
@@ -796,7 +796,7 @@ void EmoticonMainWgt::mousePressEvent(QMouseEvent *e)
  * 更新收藏
  * @param arConfigs
  */
-void EmoticonMainWgt::updateCollectionConfig(const std::vector<QTalk::Entity::ImConfig> &arConfigs)
+void EmoticonMainWgt::updateCollectionConfig(const std::vector<st::entity::ImConfig> &arConfigs)
 {
     QtConcurrent::run([this, arConfigs]()
     {
@@ -816,7 +816,7 @@ void EmoticonMainWgt::updateCollectionConfig(const std::vector<QTalk::Entity::Im
             if (config.ConfigKey == "kCollectionCacheKey")
             {
                 std::string netPath = config.ConfigValue;
-                QString localPath = QString::fromStdString(QTalk::getCollectionPath(netPath));
+                QString localPath = QString::fromStdString(st::getCollectionPath(netPath));
 
                 if(tmps.contains(localPath))
                 {
@@ -851,7 +851,7 @@ void EmoticonMainWgt::updateCollectionConfig(const std::vector<QTalk::Entity::Im
 }
 
 void EmoticonMainWgt::updateCollectionConfig(const std::map<std::string, std::string> &deleteData,
-        const std::vector<QTalk::Entity::ImConfig> &arImConfig)
+        const std::vector<st::entity::ImConfig> &arImConfig)
 {
     QtConcurrent::run([this, deleteData, arImConfig]()
     {
@@ -897,7 +897,7 @@ void EmoticonMainWgt::updateCollectionConfig(const std::map<std::string, std::st
                 {
                     mod = true;
                     std::string netPath = config.ConfigValue;
-                    QString localPath = QString::fromStdString(QTalk::getCollectionPath(netPath));
+                    QString localPath = QString::fromStdString(st::getCollectionPath(netPath));
                     QFileInfo fileINfo(localPath);
 
                     if (!fileINfo.exists())

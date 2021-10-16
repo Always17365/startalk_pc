@@ -39,5 +39,7 @@
         <file>image1/btn_destroy_black.png</file>
         <file>image1/btn_destroy_hover.png</file>
         <file>image1/btn_destroy_hover_black.png</file>
+        <file>image1/forbiddenWord_hover_1.svg</file>
+        <file>image1/forbiddenWord_normal_1.svg</file>
     </qresource>
 </RCC>

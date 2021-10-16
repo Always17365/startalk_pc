@@ -2,8 +2,8 @@
 // Created by cc on 2019-02-28.
 //
 
-#ifndef QTALK_V2_MedalMind_H
-#define QTALK_V2_MedalMind_H
+#ifndef STALK_V2_MedalMind_H
+#define STALK_V2_MedalMind_H
 
 #include "MessageItemBase.h"
 #include <QLabel>
@@ -47,4 +47,4 @@ private:
 };
 
 
-#endif //QTALK_V2_MedalMind_H
+#endif //STALK_V2_MedalMind_H

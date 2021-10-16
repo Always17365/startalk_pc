@@ -2,8 +2,8 @@
 // Created by cc on 2019-08-13.
 //
 
-#ifndef QTALK_V2_MESSAGEMANAGER_H
-#define QTALK_V2_MESSAGEMANAGER_H
+#ifndef STALK_V2_MESSAGEMANAGER_H
+#define STALK_V2_MESSAGEMANAGER_H
 
 
 /**
@@ -15,22 +15,22 @@
 #define _MESSAGEMANAGER_H
 
 #include <string>
-#include "../EventBus/Object.hpp"
-#include "../EventBus/EventHandler.hpp"
-#include "../EventBus/HandlerRegistration.hpp"
-#include "../Message/LoginMessgae.h"
+#include "EventBus/Object.hpp"
+#include "EventBus/EventHandler.hpp"
+#include "EventBus/HandlerRegistration.hpp"
+#include "Message/LoginMessgae.h"
 #include "IQMessage.h"
-#include "../Message/ChatMessage.h"
-#include "../entity/IM_Session.h"
-#include "../Message/UserMessage.h"
-#include "../include/CommonStrcut.h"
-#include "../Message/GroupMessage.h"
-#include "../Message/StatusMessage.h"
-//#include "../entity/im_friend_list.h"
-#include "../entity/im_group.h"
-#include "../Message/UselessMessage.h"
-#include "../QtUtil/Entity/JID.h"
-#include "../Message/LogicBaseMessage.h"
+#include "Message/ChatMessage.h"
+#include "entity/IM_Session.h"
+#include "Message/UserMessage.h"
+#include "include/CommonStrcut.h"
+#include "Message/GroupMessage.h"
+#include "Message/StatusMessage.h"
+//#include "entity/im_friend_list.h"
+#include "entity/im_group.h"
+#include "Message/UselessMessage.h"
+#include "Util/Entity/JID.h"
+#include "Message/LogicBaseMessage.h"
 
 class LogicBaseMsgManager : public Object
 {
@@ -47,7 +47,7 @@ public:
     static void recvBlackListMessage(const std::string &messageFrom,
                                      const std::string &messageId);
     // 发送 http 请求
-    static void sendHttpReq(const QTalk::HttpRequest &request,
+    static void sendHttpReq(const st::HttpRequest &request,
                             const std::function<void(int, const std::string &)> &callback);
 
 public:
@@ -65,7 +65,7 @@ public:
     static void LoginSuccess(const std::string &strSessionId);
     static void synSeverData();
     //
-    static void onUpdateGroupInfo(std::shared_ptr<QTalk::StGroupInfo> info);
+    static void onUpdateGroupInfo(std::shared_ptr<st::StGroupInfo> info);
     //
     static void onSwitchUserStatus(const std::string &status);
     //
@@ -83,7 +83,7 @@ public:
     static void onRemoveGroupMember(const std::string &groupId,
                                     const std::string &memberId);
     //
-    static void updateRevokeMessage(const QTalk::Entity::UID &uid,
+    static void updateRevokeMessage(const st::entity::UID &uid,
                                     const std::string &fromId, const std::string &messageId, const QInt64 &time);
     //
     static void updateSignalChatReadState(const std::string &userId,
@@ -112,6 +112,9 @@ public:
     static void refreshNav();
     static void goBackLoginWnd(const std::string &reson = "");
     static void systemQuit();
+
+    static void forbiddenWordGroupState(const std::string &groupId,
+                                        bool status);
 };
 
 //
@@ -124,20 +127,22 @@ class LogicBaseMsgListener : public EventHandler<S_RevokeMessage>
     , public EventHandler<S_Message>
     , public EventHandler<PreSendMessageEvt>
     , public EventHandler<SWebRtcCommand>
+    , public EventHandler<ForbiddenWordGroupMsg>
 {
 public:
     explicit LogicBaseMsgListener(LogicBase *pLogicBase);
     ~LogicBaseMsgListener() override;
 
 public:
-    void onEvent(S_RevokeMessage &e ) override ;
-    void onEvent(SwitchUserStatusEvt &e ) override ;
-    void onEvent(ReadedMessage &e ) override ;
-    void onEvent(HeartBeat &e ) override ;
-    void onEvent(ForwardMessage &e ) override ;
-    void onEvent(S_Message &e ) override ;
-    void onEvent(PreSendMessageEvt &e ) override ;
-    void onEvent(SWebRtcCommand &e ) override ;
+    void onEvent(S_RevokeMessage &e ) override;
+    void onEvent(SwitchUserStatusEvt &e ) override;
+    void onEvent(ReadedMessage &e ) override;
+    void onEvent(HeartBeat &e ) override;
+    void onEvent(ForwardMessage &e ) override;
+    void onEvent(S_Message &e ) override;
+    void onEvent(PreSendMessageEvt &e ) override;
+    void onEvent(SWebRtcCommand &e ) override;
+    void onEvent(ForbiddenWordGroupMsg &e)override;
 
 private:
     LogicBase            *_pLogicBase;
@@ -147,4 +152,4 @@ private:
 #endif
 
 
-#endif //QTALK_V2_MESSAGEMANAGER_H
+#endif //STALK_V2_MESSAGEMANAGER_H

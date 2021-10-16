@@ -2,15 +2,15 @@
 // Created by admin on 2019-02-19.
 //
 
-#ifndef QTALK_V2_SYSTEMSETTINGWND_H
-#define QTALK_V2_SYSTEMSETTINGWND_H
+#ifndef STALK_V2_SYSTEMSETTINGWND_H
+#define STALK_V2_SYSTEMSETTINGWND_H
 
-#include "../CustomUi/UShadowWnd.h"
+#include "CustomUi/UShadowWnd.h"
 #include <QMap>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QStyledItemDelegate>
-#include "../Platform/AppSetting.h"
+#include "DataCenter/AppSetting.h"
 #include "MessageManager.h"
 
 class QVBoxLayout;
@@ -155,4 +155,4 @@ private:
 };
 
 
-#endif //QTALK_V2_SYSTEMSETTINGWND_H
+#endif //STALK_V2_SYSTEMSETTINGWND_H

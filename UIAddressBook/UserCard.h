@@ -2,16 +2,16 @@
 // Created by cc on 18-11-5.
 //
 
-#ifndef QTALK_USERCARD_H
-#define QTALK_USERCARD_H
+#ifndef STALK_USERCARD_H
+#define STALK_USERCARD_H
 
 #include <QWidget>
 #include <memory>
 #include <QMutexLocker>
 #include <QFrame>
-#include "../entity/im_userSupplement.h"
-#include "../CustomUi/TextEdit.h"
-#include "../entity/im_user.h"
+#include "entity/im_userSupplement.h"
+#include "CustomUi/TextEdit.h"
+#include "entity/im_user.h"
 
 class QLabel;
 class QLineEdit;
@@ -35,8 +35,8 @@ Q_SIGNALS:
     void setWgtStatusSignal(bool);
 
 public:
-    bool showUserCard(const std::shared_ptr<QTalk::Entity::ImUserSupplement>& imuserSup,
-                      const std::shared_ptr<QTalk::Entity::ImUserInfo>& userInfo);
+    bool showUserCard(const std::shared_ptr<st::entity::ImUserSupplement>& imuserSup,
+                      const std::shared_ptr<st::entity::ImUserInfo>& userInfo);
     void setMaskName(const QString& maskName);
     void setFlags(int flags);
 
@@ -115,4 +115,4 @@ public:
 };
 
 
-#endif //QTALK_V2_USERCARD_H
+#endif //STALK_V2_USERCARD_H

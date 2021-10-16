@@ -4,7 +4,6 @@
 #include <QWidget>
 #include <QToolButton>
 #include <QLabel>
-#include <QMap>
 #include <QPixmap>
 #include <QMutexLocker>
 #include <QMovie>

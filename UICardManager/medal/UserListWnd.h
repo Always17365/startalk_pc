@@ -4,15 +4,15 @@
 #if _MSC_VER >= 1600
 #pragma execution_character_set("utf-8")
 #endif
-#ifndef QTALK_V2_USERLISTWND_H
-#define QTALK_V2_USERLISTWND_H
+#ifndef STALK_V2_USERLISTWND_H
+#define STALK_V2_USERLISTWND_H
 
 #include <QFrame>
 #include <QListView>
 #include <QStyledItemDelegate>
 #include <QStandardItemModel>
 #include <QLabel>
-#include "../../include/CommonStrcut.h"
+#include "include/CommonStrcut.h"
 
 enum {
     em_user_xmppId = Qt::UserRole + 1,
@@ -44,7 +44,7 @@ public:
     explicit UserListWnd(QWidget* parent = nullptr);
 
 public:
-    void showUserList(const std::vector<QTalk::StMedalUser>& userList);
+    void showUserList(const std::vector<st::StMedalUser>& userList);
     inline QWidget* getMoveWgt() { return _topFrm;};
 
 Q_SIGNALS:
@@ -58,4 +58,4 @@ protected:
     QFrame *_topFrm = nullptr;
 };
 
-#endif //QTALK_V2_USERLISTWND_H
+#endif //STALK_V2_USERLISTWND_H

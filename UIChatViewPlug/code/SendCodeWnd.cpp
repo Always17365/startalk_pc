@@ -4,10 +4,10 @@
 
 #include "SendCodeWnd.h"
 #include "../ChatViewMainPanel.h"
-#include "../../include/Line.h"
+#include "CustomUi/Line.h"
 #include <QPushButton>
 #include <QHBoxLayout>
-#include "../../CustomUi/QtMessageBox.h"
+#include "CustomUi/QtMessageBox.h"
 
 extern ChatViewMainPanel *g_pMainPanel;
 SendCodeWnd::SendCodeWnd(QWidget *parent)
@@ -64,7 +64,7 @@ void SendCodeWnd::initUi()
 /**
  *
  */
-void SendCodeWnd::addCode(const QTalk::Entity::UID &uid, const QString &code)
+void SendCodeWnd::addCode(const st::entity::UID &uid, const QString &code)
 {
     _uid = uid;
 
@@ -83,7 +83,7 @@ void SendCodeWnd::sendCode()
 
         if(code.toLocal8Bit().size() > 1024 * 64)
         {
-            QtMessageBox::warning(g_pMainPanel, tr("警告"), tr("输入的代码过长，无法发送!"));
+            QtMessageBox::warning(g_pMainPanel, QObject::tr("警告"), tr("输入的代码过长，无法发送!"));
             return;
         }
 

@@ -1,9 +1,9 @@
 ﻿#include "MessageManager.h"
-#include "../EventBus/EventBus.h"
+#include "EventBus/EventBus.h"
 #include "MainWindow.h"
-#include "../Message/StatusMessage.h"
-#include "../Message/ChatMessage.h"
-#include "../Message/UserMessage.h"
+#include "Message/StatusMessage.h"
+#include "Message/ChatMessage.h"
+#include "Message/UserMessage.h"
 
 void QTalkMsgManager::sendHearBeat()
 {
@@ -17,7 +17,7 @@ void QTalkMsgManager::sendOnlineState(const QInt64 &login_t, const QInt64 &logou
     EventBus::FireEvent(e);
 }
 
-void QTalkMsgManager::sendOperatorStatistics(const std::string& ip, const std::vector<QTalk::StActLog>& operators)
+void QTalkMsgManager::sendOperatorStatistics(const std::string& ip, const std::vector<st::StActLog>& operators)
 {
     OperatorStatistics e(ip, operators);
     EventBus::FireEvent(e);

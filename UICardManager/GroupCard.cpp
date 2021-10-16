@@ -15,15 +15,18 @@
 #include <QDebug>
 #include <QApplication>
 #include <QScrollBar>
-#include "../CustomUi/HeadPhotoLab.h"
+#include <QtConcurrent>
+
+#include "CustomUi/HeadPhotoLab.h"
 #include "CardManager.h"
-#include "../include/ModButton.h"
-#include "../include/Line.h"
-#include "../CustomUi/LinkButton.h"
-#include "../Platform/Platform.h"
-#include "../QtUtil/Entity/JID.h"
-#include "../CustomUi/QtMessageBox.h"
-#include "../Platform/NavigationManager.h"
+#include "CustomUi/ModButton.h"
+#include "CustomUi/Line.h"
+#include "CustomUi/LinkButton.h"
+#include "DataCenter/Platform.h"
+#include "Util/Entity/JID.h"
+#include "CustomUi/QtMessageBox.h"
+#include "DataCenter/NavigationManager.h"
+#include "MsgManager.h"
 
 GroupCard::GroupCard(CardManager *cardManager)
     : UShadowDialog(cardManager, true)
@@ -69,15 +72,19 @@ void GroupCard::initUi()
     _pSendMailBtn = new QPushButton(this);
     _pExitGroupBtn = new QPushButton(this);
     _pDestroyGroupBtn = new QPushButton(this);
+    _forbiddenBtn = new QPushButton(this);
     //
     _pSendMailBtn->setToolTip(tr("发邮件"));
+    _forbiddenBtn->setToolTip(tr("禁言"));
     _pExitGroupBtn->setToolTip(tr("退出群组"));
     _pDestroyGroupBtn->setToolTip(tr("销毁群"));
     _pDestroyGroupBtn->setObjectName("btn_destroy_group");
     _pSendMailBtn->setVisible(false);
+    _forbiddenBtn->setVisible(false);
     //
     auto *btnLay = new QHBoxLayout;
     btnLay->addWidget(_pSendMailBtn);
+    btnLay->addWidget(_forbiddenBtn);
     btnLay->addWidget(_pExitGroupBtn);
     btnLay->addWidget(_pDestroyGroupBtn);
     btnLay->addItem(new QSpacerItem(10, 10, QSizePolicy::Expanding));
@@ -91,7 +98,8 @@ void GroupCard::initUi()
     topMainLay->addWidget(_pHeadLabel, 0, 0);
     topMainLay->addWidget(_pNameLabel, 0, 1);
     topMainLay->addLayout(btnLay, 1, 1);
-    topMainLay->addItem(new QSpacerItem(10, 10, QSizePolicy::Expanding), 0, 2, 2, 1);
+    topMainLay->addItem(new QSpacerItem(10, 10, QSizePolicy::Expanding), 0, 2, 2,
+                        1);
     //
     QFrame *topFrame = new QFrame(this);
     topFrame->setFixedHeight(160);
@@ -124,7 +132,7 @@ void GroupCard::initUi()
     bodyLay->addWidget(new QLabel(tr("群名称")), 0, 0);
     bodyLay->addLayout(groupNameLay, 0, 1, 1, 3);
     bodyLay->setAlignment(groupNameLay, Qt::AlignLeft);
-//    bodyLay->addWidget(_modGroupName, 0, 3);
+    //    bodyLay->addWidget(_modGroupName, 0, 3);
     // row 1
     _pGroupIdEdit = new QTextEdit(this);
     _pGroupIdEdit->setAcceptRichText(false);
@@ -182,8 +190,10 @@ void GroupCard::initUi()
     _pSendMailBtn->setFixedSize(30, 30);
     _pExitGroupBtn->setFixedSize(30, 30);
     _pDestroyGroupBtn->setFixedSize(30, 30);
+    _forbiddenBtn->setFixedSize(18, 18);
     _pHeadLabel->setFixedSize(60, 60);
     _pSendMailBtn->setObjectName("SendMail");
+    _forbiddenBtn->setObjectName("ForbiddenWord");
     _pExitGroupBtn->setObjectName("QuitGroup");
     _pNameLabel->setObjectName("NameLabel");
     //
@@ -211,58 +221,49 @@ void GroupCard::initUi()
     setMoverAble(true, topFrame);
     _pGroupMemberPopWnd = new GroupMemberPopWnd(this);
     //
-    connect(closeBtn, &QPushButton::clicked, this, [this]()
-    {
+    connect(closeBtn, &QPushButton::clicked, this, [this]() {
         this->close();
     });
-    connect(showMemberBtn, &LinkButton::clicked, this, [this] ()
-    {
+    connect(showMemberBtn, &LinkButton::clicked, this, [this] () {
         QPoint pos(this->x() + this->width(), this->y());
         _pGroupMemberPopWnd->move(pos);
         _pGroupMemberPopWnd->showModel();
     });
     connect(_pSendMsgBtn, &QPushButton::clicked, this, &GroupCard::sendMessageSlot);
-    connect(_modGroupName, &ModButton::clicked, this, [this](bool)
-    {
+    connect(_forbiddenBtn, &QPushButton::clicked, this, &GroupCard::forbiddenWord);
+    connect(_modGroupName, &ModButton::clicked, this, [this](bool) {
         _modGroupName->setVisible(false);
         _pGroupNameEdit->setReadOnly(false);
         _pGroupNameEdit->setFocusPolicy(Qt::ClickFocus);
         _pGroupNameEdit->setFocus();
     });
-    connect(_modGroupTopic, &ModButton::clicked, this, [this](bool)
-    {
+    connect(_modGroupTopic, &ModButton::clicked, this, [this](bool) {
         _modGroupTopic->setVisible(false);
         _pGroupTopicEdit->setReadOnly(false);
         _pGroupTopicEdit->setFocusPolicy(Qt::ClickFocus);
         _pGroupTopicEdit->setFocus();
     });
-    connect(_modGroupJJ, &ModButton::clicked, this, [this](bool)
-    {
+    connect(_modGroupJJ, &ModButton::clicked, this, [this](bool) {
         _modGroupJJ->setVisible(false);
         _pGroupIntroduce->setReadOnly(false);
         _pGroupIntroduce->setFocusPolicy(Qt::ClickFocus);
         _pGroupIntroduce->setFocus();
     });
     //
-    connect(_pGroupNameEdit, &QLineEdit::textChanged, this, [this]()
-    {
+    connect(_pGroupNameEdit, &QLineEdit::textChanged, this, [this]() {
         _moded = true;
     });
-    connect(_pGroupTopicEdit, &QTextEdit::textChanged, this, [this]()
-    {
+    connect(_pGroupTopicEdit, &QTextEdit::textChanged, this, [this]() {
         _moded = true;
     });
-    connect(_pGroupIntroduce, &QTextEdit::textChanged, this, [this]()
-    {
+    connect(_pGroupIntroduce, &QTextEdit::textChanged, this, [this]() {
         _moded = true;
     });
     connect(this, &GroupCard::closeSignal, this, &GroupCard::onClose);
-    connect(_pGroupNameEdit, &QLineEdit::textChanged, this, [this]()
-    {
+    connect(_pGroupNameEdit, &QLineEdit::textChanged, this, [this]() {
         QString text = _pGroupNameEdit->text();
 
-        if(!text.isEmpty())
-        {
+        if (!text.isEmpty()) {
             QFontMetricsF tf(_pGroupNameEdit->font());
             int width = tf.width(text);
             width = qMin(width, 210);
@@ -270,34 +271,35 @@ void GroupCard::initUi()
             _pGroupNameEdit->setFixedWidth(width + 10);
         }
     });
-    connect(_pExitGroupBtn, &QPushButton::clicked, this, [this]()
-    {
-        int ret = QtMessageBox::warning(this, tr("警告"), tr("即将退出本群, 是否继续?"),
+    connect(_pExitGroupBtn, &QPushButton::clicked, this, [this]() {
+        int ret = QtMessageBox::warning(this, QObject::tr("警告"),
+                                        tr("即将退出本群, 是否继续?"),
                                         QtMessageBox::EM_BUTTON_YES | QtMessageBox::EM_BUTTON_NO);
 
-        if(ret == QtMessageBox::EM_BUTTON_YES)
-        {
-            if(_pCardManager)
-            {
+        if (ret == QtMessageBox::EM_BUTTON_YES) {
+            if (_pCardManager) {
                 _pCardManager->quitGroup(_strGroupId);
                 _moded = false;
                 this->close();
             }
         }
     });
-    connect(_pDestroyGroupBtn, &QPushButton::clicked, this, &GroupCard::onDestroyGroupGroupCard);
+    connect(_pDestroyGroupBtn, &QPushButton::clicked, this,
+            &GroupCard::onDestroyGroupGroupCard);
     connect(_pSendMailBtn, &QPushButton::clicked, this, &GroupCard::onSendMail);
 }
 
 /**
  * data
  */
-void GroupCard::setData(std::shared_ptr<QTalk::Entity::ImGroupInfo> &data)
+void GroupCard::setData(std::shared_ptr<st::entity::ImGroupInfo> &data)
 {
-    QString localHead = QString::fromStdString(QTalk::GetHeadPathByUrl(data->HeaderSrc));
+    QString localHead = QString::fromStdString(st::GetHeadPathByUrl(
+                                                   data->HeaderSrc));
 
-    if(QFile::exists(localHead))
+    if (QFile::exists(localHead)) {
         _pHeadLabel->setHead(localHead, 30, false, true);
+    }
 
     QString name = QString::fromStdString(data->Name);
     QFontMetricsF f(_pNameLabel->font());
@@ -317,7 +319,9 @@ void GroupCard::setData(std::shared_ptr<QTalk::Entity::ImGroupInfo> &data)
 /**
  * 显示群成员
  */
-void GroupCard::showGroupMember(const std::map<std::string, QTalk::StUserCard> &userCards, const std::map<std::string, QUInt8> &userRole)
+void GroupCard::showGroupMember(const std::map<std::string, st::StUserCard>
+                                &userCards,
+                                const std::map<std::string, QUInt8> &userRole)
 {
     _pSendMailBtn->setVisible(true);
     int onlineNum = 0;
@@ -325,46 +329,57 @@ void GroupCard::showGroupMember(const std::map<std::string, QTalk::StUserCard> &
     _pGroupMemberPopWnd->reset();
     auto it = userCards.begin();
 
-    for(; it != userCards.end(); it++)
-    {
+    for (; it != userCards.end(); it++) {
         //
         groupMembers.push_back(it->first);
         //
         std::string name = it->second.nickName;
 
-        if(name.empty())
+        if (name.empty()) {
             name = it->second.userName;
+        }
 
-        if(name.empty())
-            name = QTalk::Entity::JID(it->first).username();
+        if (name.empty()) {
+            name = st::entity::JID(it->first).username();
+        }
 
         QString xmppId = QString::fromStdString(it->first);
         QString userName = QString::fromStdString(name);
-        QString headSrc = QString::fromStdString(QTalk::GetHeadPathByUrl(it->second.headerSrc));
+        QString headSrc = QString::fromStdString(st::GetHeadPathByUrl(
+                                                     it->second.headerSrc));
         QString searchKey = QString::fromStdString(it->second.searchKey);
         QUInt8 role = 3;
 
-        if(userRole.find(it->first) != userRole.end())
+        if (userRole.find(it->first) != userRole.end()) {
             role = userRole.at(it->first);
-
-        //
-        bool isOnline = PLAT.isOnline(QTalk::Entity::JID(it->first).basename());
-
-        if(role == 1)
-        {
-            std::string userId = QTalk::Entity::JID(it->first).username();
-            std::string selfId = PLAT.getSelfUserId();
-            _pDestroyGroupBtn->setVisible(userId == selfId);
         }
 
-        _pGroupMemberPopWnd->addItem(xmppId, userName, headSrc, role, isOnline, searchKey);
+        //
+        std::string userId = st::entity::JID(it->first).username();
+        bool isOnline = DC.isOnline(st::entity::JID(it->first).basename());
+        auto selfId = DC.getSelfUserId();
 
-        if(isOnline)
+        if (role == 1) {
+            _pDestroyGroupBtn->setVisible(userId == selfId);
+            _hasPermission |= userId == selfId;
+        } else if (role == 2 && userId == selfId) {
+            _hasPermission = true;
+        }
+
+        _pGroupMemberPopWnd->addItem(xmppId, userName, headSrc, role, isOnline,
+                                     searchKey);
+
+        if (isOnline) {
             onlineNum++;
+        }
     }
 
     _pGroupMemberPopWnd->addEnd();
-    _pGroupMemberLabel->setText(QString("( %1/ %2)").arg(onlineNum).arg(userCards.size()));
+    _pGroupMemberLabel->setText(QString("( %1/ %2)").arg(onlineNum).arg(
+                                    userCards.size()));
+
+    _forbiddenFlag |= 0x01;
+    checkAndEnableForbidden();
 }
 
 /**
@@ -372,16 +387,18 @@ void GroupCard::showGroupMember(const std::map<std::string, QTalk::StUserCard> &
  */
 void GroupCard::sendMessageSlot()
 {
-    if(!_pCardManager)
+    if (!_pCardManager) {
         return;
+    }
 
-    StSessionInfo stSession(QTalk::Enum::GroupChat, _strGroupId, _groupName);
+    StSessionInfo stSession(st::Enum::GroupChat, _strGroupId, _groupName);
     stSession.headPhoto = _srtHead;
     emit _pCardManager->sgSwitchCurFun(0);
     emit _pCardManager->sgOpenNewSession(stSession);
 
-    if(_pGroupMemberPopWnd->isActiveWindow())
+    if (_pGroupMemberPopWnd->isActiveWindow()) {
         _pGroupMemberPopWnd->close();
+    }
 
     this->close();
 }
@@ -392,75 +409,68 @@ bool GroupCard::eventFilter(QObject *o, QEvent *e)
     _pGroupTopicEdit->installEventFilter(this);
     _pGroupIntroduce->installEventFilter(this);
 
-    if(o == _pGroupIdEdit ||
-            o == _pGroupTopicEdit ||
-            o == _pGroupIntroduce)
-    {
+    if (o == _pGroupIdEdit ||
+        o == _pGroupTopicEdit ||
+        o == _pGroupIntroduce) {
         auto *edit = qobject_cast<QTextEdit *>(o);
 
-        if(e->type() == QEvent::Enter)
+        if (e->type() == QEvent::Enter) {
             edit->verticalScrollBar()->setVisible(true);
-        else if(e->type() == QEvent::Leave)
+        } else if (e->type() == QEvent::Leave) {
             edit->verticalScrollBar()->setVisible(false);
+        }
     }
 
-    if(e->type() == QEvent::FocusOut)
-    {
-        if(o == _pGroupNameEdit)
-        {
+    if (e->type() == QEvent::FocusOut) {
+        if (o == _pGroupNameEdit) {
             _pGroupNameEdit->clearFocus();
             _pGroupNameEdit->setReadOnly(true);
-        }
-        else if(o == _pGroupTopicEdit || o == _pGroupIntroduce)
-        {
+        } else if (o == _pGroupTopicEdit || o == _pGroupIntroduce) {
             auto *textEdit = qobject_cast<QTextEdit *>(o);
             textEdit->clearFocus();
             textEdit->setReadOnly(true);
         }
 
-        if(o == _pGroupNameEdit)
+        if (o == _pGroupNameEdit) {
             _modGroupName->setVisible(true);
+        }
 
-        if(o == _pGroupTopicEdit)
+        if (o == _pGroupTopicEdit) {
             _modGroupTopic->setVisible(true);
+        }
 
-        if(o == _pGroupIntroduce)
+        if (o == _pGroupIntroduce) {
             _modGroupJJ->setVisible(true);
-    }
-    else if(e->type() == QEvent::KeyPress)
-    {
+        }
+    } else if (e->type() == QEvent::KeyPress) {
         auto *evt = (QKeyEvent *)e;
 
-        if((evt->key() == Qt::Key_Return || evt->key() == Qt::Key_Enter))
-        {
+        if ((evt->key() == Qt::Key_Return || evt->key() == Qt::Key_Enter)) {
             int mod = evt->modifiers() & 0x0E000000;
 
-            if(mod == 0x0E000000 || mod == 0)
-            {
-                if(o == _pGroupNameEdit)
-                {
+            if (mod == 0x0E000000 || mod == 0) {
+                if (o == _pGroupNameEdit) {
                     _pGroupNameEdit->clearFocus();
                     _pGroupNameEdit->setReadOnly(true);
-                }
-                else if(o == _pGroupTopicEdit || o == _pGroupIntroduce)
-                {
+                } else if (o == _pGroupTopicEdit || o == _pGroupIntroduce) {
                     auto *textEdit = qobject_cast<QTextEdit *>(o);
                     textEdit->clearFocus();
                     textEdit->setReadOnly(true);
                 }
 
-                if(o == _pGroupNameEdit)
+                if (o == _pGroupNameEdit) {
                     _modGroupName->setVisible(true);
+                }
 
-                if(o == _pGroupTopicEdit)
+                if (o == _pGroupTopicEdit) {
                     _modGroupTopic->setVisible(true);
+                }
 
-                if(o == _pGroupIntroduce)
+                if (o == _pGroupIntroduce) {
                     _modGroupJJ->setVisible(true);
-            }
-            else
-            {
-//                textEdit->textCursor().insertText("\n");
+                }
+            } else {
+                //                textEdit->textCursor().insertText("\n");
             }
         }
     }
@@ -470,10 +480,11 @@ bool GroupCard::eventFilter(QObject *o, QEvent *e)
 
 bool GroupCard::event(QEvent *e)
 {
-    if(e->type() == QEvent::MouseButtonPress)
-    {
-        if(_pGroupNameEdit->hasFocus() || _pGroupTopicEdit->hasFocus() || _pGroupIntroduce->hasFocus())
+    if (e->type() == QEvent::MouseButtonPress) {
+        if (_pGroupNameEdit->hasFocus() || _pGroupTopicEdit->hasFocus()
+            || _pGroupIntroduce->hasFocus()) {
             this->setFocus();
+        }
     }
 
     return QDialog::event(e);
@@ -484,11 +495,11 @@ bool GroupCard::event(QEvent *e)
  */
 void GroupCard::onClose()
 {
-    if (_pGroupMemberPopWnd && _pGroupMemberPopWnd->isVisible())
+    if (_pGroupMemberPopWnd && _pGroupMemberPopWnd->isVisible()) {
         _pGroupMemberPopWnd->setVisible(false);
+    }
 
-    if(_moded)
-    {
+    if (_moded) {
         QString groupName = _pGroupNameEdit->text();
         QString groupTopic = _pGroupTopicEdit->toPlainText();
         QString groupDesc = _pGroupIntroduce->toPlainText();
@@ -498,25 +509,26 @@ void GroupCard::onClose()
 
 void GroupCard::onSendMail()
 {
-    if(!groupMembers.empty())
-    {
-        int btn = QtMessageBox::warning(this, tr("%1 即将打开您的默认邮箱客户端 \n")
+    if (!groupMembers.empty()) {
+        int btn = QtMessageBox::warning(this,
+                                        tr("%1 即将打开您的默认邮箱客户端 \n")
                                         .arg(QApplication::applicationName()),
                                         tr("此操作可能导致邮箱客户端崩溃( 取决于邮件客户端和群发人数 )"),
                                         QtMessageBox::EM_BUTTON_YES | QtMessageBox::EM_BUTTON_NO);
 
-        if(btn == QtMessageBox::EM_BUTTON_NO)
+        if (btn == QtMessageBox::EM_BUTTON_NO) {
             return;
+        }
 
         QString mailUrl = QString("mailto:");
-        auto selfDomain = PLAT.getSelfDomain();
+        auto selfDomain = DC.getSelfDomain();
 
-        for(const auto &u : groupMembers)
-        {
-            QTalk::Entity::JID jid(u);
+        for (const auto &u : groupMembers) {
+            st::entity::JID jid(u);
 
-            if(selfDomain != jid.domainname())
+            if (selfDomain != jid.domainname()) {
                 continue;
+            }
 
             QString mail = QString("%1@%2; ")
                            .arg(jid.username().data())
@@ -533,15 +545,55 @@ void GroupCard::onSendMail()
 
 void GroupCard::onDestroyGroupGroupCard()
 {
-    int ret = QtMessageBox::warning(this, tr("警告"), tr("群即将被销毁, 是否继续?"), QtMessageBox::EM_BUTTON_YES | QtMessageBox::EM_BUTTON_NO);
+    int ret = QtMessageBox::warning(this, QObject::tr("警告"),
+                                    tr("群即将被销毁, 是否继续?"),
+                                    QtMessageBox::EM_BUTTON_YES | QtMessageBox::EM_BUTTON_NO);
 
-    if(ret == QtMessageBox::EM_BUTTON_YES)
-    {
-        if(_pCardManager)
-        {
-            _pCardManager->destroyGroup(_strGroupId);
-            _moded = false;
-            this->close();
-        }
+    if (ret == QtMessageBox::EM_BUTTON_YES) {
+        QtConcurrent::run([this]() {
+            UserCardMsgManager::destroyGroupMsg(_strGroupId.toStdString());
+        });
+        _moded = false;
+        this->close();
+    }
+}
+
+void GroupCard::forbiddenWord()
+{
+    QtConcurrent::run([this]() {
+        UserCardMsgManager::forbiddenWord(_strGroupId.toStdString(), !_forbiddenStatus);
+    });
+}
+
+void GroupCard::setForbiddenWordState(const QString &groupId, bool status)
+{
+    if (groupId != _strGroupId) {
+        return;
+    }
+
+    _forbiddenStatus = status;
+
+    _forbiddenFlag |= 0x02;
+    checkAndEnableForbidden();
+}
+
+void GroupCard::setGroupId(const QString &groupId)
+{
+    _strGroupId = groupId;
+}
+
+void GroupCard::checkAndEnableForbidden()
+{
+    if (!NavigationManager::instance().getForbiddenWordFlag() ||
+        _forbiddenFlag != 0x03) {
+        return;
+    }
+
+    info_log(" {0} - {1}", _strGroupId.toStdString(), _forbiddenStatus);
+
+    _forbiddenBtn->setVisible(_hasPermission);
+
+    if (_hasPermission) {
+        _forbiddenBtn->setToolTip(_forbiddenStatus ? tr("取消禁言") : tr("禁言"));
     }
 }

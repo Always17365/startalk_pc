@@ -2,13 +2,13 @@
 #define _MESSAGEMANAGER_H_
 
 #include <string>
-#include "../EventBus/Object.hpp"
-#include "../Message/LoginMessgae.h"
-#include "../EventBus/EventHandler.hpp"
-#include "../EventBus/HandlerRegistration.hpp"
-#include "../Message/StatusMessage.h"
-#include "../Message/GroupMessage.h"
-#include "../Message/ChatMessage.h"
+#include "EventBus/Object.hpp"
+#include "Message/LoginMessgae.h"
+#include "EventBus/EventHandler.hpp"
+#include "EventBus/HandlerRegistration.hpp"
+#include "Message/StatusMessage.h"
+#include "Message/GroupMessage.h"
+#include "Message/ChatMessage.h"
 
 class UILoginMsgManager : public Object
 {

@@ -11,8 +11,8 @@
 #include <QMouseEvent>
 #include <QProcess>
 #include <QApplication>
-#include "../QtUtil/Utils/Log.h"
-#include "../include/Line.h"
+#include "Util/Log.h"
+#include "CustomUi/Line.h"
 
 DropMenu::DropMenu(QWidget *parent)
     : UShadowDialog(parent, true)

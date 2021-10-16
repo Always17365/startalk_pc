@@ -2,12 +2,12 @@
 // Created by cc on 2018/11/16.
 //
 
-#ifndef QTALK_V2_PICTUREBROWSERPLUG_H
-#define QTALK_V2_PICTUREBROWSERPLUG_H
+#ifndef STALK_V2_PICTUREBROWSERPLUG_H
+#define STALK_V2_PICTUREBROWSERPLUG_H
 
 #include <QWidget>
 #include "uipicturebrowser_global.h"
-#include "../interface/view/IUIPictureBroswerPlug.h"
+#include "interface/view/IUIPictureBroswerPlug.h"
 
 class PictureBrowser;
 class UIPICTUREBROWSER_EXPORT PictureBrowserPlug : public QObject, public IUIPictureBroswerPlug
@@ -32,4 +32,4 @@ private:
 };
 
 
-#endif //QTALK_V2_PICTUREBROWSERPLUG_H
+#endif //STALK_V2_PICTUREBROWSERPLUG_H

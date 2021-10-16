@@ -18,16 +18,16 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QEventLoop>
-#include "../CustomUi/UShadowEffect.h"
-#include "../UICom/uicom.h"
-#include "../QtUtil/lib/ini/ConfigLoader.h"
-#include "../Platform/Platform.h"
-#include "../Platform/dbPlatForm.h"
-#include "../QtUtil/Utils/Log.h"
-#include "../CustomUi/QtMessageBox.h"
-#include "../Platform/AppSetting.h"
-#include "../Platform/NavigationManager.h"
-#include "../include/Line.h"
+#include "CustomUi/UShadowEffect.h"
+#include "Util/ui/uicom.h"
+#include "Util/ini/ConfigLoader.h"
+#include "DataCenter/Platform.h"
+#include "DataCenter/dbPlatForm.h"
+#include "Util/Log.h"
+#include "CustomUi/QtMessageBox.h"
+#include "DataCenter/AppSetting.h"
+#include "DataCenter/NavigationManager.h"
+#include "CustomUi/Line.h"
 
 #ifdef _WINDOWS
     #include <windows.h>
@@ -300,7 +300,7 @@ void LoginPanel::connects()
         strName = strName.replace(QRegExp("\\s{1,}"), "").toLower();
         QByteArray navName = _pNavManager->getNavName().toLocal8Bit();
         auto itFind = std::find_if(_pStLoginConfig->children.begin(), _pStLoginConfig->children.end(),
-                                   [ strName, navName](QTalk::StConfig * tmpConf)
+                                   [ strName, navName](st::StConfig * tmpConf)
         {
             return tmpConf->attribute(CONFIG_KEY_USERNAME) == strName &&
                    (!tmpConf->hasAttribute(CONFIG_KEY_DOMAIN) ||
@@ -395,16 +395,16 @@ bool LoginPanel::eventFilter(QObject *o, QEvent *e)
 void LoginPanel::loadConf()
 {
     std::string usrDir = AppSetting::instance().getUserDirectory();
-    _strConfPath = QString("%1/login.data").arg(PLAT.getConfigPath().c_str());
+    _strConfPath = QString("%1/login.data").arg(DC.getConfigPath().c_str());
 
     if(nullptr != _pStLoginConfig)
         delete _pStLoginConfig;
 
-    _pStLoginConfig = new QTalk::StConfig;
+    _pStLoginConfig = new st::StConfig;
 
     if (QFile::exists(_strConfPath))
     {
-        QTalk::qConfig::loadConfig(_strConfPath, true, _pStLoginConfig);
+        st::qConfig::loadConfig(_strConfPath, true, _pStLoginConfig);
 
         if (_pStLoginConfig->tagName != "loginConf")
         {
@@ -422,7 +422,7 @@ void LoginPanel::loadConf()
         _pDefaultConfig = nullptr;
         QStringList users;
 
-        for (QTalk::StConfig *tmpConf : _pStLoginConfig->children)
+        for (st::StConfig *tmpConf : _pStLoginConfig->children)
         {
             // 非此域
             if(tmpConf->hasAttribute(CONFIG_KEY_DOMAIN) && tmpConf->attribute(CONFIG_KEY_DOMAIN) != navName)
@@ -546,7 +546,7 @@ void LoginPanel::initloginWnd()
     serverLay->addWidget(_severBtn);
     serverLay->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Expanding));
     // version label
-    std::string globalversion = PLAT.getGlobalVersion();
+    std::string globalversion = DC.getGlobalVersion();
     QLabel *verLabel = new QLabel(QString("V.%1").arg(globalversion.c_str()), this);
     verLabel->setObjectName("GlobalVersion");
     verLabel->setAlignment(Qt::AlignCenter);
@@ -647,7 +647,7 @@ void LoginPanel::setAutoLoginFlag(bool flag)
     {
         _autoLoginBtn->setChecked(flag);
         _pDefaultConfig->setAttribute(CONFIG_KEY_AUTOLOGIN, QString::number(flag));
-        QTalk::qConfig::saveConfig(_strConfPath, true, _pStLoginConfig);
+        st::qConfig::saveConfig(_strConfPath, true, _pStLoginConfig);
     }
     else
         error_log("set auto login failed, no default config");
@@ -721,7 +721,7 @@ void LoginPanel::onLoginBtnClicked()
     // 设置登陆相关配置文件
     if (nullptr == _pDefaultConfig)
     {
-        _pDefaultConfig = new QTalk::StConfig("item");
+        _pDefaultConfig = new st::StConfig("item");
         _pDefaultConfig->setAttribute(CONFIG_KEY_DEFAULT, true);
         _pStLoginConfig->addChild(_pDefaultConfig);
     }
@@ -742,7 +742,7 @@ void LoginPanel::onLoginBtnClicked()
     }
 
     // 设置默认账户
-    for (QTalk::StConfig *tmpConf : _pStLoginConfig->children)
+    for (st::StConfig *tmpConf : _pStLoginConfig->children)
     {
         if(tmpConf->hasAttribute(CONFIG_KEY_DOMAIN) && tmpConf->attribute(CONFIG_KEY_DOMAIN) != navName.data())
             continue;
@@ -752,7 +752,7 @@ void LoginPanel::onLoginBtnClicked()
     }
 
     //
-    QTalk::qConfig::saveConfig(_strConfPath, true, _pStLoginConfig);
+    st::qConfig::saveConfig(_strConfPath, true, _pStLoginConfig);
     // 开始登陆
     // 获取导航信息
     std::string nav = _pNavManager->getDefaultNavUrl().toStdString();
@@ -761,9 +761,9 @@ void LoginPanel::onLoginBtnClicked()
         emit AuthFailedSignal(tr("导航不能为空!"));
 
     //
-    PLAT.setLoginNav(nav);
+    DC.setLoginNav(nav);
     //
-    PLAT.setNavName(navName.toStdString());
+    DC.setNavName(navName.toStdString());
     //
     _pStsLabel->setText(tr("正在获取导航信息"));
     QFuture<bool> curRet = QtConcurrent::run(&UILoginMsgManager::getNavInfo, nav);
@@ -856,14 +856,14 @@ void LoginPanel::saveHeadPath()
 {
     if (_pDefaultConfig)
     {
-        std::string selfUserId = PLAT.getSelfXmppId();
-        std::shared_ptr<QTalk::Entity::ImUserInfo> info = DB_PLAT.getUserInfo(selfUserId, true);
+        std::string selfUserId = DC.getSelfXmppId();
+        std::shared_ptr<st::entity::ImUserInfo> info = DB_PLAT.getUserInfo(selfUserId, true);
 
         if (info)
         {
-            std::string head = QTalk::GetHeadPathByUrl(info->HeaderSrc);
+            std::string head = st::GetHeadPathByUrl(info->HeaderSrc);
             _pDefaultConfig->setAttribute(CONFIG_KEY_HEADPATH, QString::fromStdString(head));
-            QTalk::qConfig::saveConfig(_strConfPath, true, _pStLoginConfig);
+            st::qConfig::saveConfig(_strConfPath, true, _pStLoginConfig);
         }
     }
 }
@@ -906,7 +906,7 @@ void LoginPanel::loginSuccess()
     {
         _pDefaultConfig->setAttribute(CONFIG_KEY_SAVEPASSWORD, true);
         _pDefaultConfig->setAttribute(CONFIG_KEY_AUTOLOGIN, _autoLoginBtn->isChecked());
-        QTalk::qConfig::saveConfig(_strConfPath, true, _pStLoginConfig);
+        st::qConfig::saveConfig(_strConfPath, true, _pStLoginConfig);
     }
 }
 
@@ -915,7 +915,7 @@ void LoginPanel::onStartLocalServer()
 #ifndef QT_DEBUG
     static bool isListen = false;
     // 监听
-    QString strName = PLAT.getSelfUserId().data();
+    QString strName = DC.getSelfUserId().data();
     QString domain = _pNavManager->getDefaultDomain();
     QString listenName = QString("%1@%2").arg(strName, domain);
 

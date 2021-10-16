@@ -1,7 +1,7 @@
 ﻿#include "MessageManager.h"
-#include "../EventBus/EventBus.h"
+#include "EventBus/EventBus.h"
 #include "LoginPanel.h"
-#include "../QtUtil/Utils/Log.h"
+#include "Util/Log.h"
 #include <QDebug>
 
 // 发送登陆消息

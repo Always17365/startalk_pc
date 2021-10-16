@@ -11,12 +11,12 @@
 #include "MemoryStream.h"
 #include "ProtobufParser.h"
 
-namespace QTalk {
+namespace st {
     namespace Protocol {
         class ProtobufStreamDelegate;
         class Stream;
 
-        class ProtobufStream : public QTalk::Socket::SocketDelegate {
+        class ProtobufStream : public st::Socket::SocketDelegate {
         public:
             explicit ProtobufStream();
             ~ProtobufStream();
@@ -61,9 +61,9 @@ namespace QTalk {
             std::string _host;
 
         private:
-            QTalk::Socket::Stream *_pSocket;
-            QTalk::Protocol::ProtobufParser _parser;
-            QTalk::Protocol::ProtobufStreamDelegate *_delegate{};
+            st::Socket::Stream *_pSocket;
+            st::Protocol::ProtobufParser _parser;
+            st::Protocol::ProtobufStreamDelegate *_delegate{};
         };
 
         class ProtobufStreamDelegate {

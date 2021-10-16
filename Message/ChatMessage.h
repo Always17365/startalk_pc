@@ -4,17 +4,17 @@
 
 #include <memory>
 #include <set>
-#include "../EventBus/Event.hpp"
-#include "../include/CommonDefine.h"
-#include "../include/im_enum.h"
-#include "../entity/IM_Session.h"
-#include "../entity/im_message.h"
-#include "../include/CommonStrcut.h"
-#include "../entity/UID.h"
+#include "EventBus/Event.hpp"
+#include "include/CommonDefine.h"
+#include "include/im_enum.h"
+#include "entity/IM_Session.h"
+#include "entity/im_message.h"
+#include "include/CommonStrcut.h"
+#include "entity/UID.h"
 #include <map>
 #include <utility>
 
-typedef std::vector<QTalk::Entity::ImMessageInfo> VectorMessage;
+typedef std::vector<st::entity::ImMessageInfo> VectorMessage;
 
 // 发送消息
 class S_Message : public Event
@@ -23,7 +23,7 @@ public:
     QInt64 time;
     QUInt8 chatType;
     std::string userId;
-    QTalk::Entity::ImMessageInfo message;
+    st::entity::ImMessageInfo message;
 };
 
 // 接收消息
@@ -33,14 +33,14 @@ public:
     QInt64 time;
     QUInt8 chatType;
     std::string userId;
-    QTalk::Entity::ImMessageInfo message;
+    st::entity::ImMessageInfo message;
     bool isCarbon;
 };
 
 class PreSendMessageEvt : public Event
 {
 public:
-    QTalk::Entity::ImMessageInfo message;
+    st::entity::ImMessageInfo message;
 };
 
 // 拉的历史消息
@@ -49,7 +49,7 @@ class HistoryMessage : public Event
 public:
     QInt64 time;
     QUInt8 chatType;
-    QTalk::Entity::UID uid;
+    st::entity::UID uid;
     VectorMessage msgList;
 };
 
@@ -323,15 +323,15 @@ public:
 class RevokeMessage : public Event
 {
 public:
-    RevokeMessage(QTalk::Entity::UID uid, std::string fromId,
+    RevokeMessage(st::entity::UID uid, std::string fromId,
                   std::string messageId)
         : uid(std::move(uid)), messageFrom(std::move(fromId)),
-          messageId(std::move(messageId)), chatType(QTalk::Enum::ChatType::TwoPersonChat)
+          messageId(std::move(messageId)), chatType(st::Enum::ChatType::TwoPersonChat)
     {
     }
 
 public:
-    RevokeMessage(QTalk::Entity::UID uid, std::string fromId,
+    RevokeMessage(st::entity::UID uid, std::string fromId,
                   std::string messageId, QUInt8 chatType)
         : uid(std::move(uid)), messageFrom(std::move(fromId)),
           messageId(std::move(messageId)), chatType(chatType)
@@ -339,7 +339,7 @@ public:
     }
 
 public:
-    const QTalk::Entity::UID uid;
+    const st::entity::UID uid;
     const std::string messageFrom;
     const std::string messageId;
     const QUInt8 chatType;
@@ -349,7 +349,7 @@ public:
 class S_RevokeMessage : public RevokeMessage
 {
 public:
-    S_RevokeMessage(const QTalk::Entity::UID &uid, const std::string &fromId,
+    S_RevokeMessage(const st::entity::UID &uid, const std::string &fromId,
                     const std::string &messageId, const QUInt8 chatType)
         : RevokeMessage(uid, fromId, messageId, chatType) {}
     ~S_RevokeMessage() override = default;
@@ -513,21 +513,21 @@ public:
 class RecentSessionEvt : public Event
 {
 public:
-    explicit RecentSessionEvt(std::vector<QTalk::StShareSession> &ss)
+    explicit RecentSessionEvt(std::vector<st::StShareSession> &ss)
         : sessions(ss) {};
 
 public:
-    std::vector<QTalk::StShareSession> &sessions;
+    std::vector<st::StShareSession> &sessions;
 };
 
 class ContactsSessionEvt : public Event
 {
 public:
-    explicit ContactsSessionEvt(std::vector<QTalk::StShareSession> &ss)
+    explicit ContactsSessionEvt(std::vector<st::StShareSession> &ss)
         : sessions(ss) {};
 
 public:
-    std::vector<QTalk::StShareSession> &sessions;
+    std::vector<st::StShareSession> &sessions;
 };
 
 class ImageMessageEvt : public Event
@@ -546,13 +546,13 @@ public:
 class EmptyMessageEvt : public Event
 {
 public:
-    explicit EmptyMessageEvt(QTalk::Entity::ImMessageInfo msgInfo)
+    explicit EmptyMessageEvt(st::entity::ImMessageInfo msgInfo)
     {
         this->msgInfo = std::move(msgInfo);
     }
 
 public:
-    QTalk::Entity::ImMessageInfo msgInfo;
+    st::entity::ImMessageInfo msgInfo;
 };
 
 class UpdateMsgExtendInfo : public Event

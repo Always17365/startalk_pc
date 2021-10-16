@@ -14,8 +14,8 @@
 #include <QUrlQuery>
 
 #include "../qzxing/QZXing"
-#include "../UICom/StyleDefine.h"
-#include "../Platform/AppSetting.h"
+#include "Util/ui/StyleDefine.h"
+#include "DataCenter/AppSetting.h"
 
 int w = 0;
 NavItemDelegate::NavItemDelegate()
@@ -38,7 +38,7 @@ void NavItemDelegate::paint(QPainter *painter,
     QRect rect = option.rect;
     QPen pen;
     painter->setPen(QColor(219, 219, 219));
-    painter->fillRect(rect, QTalk::StyleDefine::instance().getDropNormalColor());
+    painter->fillRect(rect, st::StyleDefine::instance().getDropNormalColor());
     painter->drawRoundedRect(QRect(rect.x(), rect.y() + 7, rect.width(),
                                    rect.height() - 14), 7, 7);
     //
@@ -46,14 +46,14 @@ void NavItemDelegate::paint(QPainter *painter,
     QString link = index.data(ITEM_DATA_Link).toString();
     bool isSelected = index.data(ITEM_DATA_CHECKED).toBool();
     //
-    pen.setColor(QTalk::StyleDefine::instance().getDropNormalFontColor());
+    pen.setColor(st::StyleDefine::instance().getDropNormalFontColor());
     painter->setPen(pen);
-    QTalk::setPainterFont(painter, AppSetting::instance().getFontLevel(), 18);
+    st::setPainterFont(painter, AppSetting::instance().getFontLevel(), 18);
     QRect nameRect(rect.x() + 50, rect.y() + 20, rect.width() - 100, 30);
     painter->drawText(nameRect, Qt::AlignTop, text);
     pen.setColor(QColor(153, 153, 153));
     painter->setPen(pen);
-    QTalk::setPainterFont(painter, AppSetting::instance().getFontLevel(), 15);
+    st::setPainterFont(painter, AppSetting::instance().getFontLevel(), 15);
     link = QFontMetricsF(painter->font()).elidedText(link, Qt::ElideRight,
                                                      rect.width() - 210);
     QRect textRect(rect.x() + 50, rect.bottom() - 50, rect.width() - 200, 30);
@@ -61,7 +61,7 @@ void NavItemDelegate::paint(QPainter *painter,
     //
     pen.setColor(QColor(0, 202, 190));
     painter->setPen(pen);
-    QTalk::setPainterFont(painter, AppSetting::instance().getFontLevel(), 13);
+    st::setPainterFont(painter, AppSetting::instance().getFontLevel(), 13);
     QRectF detailRect((int)rect.right() - 30 - w, (int)rect.y(), w,
                       (int)rect.height());
     painter->drawText(detailRect, Qt::AlignVCenter, tr("查看详情"));

@@ -2,8 +2,8 @@
 // Created by cc on 2018/11/19.
 //
 
-#ifndef QTALK_V2_GROUPITEMDELEGATE_H
-#define QTALK_V2_GROUPITEMDELEGATE_H
+#ifndef STALK_V2_GROUPITEMDELEGATE_H
+#define STALK_V2_GROUPITEMDELEGATE_H
 
 #include <QStyledItemDelegate>
 #include <QSortFilterProxyModel>
@@ -85,4 +85,4 @@ private:
 };
 
 
-#endif //QTALK_V2_GROUPITEMDELEGATE_H
+#endif //STALK_V2_GROUPITEMDELEGATE_H

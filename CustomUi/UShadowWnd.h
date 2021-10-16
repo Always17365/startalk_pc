@@ -27,16 +27,16 @@ public:
     QRect realContentsRect();
     //
     int showModel();
-    int showCenter(bool model, QWidget* parent);
+    int showCenter(bool model, QWidget *parent);
 
 public:
-    void setMoverAble(bool moveAble, QWidget* moveContentWgt = nullptr);
+    void setMoverAble(bool moveAble, QWidget *moveContentWgt = nullptr);
 
 public:
     inline int getEvtRet() { return _evtRet; }
 
 protected:
-    void changeEvent(QEvent * event) override;
+    void changeEvent(QEvent *event) override;
 
     void mousePressEvent(QMouseEvent *e) override;
 
@@ -46,9 +46,9 @@ protected:
 
     void closeEvent(QCloseEvent *e) override;
 
-    void keyPressEvent(QKeyEvent* e) override;
+    void keyPressEvent(QKeyEvent *e) override;
 
-    void paintEvent(QPaintEvent* e) override ;
+    void paintEvent(QPaintEvent *e) override ;
 
 #ifdef _MACOS
 protected:
@@ -64,20 +64,20 @@ private:
     Q_DISABLE_COPY(UShadowDialog)
 
 protected:
-	int         _evtRet;
+    int         _evtRet;
     bool        _hasBorder;
 
 protected:
     bool       _isResizing;
     bool       _moveAble;
     bool       _movePressed;
-    QWidget*   _pMoveContentWgt;
+    QWidget   *_pMoveContentWgt;
     QPoint     _moveStartPos;
 
 
 protected:
-    QWidget*    _pCenternWgt;
-    QMap<int, UShadowBorder*> _borders;
+    QWidget    *_pCenternWgt;
+    QHash<int, UShadowBorder *> _borders;
 };
 
 #endif // USHADOWDIALOG_H

@@ -5,7 +5,7 @@
 #include <QDir>
 #include <QFile>
 #include <QStandardPaths>
-#include "../Platform/SystemDefine.h"
+#include "DataCenter/SystemDefine.h"
 
 #ifdef _WINDOWS
 #include <client/windows/handler/exception_handler.h>
@@ -15,7 +15,7 @@
 #include <client/mac/handler/exception_handler.h>
 #include <QProcess>
 #endif
-#include "QTalkApp.h"
+#include "Application.h"
 
 #if defined(_WINDOWS)
 bool minidumpCB(const wchar_t *dump_path, const wchar_t *id, void *context, EXCEPTION_POINTERS *exinfo, MDRawAssertionInfo *assertion, bool succeeded) {
@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
             nullptr);
 #endif
 #endif
-    QTalkApp a(argc, argv);
+    Application a(argc, argv);
 
     return 0;
 }

@@ -8,7 +8,7 @@
 #include <exception>
 #include <string>
 
-namespace QTalk{
+namespace st{
     namespace Excetpion {
         class ParseFailedException : public std::exception {
 

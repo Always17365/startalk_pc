@@ -2,8 +2,8 @@
 // Created by cc on 2019-02-19.
 //
 
-#ifndef QTALK_V2_BLOCK_DEFINE_H
-#define QTALK_V2_BLOCK_DEFINE_H
+#ifndef STALK_V2_BLOCK_DEFINE_H
+#define STALK_V2_BLOCK_DEFINE_H
 
 enum {
     atObjectType = 0x1001,
@@ -21,4 +21,4 @@ enum {
     imagePropertyType,
 };
 
-#endif //QTALK_V2_BLOCK_DEFINE_H
+#endif //STALK_V2_BLOCK_DEFINE_H

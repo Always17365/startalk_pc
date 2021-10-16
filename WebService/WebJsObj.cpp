@@ -3,7 +3,7 @@
 #include "WebJsObj.h"
 #include <QDateTime>
 #include <QDebug>
-#include "../Platform/Platform.h"
+#include "DataCenter/Platform.h"
 
 WebJsObj::WebJsObj(QObject *o)
         : QObject(o) {
@@ -14,17 +14,17 @@ WebJsObj::~WebJsObj()
 = default;
 
 void WebJsObj::getCkey() {
-    QString jsCommend = QString("sgsetCkey('%1');").arg(PLAT.getClientAuthKey().data());
+    QString jsCommend = QString("sgsetCkey('%1');").arg(DC.getClientAuthKey().data());
     emit runScript(jsCommend);
 }
 
 void WebJsObj::getUserId() {
-    QString jsCommend = QString("sgsetUserId('%1');").arg(PLAT.getSelfUserId().data());
+    QString jsCommend = QString("sgsetUserId('%1');").arg(DC.getSelfUserId().data());
     emit runScript(jsCommend);
 }
 
 void WebJsObj::getMyNick() {
-    QString jsCommend = QString("sgsetMyNick('%1')").arg(PLAT.getSelfUserId().data());
+    QString jsCommend = QString("sgsetMyNick('%1')").arg(DC.getSelfUserId().data());
     emit runScript(jsCommend);
 }
 

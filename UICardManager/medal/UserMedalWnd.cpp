@@ -11,10 +11,10 @@
 #include <QHeaderView>
 #include <QScrollBar>
 #include <QDebug>
-#include "../../CustomUi/HeadPhotoLab.h"
-#include "../../Platform/Platform.h"
-#include "../../Platform/dbPlatForm.h"
-#include "../../UICom/qimage/qimage.h"
+#include "CustomUi/HeadPhotoLab.h"
+#include "DataCenter/Platform.h"
+#include "DataCenter/dbPlatForm.h"
+#include "Util/ui/qimage/qimage.h"
 
 //
 UserMedalTip::UserMedalTip(int count, QWidget *parent)
@@ -55,7 +55,7 @@ UserMedalWnd::~UserMedalWnd() = default;
 
 UserMedalWnd::UserMedalWnd(const QString &userName,
                            const QString &headPath,
-                           const std::set<QTalk::StUserMedal> &user_medals, QWidget *parent)
+                           const std::set<st::StUserMedal> &user_medals, QWidget *parent)
     : QFrame(parent)
 {
     //
@@ -200,12 +200,12 @@ void init_medal_wgt(QTableWidget *wgt,
 }
 
 //
-void UserMedalWnd::init_medals(const std::set<QTalk::StUserMedal> &user_medals)
+void UserMedalWnd::init_medals(const std::set<st::StUserMedal> &user_medals)
 {
     _pMainWgt->clear();
     _pMainWgt->setRowCount(0);
     //
-    std::vector<QTalk::Entity::ImMedalList> medals;
+    std::vector<st::entity::ImMedalList> medals;
     DB_PLAT.getAllMedals(medals);
     // sort
     std::set<StMedalInfo> sort_medals;
@@ -214,7 +214,7 @@ void UserMedalWnd::init_medals(const std::set<QTalk::StUserMedal> &user_medals)
     {
         StMedalInfo info;
         info.im_medal = imMedalList;
-        auto itFind = std::find_if(user_medals.begin(), user_medals.end(), [imMedalList](const QTalk::StUserMedal & info)
+        auto itFind = std::find_if(user_medals.begin(), user_medals.end(), [imMedalList](const st::StUserMedal & info)
         {
             return info.medalId == imMedalList.medalId;
         });

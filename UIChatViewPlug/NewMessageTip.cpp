@@ -5,7 +5,7 @@
 #include "NewMessageTip.h"
 #include <QHBoxLayout>
 #include <QListWidget>
-#include "../CustomUi/HeadPhotoLab.h"
+#include "CustomUi/HeadPhotoLab.h"
 
 NewMessageTip::NewMessageTip(QWidget *parent)
     : QFrame(parent), _parentWgt(parent)

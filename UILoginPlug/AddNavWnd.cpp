@@ -9,7 +9,7 @@
 #include <QLabel>
 #include <QUrlQuery>
 #include <QDesktopServices>
-#include "../CustomUi/QtMessageBox.h"
+#include "CustomUi/QtMessageBox.h"
 #include "NavView.h"
 
 AddNavWnd::AddNavWnd(NavView *view )
@@ -86,19 +86,19 @@ AddNavWnd::AddNavWnd(NavView *view )
 
         if(strName.trimmed().isEmpty())
         {
-            QtMessageBox::warning(this, tr("警告"), tr("导航名称不能为空"));
+            QtMessageBox::warning(this, QObject::tr("警告"), tr("导航名称不能为空"));
             return;
         }
 
         if(strUrl.trimmed().isEmpty())
         {
-            QtMessageBox::warning(this, tr("警告"), tr("导航地址不能为空"));
+            QtMessageBox::warning(this, QObject::tr("警告"), tr("导航地址不能为空"));
             return;
         }
 
         if(_pNavView && _pNavView->checkName(strName.trimmed()))
         {
-            QtMessageBox::warning(this, tr("警告"), tr("该导航名称已存在"));
+            QtMessageBox::warning(this, QObject::tr("警告"), tr("该导航名称已存在"));
             return;
         }
 

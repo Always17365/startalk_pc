@@ -2,8 +2,8 @@
 // Created by cc on 19-1-6.
 //
 
-#ifndef QTALK_V2_SEARCHEDIT_HPP
-#define QTALK_V2_SEARCHEDIT_HPP
+#ifndef STALK_V2_SEARCHEDIT_HPP
+#define STALK_V2_SEARCHEDIT_HPP
 #if _MSC_VER >= 1600
 #pragma execution_character_set("utf-8")
 #endif
@@ -74,4 +74,4 @@ private:
     QLineEdit*    _pEdit;
 };
 
-#endif //QTALK_V2_SEARCHEDIT_HPP
+#endif //STALK_V2_SEARCHEDIT_HPP

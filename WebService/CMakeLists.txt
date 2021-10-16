@@ -1,10 +1,6 @@
 project(WebService)
 
-include_directories(.)
-
-# 打开Qt的Moc功能和ui文件QRC文件处理功能
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 if (APPLE)
@@ -34,7 +30,9 @@ set(SOURCE_FILES
         WebEnginePage.cpp
         WebEnginePage.h
         AudioVideo.cpp
-        AudioVideo.h WebJsObj.cpp WebJsObj.h WebEngineUrlRequestInterceptor.cpp WebEngineUrlRequestInterceptor.h)
+        AudioVideo.h
+        WebJsObj.cpp WebJsObj.h
+        WebEngineUrlRequestInterceptor.cpp WebEngineUrlRequestInterceptor.h)
 
 
 set(LIBRARY_OUTPUT_PATH ../bin)

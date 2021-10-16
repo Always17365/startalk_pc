@@ -2,39 +2,42 @@
 // Created by cc on 18-11-5.
 //
 #if _MSC_VER >= 1600
-#pragma execution_character_set("utf-8")
+    #pragma execution_character_set("utf-8")
 #endif
-#ifndef QTALK_V2_GROUPCARD_H
-#define QTALK_V2_GROUPCARD_H
+#ifndef STALK_V2_GROUPCARD_H
+#define STALK_V2_GROUPCARD_H
 
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
 #include <memory>
 #include <QMenu>
-#include "../CustomUi/TextEdit.h"
-#include "../CustomUi/UShadowWnd.h"
-#include "../entity/im_group.h"
-#include "../include/CommonStrcut.h"
-#include "../CustomUi/GroupMemberPopWnd.hpp"
+#include "CustomUi/TextEdit.h"
+#include "CustomUi/UShadowWnd.h"
+#include "entity/im_group.h"
+#include "include/CommonStrcut.h"
+#include "CustomUi/GroupMemberPopWnd.hpp"
 
 class CardManager;
 class HeadPhotoLab;
 class ModButton;
 class GroupCard : public UShadowDialog
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-    explicit GroupCard(CardManager* cardManager);
+    explicit GroupCard(CardManager *cardManager);
     ~GroupCard() override;
 
 public:
-    void setData(std::shared_ptr<QTalk::Entity::ImGroupInfo>& data);
-    void showGroupMember(const std::map<std::string, QTalk::StUserCard>&, const std::map<std::string, QUInt8>& userRole);
+    void setData(std::shared_ptr<st::entity::ImGroupInfo> &data);
+    void showGroupMember(const std::map<std::string, st::StUserCard> &,
+                         const std::map<std::string, QUInt8> &userRole);
+    void setForbiddenWordState(const QString &groupId, bool status);
+    void setGroupId(const QString &groupId);
 
 protected:
-    bool eventFilter(QObject* o, QEvent* e) override;
-    bool event(QEvent* e) override ;
+    bool eventFilter(QObject *o, QEvent *e) override;
+    bool event(QEvent *e) override ;
 
 private:
     void initUi();
@@ -42,26 +45,29 @@ private:
     void onClose();
     void onSendMail();
     void onDestroyGroupGroupCard();
+    void forbiddenWord();
+    void checkAndEnableForbidden();
 
 private:
-    CardManager* _pCardManager{};
-    QLabel*      _pNameLabel{};
-    HeadPhotoLab*      _pHeadLabel{};
-    QPushButton* _pSendMailBtn{};
-    QPushButton* _pExitGroupBtn{};
-    QPushButton* _pDestroyGroupBtn{};
-    QLineEdit*   _pGroupNameEdit{};
-    QTextEdit*    _pGroupIdEdit{};
-    QTextEdit*    _pGroupTopicEdit{};
-    QLabel*      _pGroupMemberLabel{};
-    QTextEdit*    _pGroupIntroduce{};
-    QPushButton* _pSendMsgBtn{};
+    CardManager *_pCardManager{nullptr};
+    QLabel      *_pNameLabel{nullptr};
+    HeadPhotoLab *_pHeadLabel{nullptr};
+    QPushButton *_pSendMailBtn{nullptr};
+    QPushButton *_pExitGroupBtn{nullptr};
+    QPushButton *_pDestroyGroupBtn{nullptr};
+    QLineEdit   *_pGroupNameEdit{nullptr};
+    QTextEdit    *_pGroupIdEdit{nullptr};
+    QTextEdit    *_pGroupTopicEdit{nullptr};
+    QLabel      *_pGroupMemberLabel{nullptr};
+    QTextEdit    *_pGroupIntroduce{nullptr};
+    QPushButton *_pSendMsgBtn{nullptr};
+    QPushButton *_forbiddenBtn{nullptr};
 
-    GroupMemberPopWnd* _pGroupMemberPopWnd{};
+    GroupMemberPopWnd *_pGroupMemberPopWnd{nullptr};
 
-    ModButton*    _modGroupName{};
-    ModButton*    _modGroupTopic{};
-    ModButton*    _modGroupJJ{};
+    ModButton    *_modGroupName{nullptr};
+    ModButton    *_modGroupTopic{nullptr};
+    ModButton    *_modGroupJJ{nullptr};
 
 private:
     QString                  _strGroupId;
@@ -69,8 +75,12 @@ private:
     QString                  _groupName;
     std::vector<std::string> groupMembers;
 
+    bool _hasPermission;
+    bool _forbiddenStatus{false};
+    int _forbiddenFlag{0};
+
 private:
     bool   _moded;
 };
 
-#endif //QTALK_V2_GROUPCARD_H
+#endif //STALK_V2_GROUPCARD_H

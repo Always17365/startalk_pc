@@ -4,7 +4,7 @@
 
 #include "NoOperationThread.h"
 #include <QDateTime>
-#include "../Platform/AppSetting.h"
+#include "DataCenter/AppSetting.h"
 
 NoOperationThread::NoOperationThread()
 {

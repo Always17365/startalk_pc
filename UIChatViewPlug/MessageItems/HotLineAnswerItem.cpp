@@ -4,7 +4,7 @@
 
 #include "HotLineAnswerItem.h"
 
-#include "ChatViewMainPanel.h"
+#include "../ChatViewMainPanel.h"
 #include <QSpacerItem>
 #include <QJsonDocument>
 #include <QDesktopServices>
@@ -14,16 +14,16 @@
 #include <QJsonObject>
 #include <QScrollBar>
 #include <QJsonArray>
-#include <ChatUtil.h>
+#include "../ChatUtil.h"
 #include <QTextFormat>
-#include <MessageAnalysis.h>
-#include "blocks/block_define.h"
-#include "../../UICom/qimage/qimage.h"
+#include "../MessageAnalysis.h"
+#include "../blocks/block_define.h"
+#include "Util/ui/qimage/qimage.h"
 #include "TextBrowser.h"
-#include "ChatMainWgt.h"
-#include "../../UICom/StyleDefine.h"
-#include "../../Platform/Platform.h"
-#include "../../WebService/WebService.h"
+#include "../ChatMainWgt.h"
+#include "Util/ui/StyleDefine.h"
+#include "DataCenter/Platform.h"
+#include "WebService/WebService.h"
 
 #define DEM_LINK_HTML "<a href=\"%1\" style=\"text-decoration:none; color:rgba(%2);\">%1</a>"
 #define DEM_AT_HTML "<span style=\"color:#FF4E3F;\">%1</span>"
@@ -57,39 +57,42 @@ HotLineTipDelegate::HotLineTipDelegate(QWidget *parent)
     _font.setPixelSize(14);
 }
 
-void HotLineTipDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+void HotLineTipDelegate::paint(QPainter *painter,
+                               const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     painter->save();
     painter->setRenderHint(QPainter::TextAntialiasing);
     QRect rect = option.rect;
-    painter->fillRect(rect, QTalk::StyleDefine::instance().getHotLineTipItemColor());
+    painter->fillRect(rect,
+                      st::StyleDefine::instance().getHotLineTipItemColor());
     QString text = index.data(EM_ITEM_DATA_TYPE_TEXT).toString();
     painter->setPen(Qt::NoPen);
     painter->setBrush(QColor(0, 202, 190));
-    painter->drawRoundedRect(rect.x(), rect.y() + (rect.height() - 4) / 2, 4, 4, 1, 1);
-    painter->setPen(QTalk::StyleDefine::instance().getHotLineTipItemFontColor());
-    QTalk::setPainterFont(painter, AppSetting::instance().getFontLevel(), 14);
-    painter->drawText(rect.x() + 12, rect.y(), rect.width() - 12, rect.height(), Qt::AlignVCenter, text);
+    painter->drawRoundedRect(rect.x(), rect.y() + (rect.height() - 4) / 2, 4, 4, 1,
+                             1);
+    painter->setPen(st::StyleDefine::instance().getHotLineTipItemFontColor());
+    st::setPainterFont(painter, AppSetting::instance().getFontLevel(), 14);
+    painter->drawText(rect.x() + 12, rect.y(), rect.width() - 12, rect.height(),
+                      Qt::AlignVCenter, text);
     painter->restore();
 }
 
-bool HotLineTipDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option,
+bool HotLineTipDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
+                                     const QStyleOptionViewItem &option,
                                      const QModelIndex &index)
 {
-    if(event->type() == QEvent::MouseButtonPress)
-    {
+    if (event->type() == QEvent::MouseButtonPress) {
         QString type = index.data(EM_ITEM_DATA_TYPE_ACTION_TYPE).toString();
 
-        if( "text" == type )
-        {
+        if ( "text" == type ) {
             QString text = index.data(EM_ITEM_DATA_TYPE_TEXT).toString();
             QString uid = index.data(EM_ITEM_DATA_TYPE_ACTION_UID).toString();
 
-            if(g_pMainPanel)
-                g_pMainPanel->sendTextMessage(QTalk::Entity::UID(uid), QTalk::Enum::Consult, text.toStdString());
-        }
-        else
-        {
+            if (g_pMainPanel) {
+                g_pMainPanel->sendTextMessage(st::entity::UID(uid), st::Enum::Consult,
+                                              text.toStdString());
+            }
+        } else {
             QString url = index.data(EM_ITEM_DATA_TYPE_ACTION_URL).toString();
             ChatViewMainPanel::sendGetRequest(url.toStdString());
         }
@@ -98,7 +101,8 @@ bool HotLineTipDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, c
     return QStyledItemDelegate::editorEvent(event, model, option, index);
 }
 
-QSize HotLineTipDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+QSize HotLineTipDelegate::sizeHint(const QStyleOptionViewItem &option,
+                                   const QModelIndex &index) const
 {
     const QSize &size = QStyledItemDelegate::sizeHint(option, index);
     auto h = index.data(EM_ITEM_DATA_TYPE_ACTION_HEIGHT).toInt();
@@ -106,7 +110,8 @@ QSize HotLineTipDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
 }
 
 /** **/
-HotLineAnswerItem::HotLineAnswerItem(const StNetMessageResult &msgInfo, ChatMainWgt *parent) :
+HotLineAnswerItem::HotLineAnswerItem(const StNetMessageResult &msgInfo,
+                                     ChatMainWgt *parent) :
     MessageItemBase(msgInfo, parent),
     _pMainWgt(parent)
 {
@@ -115,8 +120,7 @@ HotLineAnswerItem::HotLineAnswerItem(const StNetMessageResult &msgInfo, ChatMain
 
 HotLineAnswerItem::~HotLineAnswerItem()
 {
-    if(nullptr != _textBrowser)
-    {
+    if (nullptr != _textBrowser) {
         delete _textBrowser;
         _textBrowser = nullptr;
     }
@@ -133,8 +137,7 @@ void HotLineAnswerItem::initLayout()
     _mainMargin = QMargins(15, 0, 20, 0);
     _mainSpacing = 10;
 
-    if (QTalk::Entity::MessageDirectionSent == _msgInfo.direction)
-    {
+    if (st::entity::MessageDirectionSent == _msgInfo.direction) {
         _headPixSize = QSize(0, 0);
         _nameLabHeight = 0;
         _leftMargin = QMargins(0, 0, 0, 0);
@@ -142,9 +145,7 @@ void HotLineAnswerItem::initLayout()
         _leftSpacing = 0;
         _rightSpacing = 0;
         initSendLayout();
-    }
-    else if (QTalk::Entity::MessageDirectionReceive == _msgInfo.direction)
-    {
+    } else if (st::entity::MessageDirectionReceive == _msgInfo.direction) {
         _headPixSize = QSize(28, 28);
         _nameLabHeight = 16;
         _leftMargin = QMargins(0, 10, 0, 0);
@@ -160,12 +161,14 @@ void HotLineAnswerItem::initLayout()
 
 QSize HotLineAnswerItem::itemWdtSize()
 {
-    int height = qMax(_mainMargin.top() + _nameLabHeight + _mainSpacing + _contentFrm->height() + _mainMargin.bottom(),
+    int height = qMax(_mainMargin.top() + _nameLabHeight + _mainSpacing +
+                      _contentFrm->height() + _mainMargin.bottom(),
                       _headPixSize.height()); // 头像和文本取大的
     int width = _contentFrm->width();
 
-    if(nullptr != _readStateLabel)
+    if (nullptr != _readStateLabel) {
         height += 12;
+    }
 
     return {width, height + 8};
 }
@@ -183,14 +186,16 @@ void HotLineAnswerItem::initSendLayout()
     mainLay->setContentsMargins(_mainMargin);
     mainLay->setSpacing(_mainSpacing);
     mainLay->addWidget(_btnShareCheck);
-    auto *horizontalSpacer = new QSpacerItem(40, 1, QSizePolicy::Expanding, QSizePolicy::Fixed);
+    auto *horizontalSpacer = new QSpacerItem(40, 1, QSizePolicy::Expanding,
+                                             QSizePolicy::Fixed);
     mainLay->addItem(horizontalSpacer);
     auto *rightLay = new QVBoxLayout;
     rightLay->setContentsMargins(_rightMargin);
     mainLay->addLayout(rightLay);
 
-    if (!_contentFrm)
+    if (!_contentFrm) {
         _contentFrm = new QFrame(this);
+    }
 
     _contentFrm->setObjectName("messSendContentFrm");
     _contentFrm->setFixedWidth(_contentSize.width());
@@ -200,8 +205,7 @@ void HotLineAnswerItem::initSendLayout()
     tmpLay->setSpacing(5);
     tmpLay->addItem(new QSpacerItem(10, 10, QSizePolicy::Expanding));
 
-    if(nullptr != _sending && nullptr != _resending)
-    {
+    if (nullptr != _sending && nullptr != _resending) {
         tmpLay->addWidget(_sending);
         tmpLay->addWidget(_resending);
     }
@@ -210,8 +214,7 @@ void HotLineAnswerItem::initSendLayout()
     tmpLay->setAlignment(_contentFrm, Qt::AlignRight);
     rightLay->addLayout(tmpLay);
 
-    if (nullptr != _readStateLabel)
-    {
+    if (nullptr != _readStateLabel) {
         auto *rsLay = new QHBoxLayout;
         rsLay->addItem(new QSpacerItem(10, 10, QSizePolicy::Expanding));
         rsLay->setMargin(0);
@@ -242,7 +245,8 @@ void HotLineAnswerItem::initReceiveLayout()
     leftLay->setSpacing(_leftSpacing);
     mainLay->addLayout(leftLay);
     leftLay->addWidget(_headLab);
-    auto *vSpacer = new QSpacerItem(1, 1, QSizePolicy::Fixed, QSizePolicy::Expanding);
+    auto *vSpacer = new QSpacerItem(1, 1, QSizePolicy::Fixed,
+                                    QSizePolicy::Expanding);
     leftLay->addItem(vSpacer);
     leftLay->setStretch(0, 0);
     leftLay->setStretch(1, 1);
@@ -251,15 +255,17 @@ void HotLineAnswerItem::initReceiveLayout()
     rightLay->setSpacing(_rightSpacing);
     mainLay->addLayout(rightLay);
 
-    if (!_contentFrm)
+    if (!_contentFrm) {
         _contentFrm = new QFrame(this);
+    }
 
-//    _contentFrm->setObjectName("messReceiveContentFrm");
+    //    _contentFrm->setObjectName("messReceiveContentFrm");
     _contentFrm->setFixedWidth(_contentSize.width());
     rightLay->addWidget(_contentFrm);
     rightLay->setStretch(0, 0);
     rightLay->setStretch(1, 1);
-    auto *horizontalSpacer = new QSpacerItem(40, 1, QSizePolicy::Expanding, QSizePolicy::Fixed);
+    auto *horizontalSpacer = new QSpacerItem(40, 1, QSizePolicy::Expanding,
+                                             QSizePolicy::Fixed);
     mainLay->addItem(horizontalSpacer);
     mainLay->setStretch(0, 0);
     mainLay->setStretch(1, 1);
@@ -273,31 +279,28 @@ qreal HotLineAnswerItem::getRealString(const QString &src, qreal &lastLineWidth)
     qreal nCount = src.count("\n");
     qreal nMaxWidth = 0;
 
-    if (nCount == 0)
-    {
+    if (nCount == 0) {
         nMaxWidth = lastLineWidth = fm.width(src) + lastLineWidth;
 
-        if (nMaxWidth > width)
+        if (nMaxWidth > width) {
             nMaxWidth = width;
-    }
-    else
-    {
+        }
+    } else {
         QStringList valLst = src.split("\n");
 
-        for (int i = 0; i < (nCount + 1); i++)
-        {
+        for (int i = 0; i < (nCount + 1); i++) {
             const QString &value = valLst.at(i);
             qreal fmWidth = fm.width(value);
 
-            if (i == 0)
+            if (i == 0) {
                 lastLineWidth = fmWidth += lastLineWidth;
-            else
+            } else {
                 lastLineWidth = fmWidth;
+            }
 
             nMaxWidth = fmWidth > nMaxWidth ? fmWidth : nMaxWidth;
 
-            if (fm.width(value) > width)
-            {
+            if (fm.width(value) > width) {
                 nMaxWidth = width;
                 break;
             }
@@ -319,10 +322,10 @@ void HotLineAnswerItem::initContentLayout()
     contentLay->setContentsMargins(0, 0, 0, 10);
     contentLay->setSpacing(0);
     //
-    QJsonDocument jsonDocument = QJsonDocument::fromJson(_msgInfo.extend_info.toUtf8());
+    QJsonDocument jsonDocument = QJsonDocument::fromJson(
+                                     _msgInfo.extend_info.toUtf8());
 
-    if (!jsonDocument.isNull())
-    {
+    if (!jsonDocument.isNull()) {
         QJsonObject jsonObject = jsonDocument.object();
         //
         QString question = jsonObject.value("question").toString();
@@ -339,14 +342,14 @@ void HotLineAnswerItem::initContentLayout()
         bool addLine = false;
 
         //
-        if(!content.isEmpty())
-        {
+        if (!content.isEmpty()) {
             auto *frm = new QFrame(this);
 
-            if(!hasBottom && !hasTip)
+            if (!hasBottom && !hasTip) {
                 frm->setObjectName("HotLineContentFrmNoBottom");
-            else
+            } else {
                 frm->setObjectName("HotLineContentFrm");
+            }
 
             auto *lay = new QHBoxLayout(frm);
             lay->setMargin(10);
@@ -354,14 +357,15 @@ void HotLineAnswerItem::initContentLayout()
             addLine = true;
             //
             std::vector<StTextMessage> msgs;
-            QTalk::analysisTextMessage(content, msgs);
+            st::analysisTextMessage(content, msgs);
 
-            if(nullptr == _textBrowser)
-            {
+            if (nullptr == _textBrowser) {
                 _textBrowser = new TextBrowser;
                 lay->addWidget(_textBrowser);
-                connect(_textBrowser, &TextBrowser::anchorClicked, this, &HotLineAnswerItem::onAnchorClicked);
-                connect(_textBrowser, &TextBrowser::sgImageClicked, this, &HotLineAnswerItem::onImageClicked);
+                connect(_textBrowser, &TextBrowser::anchorClicked, this,
+                        &HotLineAnswerItem::onAnchorClicked);
+                connect(_textBrowser, &TextBrowser::sgImageClicked, this,
+                        &HotLineAnswerItem::onImageClicked);
             }
 
             _textBrowser->setFixedWidth(width);
@@ -371,78 +375,72 @@ void HotLineAnswerItem::initContentLayout()
             f.setFontWordSpacing(0);
             f.setFontLetterSpacing(0);
 
-            for (const auto &msg : msgs)
-            {
-                switch (msg.type)
-                {
-                    case StTextMessage::EM_TEXT:
-                        _textBrowser->insertPlainText(msg.content);
-                        break;
+            for (const auto &msg : msgs) {
+                switch (msg.type) {
+                case StTextMessage::EM_TEXT:
+                    _textBrowser->insertPlainText(msg.content);
+                    break;
 
-                    case StTextMessage::EM_IMAGE:
-                    case StTextMessage::EM_EMOTICON:
-                        {
-//                        QString imagePath = msg.content;
-                            QString imagePath = QTalk::GetImagePathByUrl(msg.imageLink.toStdString()).data();
-                            qreal imageWidth = msg.imageWidth;
-                            qreal imageHeight = msg.imageHeight;
-                            bool isDownload = false;
+                case StTextMessage::EM_IMAGE:
+                case StTextMessage::EM_EMOTICON: {
+                    //                        QString imagePath = msg.content;
+                    QString imagePath = st::GetImagePathByUrl(
+                                            msg.imageLink.toStdString()).data();
+                    qreal imageWidth = msg.imageWidth;
+                    qreal imageHeight = msg.imageHeight;
+                    bool isDownload = false;
 
-                            if(QFile::exists(imagePath) && QFileInfo(imagePath).isFile())
-                            {
-                                if (QPixmap(imagePath).isNull())
-                                {
-                                    QString realPath = QTalk::qimage::getRealImagePath(imagePath);
+                    if (QFile::exists(imagePath) && QFileInfo(imagePath).isFile()) {
+                        if (QPixmap(imagePath).isNull()) {
+                            QString realPath = st::qimage::getRealImagePath(imagePath);
 
-                                    if (QPixmap(realPath).isNull())
-                                        imageWidth = imageHeight = 80;
-
-                                    else
-                                    {
-                                        isDownload = true;
-                                        imagePath = realPath;
-                                    }
-                                }
-                                else
-                                    isDownload = true;
+                            if (QPixmap(realPath).isNull()) {
+                                imageWidth = imageHeight = 80;
                             }
 
-                            QTextImageFormat imageFormat;
-                            imageFormat.setWidth(imageWidth);
-                            imageFormat.setHeight(imageHeight);
-                            imageFormat.setName(isDownload ? imagePath : msg.imageLink);
-                            imageFormat.setProperty(imagePropertyLink, msg.imageLink);
-                            _textBrowser->textCursor().insertImage(imageFormat);
-                            _textBrowser->setCurrentCharFormat(f);
-                            //
-                            break;
+                            else {
+                                isDownload = true;
+                                imagePath = realPath;
+                            }
+                        } else {
+                            isDownload = true;
                         }
+                    }
 
-                    case StTextMessage::EM_LINK:
-                        {
-                            QTextCharFormat linkFormat = _textBrowser->textCursor().charFormat();
-                            linkFormat.setForeground(QBrush(QTalk::StyleDefine::instance().getLinkUrl()));
-                            linkFormat.setAnchor(true);
-                            linkFormat.setAnchorHref(msg.content);
+                    QTextImageFormat imageFormat;
+                    imageFormat.setWidth(imageWidth);
+                    imageFormat.setHeight(imageHeight);
+                    imageFormat.setName(isDownload ? imagePath : msg.imageLink);
+                    imageFormat.setProperty(imagePropertyLink, msg.imageLink);
+                    _textBrowser->textCursor().insertImage(imageFormat);
+                    _textBrowser->setCurrentCharFormat(f);
+                    //
+                    break;
+                }
+
+                case StTextMessage::EM_LINK: {
+                    QTextCharFormat linkFormat = _textBrowser->textCursor().charFormat();
+                    linkFormat.setForeground(QBrush(st::StyleDefine::instance().getLinkUrl()));
+                    linkFormat.setAnchor(true);
+                    linkFormat.setAnchorHref(msg.content);
 #if QT_DEPRECATED_SINCE(5, 13)
-                            linkFormat.setAnchorNames(QStringList() << msg.content);
+                    linkFormat.setAnchorNames(QStringList() << msg.content);
 #else
-                            linkFormat.setAnchorName(msg.content);
+                    linkFormat.setAnchorName(msg.content);
 #endif
-                            _textBrowser->textCursor().insertText(msg.content, linkFormat);
-                            break;
-                        }
+                    _textBrowser->textCursor().insertText(msg.content, linkFormat);
+                    break;
+                }
 
-                    case StTextMessage::EM_ATMSG:
-                        {
-                            QString tmpContent = QString(DEM_AT_HTML).arg(msg.content);
-                            _textBrowser->insertHtml(tmpContent);
-                            _textBrowser->setCurrentCharFormat(f);
-                            break;
-                        }
+                case StTextMessage::EM_ATMSG: {
+                    QString tmpContent = QString(DEM_AT_HTML).arg(msg.content);
+                    _textBrowser->insertHtml(tmpContent);
+                    _textBrowser->setCurrentCharFormat(f);
+                    break;
+                }
 
-                    default:
-                        break;
+                default:
+                    break;
                 }
             }
 
@@ -451,11 +449,11 @@ void HotLineAnswerItem::initContentLayout()
         }
 
         //
-        if(hasTip)
-        {
+        if (hasTip) {
             //
-            if(addLine)
+            if (addLine) {
                 contentLay->addWidget(new DottedLine(this));
+            }
 
             auto *frm = new QFrame(this);
             frm->setObjectName("HotLineTipFrm");
@@ -469,17 +467,20 @@ void HotLineAnswerItem::initContentLayout()
             height += 25;
 
             //
-            if(!addLine)
+            if (!addLine) {
                 lay->addWidget(new DottedLine(this));
+            }
 
             addLine = true;
 
             //
-            if(nullptr == _pTipListView)
+            if (nullptr == _pTipListView) {
                 _pTipListView = new QListView(this);
+            }
 
-            if(nullptr == _pTipListModel)
+            if (nullptr == _pTipListModel) {
                 _pTipListModel = new QStandardItemModel(this);
+            }
 
             _pTipListView->setModel(_pTipListModel);
             lay->addWidget(_pTipListView);
@@ -496,8 +497,7 @@ void HotLineAnswerItem::initContentLayout()
             //
             auto it = items.begin();
 
-            while (it != items.end())
-            {
+            while (it != items.end()) {
                 QJsonObject obj = it->toObject();
                 QJsonObject event = obj.value("event").toObject();
                 QString type = event.value("type").toString();
@@ -520,11 +520,11 @@ void HotLineAnswerItem::initContentLayout()
             height += listHeight;
         }
 
-        if(hasBottom)
-        {
+        if (hasBottom) {
             //
-            if(addLine)
+            if (addLine) {
                 contentLay->addWidget(new DottedLine(this));
+            }
 
             auto *frm = new QFrame(this);
             frm->setObjectName("HotLineTipFrm");
@@ -548,8 +548,7 @@ void HotLineAnswerItem::initContentLayout()
             std::vector<ReqButton *> btns;
             auto it = bottom.begin();
 
-            while (it != bottom.end())
-            {
+            while (it != bottom.end()) {
                 QJsonObject obj = it->toObject();
                 int id = obj.value("id").toInt();
                 QString url = obj.value("url").toString();
@@ -560,26 +559,25 @@ void HotLineAnswerItem::initContentLayout()
                 //
                 btns.push_back(reqButton);
 
-                if(has_check)
-                {
+                if (has_check) {
                     reqButton->setReqEnable(false);
 
-                    if(id == check_id)
+                    if (id == check_id) {
                         emit reqButton->sgSendReq(id, url);
+                    }
                 }
 
                 height += 30;
                 it++;
             }
 
-            if(!has_check)
-            {
-                for(const auto *btn : btns)
-                {
-                    connect(btn, &ReqButton::sgSendReq, this, [this, btns, jsonObject](int id, const QString & url)
-                    {
-                        for(auto *tmpBtn : btns)
+            if (!has_check) {
+                for (const auto *btn : btns) {
+                    connect(btn, &ReqButton::sgSendReq, this, [this, btns, jsonObject](int id,
+                    const QString & url) {
+                        for (auto *tmpBtn : btns) {
                             tmpBtn->setReqEnable(false);
+                        }
 
                         ChatViewMainPanel::sendGetRequest(url.toStdString());
                         //
@@ -589,17 +587,17 @@ void HotLineAnswerItem::initContentLayout()
                         newDoc.setObject(newObj);
                         QByteArray byteArray = newDoc.toJson(QJsonDocument::Compact);
 
-                        if(g_pMainPanel)
-                            g_pMainPanel->updateMessageExtendInfo(_msgInfo.msg_id.toStdString(), byteArray.data());
+                        if (g_pMainPanel) {
+                            g_pMainPanel->updateMessageExtendInfo(_msgInfo.msg_id.toStdString(),
+                                                                  byteArray.data());
+                        }
                     });
                 }
             }
 
             bottomLay->addItem(new QSpacerItem(10, 10, QSizePolicy::Expanding));
         }
-    }
-    else
-    {
+    } else {
     }
 
     _contentFrm->setFixedSize(width + 20, height);
@@ -607,8 +605,8 @@ void HotLineAnswerItem::initContentLayout()
 
 void HotLineAnswerItem::onImageDownloaded(const QString &link)
 {
-    QString imagePath = QTalk::GetImagePathByUrl(link.toStdString()).data();
-    QPixmap pixmap = QTalk::qimage::loadImage(imagePath, false);
+    QString imagePath = st::GetImagePathByUrl(link.toStdString()).data();
+    QPixmap pixmap = st::qimage::loadImage(imagePath, false);
     _textBrowser->document()->addResource(QTextDocument::ImageResource,
                                           link, pixmap);
     _textBrowser->setLineWrapColumnOrWidth(_textBrowser->lineWrapColumnOrWidth());
@@ -618,18 +616,19 @@ void HotLineAnswerItem::onAnchorClicked(const QUrl &url)
 {
     QString strUrl = url.toString();
 
-//    bool userDftBrowser = AppSetting::instance().getOpenLinkWithAppBrowser();
-    if (!strUrl.startsWith("http"))
+    //    bool userDftBrowser = AppSetting::instance().getOpenLinkWithAppBrowser();
+    if (!strUrl.startsWith("http")) {
         strUrl = (QString("http://%1").arg(strUrl));
+    }
 
-//    if (userDftBrowser)
-//        WebService::loadUrl(QUrl(strUrl));
-//    else
+    //    if (userDftBrowser)
+    //        WebService::loadUrl(QUrl(strUrl));
+    //    else
     QDesktopServices::openUrl(QUrl(strUrl));
 }
 
 void HotLineAnswerItem::onImageClicked(const QString &path, const QString &link)
 {
-    QString imagePath = QTalk::GetImagePathByUrl(link.toStdString()).data();
+    QString imagePath = st::GetImagePathByUrl(link.toStdString()).data();
     emit g_pMainPanel->sgShowPicture(imagePath, link);
 }

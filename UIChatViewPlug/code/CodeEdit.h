@@ -4,8 +4,8 @@
 #if _MSC_VER >= 1600
 #pragma execution_character_set("utf-8")
 #endif
-#ifndef QTALK_V2_CODEEDIT_H
-#define QTALK_V2_CODEEDIT_H
+#ifndef STALK_V2_CODEEDIT_H
+#define STALK_V2_CODEEDIT_H
 
 #include <QTextEdit>
 
@@ -26,4 +26,4 @@ protected:
 };
 
 
-#endif //QTALK_V2_CODEEDIT_H
+#endif //STALK_V2_CODEEDIT_H

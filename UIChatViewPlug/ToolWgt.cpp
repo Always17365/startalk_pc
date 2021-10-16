@@ -13,17 +13,17 @@
 #include <QSettings>
 #include "InputWgt.h"
 
-#include "../UICom/uicom.h"
+#include "Util/ui/uicom.h"
 #include "ChatViewMainPanel.h"
-#include "../Emoticon/EmoticonMainWgt.h"
-#include "../Platform/Platform.h"
+#include "Emoticon/EmoticonMainWgt.h"
+#include "DataCenter/Platform.h"
 #include "../WebService/AudioVideo.h"
-#include "../QtUtil/Entity/JID.h"
+#include "Util/Entity/JID.h"
 #include "../WebService/WebService.h"
-#include "../Platform/NavigationManager.h"
-#include "../Platform/dbPlatForm.h"
-#include "../CustomUi/LiteMessageBox.h"
-#include "../CustomUi/QtMessageBox.h"
+#include "DataCenter/NavigationManager.h"
+#include "DataCenter/dbPlatForm.h"
+#include "CustomUi/LiteMessageBox.h"
+#include "CustomUi/QtMessageBox.h"
 #include "search/LocalSearchMainWgt.h"
 #ifdef _MACOS
     #include "../Screenshot/mac/SnipScreenTool.h"
@@ -192,12 +192,12 @@ void ToolWgt::initUi()
 void ToolWgt::onFileBtnClicked()
 {
     emit g_pMainPanel->sgOperator(tr("发送文件"));
-    QString strHistoryFileDir = QString::fromStdString(PLAT.getHistoryDir());
+    QString strHistoryFileDir = QString::fromStdString(DC.getHistoryDir());
     QString strFilePath = QFileDialog::getOpenFileName(g_pMainPanel,
                                                        tr("选择需要发送的文件"), strHistoryFileDir);
 
     if (!strFilePath.isEmpty() && _pInputWgt) {
-        PLAT.setHistoryDir(strFilePath.toStdString());
+        DC.setHistoryDir(strFilePath.toStdString());
         _pInputWgt->dealFile(strFilePath, true);
     }
 
@@ -249,10 +249,10 @@ void ToolWgt::onpBtnEmoticon()
 
 void ToolWgt::switchSession(const int &)
 {
-    _pBtnShock->setVisible(_pChatItem->_chatType == QTalk::Enum::TwoPersonChat);
-    bool isOk = (_pChatItem->_chatType == QTalk::Enum::TwoPersonChat
+    _pBtnShock->setVisible(_pChatItem->_chatType == st::Enum::TwoPersonChat);
+    bool isOk = (_pChatItem->_chatType == st::Enum::TwoPersonChat
                  && NavigationManager::instance().getChatVideoEnable()) ||
-                (_pChatItem->_chatType == QTalk::Enum::GroupChat
+                (_pChatItem->_chatType == st::Enum::GroupChat
                  && NavigationManager::instance().getConferenceEnable());
     isOk &= !NavigationManager::instance().getVideoUrl().empty();
     _pBtnVideo->setVisible(isOk);

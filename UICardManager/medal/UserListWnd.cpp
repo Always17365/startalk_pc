@@ -3,9 +3,9 @@
 //
 
 #include "UserListWnd.h"
-#include "../../Platform/Platform.h"
-#include "../../UICom/qimage/qimage.h"
-#include "../../UICom/StyleDefine.h"
+#include "DataCenter/Platform.h"
+#include "Util/ui/qimage/qimage.h"
+#include "Util/ui/StyleDefine.h"
 #include <QVBoxLayout>
 #include <QPainter>
 #include <QToolButton>
@@ -13,16 +13,19 @@
 #include <QPainterPath>
 #include <QFileInfo>
 
-QSize UserItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+QSize UserItemDelegate::sizeHint(const QStyleOptionViewItem &option,
+                                 const QModelIndex &index) const
 {
     const QSize &size = QStyledItemDelegate::sizeHint(option, index);
     return {size.width(), 50};
 }
 
-void UserItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+void UserItemDelegate::paint(QPainter *painter,
+                             const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    if(!index.isValid())
+    if (!index.isValid()) {
         return;
+    }
 
     painter->save();
     painter->setRenderHint(QPainter::TextAntialiasing);       //
@@ -31,8 +34,9 @@ void UserItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     painter->fillRect(rect, QColor(255, 255, 255));
     QString strText = index.data(em_user_name).toString();
     painter->setPen(QColor(51, 51, 51));
-    QTalk::setPainterFont(painter, AppSetting::instance().getFontLevel());
-    painter->drawText(QRect(rect.x() + 65, rect.y(), rect.width() - 40, rect.height()), Qt::AlignVCenter, strText);
+    st::setPainterFont(painter, AppSetting::instance().getFontLevel());
+    painter->drawText(QRect(rect.x() + 65, rect.y(), rect.width() - 40,
+                            rect.height()), Qt::AlignVCenter, strText);
     painter->restore();
     painter->save();
     QRect headRect(rect.x() + 20, rect.y() + 5, 35, 35);
@@ -43,13 +47,14 @@ void UserItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     painter->setBrush(QColor(244, 244, 244));
     painter->drawEllipse(headRect);
 
-    if(headPath.isEmpty())
+    if (headPath.isEmpty()) {
         headPath = ":/QTalk/image1/StarTalk_defaultHead.png";
+    }
 
     QPainterPath path;
     path.addEllipse(headRect);
     painter->setClipPath(path);
-    auto image = QTalk::qimage::loadImage(headPath, false);
+    auto image = st::qimage::loadImage(headPath, false);
     painter->drawPixmap(headRect, image);
     painter->restore();
 }
@@ -114,29 +119,28 @@ UserListWnd::UserListWnd(QWidget *parent)
     auto *lay = new QHBoxLayout(this);
     lay->setMargin(0);
     lay->addWidget(mainFrm);
-    connect(closeBtn, &QToolButton::clicked, this, [parent]()
-    {
+    connect(closeBtn, &QToolButton::clicked, this, [parent]() {
         parent->setVisible(false);
     });
     connect(backBtn, &QToolButton::clicked, this, &UserListWnd::sgShowBack);
 }
 
-void UserListWnd::showUserList(const std::vector<QTalk::StMedalUser> &userList)
+void UserListWnd::showUserList(const std::vector<st::StMedalUser> &userList)
 {
     //
     _model->clear();
 
     //
-    for(const auto &user : userList)
-    {
-        QString tmp = QTalk::GetHeadPathByUrl(user.userHead).data();
+    for (const auto &user : userList) {
+        QString tmp = st::GetHeadPathByUrl(user.userHead).data();
         QFileInfo info(tmp);
         auto *item = new QStandardItem;
         item->setData(user.xmppId.data(), em_user_xmppId);
         item->setData(user.userName.data(), em_user_name);
 
-        if(info.exists() && info.isFile())
+        if (info.exists() && info.isFile()) {
             item->setData(tmp, em_user_head);
+        }
 
         _model->appendRow(item);
     }

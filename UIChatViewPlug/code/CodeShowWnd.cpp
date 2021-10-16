@@ -5,9 +5,9 @@
 #include "CodeShowWnd.h"
 #include <QVBoxLayout>
 #include "../ChatViewMainPanel.h"
-#include "../../Platform/Platform.h"
+#include "DataCenter/Platform.h"
 #include "../../quazip/JlCompress.h"
-#include "../../QtUtil/Utils/Log.h"
+#include "Util/Log.h"
 #include <QFile>
 #include <QDir>
 #include <QFileInfo>
@@ -81,7 +81,7 @@ void CodeShowWnd::showCode(const QString &type, const QString &language, const Q
  */
 void CodeShowWnd::initRes()
 {
-    QString userDir = PLAT.getAppdataRoamingPath().data();
+    QString userDir = DC.getAppdataRoamingPath().data();
     QString destDir = QString("%1/html").arg(userDir);
     QString srcFile = ":/code/html.zip";
 
@@ -106,7 +106,7 @@ void CodeShowWnd::initRes()
 
 void CodeShowWnd::loadCodeFile(const QString &type, const QString &language)
 {
-    QString path = QString::fromStdString(PLAT.getAppdataRoamingPath());
+    QString path = QString::fromStdString(DC.getAppdataRoamingPath());
     auto *o = sender();
 
     if(nullptr == o)
@@ -159,7 +159,7 @@ void copyFile(const QString &oldPath, const QString &newPath)
     {
         if(!newinfo.exists())
         {
-            QDir dir = QDir(QString::fromStdString(PLAT.getAppdataRoamingPath()));
+            QDir dir = QDir(QString::fromStdString(DC.getAppdataRoamingPath()));
             dir.mkpath(newPath);
             QDir oldDir(oldPath);
             auto infoList = oldDir.entryInfoList();

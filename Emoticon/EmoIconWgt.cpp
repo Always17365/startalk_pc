@@ -3,7 +3,7 @@
 #include <QVBoxLayout>
 #include <QPainter>
 #include "EmoticonMainWgt.h"
-#include "../UICom/StyleDefine.h"
+#include "Util/ui/StyleDefine.h"
 
 #define DEM_MAXICON_COUNT 6
 
@@ -38,7 +38,7 @@ void EmoIcon::paintEvent(QPaintEvent *e)
     painter.setPen(QPen(QColor(Qt::transparent)));
 
     if (_isChecked)
-        painter.setBrush(QBrush(QTalk::StyleDefine::instance().getEmoSelelctIconColor()));
+        painter.setBrush(QBrush(st::StyleDefine::instance().getEmoSelelctIconColor()));
     else
         painter.setBrush(QBrush(QColor(Qt::transparent)));
 

@@ -17,8 +17,8 @@
 #include <QtConcurrent>
 #include "../ChatUtil.h"
 #include "../ChatViewMainPanel.h"
-#include "../../CustomUi/TitleBar.h"
-#include "MessageAnalysis.h"
+#include "CustomUi/TitleBar.h"
+#include "../MessageAnalysis.h"
 #include "MessageDelegate.h"
 #include "ImageDelegate.h"
 
@@ -39,41 +39,31 @@ LocalSearchMainWgt::LocalSearchMainWgt(QWidget *parent)
             this, &LocalSearchMainWgt::onPositionMessage, Qt::QueuedConnection);
     connect(this, &LocalSearchMainWgt::sgSearch,
             this, &LocalSearchMainWgt::onSearch, Qt::QueuedConnection);
-//
+    //
     connect(this, &LocalSearchMainWgt::sgGetBeforeFileMessage,
             this, &LocalSearchMainWgt::onGetBeforeFileMessage, Qt::QueuedConnection);
     connect(this, &LocalSearchMainWgt::sgGetImageMessage,
             this, &LocalSearchMainWgt::onGetImageMessage, Qt::QueuedConnection);
     connect(this, &LocalSearchMainWgt::sgGetLinkMessage,
             this, &LocalSearchMainWgt::onGetLinkMessage, Qt::QueuedConnection);
-    std::function<int(STLazyQueue<std::string> *)> searchFun =
-        [this](STLazyQueue<std::string> *queue) -> int
-    {
 
-        int runningCount = 0;
-
-        if (queue != nullptr && !queue->empty())
-        {
-            std::string searKey = queue->tail();
-
-            while (!queue->empty())
-            {
-                queue->pop();
-                runningCount++;
-            }
-
-            emit sgSearch(0, searKey.data());
+    QPointer<LocalSearchMainWgt> that(this);
+    _lazyQueue = new lazyq<std::string>(200, [that](lazyq<std::string>::lazyqq &
+    q) {
+        if (q->empty() || !that) {
+            return;
         }
 
-        return runningCount;
-    };
-    _lazyQueue = new STLazyQueue<std::string>(200, searchFun);
+        std::string searKey = q->back();
+        emit that->sgSearch(0, searKey.data());
+    });
 }
 
 LocalSearchMainWgt::~LocalSearchMainWgt()
 {
-    if(_lazyQueue)
+    if (_lazyQueue) {
         delete _lazyQueue;
+    }
 }
 
 void LocalSearchMainWgt::initStyle(const QString &qss)
@@ -88,8 +78,7 @@ void LocalSearchMainWgt::initUi()
     setFixedHeight(g_pMainPanel->height());
     _pTitleLabel = new TitleBar(tr(""), nullptr, this);
     _pTitleLabel->setFixedHeight(50);
-    connect(_pTitleLabel->getCloseBtn(), &QToolButton::clicked, [this]()
-    {
+    connect(_pTitleLabel->getCloseBtn(), &QToolButton::clicked, [this]() {
         this->close();
     });
     setMoverAble(true, _pTitleLabel);
@@ -151,9 +140,9 @@ void LocalSearchMainWgt::initUi()
     bodyLay->setContentsMargins(0, 0, 0, 10);
     bodyLay->addWidget(_pStackedWidget);
     //
-    _pLoadingContent = QTalk::makeLoadingLabel(false, {0, 0}, this);
-    _pLoadingMoreR_T = QTalk::makeLoadingLabel(true, {50, 50}, this);
-    _pLoadingMoreR_B = QTalk::makeLoadingLabel(true, {50, 50}, this);
+    _pLoadingContent = st::makeLoadingLabel(false, {0, 0}, this);
+    _pLoadingMoreR_T = st::makeLoadingLabel(true, {50, 50}, this);
+    _pLoadingMoreR_B = st::makeLoadingLabel(true, {50, 50}, this);
     _pStackedWidget->addWidget(_pLoadingContent);
     _pLoadingMoreR_T->setVisible(false);
     _pLoadingMoreR_B->setVisible(false);
@@ -177,32 +166,33 @@ void LocalSearchMainWgt::initUi()
     lay->setSpacing(0);
     lay->addWidget(mainFrm);
     //
-    connect(_btnGroup, SIGNAL(buttonClicked(int)), this, SLOT(onButtonClicked(int)));
+    connect(_btnGroup, SIGNAL(buttonClicked(int)), this,
+            SLOT(onButtonClicked(int)));
     qRegisterMetaType<StData>("StData");
     //
-    connect(_searEdit, &Search_Edit::textChanged, this, [this](const QString & text)
-    {
+    connect(_searEdit, &Search_Edit::textChanged,
+    this, [this](const QString & text) {
         _lazyQueue->push(text.toLower().toStdString());
     });
-    connect(this, &LocalSearchMainWgt::sgSearch, this, &LocalSearchMainWgt::starSearch);
-    connect(_pCalendarBtn, &QPushButton::clicked, this, [this]()
-    {
-        if(_calendarWgt)
-        {
+    connect(this, &LocalSearchMainWgt::sgSearch, this,
+            &LocalSearchMainWgt::starSearch);
+    connect(_pCalendarBtn, &QPushButton::clicked, this, [this]() {
+        if (_calendarWgt) {
             QPoint pos = this->geometry().topRight();
             _calendarWgt->setVisible(true);
             _calendarWgt->move(pos.x() - _calendarWgt->width() - 20, pos.y() + 100);
             _calendarWgt->raise();
         }
     });
-    connect(_calendarWgt, &QCalendarWidget::clicked, this, [this](const QDate & date)
-    {
+    connect(_calendarWgt, &QCalendarWidget::clicked,
+    this, [this](const QDate & date) {
         auto time = QDateTime(date).toMSecsSinceEpoch();
         emit sgPositionMessage(time, true);
         _calendarWgt->setVisible(false);
     });
-    connect(this, &LocalSearchMainWgt::sgUpdateName, this, &LocalSearchMainWgt::onSetName, Qt::QueuedConnection);
-//    connect(this, &LocalSearchMainWgt::sgInitStyle, this, &LocalSearchMainWgt::initStyle, Qt::QueuedConnection);
+    connect(this, &LocalSearchMainWgt::sgUpdateName, this,
+            &LocalSearchMainWgt::onSetName, Qt::QueuedConnection);
+    //    connect(this, &LocalSearchMainWgt::sgInitStyle, this, &LocalSearchMainWgt::initStyle, Qt::QueuedConnection);
 }
 
 //
@@ -211,19 +201,21 @@ int dealWheel(QAbstractItemView *wgt, QWheelEvent *evt)
     static qint64 _historyTime = 0;
     qint64 curTime = QDateTime::currentMSecsSinceEpoch();
 
-    if(curTime - _historyTime < 500)
+    if (curTime - _historyTime < 500) {
         return 0;
-    else
+    } else {
         _historyTime = curTime;
+    }
 
     int scroBarval = wgt->verticalScrollBar()->value();
     int maximum = wgt->verticalScrollBar()->maximum();
     int direct = evt->angleDelta().y();
 
-    if(scroBarval < 5 && direct > 0)
+    if (scroBarval < 5 && direct > 0) {
         return 1;
-    else if(scroBarval > maximum - 5 && direct < 0)
+    } else if (scroBarval > maximum - 5 && direct < 0) {
         return 2;
+    }
 
     return 0;
 }
@@ -236,73 +228,53 @@ int dealWheel(QAbstractItemView *wgt, QWheelEvent *evt)
  */
 bool LocalSearchMainWgt::eventFilter(QObject *o, QEvent *e)
 {
-    if(o == _pAllListWgt)
-    {
-        if(QEvent::Wheel == e->type())
-        {
+    if (o == _pAllListWgt) {
+        if (QEvent::Wheel == e->type()) {
             auto *evt = (QWheelEvent *)e;
             int ret = dealWheel(_pAllListWgt, evt);
 
-            if((ret == 1) && _hasBefore[EM_ALL])
-            {
+            if ((ret == 1) && _hasBefore[EM_ALL]) {
                 QModelIndex index = _pAllSortModel->index(0, 0);
 
-                if(index.isValid())
-                {
+                if (index.isValid()) {
                     auto time = index.data(SEARCH_USER_MSG_TIME).toLongLong();
                     emit sgGetBeforeAllMessage(time);
                 }
-            }
-            else if(ret == 2)
-            {
-                if(_hasNew[EM_ALL])
-                {
+            } else if (ret == 2) {
+                if (_hasNew[EM_ALL]) {
                     QModelIndex index = _pAllSortModel->index(_pAllSortModel->rowCount() - 1, 0);
 
-                    if(index.isValid())
-                    {
+                    if (index.isValid()) {
                         _pLoadingMoreR_B->movie()->start();
                         _pLoadingMoreR_B->setVisible(true);
                         auto time = index.data(SEARCH_USER_MSG_TIME).toLongLong();
                         emit sgPositionMessage(time + 1, false);
                     }
                 }
-            }
-            else {}
+            } else {}
         }
-    }
-    else if(o == _pFileListWgt)
-    {
-        if(QEvent::Wheel == e->type())
-        {
+    } else if (o == _pFileListWgt) {
+        if (QEvent::Wheel == e->type()) {
             auto *evt = (QWheelEvent *)e;
 
-            if(_hasBefore[EM_FILE] && dealWheel(_pFileListWgt, evt) == 1)
-            {
+            if (_hasBefore[EM_FILE] && dealWheel(_pFileListWgt, evt) == 1) {
                 QModelIndex index = _pFileSortModel->index(0, 0);
 
-                if(index.isValid())
-                {
+                if (index.isValid()) {
                     auto time = index.data(SEARCH_USER_MSG_TIME).toLongLong();
                     emit sgGetBeforeFileMessage(time);
                 }
             }
         }
-    }
-    else if(o == _pImageView)
-    {
-        if(QEvent::Wheel == e->type())
-        {
+    } else if (o == _pImageView) {
+        if (QEvent::Wheel == e->type()) {
             auto *evt = (QWheelEvent *)e;
 
-            if(_hasBefore[EM_IMG])
-            {
-                if(dealWheel(_pImageView, evt) == 1)
-                {
+            if (_hasBefore[EM_IMG]) {
+                if (dealWheel(_pImageView, evt) == 1) {
                     QModelIndex index = _pImageModel->index(0, 1);
 
-                    if(index.isValid())
-                    {
+                    if (index.isValid()) {
                         auto time = index.data(SEARCH_USER_MSG_TIME).toLongLong();
                         emit sgGetImageMessage(time);
                     }
@@ -387,8 +359,8 @@ void LocalSearchMainWgt::initList()
     auto *imageDelegate = new ImageDelegate(_pImageView);
     _pImageView->setItemDelegate(imageDelegate);
     _pStackedWidget->addWidget(_pImageView);
-    connect(searchDelegate, &MessageDelegate::sgGetMessageDetail, this, [this](qint64 time, const QString &, int)
-    {
+    connect(searchDelegate, &MessageDelegate::sgGetMessageDetail,
+    this, [this](qint64 time, const QString &, int) {
         emit sgPositionMessage(time, true);
     });
     // link
@@ -415,52 +387,52 @@ void LocalSearchMainWgt::initList()
 
 void LocalSearchMainWgt::onButtonClicked(int id)
 {
-    switch(id)
-    {
-        case EM_ALL:
-            _pStackedWidget->setCurrentWidget(_pAllListWgt);
-            break;
+    switch (id) {
+    case EM_ALL:
+        _pStackedWidget->setCurrentWidget(_pAllListWgt);
+        break;
 
-        case EM_IMG:
-            if(_pImageModel->rowCount() == 0)
-                onGetImageMessage(0);
-            else
-                _pStackedWidget->setCurrentWidget(_pImageView);
+    case EM_IMG:
+        if (_pImageModel->rowCount() == 0) {
+            onGetImageMessage(0);
+        } else {
+            _pStackedWidget->setCurrentWidget(_pImageView);
+        }
 
-            break;
+        break;
 
-        case EM_FILE:
-            {
-                if(_pFileModel->rowCount() == 0)
-                    onGetBeforeFileMessage(0);
-                else
-                    _pStackedWidget->setCurrentWidget(_pFileListWgt);
+    case EM_FILE: {
+        if (_pFileModel->rowCount() == 0) {
+            onGetBeforeFileMessage(0);
+        } else {
+            _pStackedWidget->setCurrentWidget(_pFileListWgt);
+        }
 
-                break;
-            }
+        break;
+    }
 
-        case EM_LINK:
-            {
-                if(_pLinkModel->rowCount() == 0)
-                    onGetLinkMessage(0);
-                else
-                    _pStackedWidget->setCurrentWidget(_pLinkListView);
+    case EM_LINK: {
+        if (_pLinkModel->rowCount() == 0) {
+            onGetLinkMessage(0);
+        } else {
+            _pStackedWidget->setCurrentWidget(_pLinkListView);
+        }
 
-                break;
-            }
+        break;
+    }
 
-        case EM_SEARCH:
-        default:
-            break;
+    case EM_SEARCH:
+    default:
+        break;
     }
 }
 
-QString getLocalFilePath(const QTalk::Entity::ImMessageInfo &msgInfo)
+QString getLocalFilePath(const st::entity::ImMessageInfo &msgInfo)
 {
-    QString fullFileName = QString::fromStdString(g_pMainPanel->getFileMsgLocalPath(msgInfo.MsgId));
+    QString fullFileName = QString::fromStdString(g_pMainPanel->getFileMsgLocalPath(
+                                                      msgInfo.MsgId));
 
-    if(fullFileName.isEmpty() || !QFile::exists(fullFileName))
-    {
+    if (fullFileName.isEmpty() || !QFile::exists(fullFileName)) {
         QString linkFile = g_pMainPanel->getFileLink(msgInfo.FileMd5.data());
 #ifdef _WINDOWS
         linkFile.append(".lnk");
@@ -474,23 +446,23 @@ QString getLocalFilePath(const QTalk::Entity::ImMessageInfo &msgInfo)
 #else
             return linkFileInfo.canonicalFilePath();
 #endif // _WINDOWS
-        else
+        else {
             return QString();
-    }
-    else
+        }
+    } else {
         return fullFileName;
+    }
 }
 
 /**
  * @param msg
  */
-void LocalSearchMainWgt::showAllMessage(const QTalk::Entity::UID &uid)
+void LocalSearchMainWgt::showAllMessage(const st::entity::UID &uid)
 {
     _uid = uid;
     _btnGroup->button(EM_ALL)->click();
 
-    if(_pLoadingContent)
-    {
+    if (_pLoadingContent) {
         _pLoadingContent->movie()->start();
         _pStackedWidget->setCurrentWidget(_pLoadingContent);
     }
@@ -501,25 +473,24 @@ void LocalSearchMainWgt::showAllMessage(const QTalk::Entity::UID &uid)
     _hasNew[EM_ALL] = false;
 
     //
-    if(_pLoadingContent)
-    {
+    if (_pLoadingContent) {
         _pLoadingContent->movie()->stop();
         _pStackedWidget->setCurrentWidget(_pAllListWgt);
     }
 }
 
-bool LocalSearchMainWgt::dealMessages(const std::function<std::vector<QTalk::Entity::ImMessageInfo>()> &func,
+bool LocalSearchMainWgt::dealMessages(const
+                                      std::function<std::vector<st::entity::ImMessageInfo>()> &func,
                                       QStandardItemModel *model, QSortFilterProxyModel *sortModel)
 {
     std::vector<StNetMessageResult> _messages;
-    auto future =  QtConcurrent::run([ func, &_messages]()
-    {
+    auto future =  QtConcurrent::run([ func, &_messages]() {
         auto allMessage = func();
 
-        for(const auto &message : allMessage)
-        {
-            if(message.Type == INT_MIN)
+        for (const auto &message : allMessage) {
+            if (message.Type == INT_MIN) {
                 continue;
+            }
 
             StNetMessageResult info;
             info.msg_id = message.MsgId.data();
@@ -530,18 +501,18 @@ bool LocalSearchMainWgt::dealMessages(const std::function<std::vector<QTalk::Ent
             info.body = message.Content.data();
             info.extend_info = message.ExtendedInfo.data();
             info.xmpp_id = message.XmppId.data();
-            QTalk::analysisMessage(info);
+            st::analysisMessage(info);
             _messages.push_back(info);
         }
     });
 
-//    future.waitForFinished();
-    while (!future.isFinished())
+    //    future.waitForFinished();
+    while (!future.isFinished()) {
         QApplication::processEvents(QEventLoop::AllEvents, 100);
+    }
 
     // set new data
-    for(const auto &info : _messages)
-    {
+    for (const auto &info : _messages) {
         auto *item = new QStandardItem();
         item->setData(info.type, SEARCH_USER_TYPE);
         item->setData(info.msg_type, SEARCH_USER_MSG_TYPE);
@@ -556,51 +527,54 @@ bool LocalSearchMainWgt::dealMessages(const std::function<std::vector<QTalk::Ent
 
 //
 void LocalSearchMainWgt::dealAllMessages(bool up,
-        const std::function<std::vector<QTalk::Entity::ImMessageInfo>()> &func)
+                                         const std::function<std::vector<st::entity::ImMessageInfo>()> &func)
 {
     bool isEmpty = dealMessages(func, _pAllLstModel, _pAllSortModel);
 
-    if(isEmpty)
-    {
-        if(up)
+    if (isEmpty) {
+        if (up) {
             _hasBefore[EM_ALL] = false;
-        else
+        } else {
             _hasNew[EM_ALL] = false;
+        }
     }
 }
 
 //
-void LocalSearchMainWgt::dealSearchMessages(const std::function<std::vector<QTalk::Entity::ImMessageInfo>()> &func)
+void LocalSearchMainWgt::dealSearchMessages(const
+                                            std::function<std::vector<st::entity::ImMessageInfo>()> &func)
 {
     bool isEmpty = dealMessages(func, _pSearchModel, _pSearchSortModel);
 
-    if(isEmpty)
+    if (isEmpty) {
         _hasNew[EM_SEARCH] = false;
+    }
 }
 
 //
-void LocalSearchMainWgt::dealFileMessages(const std::function<std::vector<QTalk::Entity::ImMessageInfo>()> &func)
+void LocalSearchMainWgt::dealFileMessages(const
+                                          std::function<std::vector<st::entity::ImMessageInfo>()> &func)
 {
     bool isEmpty = dealMessages(func, _pFileModel, _pFileSortModel);
 
-    if(isEmpty)
+    if (isEmpty) {
         _hasBefore[EM_FILE] = false;
+    }
 }
 
 //
 void LocalSearchMainWgt::onGetBeforeAllMessage(qint64 time)
 {
-    if(_pLoadingMoreR_T)
-    {
+    if (_pLoadingMoreR_T) {
         _pLoadingMoreR_T->movie()->start();
         _pLoadingMoreR_T->setVisible(true);
     }
 
-    dealAllMessages(true, std::bind(&ChatMsgManager::getUserLocalHistoryMessage, time, _uid));
+    dealAllMessages(true, std::bind(&ChatMsgManager::getUserLocalHistoryMessage,
+                                    time, _uid));
 
     //
-    if(_pLoadingMoreR_T)
-    {
+    if (_pLoadingMoreR_T) {
         _pLoadingMoreR_T->movie()->stop();
         _pLoadingMoreR_T->setVisible(false);
     }
@@ -613,8 +587,7 @@ void LocalSearchMainWgt::onGetBeforeAllMessage(qint64 time)
 //
 void LocalSearchMainWgt::onPositionMessage(qint64 time, bool clearData)
 {
-    if(clearData)
-    {
+    if (clearData) {
         _pAllLstModel->clear();
         _searEdit->clear();
         //
@@ -625,8 +598,7 @@ void LocalSearchMainWgt::onPositionMessage(qint64 time, bool clearData)
         _btnGroup->button(EM_ALL)->click();
     }
 
-    if(clearData && _pLoadingContent)
-    {
+    if (clearData && _pLoadingContent) {
         _pLoadingContent->movie()->start();
         _pStackedWidget->setCurrentWidget(_pLoadingContent);
     }
@@ -635,20 +607,19 @@ void LocalSearchMainWgt::onPositionMessage(qint64 time, bool clearData)
     dealAllMessages(false, std::bind(&ChatMsgManager::getAfterMessage, time, _uid));
 
     //
-    if(clearData && _pLoadingContent)
+    if (clearData && _pLoadingContent) {
         _pLoadingContent->movie()->stop();
+    }
 
     _pStackedWidget->setCurrentWidget(_pAllListWgt);
 
-    if(_pLoadingMoreR_B)
-    {
+    if (_pLoadingMoreR_B) {
         _pLoadingMoreR_B->movie()->stop();
         _pLoadingMoreR_B->setVisible(false);
     }
 
     //
-    if(clearData)
-    {
+    if (clearData) {
         auto index = _pAllSortModel->index(0, 0);
         _pAllListWgt->scrollTo(index, QAbstractItemView::PositionAtTop);
     }
@@ -673,7 +644,9 @@ void LocalSearchMainWgt::resetUi()
 
 void setSearchLabel(QLabel *label, int count)
 {
-    label->setText(QObject::tr("共找到<span style='color:rgba(0,202,190,1)'> %1 </span>条相关消息").arg(count));
+    label->setText(
+        QObject::tr("共找到<span style='color:rgba(0,202,190,1)'> %1 </span>条相关消息").arg(
+            count));
 }
 
 /**
@@ -682,11 +655,11 @@ void setSearchLabel(QLabel *label, int count)
  */
 void LocalSearchMainWgt::onSearch(qint64 time, const QString &text)
 {
-    if(text.isEmpty())
+    if (text.isEmpty()) {
         return;
+    }
 
-    if(_pLoadingContent)
-    {
+    if (_pLoadingContent) {
         _pLoadingContent->movie()->start();
         _pStackedWidget->setCurrentWidget(_pLoadingContent);
     }
@@ -696,8 +669,7 @@ void LocalSearchMainWgt::onSearch(qint64 time, const QString &text)
                                  time, _uid, text.toLower().toStdString()));
 
     //
-    if(_pLoadingContent)
-    {
+    if (_pLoadingContent) {
         setSearchLabel(_pSearchCountLabel, _pSearchModel->rowCount());
         _pLoadingContent->movie()->stop();
         _pStackedWidget->setCurrentWidget(_pSearchListWgt);
@@ -713,10 +685,9 @@ void LocalSearchMainWgt::starSearch(qint64, const QString &key)
     _btnFrm->setVisible(isEmpty);
     _pSearchCountLabel->setVisible(!isEmpty);
 
-    if(isEmpty)
+    if (isEmpty) {
         _btnGroup->button(EM_ALL)->click();
-    else
-    {
+    } else {
         _pSearchModel->clear();
         _hasNew[EM_SEARCH] = false;
         setSearchLabel(_pSearchCountLabel, 0);
@@ -732,8 +703,7 @@ void LocalSearchMainWgt::onSetName(const QString &name)
 
 void LocalSearchMainWgt::onGetBeforeFileMessage(qint64 time)
 {
-    if(_pLoadingContent)
-    {
+    if (_pLoadingContent) {
         _pLoadingContent->movie()->start();
         _pStackedWidget->setCurrentWidget(_pLoadingContent);
     }
@@ -741,52 +711,50 @@ void LocalSearchMainWgt::onGetBeforeFileMessage(qint64 time)
     //
     QModelIndex index{};
 
-    if(time != 0 && _pFileModel->rowCount() > 0)
+    if (time != 0 && _pFileModel->rowCount() > 0) {
         index = _pFileSortModel->index(0, 0);
+    }
 
     //
     dealFileMessages(std::bind(&ChatMsgManager::getUserFileHistoryMessage,
                                time, _uid));
 
     //
-    if(_pLoadingContent)
-    {
+    if (_pLoadingContent) {
         _pLoadingContent->movie()->stop();
         _pStackedWidget->setCurrentWidget(_pFileListWgt);
     }
 
-    if(time == 0)
+    if (time == 0) {
         _pFileListWgt->scrollToBottom();
-    else if(index.isValid())
+    } else if (index.isValid()) {
         _pFileListWgt->scrollTo(index, QAbstractItemView::PositionAtCenter);
+    }
 }
 
 //
 void LocalSearchMainWgt::onGetImageMessage(qint64 time)
 {
-    if(_pLoadingContent)
-    {
+    if (_pLoadingContent) {
         _pLoadingContent->movie()->start();
         _pStackedWidget->setCurrentWidget(_pLoadingContent);
     }
 
     //
     std::vector<StImageResult> _messages;
-    auto future =  QtConcurrent::run([this, time, &_messages]()
-    {
+    auto future =  QtConcurrent::run([this, time, &_messages]() {
         auto allMessage = ChatMsgManager::getUserImageHistoryMessage(time, _uid);
 
-        for(const auto &message : allMessage)
-        {
-            if(message.Type == INT_MIN)
+        for (const auto &message : allMessage) {
+            if (message.Type == INT_MIN) {
                 continue;
+            }
 
             QStringList imageLinks;
-            QTalk::analysisLocalImage(message.Content.data(), imageLinks);
+            st::analysisLocalImage(message.Content.data(), imageLinks);
             int index = 0;
 
-            for(const auto &link : imageLinks)
-            {
+            for (const auto &link : imageLinks) {
                 StImageResult info;
                 info.msg_id = message.MsgId.data();
                 info.time = message.LastUpdateTime;
@@ -800,27 +768,24 @@ void LocalSearchMainWgt::onGetImageMessage(qint64 time)
     });
 
     // wait
-//    future.waitForFinished();
-    while (!future.isFinished())
+    //    future.waitForFinished();
+    while (!future.isFinished()) {
         QApplication::processEvents(QEventLoop::AllEvents, 100);
+    }
 
-    if(_messages.empty())
+    if (_messages.empty()) {
         _hasBefore[EM_IMG] = false;
-    else
-    {
+    } else {
         // set new data
         int col = 0, row = 0;
         qint64 tmp_time = 0;
         auto it = _messages.begin();
 
-        while (it != _messages.end())
-        {
+        while (it != _messages.end()) {
             QList<QStandardItem *> items;
 
-            while (it != _messages.end())
-            {
-                if( it->time - tmp_time > 24 * 60 * 60 * 1000)
-                {
+            while (it != _messages.end()) {
+                if ( it->time - tmp_time > 24 * 60 * 60 * 1000) {
                     auto dateTime = QDateTime::fromMSecsSinceEpoch(it->time);
                     dateTime = QDateTime(dateTime.date());
                     tmp_time = dateTime.toMSecsSinceEpoch();
@@ -829,27 +794,27 @@ void LocalSearchMainWgt::onGetImageMessage(qint64 time)
                     item->setData(1, SEARCH_USER_ITEM_TYPE);
                     item->setText(dateTime.toString("yyyy-MM-dd"));
 
-                    if(!items.empty())
-                    {
+                    if (!items.empty()) {
                         col = 0;
                         _pImageModel->insertRow(row++, items);
                         items.clear();
                     }
 
                     _pImageView->setRowHeight(row, 50);
-                    _pImageModel->insertRow(row++, QList<QStandardItem *>() << new QStandardItem << item);
+                    _pImageModel->insertRow(row++,
+                                            QList<QStandardItem *>() << new QStandardItem << item);
                 }
 
                 auto *item = new QStandardItem();
                 item->setData(it->time, SEARCH_USER_MSG_TIME);
                 item->setData(2, SEARCH_USER_ITEM_TYPE);
                 item->setData(QVariant::fromValue(*it), SEARCH_USER_INFO);
-                item->setToolTip(QDateTime::fromMSecsSinceEpoch(it->time).toString("yyyy-MM-dd hh:mm"));
+                item->setToolTip(QDateTime::fromMSecsSinceEpoch(
+                                     it->time).toString("yyyy-MM-dd hh:mm"));
                 items.append(item);
                 it++;
 
-                if(++col == 3)
-                {
+                if (++col == 3) {
                     col = 0;
                     break;
                 }
@@ -861,8 +826,7 @@ void LocalSearchMainWgt::onGetImageMessage(qint64 time)
     }
 
     //
-    if(_pLoadingContent)
-    {
+    if (_pLoadingContent) {
         _pLoadingContent->movie()->stop();
         _pStackedWidget->setCurrentWidget(_pImageView);
     }
@@ -870,38 +834,36 @@ void LocalSearchMainWgt::onGetImageMessage(qint64 time)
     //
     QApplication::processEvents(QEventLoop::AllEvents, 300);
 
-    if(time == 0)
+    if (time == 0) {
         _pImageView->scrollToBottom();
+    }
 }
 
 //
 void LocalSearchMainWgt::onGetLinkMessage(qint64 time)
 {
-    if(_pLoadingContent)
-    {
+    if (_pLoadingContent) {
         _pLoadingContent->movie()->start();
         _pStackedWidget->setCurrentWidget(_pLoadingContent);
     }
 
     auto func = std::bind(&ChatMsgManager::getUserLinkHistoryMessage, time, _uid);
     std::vector<StNetMessageResult> _messages;
-    auto future =  QtConcurrent::run([ func, &_messages]()
-    {
+    auto future =  QtConcurrent::run([ func, &_messages]() {
         auto allMessage = func();
 
-        for(const auto &message : allMessage)
-        {
-            if(message.Type == INT_MIN)
+        for (const auto &message : allMessage) {
+            if (message.Type == INT_MIN) {
                 continue;
+            }
 
             QStringList links;
-            QTalk::analysisLocalLink(message.Content.data(), links);
+            st::analysisLocalLink(message.Content.data(), links);
 
-            for(const auto &link : links)
-            {
+            for (const auto &link : links) {
                 StNetMessageResult info;
                 info.msg_id = message.MsgId.data();
-                info.msg_type = QTalk::Entity::MessageTypeText;
+                info.msg_type = st::entity::MessageTypeText;
                 info.type = message.ChatType ;
                 info.time = message.LastUpdateTime;
                 info.from = message.From.data();
@@ -917,13 +879,13 @@ void LocalSearchMainWgt::onGetLinkMessage(qint64 time)
         }
     });
 
-//    future.waitForFinished();
-    while (!future.isFinished())
+    //    future.waitForFinished();
+    while (!future.isFinished()) {
         QApplication::processEvents(QEventLoop::AllEvents, 100);
+    }
 
     // set new data
-    for(const auto &info : _messages)
-    {
+    for (const auto &info : _messages) {
         auto *item = new QStandardItem();
         item->setData(info.type, SEARCH_USER_TYPE);
         item->setData(info.msg_type, SEARCH_USER_MSG_TYPE);
@@ -934,11 +896,11 @@ void LocalSearchMainWgt::onGetLinkMessage(qint64 time)
 
     _pLinkSortModel->sort(0);
 
-    if(_messages.empty())
+    if (_messages.empty()) {
         _hasBefore[EM_LINK] = false;
+    }
 
-    if(_pLoadingContent)
-    {
+    if (_pLoadingContent) {
         _pLoadingContent->movie()->stop();
         _pStackedWidget->setCurrentWidget(_pLinkListView);
     }
@@ -946,8 +908,9 @@ void LocalSearchMainWgt::onGetLinkMessage(qint64 time)
     //
     QApplication::processEvents(QEventLoop::AllEvents, 300);
 
-    if(time == 0)
+    if (time == 0) {
         _pLinkListView->scrollToBottom();
+    }
 }
 
 void LocalSearchMainWgt::closeEvent(QCloseEvent *e)

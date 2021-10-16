@@ -612,7 +612,7 @@ void protobuf_AddDesc_message_2eproto() {
     "r\022\032\n\004body\030\t \001(\0132\014.MessageBody\022\024\n\014receive"
     "dTime\030\n \001(\003\022\024\n\014transferTime\030\013 \001(\003\022\036\n\007hea"
     "ders\030\014 \003(\0132\r.StringHeader\022\033\n\005bodys\030\r \003(\013"
-    "2\014.MessageBody*\246\006\n\nSignalType\022\026\n\022SignalT"
+    "2\014.MessageBody*\300\006\n\nSignalType\022\026\n\022SignalT"
     "ypePresence\020\001\022\020\n\014SignalTypeIQ\020\002\022\030\n\024Signa"
     "lTypeIQResponse\020\003\022\037\n\033SignalTypeSucceeded"
     "Response\020\004\022\035\n\031SignalTypeFailureResponse\020"
@@ -632,86 +632,88 @@ void protobuf_AddDesc_message_2eproto() {
     "\n\020SignalTypeWebRtc\020n\022\025\n\020SignalTypeCarbon"
     "\020\200\001\022\026\n\021SignalTypeConsult\020\204\001\022\031\n\024SignalTyp"
     "eEncryption\020\210\001\022\031\n\024SignalTypeCollection\020\214"
-    "\001\022\024\n\017SignalTypeTrans\020\215\001*\203\001\n\nClientType\022\021"
-    "\n\rClientTypeMac\020\001\022\021\n\rClientTypeiOS\020\002\022\020\n\014"
-    "ClientTypePC\020\003\022\025\n\021ClientTypeAndroid\020\004\022\023\n"
-    "\017ClientTypeLinux\020\005\022\021\n\rClientTypeWeb\020\006*\255\017"
-    "\n\013MessageType\022\035\n\020MessageTypePNote\020\365\377\377\377\377\377"
-    "\377\377\377\001\022\036\n\021MessageTypeRevoke\020\377\377\377\377\377\377\377\377\377\001\022%\n\030"
-    "MessageTypeConsultRevoke\020\376\377\377\377\377\377\377\377\377\001\022\023\n\017M"
-    "essageTypeText\020\001\022\024\n\020MessageTypeVoice\020\002\022\024"
-    "\n\020MessageTypePhoto\020\003\022\030\n\024MessageTypeSogou"
-    "Icon\020\004\022\023\n\017MessageTypeFile\020\005\022\024\n\020MessageTy"
-    "peTopic\020\006\022\027\n\023MessageTypeRichText\020\007\022\035\n\031Me"
-    "ssageTypeActionRichText\020\010\022\024\n\020MessageType"
-    "Reply\020\t\022\024\n\020MessageTypeShock\020\n\022\023\n\017Message"
-    "TypeNote\020\013\022\026\n\022MessageTypeGroupAt\020\014\022\027\n\023Me"
-    "ssageTypeMarkdown\020\r\022\026\n\022MessageTypeExtTex"
-    "t\020\016\022\032\n\026MessageTypeGroupNotify\020\017\022\031\n\025Messa"
-    "geTypeLocalShare\020\020\022\032\n\026MessageTypeWebRTCA"
-    "udio\020\024\022\032\n\026MessageTypeWebRTCVidio\020\025\022\027\n\023Me"
-    "ssageTypeImageNew\020\036\022\031\n\025MessageTypeSmallV"
-    "ideo\020 \022\032\n\026MessageTypeRobotAnswer\020/\022\031\n\025Me"
-    "ssageTypeSourceCode\020@\022\023\n\017MessageTypeTime"
-    "\020e\022\035\n\030MessageTypeBurnAfterRead\020\200\001\022\031\n\024Mes"
-    "sageTypeCardShare\020\200\002\022\035\n\030MessageTypeMeeti"
-    "ngRemind\020\201\002\022!\n\034MessageTypeWorkWorldAtRem"
-    "ind\020\202\002\022\033\n\026MessageTypeMedalRemind\020\203\002\022\027\n\022M"
-    "essageTypeEncrypt\020\224\003\022\030\n\023MessageTypeActiv"
-    "ity\020\377\003\022\027\n\022MessageTypeRedPack\020\200\004\022\022\n\rMessa"
-    "geTypeAA\020\201\004\022\035\n\030MessageTypeCommonTrdInfo\020"
-    "\232\005\022!\n\034MessageTypeCommonProductInfo\020\370\006\022#\n"
-    "\036MessageTypeTransChatToCustomer\020\351\007\022,\n\'Me"
-    "ssageTypeTransChatToCustomer_Feedback\020\353\007"
-    "\022*\n%MessageTypeTransChatToCustomerServic"
-    "e\020\352\007\0223\n.MessageTypeTransChatToCustomerSe"
-    "rvice_Feedback\020\354\007\022\033\n\026MessageTypeRedPackI"
-    "nfo\020\200\010\022\026\n\021MessageTypeAAInfo\020\201\010\022\027\n\022Messag"
-    "eTypeConsult\020\321\017\022\035\n\030MessageTypeConsultRes"
-    "ult\020\322\017\022\035\n\030MessageTypeGrabMenuVcard\020\323\017\022\036\n"
-    "\031MessageTypeGrabMenuResult\020\324\017\022\032\n\025Message"
-    "TypeQCZhongbao\020\325\017\022\036\n\031MessageTypeMicroTou"
-    "rGuide\020\271\027\022\027\n\022MessageTypeProduct\020\200 \022 \n\033We"
-    "bRTC_MsgType_VideoMeeting\020\211\'\022\035\n\030MessageT"
-    "ypeShareLocation\020\200@\022\033\n\026MessageTypeTransN"
-    "ormal\020\341N\022\031\n\023WebRTC_MsgType_Live\020\335\377\003\022\036\n\030W"
-    "ebRTC_MsgType_VideoCall\020\341\377\003\022\036\n\030WebRTC_Ms"
-    "gType_AudioCall\020\342\377\003\022 \n\032WebRTC_MsgType_Vi"
-    "deo_Group\020\376\377\003\022\032\n\024WebRTC_MsgType_Video\020\377\377"
-    "\003\022\"\n\034MessageTypeRobotQuestionList\020\200\200\004\022 \n"
-    "\032MessageTypeRobotTurnToUser\020\201\200\004\022%\n\037Messa"
-    "geTypeRobotQuestionListNew\020\202\200\004\022\035\n\027Messag"
-    "eTypeFlightRemind\020\216\200\004\022\"\n\034MessageTypeComm"
-    "onServiceCard\020\217\200\004\022\032\n\024WebRTC_MsgType_Audi"
-    "o\020\200\200\010\022\030\n\021MessageTypeNotice\020\200\200\200@\022\031\n\021Messa"
-    "geTypeSystem\020\200\200\200\200\001\022\031\n\021MediaTypeSystemLY\020"
-    "\201\200\200\200\001*\215\010\n\020StringHeaderType\022\032\n\026StringHead"
-    "erTypeChatId\020\001\022\035\n\031StringHeaderTypeChanne"
-    "lId\020\002\022\036\n\032StringHeaderTypeExtendInfo\020\003\022\036\n"
-    "\032StringHeaderTypeBackupInfo\020\004\022\034\n\030StringH"
-    "eaderTypeReadType\020\005\022\027\n\023StringHeaderTypeJ"
-    "id\020\007\022\033\n\027StringHeaderTypeRealJid\020\010\022\035\n\031Str"
-    "ingHeaderTypeInviteJid\020\t\022\035\n\031StringHeader"
-    "TypeDeleleJid\020\n\022\030\n\024StringHeaderTypeNick\020"
-    "\014\022\031\n\025StringHeaderTypeTitle\020\020\022\027\n\023StringHe"
-    "aderTypePic\020\022\022\033\n\027StringHeaderTypeVersion"
-    "\020\024\022\032\n\026StringHeaderTypeMethod\020\026\022\030\n\024String"
-    "HeaderTypeBody\020\030\022\037\n\033StringHeaderTypeAffi"
-    "liation\020\034\022\030\n\024StringHeaderTypeType\020\036\022\032\n\026S"
-    "tringHeaderTypeResult\020 \022\032\n\026StringHeaderT"
-    "ypeReason\020\"\022\030\n\024StringHeaderTypeRole\020$\022\032\n"
-    "\026StringHeaderTypeDomain\020&\022\032\n\026StringHeade"
-    "rTypeStatus\020(\022\030\n\024StringHeaderTypeCode\020*\022"
-    "\031\n\025StringHeaderTypeCdata\0202\022\035\n\031StringHead"
-    "erTypeTimeValue\0204\022\034\n\030StringHeaderTypeKey"
-    "Value\0206\022\030\n\024StringHeaderTypeName\0208\022\030\n\024Str"
-    "ingHeaderTypeHost\020:\022\034\n\030StringHeaderTypeQ"
-    "uestion\020<\022\032\n\026StringHeaderTypeAnswer\020>\022\033\n"
-    "\027StringHeaderTypeFriends\020@\022\031\n\025StringHead"
-    "erTypeValue\020B\022\037\n\033StringHeaderTypeMaskedU"
-    "user\020D\022\027\n\023StringHeaderTypeKey\020F\022\032\n\026Strin"
-    "gHeaderTypeCarbon\020H\022\030\n\024StringHeaderTypeM"
-    "ode\020L*\261\006\n\020IQMessageKeyType\022\r\n\tIQKeyBind\020"
+    "\001\022\024\n\017SignalTypeTrans\020\215\001\022\030\n\023SignalTypeCus"
+    "tomize\020\216\001*\203\001\n\nClientType\022\021\n\rClientTypeMa"
+    "c\020\001\022\021\n\rClientTypeiOS\020\002\022\020\n\014ClientTypePC\020\003"
+    "\022\025\n\021ClientTypeAndroid\020\004\022\023\n\017ClientTypeLin"
+    "ux\020\005\022\021\n\rClientTypeWeb\020\006*\311\017\n\013MessageType\022"
+    "\035\n\020MessageTypePNote\020\365\377\377\377\377\377\377\377\377\001\022\036\n\021Messag"
+    "eTypeRevoke\020\377\377\377\377\377\377\377\377\377\001\022%\n\030MessageTypeCon"
+    "sultRevoke\020\376\377\377\377\377\377\377\377\377\001\022\023\n\017MessageTypeText"
+    "\020\001\022\024\n\020MessageTypeVoice\020\002\022\024\n\020MessageTypeP"
+    "hoto\020\003\022\031\n\025MessageTypePhotoBigIm\020\004\022\023\n\017Mes"
+    "sageTypeFile\020\005\022\024\n\020MessageTypeTopic\020\006\022\027\n\023"
+    "MessageTypeRichText\020\007\022\035\n\031MessageTypeActi"
+    "onRichText\020\010\022\024\n\020MessageTypeReply\020\t\022\024\n\020Me"
+    "ssageTypeShock\020\n\022\023\n\017MessageTypeNote\020\013\022\026\n"
+    "\022MessageTypeGroupAt\020\014\022\027\n\023MessageTypeMark"
+    "down\020\r\022\026\n\022MessageTypeExtText\020\016\022\032\n\026Messag"
+    "eTypeGroupNotify\020\017\022\031\n\025MessageTypeLocalSh"
+    "are\020\020\022\032\n\026MessageTypeWebRTCAudio\020\024\022\032\n\026Mes"
+    "sageTypeWebRTCVidio\020\025\022\027\n\023MessageTypeImag"
+    "eNew\020\036\022\031\n\025MessageTypeSmallVideo\020 \022\032\n\026Mes"
+    "sageTypeRobotAnswer\020/\022\031\n\025MessageTypeSour"
+    "ceCode\020@\022\023\n\017MessageTypeTime\020e\022\035\n\030Message"
+    "TypeBurnAfterRead\020\200\001\022\031\n\024MessageTypeCardS"
+    "hare\020\200\002\022\035\n\030MessageTypeMeetingRemind\020\201\002\022!"
+    "\n\034MessageTypeWorkWorldAtRemind\020\202\002\022\033\n\026Mes"
+    "sageTypeMedalRemind\020\203\002\022\027\n\022MessageTypeEnc"
+    "rypt\020\224\003\022\030\n\023MessageTypeActivity\020\377\003\022\027\n\022Mes"
+    "sageTypeRedPack\020\200\004\022\022\n\rMessageTypeAA\020\201\004\022\035"
+    "\n\030MessageTypeCommonTrdInfo\020\232\005\022!\n\034Message"
+    "TypeCommonProductInfo\020\370\006\022#\n\036MessageTypeT"
+    "ransChatToCustomer\020\351\007\022,\n\'MessageTypeTran"
+    "sChatToCustomer_Feedback\020\353\007\022*\n%MessageTy"
+    "peTransChatToCustomerService\020\352\007\0223\n.Messa"
+    "geTypeTransChatToCustomerService_Feedbac"
+    "k\020\354\007\022\033\n\026MessageTypeRedPackInfo\020\200\010\022\026\n\021Mes"
+    "sageTypeAAInfo\020\201\010\022\027\n\022MessageTypeConsult\020"
+    "\321\017\022\035\n\030MessageTypeConsultResult\020\322\017\022\035\n\030Mes"
+    "sageTypeGrabMenuVcard\020\323\017\022\036\n\031MessageTypeG"
+    "rabMenuResult\020\324\017\022\032\n\025MessageTypeQCZhongba"
+    "o\020\325\017\022\036\n\031MessageTypeMicroTourGuide\020\271\027\022\027\n\022"
+    "MessageTypeProduct\020\200 \022 \n\033WebRTC_MsgType_"
+    "VideoMeeting\020\211\'\022\035\n\030MessageTypeShareLocat"
+    "ion\020\200@\022\033\n\026MessageTypeTransNormal\020\341N\022\031\n\024M"
+    "essageTypeCustomize\020\342N\022\031\n\023WebRTC_MsgType"
+    "_Live\020\335\377\003\022\036\n\030WebRTC_MsgType_VideoCall\020\341\377"
+    "\003\022\036\n\030WebRTC_MsgType_AudioCall\020\342\377\003\022 \n\032Web"
+    "RTC_MsgType_Video_Group\020\376\377\003\022\032\n\024WebRTC_Ms"
+    "gType_Video\020\377\377\003\022\"\n\034MessageTypeRobotQuest"
+    "ionList\020\200\200\004\022 \n\032MessageTypeRobotTurnToUse"
+    "r\020\201\200\004\022%\n\037MessageTypeRobotQuestionListNew"
+    "\020\202\200\004\022\035\n\027MessageTypeFlightRemind\020\216\200\004\022\"\n\034M"
+    "essageTypeCommonServiceCard\020\217\200\004\022\032\n\024WebRT"
+    "C_MsgType_Audio\020\200\200\010\022\030\n\021MessageTypeNotice"
+    "\020\200\200\200@\022\031\n\021MessageTypeSystem\020\200\200\200\200\001\022\031\n\021Medi"
+    "aTypeSystemLY\020\201\200\200\200\001*\247\010\n\020StringHeaderType"
+    "\022\032\n\026StringHeaderTypeChatId\020\001\022\035\n\031StringHe"
+    "aderTypeChannelId\020\002\022\036\n\032StringHeaderTypeE"
+    "xtendInfo\020\003\022\036\n\032StringHeaderTypeBackupInf"
+    "o\020\004\022\034\n\030StringHeaderTypeReadType\020\005\022\027\n\023Str"
+    "ingHeaderTypeJid\020\007\022\033\n\027StringHeaderTypeRe"
+    "alJid\020\010\022\035\n\031StringHeaderTypeInviteJid\020\t\022\035"
+    "\n\031StringHeaderTypeDeleleJid\020\n\022\030\n\024StringH"
+    "eaderTypeNick\020\014\022\031\n\025StringHeaderTypeTitle"
+    "\020\020\022\027\n\023StringHeaderTypePic\020\022\022\033\n\027StringHea"
+    "derTypeVersion\020\024\022\032\n\026StringHeaderTypeMeth"
+    "od\020\026\022\030\n\024StringHeaderTypeBody\020\030\022\037\n\033String"
+    "HeaderTypeAffiliation\020\034\022\030\n\024StringHeaderT"
+    "ypeType\020\036\022\032\n\026StringHeaderTypeResult\020 \022\032\n"
+    "\026StringHeaderTypeReason\020\"\022\030\n\024StringHeade"
+    "rTypeRole\020$\022\032\n\026StringHeaderTypeDomain\020&\022"
+    "\032\n\026StringHeaderTypeStatus\020(\022\030\n\024StringHea"
+    "derTypeCode\020*\022\031\n\025StringHeaderTypeCdata\0202"
+    "\022\035\n\031StringHeaderTypeTimeValue\0204\022\034\n\030Strin"
+    "gHeaderTypeKeyValue\0206\022\030\n\024StringHeaderTyp"
+    "eName\0208\022\030\n\024StringHeaderTypeHost\020:\022\034\n\030Str"
+    "ingHeaderTypeQuestion\020<\022\032\n\026StringHeaderT"
+    "ypeAnswer\020>\022\033\n\027StringHeaderTypeFriends\020@"
+    "\022\031\n\025StringHeaderTypeValue\020B\022\037\n\033StringHea"
+    "derTypeMaskedUuser\020D\022\027\n\023StringHeaderType"
+    "Key\020F\022\032\n\026StringHeaderTypeCarbon\020H\022\030\n\024Str"
+    "ingHeaderTypeMode\020L\022\030\n\024StringForbiddenWo"
+    "rds\020N*\351\006\n\020IQMessageKeyType\022\r\n\tIQKeyBind\020"
     "\001\022\022\n\016IQKeyMucCreate\020\002\022\024\n\020IQKeyMucCreateV"
     "2\020\003\022\024\n\020IQKeyMucInviteV2\020\004\022\023\n\017IQKeyGetMuc"
     "User\020\005\022\023\n\017IQKeySetMucUser\020\006\022\023\n\017IQKeyDelM"
@@ -731,27 +733,30 @@ void protobuf_AddDesc_message_2eproto() {
     "h\020<\022\017\n\013IQKeyResult\020P\022\016\n\nIQKeyError\020Z\022\021\n\r"
     "IQKeyGetVUser\020\\\022\025\n\021IQKeyGetVUserRole\020^\022\025"
     "\n\021IQKeyStartSession\020`\022\023\n\017IQKeyEndSession"
-    "\020b\022\025\n\021IQKeySessionEvent\020c*o\n\rStreamEndCo"
-    "de\022\034\n\030StreamEndCodeReloginBase\020d\022\037\n\033Stre"
-    "amEndCodeReloginFromNav\020e\022\037\n\032StreamEndCo"
-    "deNoReloginBase\020\310\001*\341\003\n\014CategoryType\022\032\n\026C"
-    "ategoryOrganizational\020\001\022\027\n\023CategorySessi"
-    "onList\020\002\022\026\n\022CategoryNavigation\020\003\022\033\n\027Cate"
-    "goryOPSNotification\020\004\022\026\n\022CategoryConfigS"
-    "ync\020\006\022\025\n\021CategoryMsgNotify\020\007\022\030\n\024Category"
-    "CalendarSync\020\010\022\034\n\030CategoryOnlineClientSy"
-    "nc\020\t\022\022\n\016CategoryAskLog\020\n\022\037\n\033CategoryClie"
-    "ntSpecialNotice\020\013\022\024\n\020CategoryTickUser\020d\022"
-    "\036\n\032CategoryGlobalNotification\020b\022\037\n\033Categ"
-    "orySpecifyNotification\020c\022\033\n\027CategoryWork"
-    "WorldNotice\020\014\022\027\n\023CategoryHotLineSync\020\r\022\031"
-    "\n\025CategoryMedalListSync\020\016\022#\n\037CategoryMed"
-    "alUserStatusListSync\020\017*\267\001\n\017PresenceKeyTy"
-    "pe\022\027\n\023PresenceKeyPriority\020\001\022\033\n\027PresenceK"
-    "eyVerifyFriend\020\002\022*\n&PresenceKeyManualAut"
-    "henticationConfirm\020\003\022\025\n\021PresenceKeyResul"
-    "t\020\006\022\025\n\021PresenceKeyNotify\020\007\022\024\n\020PresenceKe"
-    "yError\020\010", 7728);
+    "\020b\022\025\n\021IQKeySessionEvent\020c\022\032\n\026IQKeyGetFor"
+    "biddenWords\020d\022\032\n\026IQKeySetForbiddenWords\020"
+    "e*\220\001\n\rStreamEndCode\022\034\n\030StreamEndCodeRelo"
+    "ginBase\020d\022\037\n\033StreamEndCodeReloginFromNav"
+    "\020e\022\037\n\033StreamEndCodeSystemShutdown\020o\022\037\n\032S"
+    "treamEndCodeNoReloginBase\020\310\001*\375\003\n\014Categor"
+    "yType\022\032\n\026CategoryOrganizational\020\001\022\027\n\023Cat"
+    "egorySessionList\020\002\022\026\n\022CategoryNavigation"
+    "\020\003\022\033\n\027CategoryOPSNotification\020\004\022\026\n\022Categ"
+    "oryConfigSync\020\006\022\025\n\021CategoryMsgNotify\020\007\022\030"
+    "\n\024CategoryCalendarSync\020\010\022\034\n\030CategoryOnli"
+    "neClientSync\020\t\022\022\n\016CategoryAskLog\020\n\022\037\n\033Ca"
+    "tegoryClientSpecialNotice\020\013\022\024\n\020CategoryT"
+    "ickUser\020d\022\036\n\032CategoryGlobalNotification\020"
+    "b\022\037\n\033CategorySpecifyNotification\020c\022\033\n\027Ca"
+    "tegoryWorkWorldNotice\020\014\022\027\n\023CategoryHotLi"
+    "neSync\020\r\022\031\n\025CategoryMedalListSync\020\016\022#\n\037C"
+    "ategoryMedalUserStatusListSync\020\017\022\032\n\026Cate"
+    "goryDiscoverUnread\020\020*\267\001\n\017PresenceKeyType"
+    "\022\027\n\023PresenceKeyPriority\020\001\022\033\n\027PresenceKey"
+    "VerifyFriend\020\002\022*\n&PresenceKeyManualAuthe"
+    "nticationConfirm\020\003\022\025\n\021PresenceKeyResult\020"
+    "\006\022\025\n\021PresenceKeyNotify\020\007\022\024\n\020PresenceKeyE"
+    "rror\020\010", 7926);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "message.proto", &protobuf_RegisterTypes);
   MessageKeyValue::default_instance_ = new MessageKeyValue();
@@ -840,6 +845,7 @@ bool SignalType_IsValid(int value) {
     case 136:
     case 140:
     case 141:
+    case 142:
       return true;
     default:
       return false;
@@ -923,6 +929,7 @@ bool MessageType_IsValid(int value) {
     case 5001:
     case 8192:
     case 10081:
+    case 10082:
     case 65501:
     case 65505:
     case 65506:
@@ -985,6 +992,7 @@ bool StringHeaderType_IsValid(int value) {
     case 70:
     case 72:
     case 76:
+    case 78:
       return true;
     default:
       return false;
@@ -1033,6 +1041,8 @@ bool IQMessageKeyType_IsValid(int value) {
     case 96:
     case 98:
     case 99:
+    case 100:
+    case 101:
       return true;
     default:
       return false;
@@ -1047,6 +1057,7 @@ bool StreamEndCode_IsValid(int value) {
   switch(value) {
     case 100:
     case 101:
+    case 111:
     case 200:
       return true;
     default:
@@ -1074,6 +1085,7 @@ bool CategoryType_IsValid(int value) {
     case 13:
     case 14:
     case 15:
+    case 16:
     case 98:
     case 99:
     case 100:

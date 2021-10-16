@@ -6,10 +6,10 @@
 #include <utility>
 #include <vector>
 #include <memory>
-#include "../EventBus/Event.hpp"
-#include "../entity/IM_Session.h"
+#include "EventBus/Event.hpp"
+#include "entity/IM_Session.h"
 
-typedef std::shared_ptr<std::vector<std::shared_ptr<QTalk::Entity::ImSessionInfo>>>
+typedef std::shared_ptr<std::vector<std::shared_ptr<st::entity::ImSessionInfo>>>
 ImSessions;
 
 //

@@ -2,23 +2,23 @@
 // Created by cc on 18-12-29.
 //
 
-#ifndef QTALK_V2_USELESSMESSAGE_H
-#define QTALK_V2_USELESSMESSAGE_H
+#ifndef STALK_V2_USELESSMESSAGE_H
+#define STALK_V2_USELESSMESSAGE_H
 
-#include "../EventBus/Object.hpp"
-#include "../EventBus/Event.hpp"
-#include "../include/CommonStrcut.h"
+#include "EventBus/Object.hpp"
+#include "EventBus/Event.hpp"
+#include "include/CommonStrcut.h"
 
 class OAUiDataMessage : public Event
 {
 public:
-    OAUiDataMessage(std::vector<QTalk::StOAUIData>&oAUIData)
+    OAUiDataMessage(std::vector<st::StOAUIData>&oAUIData)
         :stOAUIData(oAUIData){};
     ~OAUiDataMessage() {};
 
 public:
     bool ret;
-    std::vector<QTalk::StOAUIData>&stOAUIData;
+    std::vector<st::StOAUIData>&stOAUIData;
 };
 
-#endif //QTALK_V2_USELESSMESSAGE_H
+#endif //STALK_V2_USELESSMESSAGE_H

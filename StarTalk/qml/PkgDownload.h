@@ -2,8 +2,8 @@
 // Created by cc on 2020/11/20.
 //
 
-#ifndef QTALK_V2_PKGDOWNLOAD_H
-#define QTALK_V2_PKGDOWNLOAD_H
+#ifndef STALK_V2_PKGDOWNLOAD_H
+#define STALK_V2_PKGDOWNLOAD_H
 
 #include <QObject>
 #include <QtNetwork/QNetworkAccessManager>
@@ -51,4 +51,4 @@ protected slots:
 };
 
 
-#endif //QTALK_V2_PKGDOWNLOAD_H
+#endif //STALK_V2_PKGDOWNLOAD_H

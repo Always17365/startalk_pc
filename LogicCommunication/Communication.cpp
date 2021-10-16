@@ -12,20 +12,20 @@
 #include "OnLineManager.h"
 #include "SearchManager.h"
 #include "OfflineMessageManager.h"
-#include "../entity/IM_Session.h"
-#include "../LogicManager/LogicManager.h"
-#include "../QtUtil/Entity/JID.h"
-#include "../include/im_enum.h"
-#include "../Platform/Platform.h"
-#include "../QtUtil/Utils/utils.h"
-#include "../QtUtil/nJson/nJson.h"
-#include "../Message/GroupMessage.h"
-#include "../QtUtil/Utils/Log.h"
-#include "../include/CommonStrcut.h"
-#include "../Platform/NavigationManager.h"
-#include "../Platform/dbPlatForm.h"
-#include "../include/perfcounter.h"
-#include "../interface/logic/ILogicBase.h"
+#include "entity/IM_Session.h"
+#include "LogicManager/LogicManager.h"
+#include "Util/Entity/JID.h"
+#include "include/im_enum.h"
+#include "DataCenter/Platform.h"
+#include "Util/utils.h"
+#include "Util/nJson/nJson.h"
+#include "Message/GroupMessage.h"
+#include "Util/Log.h"
+#include "include/CommonStrcut.h"
+#include "DataCenter/NavigationManager.h"
+#include "DataCenter/dbPlatForm.h"
+#include "Util/perfcounter.h"
+#include "interface/logic/ILogicBase.h"
 
 #if defined(_MACOS)
     #define DEM_CLIENT_TYPE ClientTypeMac
@@ -34,21 +34,21 @@
     #define DEM_CLIENT_TYPE ClientTypeLinux
     #include <unistd.h>
 #else
-    #include <windows.h>
+    #include <Windows.h>
     #define DEM_CLIENT_TYPE ClientTypePC
 #endif
 //
 
-#define QTALK_2_0_CONFIG "QTALK_2_0_CONFIG"
+#define STALK_2_0_CONFIG "STALK_2_0_CONFIG"
 
 #define LOGIN_TYPE_NEW_PASSWORD "newpassword"
 
-using namespace QTalk;
+using namespace st;
+using std::string;
 
 Communication::Communication()
     : _port(0)
 {
-    //    _pMsgManager = new CommMsgManager;
     _pMsgListener = new CommMsgListener(this);
     _pFileHelper = new FileHelper(this);
     _pUserManager = new UserManager(this);
@@ -59,52 +59,38 @@ Communication::Communication()
     _pUserConfig = new UserConfig(this);
 
     for (int i = 0; i < _threadPoolCount; ++i) {
-        auto name = SFormat("Communication's http pool {0}", i);
-        auto *item = new ThreadPool(name);
-        info_log("{0} -> {1}", item, name);
+        auto *item = new ThreadPool();
+        info_log("{0} -> {1}", item);
         _httpPool.push_back(item);
     }
 
-    std::function<int(STLazyQueue<std::pair<std::string, UserCardMapParam>> *)>
-    usercardFun = [this](STLazyQueue<std::pair<std::string, UserCardMapParam>>
-    *queue) -> int {
-        int runningCount = 0;
+    _userCardQueue = new lazyq<UserCardPair>(50, [this](lazyq<UserCardPair>::lazyqq
+    & q) {
 
-        if (queue != nullptr && !queue->empty())
-        {
-            std::map<std::string, UserCardMapParam> params;
+        if (q && !q->empty()) {
+            std::map<string, UserCardMapParam> params;
 
-            while (!queue->empty()) {
-                auto tmpParam = queue->front();
-                const std::string &groupId = tmpParam.first;
-                auto tmp = tmpParam.second;
+            while (!q->empty()) {
+                auto tmpParam = q->front();
 
-                for (const auto &item : tmp) {
-                    params[groupId][item.first] = item.second;
+                for (const auto &item : tmpParam.second) {
+                    params[tmpParam.first][item.first] = item.second;
                 }
 
-                queue->pop();
-                runningCount++;
+                q->pop();
             }
 
             // 插库
             if (_pUserManager) {
                 for (const auto &it : params) {
-                    std::vector<QTalk::StUserCard> arUserInfo;
+                    std::vector<st::StUserCard> arUserInfo;
                     _pUserManager->getUserCard(it.second, arUserInfo);
-                    // 下载头像
                     downloadUserHeadByStUserCard(arUserInfo);
                     CommMsgManager::updateGroupMemberInfo(it.first, arUserInfo);
                 }
             }
         }
-
-        return runningCount;
-    };
-    userCardQueue = new STLazyQueue<std::pair<std::string, UserCardMapParam>>(50,
-            usercardFun);
-    //
-    //    _pUpdaterManager = new UpdaterManager(this);
+    });
 }
 
 Communication::~Communication()
@@ -141,20 +127,20 @@ Communication::~Communication()
  * @param password
  * @return
  */
-bool Communication::OnLogin(const std::string &userName,
-                            const std::string &password)
+bool Communication::OnLogin(const string &userName,
+                            const string &password)
 {
     // 设置当前登录的userid
-    PLAT.setSelfUserId(userName);
+    DC.setSelfUserId(userName);
 
     // 下载公钥
     if (!_pFileHelper->DownloadPubKey()) {
         return false;
     }
 
-    const std::string host = NavigationManager::instance().getXmppHost();
+    const string host = NavigationManager::instance().getXmppHost();
     const int port = NavigationManager::instance().getProbufPort();
-    std::string domain = NavigationManager::instance().getDomain();
+    string domain = NavigationManager::instance().getDomain();
     info_log("login at host:{0} domain:{1} port: {2}", host, domain, port);
 
     if (port == 0 || domain.empty() || host.empty()) {
@@ -165,24 +151,24 @@ bool Communication::OnLogin(const std::string &userName,
     }
 
     //增加新登录逻辑
-    std::string loginType = NavigationManager::instance().getLoginType();
+    string loginType = NavigationManager::instance().getLoginType();
 
     if (!loginType.empty() && LOGIN_TYPE_NEW_PASSWORD == loginType) {
-        std::map<std::string, std::string> map;
+        std::map<string, string> map;
         getNewLoginToken(userName, password, map);
-        std::string u = map["u"];
-        std::string p = map["t"];
+        string u = map["u"];
+        string p = map["t"];
 
         if (!u.empty() && !p.empty()) {
             // 设置当前登录的userid
-            PLAT.setSelfUserId(u);
+            DC.setSelfUserId(u);
             nJson nauth;
             nJson gObj;
             gObj["u"] = userName;
             gObj["p"] = p;
-            gObj["mk"] = QTalk::utils::getMessageId();
+            gObj["mk"] = st::utils::uuid();
             nauth["nauth"] = gObj;
-            std::string pp = nauth.dump();
+            string pp = nauth.dump();
 
             if (!AsyncConnect(u + "@" + domain, pp, host, port)) {
                 CommMsgManager::sendLoginErrMessage("连接服务器失败!");
@@ -193,7 +179,7 @@ bool Communication::OnLogin(const std::string &userName,
             return false;
         }
     } else {
-        std::string loginName = userName + "@" + domain;
+        string loginName = userName + "@" + domain;
 
         if (!AsyncConnect(loginName, password, host, port)) {
             CommMsgManager::sendLoginErrMessage("连接服务器失败!");
@@ -205,8 +191,8 @@ bool Communication::OnLogin(const std::string &userName,
 }
 
 //
-bool Communication::AsyncConnect(const std::string &userName,
-                                 const std::string &password, const std::string &host,
+bool Communication::AsyncConnect(const string &userName,
+                                 const string &password, const string &host,
                                  int port)
 {
     info_log("start login: user:{0}, password length:{1}, host:{2}, port:{3}",
@@ -231,22 +217,22 @@ bool Communication::tryConnectToServer()
  * 获取导航信息
  * @param navAddr
  */
-bool Communication::getNavInfo(const std::string &navAddr, QTalk::StNav &nav)
+bool Communication::getNavInfo(const string &navAddr, st::StNav &nav)
 {
-    std::string url = navAddr;
+    string url = navAddr;
 
-    if (navAddr.find('?') == std::string::npos) {
+    if (navAddr.find('?') == string::npos) {
         url += "?p=pc";
     } else {
         url += "&p=pc";
     }
 
-    if (navAddr.find("nauth=") == std::string::npos) {
+    if (navAddr.find("nauth=") == string::npos) {
         url += "&nauth=true";
     }
 
     bool ret = false;
-    auto func = [url, &ret, &nav](int code, const std::string & resData) {
+    auto func = [url, &ret, &nav](int code, const string & resData) {
         if (code == 200) {
             nJson data = Json::parse(resData);
 
@@ -258,43 +244,45 @@ bool Communication::getNavInfo(const std::string &navAddr, QTalk::StNav &nav)
             nav.version = Json::get<long long>(data, "version", 0);
             // base address
             nJson baseAddress = Json::get<nJson>(data, "baseaddess");
-            nav.xmppHost = Json::get<std::string>(baseAddress, "xmpp");
-            nav.domain = Json::get<std::string>(baseAddress, "domain");
+            nav.xmppHost = Json::get<string>(baseAddress, "xmpp");
+            nav.domain = Json::get<string>(baseAddress, "domain");
             nav.protobufPcPort = Json::get<int>(baseAddress, "protobufPcPort");
-            nav.apiurl = Json::get<std::string>(baseAddress, "apiurl");
-            nav.javaurl = Json::get<std::string>(baseAddress, "javaurl");
-            nav.httpurl = Json::get<std::string>(baseAddress, "httpurl");
-            nav.pubkey = Json::get<std::string>(baseAddress, "pubkey");
-            nav.fileurl = Json::get<std::string>(baseAddress, "fileurl");
-            nav.mobileurl = Json::get<std::string>(baseAddress, "mobileurl");
-            nav.leaderUrl = Json::get<std::string>(baseAddress, "leaderurl");
-            nav.shareUrl = Json::get<std::string>(baseAddress, "shareurl");
-            nav.videoUrl = Json::get<std::string>(baseAddress, "videourl");
-            nav.videoConference = Json::get<std::string>(baseAddress, "videoConference");
-            nav.checkUpdateUrl = Json::get<std::string>(baseAddress, "checkupdate");
+            nav.apiurl = Json::get<string>(baseAddress, "apiurl");
+            nav.javaurl = Json::get<string>(baseAddress, "javaurl");
+            nav.httpurl = Json::get<string>(baseAddress, "httpurl");
+            nav.pubkey = Json::get<string>(baseAddress, "pubkey");
+            nav.fileurl = Json::get<string>(baseAddress, "fileurl");
+            nav.mobileurl = Json::get<string>(baseAddress, "mobileurl");
+            nav.leaderUrl = Json::get<string>(baseAddress, "leaderurl");
+            nav.shareUrl = Json::get<string>(baseAddress, "shareurl");
+            nav.videoUrl = Json::get<string>(baseAddress, "videourl");
+            nav.videoConference = Json::get<string>(baseAddress, "videoConference");
+            nav.checkUpdateUrl = Json::get<string>(baseAddress, "checkupdate");
+
 
             //imcofig
             if (data.contains("imConfig")) {
                 nJson imcofig = Json::get<nJson>(data, "imConfig");
                 nav.rsaEncodeType = Json::get<int>(imcofig, "RsaEncodeType");
-                nav.uploadLog = Json::get<std::string>(imcofig, "uploadLog");
-                nav.mailSuffix = Json::get<std::string>(imcofig, "mail");
-                nav.foundConfigUrl = Json::get<std::string>(imcofig, "foundConfigUrl");
+                nav.uploadLog = Json::get<string>(imcofig, "uploadLog");
+                nav.mailSuffix = Json::get<string>(imcofig, "mail");
+                nav.foundConfigUrl = Json::get<string>(imcofig, "foundConfigUrl");
+                nav.forbiddenWord = Json::get<bool>(imcofig, "forbiddenWords");
             }
 
             // ops
             if (data.contains("ops")) {
                 nJson ops = Json::get<nJson>(data, "ops");
-                nav.opsHost = Json::get<std::string>(ops, "host");
+                nav.opsHost = Json::get<string>(ops, "host");
             }
 
             // ability
             if (data.contains("ability")) {
                 nJson ability = Json::get<nJson>(data, "ability");
-                nav.qCloudHost = Json::get<std::string>(ability, "qCloudHost");
-                nav.searchUrl = Json::get<std::string>(ability, "new_searchurl");
+                nav.qCloudHost = Json::get<string>(ability, "qCloudHost");
+                nav.searchUrl = Json::get<string>(ability, "new_searchurl");
                 nav.showmsgstat = Json::get<bool>(ability, "showmsgstat", false);
-                nav.qcGrabOrder = Json::get<std::string>(ability, "qcGrabOrder");
+                nav.qcGrabOrder = Json::get<string>(ability, "qcGrabOrder");
                 // 音视频开关
                 nav.bVideoChat = Json::get<bool>(ability, "videoChat", false);
                 nav.bConference = Json::get<bool>(ability, "videoConference", false);
@@ -303,7 +291,7 @@ bool Communication::getNavInfo(const std::string &navAddr, QTalk::StNav &nav)
             //qcadmin
             if (data.contains("qcadmin")) {
                 nJson qcadmin = Json::get<nJson>(data, "qcadmin");
-                nav.qcadminHost = Json::get<std::string>(qcadmin, "host");
+                nav.qcadminHost = Json::get<string>(qcadmin, "host");
             }
 
             //Login
@@ -311,7 +299,7 @@ bool Communication::getNavInfo(const std::string &navAddr, QTalk::StNav &nav)
                 nJson login = Json::get<nJson>(data, "Login");
 
                 if (login.contains("loginType")) {
-                    nav.loginType = Json::get<std::string>(login, "loginType");
+                    nav.loginType = Json::get<string>(login, "loginType");
                 }
             }
 
@@ -329,7 +317,7 @@ bool Communication::getNavInfo(const std::string &navAddr, QTalk::StNav &nav)
     };
 
     try {
-        QTalk::HttpRequest req(url);
+        st::HttpRequest req(url);
         addHttpRequest(req, func);
     } catch (const std::exception &e) {
         error_log(e.what());
@@ -342,12 +330,12 @@ bool Communication::getNavInfo(const std::string &navAddr, QTalk::StNav &nav)
  *
  * @param nav
  */
-void Communication::setLoginNav(const QTalk::StNav &nav)
+void Communication::setLoginNav(const st::StNav &nav)
 {
     NavigationManager::instance().setVersion(nav.version);
     NavigationManager::instance().setXmppHost(nav.xmppHost);
     NavigationManager::instance().setDomain(nav.domain);
-    PLAT.setSelfDomain(nav.domain);
+    DC.setSelfDomain(nav.domain);
     NavigationManager::instance().setProbufPort(nav.protobufPcPort);
     NavigationManager::instance().setApiHost(nav.apiurl);
     NavigationManager::instance().setJavaHost(nav.javaurl);
@@ -377,6 +365,7 @@ void Communication::setLoginNav(const QTalk::StNav &nav)
     NavigationManager::instance().setConferenceEnable(nav.bConference);
     //
     NavigationManager::instance().setRollbackFlag(nav.rollback);
+    NavigationManager::instance().setForbiddenWordFlag(nav.forbiddenWord);
 }
 
 /**
@@ -390,9 +379,7 @@ void Communication::synSeverData()
     try {
         // 发发送一次心跳
         LogicManager::instance()->getLogicBase()->sendHeartbeat();
-        //        sendHeartbeat();
         // 获取组织架构
-        debug_log("获取组织架构");
         CommMsgManager::sendLoginProcessMessage("getting user information");
 
         if (_pUserManager) {
@@ -404,7 +391,6 @@ void Communication::synSeverData()
         CommMsgManager::sendLoginProcessMessage("getting group information");
 
         if (_pUserGroupManager) {
-            debug_log("获取群信息");
             MapGroupCard groups;
 
             if (_pUserGroupManager->getUserGroupInfo(groups)) {
@@ -415,21 +401,15 @@ void Communication::synSeverData()
         }
 
         // 获取单人配置
-        debug_log("获取单人配置");
         CommMsgManager::sendLoginProcessMessage("initializing configuration");
         _pUserConfig->getUserConfigFromServer(false);
         // 初始化配置
-        debug_log("初始化配置");
-        std::string strPlatform = PLAT.getPlatformStr();
-        std::string userConfig;
-        LogicManager::instance()->getDatabase()->getConfig(QTALK_2_0_CONFIG,
+        string strPlatform = DC.getPlatformStr();
+        string userConfig;
+        LogicManager::instance()->getDatabase()->getConfig(STALK_2_0_CONFIG,
                                                            strPlatform, userConfig);
         AppSetting::instance().initAppSetting(userConfig);
-        // 获取好友列表
-        //        debug_log("获取好友列表");
-        //        getFriendList();
         // 获取单人离线消息
-        debug_log("获取单人消息");
         CommMsgManager::sendLoginProcessMessage("getting user message");
         bool isok = _pOfflineMessageManager->updateChatOfflineMessage();
 
@@ -442,7 +422,6 @@ void Communication::synSeverData()
         CommMsgManager::sendLoginProcessMessage("updating message read mask");
         _pOfflineMessageManager->updateChatMasks();
         // 获取群离线消息
-        debug_log("获取群离线消息");
         CommMsgManager::sendLoginProcessMessage("getting group message");
         isok = _pOfflineMessageManager->updateGroupOfflineMessage();
 
@@ -452,10 +431,8 @@ void Communication::synSeverData()
         }
 
         //
-        debug_log("更新群阅读状态");
         _pOfflineMessageManager->updateGroupMasks();
         // 获取通知消息
-        debug_log("获取通知消息");
         CommMsgManager::sendLoginProcessMessage("getting notice message");
         isok = _pOfflineMessageManager->updateNoticeOfflineMessage();
 
@@ -467,7 +444,7 @@ void Communication::synSeverData()
         // 增量拉取勋章信息
         getMedalList();
         getUserMedal();
-        //
+
         CommMsgManager::sendLoginProcessMessage("getting user state");
         CommMsgManager::sendSynOfflineSuccess();
         // 同步完离线后 开启在线信息查询定时器
@@ -482,9 +459,9 @@ void Communication::synSeverData()
 void Communication::synUsersUserStatus()
 {
     if (_pOnLineManager) {
-        std::set<std::string> users;
+        std::set<string> users;
         LogicManager::instance()->getDatabase()->getCareUsers(users);
-        std::set<std::string> tmpUsers;
+        std::set<string> tmpUsers;
 
         for (const auto &u : users) {
             tmpUsers.insert(u);
@@ -515,28 +492,28 @@ void Communication::synUsersUserStatus()
   * @date     2018/09/28
   */
 void Communication::getUserHistoryMessage(const QInt64 &time,
-                                          const QUInt8 &chatType, const QTalk::Entity::UID &uid,
-                                          std::vector<QTalk::Entity::ImMessageInfo> &msgList)
+                                          const QUInt8 &chatType, const st::entity::UID &uid,
+                                          std::vector<st::entity::ImMessageInfo> &msgList)
 {
     bool ret = LogicManager::instance()->getDatabase()->getUserMessage(time,
                uid.usrId(), uid.realId(), msgList);
 
     if (!ret || msgList.empty()) {
         switch (chatType) {
-        case QTalk::Enum::TwoPersonChat:
-        case QTalk::Enum::Consult:
+        case st::Enum::TwoPersonChat:
+        case st::Enum::Consult:
             _pOfflineMessageManager->getUserMessage(time, uid.usrId());
             break;
 
-        case QTalk::Enum::GroupChat:
+        case st::Enum::GroupChat:
             _pOfflineMessageManager->getGroupMessage(time, uid.usrId());
             break;
 
-        case QTalk::Enum::System:
+        case st::Enum::System:
             _pOfflineMessageManager->getSystemMessage(time, uid.usrId());
             break;
 
-        case QTalk::Enum::ConsultServer:
+        case st::Enum::ConsultServer:
             _pOfflineMessageManager->getConsultServerMessage(time, uid.usrId(),
                                                              uid.realId());
             break;
@@ -552,27 +529,27 @@ void Communication::getUserHistoryMessage(const QInt64 &time,
 
 void Communication::getNetHistoryMessage(const QInt64 &time,
                                          const QUInt8 &chatType,
-                                         const QTalk::Entity::UID &uid,
-                                         const std::string &direction,
-                                         std::vector<QTalk::Entity::ImMessageInfo> &msgList)
+                                         const st::entity::UID &uid,
+                                         const string &direction,
+                                         std::vector<st::entity::ImMessageInfo> &msgList)
 {
     switch (chatType) {
-    case QTalk::Enum::TwoPersonChat:
-    case QTalk::Enum::Consult:
+    case st::Enum::TwoPersonChat:
+    case st::Enum::Consult:
         msgList = _pOfflineMessageManager->getUserMessage(time, uid.usrId(), direction);
         break;
 
-    case QTalk::Enum::GroupChat:
+    case st::Enum::GroupChat:
         msgList = _pOfflineMessageManager->getGroupMessage(time, uid.usrId(),
                                                            direction);
         break;
 
-    case QTalk::Enum::System:
+    case st::Enum::System:
         msgList = _pOfflineMessageManager->getSystemMessage(time, uid.usrId(),
                                                             direction);
         break;
 
-    case QTalk::Enum::ConsultServer:
+    case st::Enum::ConsultServer:
         msgList = _pOfflineMessageManager->getConsultServerMessage(time, uid.usrId(),
                                                                    uid.realId(), direction);
         break;
@@ -589,10 +566,10 @@ void Communication::getNetHistoryMessage(const QInt64 &time,
   * @author   may
   * @date     2018/11/10
   */
-void Communication::onCreateGroupComplete(const std::string &groupId, bool ret)
+void Communication::onCreateGroupComplete(const string &groupId, bool ret)
 {
     if (ret && _pUserGroupManager) {
-        QTalk::StGroupInfo groupInfo;
+        st::StGroupInfo groupInfo;
         groupInfo.desc = "";
         groupInfo.groupId = groupId;
 
@@ -604,7 +581,7 @@ void Communication::onCreateGroupComplete(const std::string &groupId, bool ret)
         }
 
         groupInfo.title = "";
-        QTalk::Entity::ImGroupInfo im_gInfo;
+        st::entity::ImGroupInfo im_gInfo;
         im_gInfo.GroupId = groupInfo.groupId;
         LogicManager::instance()->getDatabase()->insertGroupInfo(im_gInfo);
 
@@ -621,10 +598,10 @@ void Communication::onCreateGroupComplete(const std::string &groupId, bool ret)
   * @author   cc
   * @date     2018/10/08
   */
-void Communication::onRecvGroupMembers(const std::string &groupId,
-                                       const std::map<std::string, QUInt8> &mapUserRole)
+void Communication::onRecvGroupMembers(const string &groupId,
+                                       const std::map<string, QUInt8> &mapUserRole)
 {
-    std::map<std::string, QTalk::StUserCard> mapStUsers;
+    std::map<string, st::StUserCard> mapStUsers;
 
     // 存储数据库
     if (!mapUserRole.empty()) {
@@ -636,7 +613,7 @@ void Communication::onRecvGroupMembers(const std::string &groupId,
     }
 
     for (const auto &item : mapUserRole) {
-        auto card = QTalk::StUserCard();
+        auto card = st::StUserCard();
         card.xmppId = item.first;
         mapStUsers[item.first] = card;
     }
@@ -653,22 +630,22 @@ void Communication::onRecvGroupMembers(const std::string &groupId,
         e.members = mapStUsers;
         CommMsgManager::gotGroupMember(e);
         // 获取群成员名片
-        std::set<std::string> users;
+        std::set<string> users;
         UserCardMapParam param;
 
         for (auto &itm : mapStUsers) {
-            const std::string &strXmppId = itm.first;
+            const string &strXmppId = itm.first;
             auto pos = strXmppId.find('@');
 
-            if (pos != std::string::npos) {
+            if (pos != string::npos) {
                 users.insert(strXmppId);
-                std::string userId = strXmppId.substr(0, pos);
-                std::string domain = strXmppId.substr(pos + 1);
+                string userId = strXmppId.substr(0, pos);
+                string domain = strXmppId.substr(pos + 1);
                 param[domain][userId] = itm.second.version;
             }
         }
 
-        userCardQueue->push(std::pair<std::string, UserCardMapParam>(groupId, param));
+        _userCardQueue->push(std::pair<string, UserCardMapParam>(groupId, param));
     }
 }
 
@@ -680,11 +657,11 @@ void Communication::onRecvGroupMembers(const std::string &groupId,
   * @date     2018/10/26
   */
 void Communication::downloadUserHeadByStUserCard(const
-                                                 std::vector<QTalk::StUserCard> &arUserInfo)
+                                                 std::vector<st::StUserCard> &arUserInfo)
 {
-    std::vector<std::string> urls;
+    std::vector<string> urls;
 
-    for (const QTalk::StUserCard &user : arUserInfo) {
+    for (const st::StUserCard &user : arUserInfo) {
         if (user.headerSrc.empty()) {
             continue;
         }
@@ -708,27 +685,27 @@ void Communication::downloadUserHeadByStUserCard(const
   * @author   cc
   * @date     2018/09/30
   */
-void Communication::batchUpdateHead(const std::vector<std::string> &arXmppids)
+void Communication::batchUpdateHead(const std::vector<string> &arXmppids)
 {
     if (arXmppids.empty()) {
         return;
     }
 
     if (_pUserManager) {
-        std::map<std::string, std::map<std::string, int>> params;
+        std::map<string, std::map<string, int>> params;
 
         for (const auto &arXmppid : arXmppids) {
             auto pos = arXmppid.find('@');
 
-            if (pos != std::string::npos) {
-                std::string user = arXmppid.substr(0, pos);
-                std::string domain = arXmppid.substr(pos + 1);
+            if (pos != string::npos) {
+                string user = arXmppid.substr(0, pos);
+                string domain = arXmppid.substr(pos + 1);
                 params[domain][user] = 0;
             }
         }
 
         std::thread([this, params]() {
-            std::vector<QTalk::StUserCard> arUserInfo;
+            std::vector<st::StUserCard> arUserInfo;
             _pUserManager->getUserCard(params, arUserInfo);
             downloadUserHeadByStUserCard(arUserInfo);
             CommMsgManager::sendDownloadHeadSuccess();
@@ -743,10 +720,10 @@ void Communication::batchUpdateHead(const std::vector<std::string> &arXmppids)
   * @author   cc
   * @date     2018/10/03
   */
-void Communication::getGroupMemberById(const std::string &groupId)
+void Communication::getGroupMemberById(const string &groupId)
 {
     // 获取群公告
-    std::string groupTopic;
+    string groupTopic;
     LogicManager::instance()->getDatabase()->getGroupTopic(groupId, groupTopic);
     debug_log("群公告 群Id:{0} 群公告:{1}", groupId, groupTopic);
 
@@ -755,8 +732,8 @@ void Communication::getGroupMemberById(const std::string &groupId)
     }
 
     // 获取本地群成员
-    std::map<std::string, QTalk::StUserCard> arGroupMembers;
-    std::map<std::string, QUInt8> userRole;
+    std::map<string, st::StUserCard> arGroupMembers;
+    std::map<string, QUInt8> userRole;
     LogicManager::instance()->getDatabase()->getGroupMemberById(groupId,
                                                                 arGroupMembers, userRole);
 
@@ -779,23 +756,23 @@ void Communication::getGroupMemberById(const std::string &groupId)
 void Communication::dealBindMsg()
 {
     CommMsgManager::sendLoginProcessMessage("opening database");
-    std::string path = PLAT.getAppdataRoamingUserPath();
+    string path = DC.getAppdataRoamingUserPath();
     path += "/qtalk.db";
     //FileHelper::creatDir(path);
-    std::string errorMsg;
+    string errorMsg;
 
     if (!LogicManager::instance()->getDatabase()->OpenDB(path, errorMsg)) {
         throw std::runtime_error(errorMsg);
     }
 
     //将自己的id插入cache_data表 触发器使用
-    LogicManager::instance()->getDatabase()->insertUserId(PLAT.getSelfXmppId());
+    LogicManager::instance()->getDatabase()->insertUserId(DC.getSelfXmppId());
     //设置群阅读指针时间
-    std::string last_rmt =
+    string last_rmt =
         LogicManager::instance()->getDatabase()->getLoginBeforeGroupReadMarkTime();
 
     if (last_rmt == "0") {
-        std::string current_rmt =
+        string current_rmt =
             LogicManager::instance()->getDatabase()->getGroupReadMarkTime();
         LogicManager::instance()->getDatabase()->saveLoginBeforeGroupReadMarkTime(
             current_rmt);
@@ -814,8 +791,8 @@ void Communication::dealBindMsg()
   * @author   cc
   * @date     2018/10/25
   */
-void Communication::inviteGroupMembers(std::vector<std::string> &users,
-                                       const std::string &groupId)
+void Communication::inviteGroupMembers(std::vector<string> &users,
+                                       const string &groupId)
 {
     LogicManager::instance()->getLogicBase()->inviteGroupMembers(users, groupId);
 }
@@ -827,8 +804,8 @@ void Communication::inviteGroupMembers(std::vector<std::string> &users,
   * @author   may
   * @date     2018/11/10
   */
-void Communication::createGroup(const std::string &groupId,
-                                const std::string &groupName)
+void Communication::createGroup(const string &groupId,
+                                const string &groupName)
 {
     _mapGroupIdName[groupId] = groupName;
     LogicManager::instance()->getLogicBase()->createGroup(groupId);
@@ -847,7 +824,7 @@ void Communication::getNetEmoticon(GetNetEmoticon &e)
     url << NavigationManager::instance().getFileHttpHost()
         << "/file/v1/emo/d/e/config?"
         << "p=qtalk";
-    auto callback = [&e](int code, const std::string & responseData) {
+    auto callback = [&e](int code, const string & responseData) {
         if (code == 200) {
             nJson msgList = Json::parse(responseData);
 
@@ -860,13 +837,13 @@ void Communication::getNetEmoticon(GetNetEmoticon &e)
 
             for (auto &item : msgList) {
                 std::shared_ptr<StNetEmoticon> emo(new StNetEmoticon);
-                emo->pkgid = Json::get<std::string>(item, "pkgid");
-                emo->emoName = Json::get<std::string>(item, "name");
-                emo->emoFile = Json::get<std::string>(item, "file");
-                emo->desc = Json::get<std::string>(item, "desc");
-                emo->iconPath = Json::get<std::string>(item, "thumb");
+                emo->pkgid = Json::get<string>(item, "pkgid");
+                emo->emoName = Json::get<string>(item, "name");
+                emo->emoFile = Json::get<string>(item, "file");
+                emo->desc = Json::get<string>(item, "desc");
+                emo->iconPath = Json::get<string>(item, "thumb");
                 emo->filesize = Json::get<int>(item, "file_size");
-                emo->md5 = Json::get<std::string>(item, "md5");
+                emo->md5 = Json::get<string>(item, "md5");
                 netEm0os.push_back(emo);
             }
 
@@ -875,7 +852,7 @@ void Communication::getNetEmoticon(GetNetEmoticon &e)
         }
     };
     //
-    QTalk::HttpRequest req(url.str());
+    st::HttpRequest req(url.str());
     addHttpRequest(req, callback);
 
     if (_pFileHelper) {
@@ -889,14 +866,14 @@ void Communication::getNetEmoticon(GetNetEmoticon &e)
 }
 
 void Communication::getStructure(
-    std::vector<std::shared_ptr<QTalk::Entity::ImUserInfo>> &structure)
+    std::vector<std::shared_ptr<st::entity::ImUserInfo>> &structure)
 {
     LogicManager::instance()->getDatabase()->getStructure(structure);
 }
 
-void Communication::onInviteGroupMembers(const std::string &groupId)
+void Communication::onInviteGroupMembers(const string &groupId)
 {
-    if (PLAT.isMainThread()) {
+    if (DC.isMainThread()) {
         std::thread([this, groupId]() {
             onInviteGroupMembers(groupId);
         }).detach();
@@ -908,13 +885,13 @@ void Communication::onInviteGroupMembers(const std::string &groupId)
     if (_mapGroupIdName.find(groupId) != _mapGroupIdName.end()
         && !_mapGroupIdName[groupId].empty()) {
         info_log("update group name ");
-        QTalk::StGroupInfo groupInfo;
+        st::StGroupInfo groupInfo;
         groupInfo.desc = "";
         groupInfo.groupId = groupId;
         groupInfo.name = _mapGroupIdName[groupId];
         _mapGroupIdName.erase(groupId);
         groupInfo.title = "";
-        QTalk::Entity::ImGroupInfo im_gInfo;
+        st::entity::ImGroupInfo im_gInfo;
         im_gInfo.GroupId = groupInfo.groupId;
         LogicManager::instance()->getDatabase()->insertGroupInfo(im_gInfo);
         auto retry = 3; // while update failed , retry
@@ -935,33 +912,33 @@ void Communication::onInviteGroupMembers(const std::string &groupId)
 }
 
 // 发送http 请求
-void Communication::addHttpRequest(const QTalk::HttpRequest &req,
-                                   const std::function<void(int, const std::string &)> &callback,
+void Communication::addHttpRequest(const st::HttpRequest &req,
+                                   const std::function<void(int, const string &)> &callback,
                                    bool showCastWarn)
 {
     try {
-        if (PLAT.isMainThread()) {
+        if (DC.isMainThread()) {
             warn_log("main thread http request {0}", req.url);
         }
 
         int currentThread = 0;
 
         if (!req.url.empty() && req.url.size() > 4 && req.url.substr(0, 4) == "http") {
-            std::string url = req.url;
-            std::size_t hash = std::hash<std::string> {}(url);
+            string url = req.url;
+            std::size_t hash = std::hash<string> {}(url);
             currentThread = static_cast<int>(hash % _threadPoolCount);
             auto http = _httpPool[currentThread]->enqueue([req, callback, currentThread,
             showCastWarn]() {
                 debug_log("在第{1}个http坑 开始请求: {0}", req.url, currentThread);
-                std::string url(req.url);
+                string url(req.url);
 
                 if (!AppSetting::instance().with_ssl) {
                     if (req.url.substr(0, 5) == "https") {
-                        url = std::string("http") + req.url.substr(5);
+                        url = string("http") + req.url.substr(5);
                     }
                 }
 
-                QTalk::QtHttpRequest request(url, req.timeout);
+                st::QtHttpRequest request(url, req.timeout);
                 //method
                 request.setRequestMethod((RequestMethod)req.method);
                 // header
@@ -972,11 +949,11 @@ void Communication::addHttpRequest(const QTalk::HttpRequest &req,
                     request.addRequestHeader(itr->first.c_str(), itr->second.c_str());
                 }
 
-                std::string requestHeaders = std::string("q_ckey=") + PLAT.getClientAuthKey();
+                string requestHeaders = string("q_ckey=") + DC.getClientAuthKey();
                 request.addRequestHeader("Cookie", requestHeaders.c_str());
 
                 // body
-                if ((RequestMethod)req.method == QTalk::RequestMethod::POST) {
+                if ((RequestMethod)req.method == st::RequestMethod::POST) {
                     debug_log("请求body:{0}", req.body);
                     request.appendPostData(req.body.c_str(), req.body.length());
                 }
@@ -1018,7 +995,7 @@ void Communication::addHttpRequest(const QTalk::HttpRequest &req,
                 }
                 debug_log("http request: code: {0}", request.getResponseCode());
 
-                if ((RequestMethod)req.method == QTalk::RequestMethod::POST) {
+                if ((RequestMethod)req.method == st::RequestMethod::POST) {
                     debug_log("http request result: data: {0}", *request.getResponseData());
                 }
 
@@ -1047,7 +1024,7 @@ void Communication::getSessionData()
     // 最新个人配置
     updateUserConfigFromDb();
     // 群组列表
-    std::vector<QTalk::Entity::ImGroupInfo> groups;
+    std::vector<st::entity::ImGroupInfo> groups;
     LogicManager::instance()->getDatabase()->getAllGroup(groups);
     CommMsgManager::sendGotGroupList(groups);
 }
@@ -1057,9 +1034,9 @@ void Communication::getSessionData()
  */
 void Communication::updateUserConfigFromDb()
 {
-    std::vector<QTalk::Entity::ImConfig> arConfig;
+    std::vector<st::entity::ImConfig> arConfig;
     LogicManager::instance()->getDatabase()->getAllConfig(arConfig);
-    std::map<std::string, std::string> mapConf;
+    std::map<string, string> mapConf;
     LogicManager::instance()->getDatabase()->getConfig("kMarkupNames", mapConf);
     DB_PLAT.setMaskNames(mapConf);
 
@@ -1074,7 +1051,7 @@ void Communication::updateUserConfigFromDb()
  * @param keyName
  * @param count
  */
-void Communication::getStructureCount(const std::string &keyName, int &count)
+void Communication::getStructureCount(const string &keyName, int &count)
 {
     LogicManager::instance()->getDatabase()->getStructureCount(keyName, count);
 }
@@ -1084,8 +1061,8 @@ void Communication::getStructureCount(const std::string &keyName, int &count)
  * @param keyName
  * @param arMember
  */
-void Communication::getStructureMember(const std::string &keyName,
-                                       std::vector<std::string> &arMember)
+void Communication::getStructureMember(const string &keyName,
+                                       std::vector<string> &arMember)
 {
     LogicManager::instance()->getDatabase()->getStructureMember(keyName, arMember);
 }
@@ -1094,7 +1071,7 @@ void Communication::getStructureMember(const std::string &keyName,
  * 下载收藏表情
  * @param arDownloads
  */
-void Communication::downloadCollection(const std::vector<std::string>
+void Communication::downloadCollection(const std::vector<string>
                                        &arDownloads)
 {
     auto it = arDownloads.cbegin();
@@ -1107,21 +1084,21 @@ void Communication::downloadCollection(const std::vector<std::string>
 /**
  * 动态获取oa部分 ui组件
  */
-bool Communication::geiOaUiData(std::vector<QTalk::StOAUIData> &arOAUIData)
+bool Communication::geiOaUiData(std::vector<st::StOAUIData> &arOAUIData)
 {
     bool ret = false;
     std::ostringstream url;
     url << NavigationManager::instance().getFoundConfigUrl();
     nJson gObj;
-    gObj["qtalk"] = PLAT.getSelfUserId().c_str();
+    gObj["qtalk"] = DC.getSelfUserId().c_str();
     gObj["platform"] = "PC";
-    gObj["version"] = PLAT.getClientNumVerison();
-    std::string postData = gObj.dump();
+    gObj["version"] = DC.getClientNumVerison();
+    string postData = gObj.dump();
     //
-    std::vector<std::string> arIcons;
+    std::vector<string> arIcons;
     //
     auto callback = [&arOAUIData, &ret, &arIcons](int code,
-    const std::string & responseData) {
+    const string & responseData) {
         if (code == 200) {
             nJson retDta = Json::parse(responseData);
 
@@ -1137,17 +1114,17 @@ bool Communication::geiOaUiData(std::vector<QTalk::StOAUIData> &arOAUIData)
                 nJson data = Json::get<nJson>(retDta, "data");
 
                 for (auto &groupItem : data) {
-                    QTalk::StOAUIData stOAData;
+                    st::StOAUIData stOAData;
                     stOAData.groupId = Json::get<int>(groupItem, "groupId");
-                    stOAData.groupName = Json::get<std::string>(groupItem, "groupName");
-                    stOAData.groupIcon = Json::get<std::string>(groupItem, "groupIcon");
+                    stOAData.groupName = Json::get<string>(groupItem, "groupName");
+                    stOAData.groupIcon = Json::get<string>(groupItem, "groupIcon");
                     //
                     arIcons.push_back(stOAData.groupIcon);
                     //
                     nJson memberItems = Json::get<nJson>(groupItem, "members");
 
                     for (auto &memItem : memberItems) {
-                        QTalk::StOAUIData::StMember member;
+                        st::StOAUIData::StMember member;
                         member.memberId = Json::get<int>(memItem, "memberId");
 
                         if (memItem.contains("actionType")) {
@@ -1158,9 +1135,9 @@ bool Communication::geiOaUiData(std::vector<QTalk::StOAUIData> &arOAUIData)
                             member.native_action_type = Json::get<int>(memItem, "nativeAction");
                         }
 
-                        member.memberName = Json::get<std::string>(memItem, "memberName");
-                        member.memberAction = Json::get<std::string>(memItem, "memberAction");
-                        member.memberIcon = Json::get<std::string>(memItem, "memberIcon");
+                        member.memberName = Json::get<string>(memItem, "memberName");
+                        member.memberAction = Json::get<string>(memItem, "memberAction");
+                        member.memberIcon = Json::get<string>(memItem, "memberIcon");
                         //
                         arIcons.push_back(member.memberIcon);
                         stOAData.members.push_back(member);
@@ -1172,14 +1149,14 @@ bool Communication::geiOaUiData(std::vector<QTalk::StOAUIData> &arOAUIData)
                 ret = true;
             } else {
                 if (retDta.contains("errorMsg")) {
-                    error_log(Json::get<std::string>(retDta, "errorMsg"));
+                    error_log(Json::get<string>(retDta, "errorMsg"));
                 }
             }
         } else {
             warn_log("get oa data error");
         }
     };
-    QTalk::HttpRequest req(url.str(), QTalk::RequestMethod::POST);
+    st::HttpRequest req(url.str(), st::RequestMethod::POST);
     req.header["Content-Type"] = "application/json;";
     req.body = postData;
     addHttpRequest(req, callback);
@@ -1196,21 +1173,21 @@ bool Communication::geiOaUiData(std::vector<QTalk::StOAUIData> &arOAUIData)
 }
 
 //
-void Communication::getNewLoginToken(const std::string &u, const std::string &p,
-                                     std::map<std::string, std::string> &info)
+void Communication::getNewLoginToken(const string &u, const string &p,
+                                     std::map<string, string> &info)
 {
     std::ostringstream url;
     url << NavigationManager::instance().getHttpHost()
         << "/nck/qtlogin.qunar";
-    std::string plaint = LogicManager::instance()->getLogicBase()->normalRsaEncrypt(
-                             p);
+    string plaint = LogicManager::instance()->getLogicBase()->normalRsaEncrypt(
+                        p);
     nJson gObj;
     gObj["u"] = u;
     gObj["p"] = plaint;
     gObj["h"] = NavigationManager::instance().getDomain();
-    gObj["mk"] = utils::getMessageId();
-    std::string postData = gObj.dump();
-    auto callback = [&info](int code, const std::string & responseData) {
+    gObj["mk"] = utils::uuid();
+    string postData = gObj.dump();
+    auto callback = [&info](int code, const string & responseData) {
         if (code == 200) {
             nJson retDta = Json::parse(responseData);
 
@@ -1222,33 +1199,30 @@ void Communication::getNewLoginToken(const std::string &u, const std::string &p,
 
             if (errCode == 0) {
                 nJson data = Json::get<nJson>(retDta, "data");
-                std::string u = Json::get<std::string>(data, "u");
-                std::string t = Json::get<std::string>(data, "t");
+                string u = Json::get<string>(data, "u");
+                string t = Json::get<string>(data, "t");
                 info["u"] = u;
                 info["t"] = t;
             } else {
-                error_log(Json::get<std::string>(retDta, "errmsg"));
+                error_log(Json::get<string>(retDta, "errmsg"));
             }
         }
     };
-    QTalk::HttpRequest req(url.str(), QTalk::RequestMethod::POST);
+    st::HttpRequest req(url.str(), st::RequestMethod::POST);
     req.header["Content-Type"] = "application/json;";
     req.body = postData;
     addHttpRequest(req, callback);
 }
 
-/**
- *
- * @param e
- */
-void Communication::getGroupCardInfo(std::shared_ptr<QTalk::Entity::ImGroupInfo>
+
+void Communication::getGroupCardInfo(std::shared_ptr<st::entity::ImGroupInfo>
                                      &group)
 {
     if (_pUserGroupManager) {
-        std::string groupId = group->GroupId;
+        string groupId = group->GroupId;
         // 获取最新
-        QTalk::Entity::JID jid(groupId);
-        std::string domian = jid.domainname();
+        st::entity::JID jid(groupId);
+        string domian = jid.domainname();
         MapGroupCard mapGroupCard;
         mapGroupCard[domian].push_back(*group);
         bool ret = _pUserGroupManager->getGroupCard(mapGroupCard);
@@ -1257,14 +1231,14 @@ void Communication::getGroupCardInfo(std::shared_ptr<QTalk::Entity::ImGroupInfo>
             LogicManager::instance()->getDatabase()->getGroupCardById(group);
 
             if (!group->HeaderSrc.empty()) {
-                std::string localHead = QTalk::GetHeadPathByUrl(group->HeaderSrc);
+                string localHead = st::GetHeadPathByUrl(group->HeaderSrc);
 
                 if (!FileHelper::fileExist(localHead)) {
                     _pFileHelper->downloadFile(group->HeaderSrc, localHead, false);
                 }
             }
 
-            std::shared_ptr<QTalk::StGroupInfo> info(new QTalk::StGroupInfo);
+            std::shared_ptr<st::StGroupInfo> info(new st::StGroupInfo);
             info->groupId = groupId;
             info->name = group->Name;
             info->headSrc = group->HeaderSrc;
@@ -1276,17 +1250,17 @@ void Communication::getGroupCardInfo(std::shared_ptr<QTalk::Entity::ImGroupInfo>
 }
 
 // 设置群管理员
-void Communication::setGroupAdmin(const std::string &groupId,
-                                  const std::string &nickName,
-                                  const std::string &memberJid, bool isAdmin)
+void Communication::setGroupAdmin(const string &groupId,
+                                  const string &nickName,
+                                  const string &memberJid, bool isAdmin)
 {
     LogicManager::instance()->getLogicBase()->setGroupAdmin(groupId, nickName,
                                                             memberJid, isAdmin);
 }
 
-void Communication::removeGroupMember(const std::string &groupId,
-                                      const std::string &nickName,
-                                      const std::string &memberJid)
+void Communication::removeGroupMember(const string &groupId,
+                                      const string &nickName,
+                                      const string &memberJid)
 {
     LogicManager::instance()->getLogicBase()->removeGroupMember(groupId, nickName,
                                                                 memberJid);
@@ -1296,14 +1270,14 @@ void Communication::removeGroupMember(const std::string &groupId,
  * 退出群
  * @param groupId
  */
-void Communication::quitGroup(const std::string &groupId)
+void Communication::quitGroup(const string &groupId)
 {
     //
     LogicManager::instance()->getLogicBase()->quitGroup(groupId);
     // 移除置顶
     _pUserConfig->updateUserSetting(UserSettingMsg::EM_OPERATOR_CANCEL,
                                     "kStickJidDic",
-                                    QTalk::Entity::UID(groupId).toStdString(),
+                                    st::entity::UID(groupId).toStdString(),
                                     "{\"topType\":0,\"chatType\":1}");
 }
 
@@ -1311,16 +1285,16 @@ void Communication::quitGroup(const std::string &groupId)
  * 销毁群处理
  * @param groupId
  */
-void Communication::destroyGroup(const std::string &groupId)
+void Communication::destroyGroup(const string &groupId)
 {
     LogicManager::instance()->getLogicBase()->destroyGroup(groupId);
 }
 
-void Communication::reportDump(const std::string &ip, const std::string &id,
-                               const std::string &dumpPath, QInt64 crashTime)
+void Communication::reportDump(const string &ip, const string &id,
+                               const string &dumpPath, QInt64 crashTime)
 {
-    auto fun = [ip, id, dumpPath, crashTime](const std::string & url,
-    const std::string &) {
+    auto fun = [ip, id, dumpPath, crashTime](const string & url,
+    const string &) {
         if (!url.empty()) {
             // format timestamp
             struct tm *timeinfo;
@@ -1328,23 +1302,23 @@ void Communication::reportDump(const std::string &ip, const std::string &id,
             time_t rawtime = crashTime / 1000;
             timeinfo = localtime(&rawtime);
             strftime(buffer, 80, "%F %T", timeinfo);
-            std::string strTime(buffer);
+            string strTime(buffer);
             {
                 // 发邮件
-                std::string strSub = string("QTalk 2.0 崩溃信息 ");
+                string strSub = string("QTalk 2.0 崩溃信息 ");
                 std::ostringstream strBody;
-                strBody << "登录用户: " << PLAT.getSelfXmppId()
-                        << " " << PLAT.getSelfName() << "<br/>"
-                        << "版本号: " << PLAT.getClientVersion() << "<br/>"
+                strBody << "登录用户: " << DC.getSelfXmppId()
+                        << " " << DC.getSelfName() << "<br/>"
+                        << "版本号: " << DC.getClientVersion() << "<br/>"
                         << "版本id : " << id << "<br/>"
-                        << "使用平台: " << PLAT.getPlatformStr() << "<br/>"
-                        << "OS 信息: " << PLAT.getOSInfo() << "<br/>"
+                        << "使用平台: " << DC.getPlatformStr() << "<br/>"
+                        << "OS 信息: " << DC.getOSInfo() << "<br/>"
                         << "ip: " << ip << "<br/>"
                         << "crash at: " << strTime << "<br/>"
-                        << "exec: " << PLAT.getExecuteName() << "<br/>"
+                        << "exec: " << DC.getExecuteName() << "<br/>"
                         << "dump文件: " << url;
-                std::string error;
-                std::vector<std::string> tos;
+                string error;
+                std::vector<string> tos;
                 {
                     // todo add email address
                 }
@@ -1364,11 +1338,11 @@ void Communication::reportDump(const std::string &ip, const std::string &id,
  *
  * @param logPath
  */
-void Communication::reportLog(const std::string &desc,
-                              const std::string &logPath)
+void Communication::reportLog(const string &desc,
+                              const string &logPath)
 {
     if (_pFileHelper) {
-        auto fun = [desc, logPath](const std::string & url, const std::string &) {
+        auto fun = [desc, logPath](const string & url, const string &) {
             // 发送消息
             if (!url.empty()) {
                 {
@@ -1385,7 +1359,7 @@ void Communication::reportLog(const std::string &desc,
                             << "描述信息: " << desc << " \n"
                             << "日志文件: " << url;
                     //
-                    std::string error;
+                    string error;
                     bool isSuccess = LogicManager::instance()->getLogicBase()->sendReportMessage(
                                          msgCont.str(), error);
                     debug_log("send message :{0}", isSuccess);
@@ -1393,21 +1367,21 @@ void Communication::reportLog(const std::string &desc,
                 }
                 {
                     // 发邮件
-                    std::string strSub = string("QTalk 2.0 反馈日志 ") + PLAT.getSelfXmppId();
+                    string strSub = string("QTalk 2.0 反馈日志 ") + DC.getSelfXmppId();
                     std::ostringstream strBody;
-                    strBody << "登录用户: " << PLAT.getSelfXmppId()
-                            << " " << PLAT.getSelfName() << "<br/>"
-                            << "版本号: " << PLAT.getClientVersion() << "<br/>"
-                            << "使用平台: " << PLAT.getPlatformStr() << "<br/>"
-                            << "OS 信息: " << PLAT.getOSInfo() << "<br/>"
+                    strBody << "登录用户: " << DC.getSelfXmppId()
+                            << " " << DC.getSelfName() << "<br/>"
+                            << "版本号: " << DC.getClientVersion() << "<br/>"
+                            << "使用平台: " << DC.getPlatformStr() << "<br/>"
+                            << "OS 信息: " << DC.getOSInfo() << "<br/>"
                             << "描述信息: " << desc << " <br/>"
                             << "日志文件: " << url;
-                    std::vector<std::string> tos;
+                    std::vector<string> tos;
                     {
                         //                        tos.push_back("xxx@xxx.com");
                         // todo add email address
                     }
-                    std::string error;
+                    string error;
                     bool isSuccess = LogicManager::instance()->getLogicBase()->sendReportMail(tos,
                                      strSub,
                                      strBody.str(),
@@ -1436,10 +1410,10 @@ void Communication::reportLog(const std::string &desc,
 void Communication::saveUserConfig()
 {
     if (_pUserConfig) {
-        std::string val = AppSetting::instance().saveAppSetting();
-        //_pUserConfig->updateUserSettting(UserSettingMsg::EM_OPERATOR_SET, QTALK_2_0_CONFIG, PLAT.getPlatformStr(), val);
-        LogicManager::instance()->getDatabase()->insertConfig(QTALK_2_0_CONFIG,
-                                                              PLAT.getPlatformStr(), val);
+        string val = AppSetting::instance().saveAppSetting();
+        //_pUserConfig->updateUserSettting(UserSettingMsg::EM_OPERATOR_SET, STALK_2_0_CONFIG, PLAT.getPlatformStr(), val);
+        LogicManager::instance()->getDatabase()->insertConfig(STALK_2_0_CONFIG,
+                                                              DC.getPlatformStr(), val);
     }
 }
 
@@ -1456,7 +1430,7 @@ void Communication::clearSystemCache()
 
 void Communication::removeSession(const string &peerId)
 {
-    std::vector<std::string> peers;
+    std::vector<string> peers;
     peers.push_back(peerId);
     LogicManager::instance()->getDatabase()->bulkDeleteSessions(peers);
 }
@@ -1473,14 +1447,14 @@ void Communication::changeUserHead(const string &head)
 #endif
 
         if (_pFileHelper && _pUserManager) {
-            std::string headUrl = _pFileHelper->getNetImgFilePath(head);
+            string headUrl = _pFileHelper->getNetImgFilePath(head);
 
             if (headUrl.empty()) { //todo return error message
                 return;
             }
 
             bool ret = _pUserManager->changeUserHead(headUrl);
-            std::string localHead;
+            string localHead;
 
             if (ret) {
                 localHead = _pFileHelper->getLocalImgFilePath(headUrl, "/image/headphoto/");
@@ -1497,24 +1471,24 @@ void Communication::changeUserHead(const string &head)
  * @param desc
  * @param reportTime
  */
-void Communication::sendOperatorStatistics(const std::string &,
-                                           const std::vector<QTalk::StActLog> &operators)
+void Communication::sendOperatorStatistics(const string &,
+                                           const std::vector<st::StActLog> &operators)
 {
-    std::string uploadLog = NavigationManager::instance().getUploadLog();
+    string uploadLog = NavigationManager::instance().getUploadLog();
 
     if (uploadLog.empty()) {
         return;
     }
 
-    std::vector<QTalk::StActLog> logs(operators);
+    std::vector<st::StActLog> logs(operators);
 
     do {
         nJson obj;
         // user
         nJson user;
-        user["uid"] = PLAT.getSelfUserId();
-        user["domain"] = PLAT.getSelfDomain();
-        user["nav"] = PLAT.getLoginNav();
+        user["uid"] = DC.getSelfUserId();
+        user["domain"] = DC.getSelfDomain();
+        user["nav"] = DC.getLoginNav();
         obj["user"] = user;
         // device
         nJson device;
@@ -1523,12 +1497,12 @@ void Communication::sendOperatorStatistics(const std::string &,
 #else
         device["plat"] = "qtalk";
 #endif
-        device["os"] = PLAT.getPlatformStr();
-        device["versionCode"] = PLAT.getClientNumVerison();
-        device["versionName"] = PLAT.getGlobalVersion();
-        device["osModel"] = PLAT.getOSInfo();
-        device["osBrand"] = PLAT.getOSProductType();
-        device["osVersion"] = PLAT.getOSVersion();
+        device["os"] = DC.getPlatformStr();
+        device["versionCode"] = DC.getClientNumVerison();
+        device["versionName"] = DC.getGlobalVersion();
+        device["osModel"] = DC.getOSInfo();
+        device["osBrand"] = DC.getOSProductType();
+        device["osVersion"] = DC.getOSVersion();
         obj["device"] = device;
         nJson infos;
         int i = 0;
@@ -1550,8 +1524,8 @@ void Communication::sendOperatorStatistics(const std::string &,
         }
 
         obj["infos"] = infos;
-        std::string postData = obj.dump();
-        auto callback = [](int code, const std::string & responsData) {
+        string postData = obj.dump();
+        auto callback = [](int code, const string & responsData) {
             if (code == 200) {
                 debug_log("sendOperatorStatistics success {0}", responsData);
             } else {
@@ -1569,14 +1543,14 @@ void Communication::sendOperatorStatistics(const std::string &,
  *
  * @param info
  */
-void Communication::getUserCard(std::shared_ptr<QTalk::Entity::ImUserInfo>
+void Communication::getUserCard(std::shared_ptr<st::entity::ImUserInfo>
                                 &info)
 {
     if (info && _pUserManager) {
-        QTalk::Entity::JID jid(info->XmppId);
+        st::entity::JID jid(info->XmppId);
         UserCardParam params;
         params[jid.domainname()][jid.username()] = 0;
-        std::vector<QTalk::StUserCard> userCards;
+        std::vector<st::StUserCard> userCards;
         _pUserManager->getUserCard(params, userCards);
 
         if (userCards.size() == 1) {
@@ -1594,7 +1568,7 @@ void Communication::getUserCard(std::shared_ptr<QTalk::Entity::ImUserInfo>
  * 最近session
  * @param sessions
  */
-void Communication::getRecntSession(std::vector<QTalk::StShareSession>
+void Communication::getRecntSession(std::vector<st::StShareSession>
                                     &sessions)
 {
     try {
@@ -1608,7 +1582,7 @@ void Communication::getRecntSession(std::vector<QTalk::StShareSession>
  *
  * @param sessions
  */
-void Communication::geContactsSession(std::vector<QTalk::StShareSession>
+void Communication::geContactsSession(std::vector<st::StShareSession>
                                       &sessions)
 {
     try {
@@ -1625,7 +1599,7 @@ void Communication::updateTimeStamp()
 {
     try {
         QInt64 timeStamp = 0;
-        std::string configTimeStamp;
+        string configTimeStamp;
         //
         auto *database = LogicManager::instance()->getDatabase();
 
@@ -1644,7 +1618,7 @@ void Communication::updateTimeStamp()
 
         if (timeStamp == 0) {
             timeStamp = LogicManager::instance()->getDatabase()->getMaxTimeStampByChatType(
-                            QTalk::Enum::TwoPersonChat);
+                            st::Enum::TwoPersonChat);
             LogicManager::instance()->getDatabase()->insertConfig(DEM_MESSAGE_MAXTIMESTAMP,
                                                                   DEM_TWOPERSONCHAT,
                                                                   std::to_string(timeStamp));
@@ -1668,7 +1642,7 @@ void Communication::updateTimeStamp()
 
         if (timeStamp == 0) {
             timeStamp = LogicManager::instance()->getDatabase()->getMaxTimeStampByChatType(
-                            QTalk::Enum::GroupChat);
+                            st::Enum::GroupChat);
             LogicManager::instance()->getDatabase()->insertConfig(DEM_MESSAGE_MAXTIMESTAMP,
                                                                   DEM_GROUPCHAT,
                                                                   std::to_string(timeStamp));
@@ -1692,7 +1666,7 @@ void Communication::updateTimeStamp()
 
         if (timeStamp == 0) {
             timeStamp = LogicManager::instance()->getDatabase()->getMaxTimeStampByChatType(
-                            QTalk::Enum::System);
+                            st::Enum::System);
             LogicManager::instance()->getDatabase()->insertConfig(DEM_MESSAGE_MAXTIMESTAMP,
                                                                   DEM_SYSTEM,
                                                                   std::to_string(timeStamp));
@@ -1713,25 +1687,25 @@ void Communication::updateTimeStamp()
  * @param memberId
  * @param affiliation
  */
-void Communication::onUserJoinGroup(const std::string &groupId,
-                                    const std::string &memberId, int affiliation)
+void Communication::onUserJoinGroup(const string &groupId,
+                                    const string &memberId, int affiliation)
 {
-    std::shared_ptr<QTalk::StGroupMember> member(new QTalk::StGroupMember);
+    std::shared_ptr<st::StGroupMember> member(new st::StGroupMember);
     member->groupId = groupId;
     //
-    const std::string &jid = memberId;
+    const string &jid = memberId;
 
     // 自己被拉入群 拉取群资料
-    if (jid == PLAT.getSelfXmppId()) {
+    if (jid == DC.getSelfXmppId()) {
         MapGroupCard mapGroups;
         _pUserGroupManager->getUserGroupInfo(mapGroups);
         _pUserGroupManager->getGroupCard(mapGroups);
-        std::shared_ptr<QTalk::Entity::ImGroupInfo> group(new
-                                                          QTalk::Entity::ImGroupInfo);
+        std::shared_ptr<st::entity::ImGroupInfo> group(new
+                                                       st::entity::ImGroupInfo);
         group->GroupId = groupId;
 
         if (LogicManager::instance()->getDatabase()->getGroupCardById(group)) {
-            std::shared_ptr<QTalk::StGroupInfo> info(new QTalk::StGroupInfo);
+            std::shared_ptr<st::StGroupInfo> info(new st::StGroupInfo);
             info->groupId = groupId;
             info->name = group->Name;
             info->headSrc = group->HeaderSrc;
@@ -1742,11 +1716,11 @@ void Communication::onUserJoinGroup(const std::string &groupId,
     }
 
     member->memberJid = jid;
-    std::map<std::string, QUInt8> members;
+    std::map<string, QUInt8> members;
     members[jid] = static_cast<unsigned char>(affiliation);
     LogicManager::instance()->getDatabase()->bulkInsertGroupMember(groupId,
             members);
-    std::shared_ptr<QTalk::Entity::ImUserInfo> userInfo =
+    std::shared_ptr<st::entity::ImUserInfo> userInfo =
         LogicManager::instance()->getDatabase()->getUserInfoByXmppId(
             jid);
 
@@ -1754,7 +1728,7 @@ void Communication::onUserJoinGroup(const std::string &groupId,
         member->nick = userInfo->Name;
     }
 
-    member->domain = QTalk::Entity::JID(memberId).domainname();
+    member->domain = st::entity::JID(memberId).domainname();
     member->affiliation = affiliation;
     CommMsgManager::onGroupJoinMember(member);
 }
@@ -1781,21 +1755,21 @@ void Communication::getMedalList()
     std::ostringstream url;
     url << NavigationManager::instance().getHttpHost()
         << "/medal/medalList.qunar";
-    std::string strUrl = url.str();
+    string strUrl = url.str();
     //
-    std::string strVer;
+    string strVer;
     LogicManager::instance()->getDatabase()->getConfig("MEDAL_LIST", "VERSION",
                                                        strVer);
     auto version = atoi(strVer.data());
     nJson obj;
     obj["version"] = version;
-    std::string postData = obj.dump();
+    string postData = obj.dump();
     //
-    std::vector<QTalk::Entity::ImMedalList> medalList;
-    std::set<std::string> imgs;
+    std::vector<st::entity::ImMedalList> medalList;
+    std::set<string> imgs;
     int newVersion = 0;
     auto call_back = [&medalList, &newVersion, &imgs](int code,
-    const std::string & resData) {
+    const string & resData) {
         if (resData.empty()) {
             return;
         }
@@ -1818,29 +1792,29 @@ void Communication::getMedalList()
                 nJson list = Json::get<nJson>(data, "medalList");
 
                 for (auto &temp : list) {
-                    QTalk::Entity::ImMedalList medal;
+                    st::entity::ImMedalList medal;
                     medal.medalId = Json::get<int>(temp, "id");
-                    medal.medalName = Json::get<std::string>(temp, "medalName");
-                    medal.obtainCondition = Json::get<std::string>(temp, "obtainCondition");
+                    medal.medalName = Json::get<string>(temp, "medalName");
+                    medal.obtainCondition = Json::get<string>(temp, "obtainCondition");
                     medal.status = Json::get<int>(temp, "status");
                     nJson icon = Json::get<nJson>(temp, "icon");
-                    medal.smallIcon = Json::get<std::string>(icon, "small");
-                    medal.bigLightIcon = Json::get<std::string>(icon, "bigLight");
-                    //                    medal.bigGrayIcon = Json::get<std::string >(icon, "bigGray");
-                    medal.bigLockIcon = Json::get<std::string>(icon, "bigLock");
+                    medal.smallIcon = Json::get<string>(icon, "small");
+                    medal.bigLightIcon = Json::get<string>(icon, "bigLight");
+                    //                    medal.bigGrayIcon = Json::get<string >(icon, "bigGray");
+                    medal.bigLockIcon = Json::get<string>(icon, "bigLock");
                     medalList.push_back(medal);
                     imgs.insert(medal.smallIcon);
                     imgs.insert(medal.bigLightIcon);
                     imgs.insert(medal.bigLockIcon);
                 };
             } else {
-                std::string errorMsg = Json::get<std::string>(json, "errmsg");
+                string errorMsg = Json::get<string>(json, "errmsg");
                 error_log("getMedalList error {0}", errorMsg);
             }
         } else {
         }
     };
-    QTalk::HttpRequest req(strUrl, QTalk::RequestMethod::POST);
+    st::HttpRequest req(strUrl, st::RequestMethod::POST);
     req.header["Content-Type"] = "application/json;";
     req.body = postData;
     addHttpRequest(req, call_back);
@@ -1858,7 +1832,7 @@ void Communication::getMedalList()
     }
 
     //
-    std::vector<QTalk::Entity::ImMedalList> medals;
+    std::vector<st::entity::ImMedalList> medals;
     LogicManager::instance()->getDatabase()->getMedalList(medals);
 
     if (!medals.empty()) {
@@ -1877,9 +1851,9 @@ void Communication::getUserMedal(bool presence)
     std::ostringstream url;
     url << NavigationManager::instance().getHttpHost()
         << "/medal/userMedalList.qunar";
-    std::string strUrl = url.str();
+    string strUrl = url.str();
     //
-    std::string strVer;
+    string strVer;
     LogicManager::instance()->getDatabase()->getConfig("USER_MEDAL", "VERSION",
                                                        strVer);
     auto version = atoi(strVer.data());
@@ -1887,12 +1861,12 @@ void Communication::getUserMedal(bool presence)
     obj["version"] = version;
     //    obj["userId"] = PLAT.getSelfUserId();
     //    obj["host"] = PLAT.getSelfDomain();
-    std::string postData = obj.dump();
+    string postData = obj.dump();
     //
-    std::vector<QTalk::Entity::ImUserStatusMedal> userMedals;
+    std::vector<st::entity::ImUserStatusMedal> userMedals;
     int newVersion = 0;
     auto call_back = [&userMedals, &newVersion](int code,
-    const std::string & resData) {
+    const string & resData) {
         if (resData.empty()) {
             return;
         }
@@ -1915,23 +1889,23 @@ void Communication::getUserMedal(bool presence)
                 nJson list = Json::get<nJson>(data, "userMedals");
 
                 for (auto &temp : list) {
-                    QTalk::Entity::ImUserStatusMedal medal;
+                    st::entity::ImUserStatusMedal medal;
                     medal.medalId = Json::get<int>(temp, "medalId");
-                    medal.userId = Json::get<std::string>(temp, "userId");
-                    medal.host = Json::get<std::string>(temp, "host");
+                    medal.userId = Json::get<string>(temp, "userId");
+                    medal.host = Json::get<string>(temp, "host");
                     medal.medalStatus = Json::get<int>(temp, "medalStatus");
                     medal.mappingVersion = Json::get<int>(temp, "mappingVersion");
                     medal.updateTime = Json::get<long long>(temp, "updateTime");
                     userMedals.push_back(medal);
                 };
             } else {
-                std::string errorMsg = Json::get<std::string>(json, "errmsg");
+                string errorMsg = Json::get<string>(json, "errmsg");
                 error_log("getMedalList error {0}", errorMsg);
             }
         } else {
         }
     };
-    QTalk::HttpRequest req(strUrl, QTalk::RequestMethod::POST);
+    st::HttpRequest req(strUrl, st::RequestMethod::POST);
     req.header["Content-Type"] = "application/json;";
     req.body = postData;
     addHttpRequest(req, call_back);
@@ -1951,7 +1925,7 @@ void Communication::getUserMedal(bool presence)
 }
 
 void Communication::getMedalUser(int medalId,
-                                 std::vector<QTalk::StMedalUser> &metalUsers)
+                                 std::vector<st::StMedalUser> &metalUsers)
 {
     try {
         LogicManager::instance()->getDatabase()->getMedalUsers(medalId, metalUsers);
@@ -1965,17 +1939,17 @@ bool Communication::modifyUserMedalStatus(int medalId, bool wear)
     std::ostringstream url;
     url << NavigationManager::instance().getHttpHost()
         << "/medal/userMedalStatusModify.qunar";
-    std::string strUrl = url.str();
+    string strUrl = url.str();
     //
     nJson obj;
     obj["medalStatus"] = wear ? 3 : 1;
-    obj["userId"] = PLAT.getSelfUserId();
-    obj["host"] = PLAT.getSelfDomain();
+    obj["userId"] = DC.getSelfUserId();
+    obj["host"] = DC.getSelfDomain();
     obj["medalId"] = medalId;
-    std::string postData = obj.dump();
+    string postData = obj.dump();
     //
     bool ret = false;
-    auto call_back = [&ret](int code, const std::string & resData) {
+    auto call_back = [&ret](int code, const string & resData) {
         if (resData.empty()) {
             return;
         }
@@ -1990,18 +1964,18 @@ bool Communication::modifyUserMedalStatus(int medalId, bool wear)
         ret = Json::get<bool>(json, "ret");
 
         if (code != 200 || !ret) {
-            std::string errorMsg = Json::get<std::string>(json, "errmsg");
+            string errorMsg = Json::get<string>(json, "errmsg");
             error_log("userMedalStatusModify error {0}", errorMsg);
         }
     };
-    QTalk::HttpRequest req(strUrl, QTalk::RequestMethod::POST);
+    st::HttpRequest req(strUrl, st::RequestMethod::POST);
     req.header["Content-Type"] = "application/json;";
     req.body = postData;
     addHttpRequest(req, call_back);
 
     if (ret) {
         LogicManager::instance()->getDatabase()->modifyUserMedalStatus(
-            PLAT.getSelfXmppId(), medalId, wear ? 3 : 1);
+            DC.getSelfXmppId(), medalId, wear ? 3 : 1);
     }
 
     return ret;
@@ -2009,17 +1983,61 @@ bool Communication::modifyUserMedalStatus(int medalId, bool wear)
 
 void Communication::reportLogin()
 {
-    //
     auto now = time(nullptr);
     //
     std::ostringstream sId;
     sId << GLOBAL_INTERNAL_VERSION << "_" << build_time();
     nJson obj;
     obj["symbolFileId"] = sId.str();
-    obj["resource"] = PLAT.getClientVersion();
-    obj["platform"] = PLAT.getPlatformStr();
-    obj["username"] = PLAT.getSelfUserId();
-    obj["exec"] = PLAT.getExecuteName();
+    obj["resource"] = DC.getClientVersion();
+    obj["platform"] = DC.getPlatformStr();
+    obj["username"] = DC.getSelfUserId();
+    obj["exec"] = DC.getExecuteName();
     obj["loginTime"] = now * 1000;
-    std::string postData = obj.dump();
+    string postData = obj.dump();
+}
+
+void Communication::getForbiddenWordGroup(const std::string &groupId)
+{
+    //    if (!NavigationManager::instance().getForbiddenWordFlag()) {
+    //        return;
+    //    }
+
+    std::ostringstream url;
+    url << NavigationManager::instance().getHttpHost()
+        << "/muc/get_muc_fw.qunar";
+
+    nJson obj;
+    obj["userid"] = DC.getSelfXmppId();
+    obj["groupid"] = groupId;
+    string postData = obj.dump();
+
+    auto call_back = [groupId](int code, const string & resData) {
+
+        info_log(" {0} - {1} ", groupId, resData);
+
+        if (resData.empty()) {
+            return;
+        }
+
+        nJson json = Json::parse(resData);
+
+        if (nullptr == json) {
+            error_log("json Parse error {0}", resData);
+            return;
+        }
+
+        bool ret = Json::get<bool>(json, "ret");
+
+        if (code == 200 && ret) {
+            auto data = Json::get<nJson>(json, "data");
+            bool status = Json::get<bool>(data, "is_fw");
+            bool isOwner = Json::get<bool>(data, "is_admin");
+            CommMsgManager::forbiddenWordGroupState(groupId, status, isOwner);
+        }
+    };
+    st::HttpRequest req(url.str(), st::RequestMethod::POST);
+    req.header["Content-Type"] = "application/json;";
+    req.body = postData;
+    addHttpRequest(req, call_back);
 }

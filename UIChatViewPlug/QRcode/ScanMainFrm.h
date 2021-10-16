@@ -2,8 +2,8 @@
 // Created by cc on 2019-04-16.
 //
 
-#ifndef QTALK_V2_SCANMAINFRM_H
-#define QTALK_V2_SCANMAINFRM_H
+#ifndef STALK_V2_SCANMAINFRM_H
+#define STALK_V2_SCANMAINFRM_H
 
 #include <QFrame>
 #include <QTimer>
@@ -55,4 +55,4 @@ private:
 };
 
 
-#endif //QTALK_V2_SCANMAINFRM_H
+#endif //STALK_V2_SCANMAINFRM_H

@@ -8,10 +8,10 @@
 #include <QDebug>
 #include <QEvent>
 #include "../ChatViewMainPanel.h"
-#include "../../UICom/StyleDefine.h"
+#include "Util/ui/StyleDefine.h"
 #include "../NetImageLabel.h"
 #include "MessageDelegate.h"
-#include "../../Platform/Platform.h"
+#include "DataCenter/Platform.h"
 
 extern ChatViewMainPanel *g_pMainPanel;
 ImageDelegate::ImageDelegate(QTableView *parent)
@@ -25,7 +25,7 @@ QWidget *ImageDelegate::creatWgt(const QStyleOptionViewItem &option, const QMode
     auto *netImage = new NetImageLabel(info.imageLink);
     connect(netImage, &NetImageLabel::clicked, this, [info]()
     {
-        QString imagePath = QTalk::GetImagePathByUrl(info.imageLink.toStdString()).data();
+        QString imagePath = st::GetImagePathByUrl(info.imageLink.toStdString()).data();
         emit g_pMainPanel->showChatPicture(info.msg_id, info.content, info.index);
     });
     return netImage;
@@ -57,7 +57,7 @@ void ImageDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
     painter->setRenderHint(QPainter::TextAntialiasing);
     QRect rect = option.rect;
     auto data = index.data(SEARCH_USER_ITEM_TYPE);
-    painter->fillRect(rect, QTalk::StyleDefine::instance().getSearchNormalColor());
+    painter->fillRect(rect, st::StyleDefine::instance().getSearchNormalColor());
 
     if(data.isValid())
     {
@@ -74,13 +74,13 @@ void ImageDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
 
             if (option.state & QStyle::State_Selected)
             {
-                QPen pen(QTalk::StyleDefine::instance().getImageSelectBorderColor());
+                QPen pen(st::StyleDefine::instance().getImageSelectBorderColor());
                 pen.setWidth(2);
                 painter->setPen(pen);
-                painter->setBrush(QTalk::StyleDefine::instance().getHeadPhotoMaskColor());
+                painter->setBrush(st::StyleDefine::instance().getHeadPhotoMaskColor());
             }
             else
-                painter->setBrush(QTalk::StyleDefine::instance().getSearchSelectColor());
+                painter->setBrush(st::StyleDefine::instance().getSearchSelectColor());
 
             painter->drawRoundedRect(rect.x() + 4, rect.y() + 4, rect.width() - 8, rect.height() - 8, 4, 4);
             auto *pThis = const_cast<ImageDelegate *>(this);

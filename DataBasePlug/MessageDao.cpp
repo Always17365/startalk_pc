@@ -1,11 +1,11 @@
 ﻿#include "MessageDao.h"
-#include "../entity/im_message.h"
+#include "entity/im_message.h"
 //#include <iostream>
 //#include <string.h>
 #include <climits>
-#include "../QtUtil/Utils/Log.h"
-#include "../Platform/Platform.h"
-#include "../include/perfcounter.h"
+#include "Util/Log.h"
+#include "DataCenter/Platform.h"
+#include "Util/perfcounter.h"
 
 #ifdef TRANSACTION_ON
     #define START_TRANSACTION() sqlite3_exec(db, "begin transaction;", NULL, NULL, NULL)
@@ -15,15 +15,16 @@
     #define END_TRANSACTION()
 #endif
 
-MessageDao::MessageDao(qtalk::sqlite::database *sqlDb) :
+MessageDao::MessageDao(st::sqlite::database *sqlDb) :
     DaoInterface(sqlDb, "IM_Message")
 {
 }
 
 bool MessageDao::creatTable()
 {
-    if (!_pSqlDb)
+    if (!_pSqlDb) {
         return false;
+    }
 
     std::string sql = "CREATE TABLE IF NOT EXISTS IM_Message ( "
                       "`MsgId` TEXT, "
@@ -44,27 +45,32 @@ bool MessageDao::creatTable()
                       "`ExtendedFlag` BLOB, "
                       "`BackupInfo` TEXT, "
                       "PRIMARY KEY(`MsgId`) )";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     return query.executeStep();
 }
 
 bool MessageDao::creatIndex()
 {
-    if (!_pSqlDb)
+    if (!_pSqlDb) {
         return false;
+    }
 
-    std::string sql = "CREATE INDEX IF NOT EXISTS IX_IM_MESSAGE_ID_READ_TIME ON IM_Message(XmppId, ReadedTag, LastUpdateTime);";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    std::string sql =
+        "CREATE INDEX IF NOT EXISTS IX_IM_MESSAGE_ID_READ_TIME ON IM_Message(XmppId, ReadedTag, LastUpdateTime);";
+    st::sqlite::statement query(*_pSqlDb, sql);
     return query.executeStep();
 }
 
-bool MessageDao::bulkUpdateSessionList(std::map<QTalk::Entity::UID, QTalk::Entity::ImSessionInfo> *sessionMap)
+bool MessageDao::bulkUpdateSessionList(
+    std::map<st::entity::UID, st::entity::ImSessionInfo> *sessionMap)
 {
-    if (!_pSqlDb)
+    if (!_pSqlDb) {
         return false;
+    }
 
-    if (sessionMap == nullptr || sessionMap->empty())
+    if (sessionMap == nullptr || sessionMap->empty()) {
         return true;
+    }
 
     std::string sql = "INSERT into "
                       "IM_SessionList (UserId , LastMessageId, LastUpdateTime, ChatType, ExtendedFlag, UnreadCount, MessageState, XmppId, RealJid) "
@@ -72,16 +78,14 @@ bool MessageDao::bulkUpdateSessionList(std::map<QTalk::Entity::UID, QTalk::Entit
                       "ON CONFLICT(XmppId, RealJid) DO "
                       "update set UserId = ?, LastMessageId = ?, LastUpdateTime = ?, ChatType = ?, ExtendedFlag = ?, MessageState = ? "
                       "where XmppId = ? and RealJid = ? and LastUpdateTime < ?;";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
 
-    try
-    {
+    try {
         _pSqlDb->exec("begin immediate;");
         std::vector<std::string> xmppIds;
         auto pItem = sessionMap->begin();
 
-        while (pItem != sessionMap->end())
-        {
+        while (pItem != sessionMap->end()) {
             std::string xmppid = pItem->first.usrId();
             std::string realJid = pItem->first.realId();
             query.bind(1, pItem->second.UserId);
@@ -98,15 +102,16 @@ bool MessageDao::bulkUpdateSessionList(std::map<QTalk::Entity::UID, QTalk::Entit
             query.bind(12, pItem->second.LastUpdateTime);
             query.bind(13, pItem->second.ChatType);
             query.bind(14, pItem->second.ExtendedFlag);
-//            query.bind(15, pItem->second.UnreadCount);
+            //            query.bind(15, pItem->second.UnreadCount);
             query.bind(15, pItem->second.MessageState);
             query.bind(16, xmppid);
             query.bind(17, realJid);
             query.bind(18, pItem->second.LastUpdateTime);
             bool sqlResult = query.executeStep();
 
-            if (!sqlResult)
+            if (!sqlResult) {
                 xmppIds.push_back(xmppid);
+            }
 
             query.resetBindings();
             pItem++;
@@ -115,9 +120,7 @@ bool MessageDao::bulkUpdateSessionList(std::map<QTalk::Entity::UID, QTalk::Entit
         query.clearBindings();
         _pSqlDb->exec("commit transaction;");
         return true;
-    }
-    catch (std::exception &e)
-    {
+    } catch (std::exception &e) {
         warn_log("exception : {0}", e.what());
         query.clearBindings();
         _pSqlDb->exec("rollback transaction;");
@@ -125,35 +128,36 @@ bool MessageDao::bulkUpdateSessionList(std::map<QTalk::Entity::UID, QTalk::Entit
     }
 }
 
-bool MessageDao::bulkInsertMessageInfo(const std::vector<QTalk::Entity::ImMessageInfo> &msgList,
-                                       std::map<QTalk::Entity::UID, QTalk::Entity::ImSessionInfo> *sessionMap)
+bool MessageDao::bulkInsertMessageInfo(const
+                                       std::vector<st::entity::ImMessageInfo> &msgList,
+                                       std::map<st::entity::UID, st::entity::ImSessionInfo> *sessionMap)
 {
-    if (!_pSqlDb)
+    if (!_pSqlDb) {
         return false;
+    }
 
-    std::string sql = "INSERT INTO IM_Message(MsgId, XmppId, `ChatType`, Platform, `From`, "
-                      "`To`, Content, Type, State, Direction, ReadedTag, LastUpdateTime, "
-                      "MessageRaw, RealJid, ExtendedInfo, ExtendedFlag, `BackupInfo` ) "
-                      "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) "
-                      "ON CONFLICT(MsgId) DO "
-                      "update set Content = ?,Type = ?, Direction = ?, ExtendedInfo = ?, `BackupInfo` = ?";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    std::string sql =
+        "INSERT INTO IM_Message(MsgId, XmppId, `ChatType`, Platform, `From`, "
+        "`To`, Content, Type, State, Direction, ReadedTag, LastUpdateTime, "
+        "MessageRaw, RealJid, ExtendedInfo, ExtendedFlag, `BackupInfo` ) "
+        "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) "
+        "ON CONFLICT(MsgId) DO "
+        "update set Content = ?,Type = ?, Direction = ?, ExtendedInfo = ?, `BackupInfo` = ?";
+    st::sqlite::statement query(*_pSqlDb, sql);
 
-    try
-    {
+    try {
         _pSqlDb->exec("begin immediate;");
 
-        for (const QTalk::Entity::ImMessageInfo &imMessageInfo : msgList)
-        {
+        for (const st::entity::ImMessageInfo &imMessageInfo : msgList) {
             {
                 std::string key = imMessageInfo.XmppId;
-                std::string realJid = imMessageInfo.RealJid.empty() ? key : imMessageInfo.RealJid;
-                QTalk::Entity::UID uid(key, realJid);
+                std::string realJid = imMessageInfo.RealJid.empty() ? key :
+                                      imMessageInfo.RealJid;
+                st::entity::UID uid(key, realJid);
                 auto item = sessionMap->find(uid);
 
-                if (item == sessionMap->end())
-                {
-                    QTalk::Entity::ImSessionInfo myInfo{};
+                if (item == sessionMap->end()) {
+                    st::entity::ImSessionInfo myInfo{};
                     myInfo.XmppId = key;
                     myInfo.ChatType = imMessageInfo.ChatType;
                     myInfo.Content = imMessageInfo.Content;
@@ -164,17 +168,16 @@ bool MessageDao::bulkInsertMessageInfo(const std::vector<QTalk::Entity::ImMessag
                     myInfo.UserId = imMessageInfo.XmppId;
                     myInfo.MessType = imMessageInfo.Type;
 
-                    if(imMessageInfo.From == PLAT.getSelfXmppId())
+                    if (imMessageInfo.From == DC.getSelfXmppId()) {
                         myInfo.UnreadCount = 0;
-                    else
+                    } else {
                         myInfo.UnreadCount = ((imMessageInfo.ReadedTag & 2) == 2) ? 0 : 1;
+                    }
 
-                    sessionMap->insert(std::pair<QTalk::Entity::UID, QTalk::Entity::ImSessionInfo>(uid, myInfo));
-                }
-                else
-                {
-                    if (item->second.LastUpdateTime < imMessageInfo.LastUpdateTime)
-                    {
+                    sessionMap->insert(std::pair<st::entity::UID, st::entity::ImSessionInfo>(uid,
+                                       myInfo));
+                } else {
+                    if (item->second.LastUpdateTime < imMessageInfo.LastUpdateTime) {
                         item->second.XmppId = key;
                         item->second.ChatType = imMessageInfo.ChatType;
                         item->second.Content = imMessageInfo.Content;
@@ -185,8 +188,10 @@ bool MessageDao::bulkInsertMessageInfo(const std::vector<QTalk::Entity::ImMessag
                         item->second.UserId = imMessageInfo.XmppId;
                         item->second.MessType = imMessageInfo.Type;
 
-                        if(imMessageInfo.From != PLAT.getSelfXmppId() && int(imMessageInfo.ReadedTag & 2) != 2)
+                        if (imMessageInfo.From != DC.getSelfXmppId()
+                            && int(imMessageInfo.ReadedTag & 2) != 2) {
                             item->second.UnreadCount ++;
+                        }
                     }
                 }
             }
@@ -205,7 +210,8 @@ bool MessageDao::bulkInsertMessageInfo(const std::vector<QTalk::Entity::ImMessag
             query.bind(13, imMessageInfo.MessageRaw);
             query.bind(14, imMessageInfo.RealJid);
             query.bind(15, imMessageInfo.ExtendedInfo);
-            query.bind(16, imMessageInfo.ExtendedFlag.c_str(), imMessageInfo.ExtendedFlag.size());
+            query.bind(16, imMessageInfo.ExtendedFlag.c_str(),
+                       imMessageInfo.ExtendedFlag.size());
             query.bind(17, imMessageInfo.BackupInfo);
             //处理类似撤销消息
             query.bind(18, imMessageInfo.Content);
@@ -216,8 +222,7 @@ bool MessageDao::bulkInsertMessageInfo(const std::vector<QTalk::Entity::ImMessag
             auto sqlResult = query.executeStep();
             query.resetBindings();
 
-            if (!sqlResult)
-            {
+            if (!sqlResult) {
                 error_log("error with insert message {}", imMessageInfo.MsgId);
                 continue;
             }
@@ -226,9 +231,7 @@ bool MessageDao::bulkInsertMessageInfo(const std::vector<QTalk::Entity::ImMessag
         query.clearBindings();
         _pSqlDb->exec("commit transaction;");
         return true;
-    }
-    catch (std::exception &e)
-    {
+    } catch (std::exception &e) {
         error_log("exception : {0}", e.what());
         query.clearBindings();
         _pSqlDb->exec("rollback transaction;");
@@ -243,41 +246,43 @@ bool MessageDao::bulkInsertMessageInfo(const std::vector<QTalk::Entity::ImMessag
   * @author   cc
   * @date     2018/09/28
   */
-bool MessageDao::getUserMessage(const long long &time, const std::string &userName, const std::string &realJid,
-                                std::vector<QTalk::Entity::ImMessageInfo> &msgList)
+bool MessageDao::getUserMessage(const long long &time,
+                                const std::string &userName, const std::string &realJid,
+                                std::vector<st::entity::ImMessageInfo> &msgList)
 {
-    if (!_pSqlDb)
+    if (!_pSqlDb) {
         return false;
+    }
 
     QInt64 lastT = time;
 
-    if(lastT == 0)
+    if (lastT == 0) {
         lastT = LLONG_MAX;
+    }
 
-    std::string sql = "SELECT M.`XmppId`, M.`ChatType`, U.`Name`, M.`Content`, M.`State`, M.`Direction`, M.`ReadedTag`, M.`LastUpdateTime`, "
-                      "U.`HeaderSrc`, M.`From`, M.`Type`, M.`ExtendedFlag`, M.`MsgId`, M.`ExtendedInfo`,M.`RealJid`, M.`BackupInfo` "
-                      "from IM_Message AS M "
-                      "left join  IM_User AS U "
-                      "on M.`From` = U.`XmppId` "
-                      "where M.`XmppId` = ? "
-                      "and M.`RealJid` = ? "
-                      "and M.`Type` <> ?"
-                      "and M.`LastUpdateTime` < ? "
-                      "order by M.`LastUpdateTime` DESC "
-                      "limit 10";
+    std::string sql =
+        "SELECT M.`XmppId`, M.`ChatType`, U.`Name`, M.`Content`, M.`State`, M.`Direction`, M.`ReadedTag`, M.`LastUpdateTime`, "
+        "U.`HeaderSrc`, M.`From`, M.`Type`, M.`ExtendedFlag`, M.`MsgId`, M.`ExtendedInfo`,M.`RealJid`, M.`BackupInfo` "
+        "from IM_Message AS M "
+        "left join  IM_User AS U "
+        "on M.`From` = U.`XmppId` "
+        "where M.`XmppId` = ? "
+        "and M.`RealJid` = ? "
+        "and M.`Type` <> ?"
+        "and M.`LastUpdateTime` < ? "
+        "order by M.`LastUpdateTime` DESC "
+        "limit 10";
     \
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
 
-    try
-    {
+    try {
         query.bind(1, userName);
         query.bind(2, realJid.empty() ? userName : realJid);
         query.bind(3, INT_MIN);
         query.bind(4, lastT);
 
-        while (query.executeNext())
-        {
-            QTalk::Entity::ImMessageInfo msgInfo;
+        while (query.executeNext()) {
+            st::entity::ImMessageInfo msgInfo;
             msgInfo.XmppId = query.getColumn(0).getString();
             msgInfo.ChatType = query.getColumn(1).getInt();
             msgInfo.UserName = query.getColumn(2).getString();
@@ -297,50 +302,45 @@ bool MessageDao::getUserMessage(const long long &time, const std::string &userNa
         }
 
         return true;
-    }
-    catch (std::exception &e)
-    {
+    } catch (std::exception &e) {
         warn_log("MessageDao getUserMessage exception : {0}", e.what());
         return false;
     }
 }
 
-long long MessageDao::getMaxTimeStampByChatType(QTalk::Enum::ChatType chatType)
+long long MessageDao::getMaxTimeStampByChatType(st::Enum::ChatType chatType)
 {
-    if (!_pSqlDb)
+    if (!_pSqlDb) {
         return 0;
+    }
 
     std::string sql;
 
-    if(chatType == QTalk::Enum::TwoPersonChat)
+    if (chatType == st::Enum::TwoPersonChat) {
         sql = "SELECT max(`LastUpdateTime`) from IM_Message WHERE `ChatType` <> ? and `ChatType` <> ? and State = 1;";
-    else
+    } else {
         sql = "SELECT max(`LastUpdateTime`) from IM_Message WHERE `ChatType` = ? and State = 1;";
+    }
 
-    try
-    {
-        qtalk::sqlite::statement query(*_pSqlDb, sql);
+    try {
+        st::sqlite::statement query(*_pSqlDb, sql);
         QInt64 timeStamp = 0;
 
-        if(chatType == QTalk::Enum::TwoPersonChat)
-        {
-            query.bind(1, QTalk::Enum::GroupChat);
-            query.bind(2, QTalk::Enum::System);
-        }
-        else
+        if (chatType == st::Enum::TwoPersonChat) {
+            query.bind(1, st::Enum::GroupChat);
+            query.bind(2, st::Enum::System);
+        } else {
             query.bind(1, (int) chatType);
+        }
 
-        if (query.executeNext())
+        if (query.executeNext()) {
             timeStamp = query.getColumn(0).getInt64();
+        }
 
         return timeStamp;
-    }
-    catch (qtalk::sqlite::exception &e)
-    {
+    } catch (st::sqlite::exception &e) {
         warn_log("MessageDao getMaxTimeStampByChatType exception : {0}", e.what());
-    }
-    catch (std::exception &e)
-    {
+    } catch (std::exception &e) {
         warn_log("MessageDao getMaxTimeStampByChatType exception : {0}", e.what());
     }
 
@@ -349,24 +349,23 @@ long long MessageDao::getMaxTimeStampByChatType(QTalk::Enum::ChatType chatType)
 
 long long MessageDao::getMaxTimeStamp()
 {
-    if (!_pSqlDb)
+    if (!_pSqlDb) {
         return 0;
+    }
 
     std::string sql;
     sql = "SELECT max(`LastUpdateTime`) from IM_Message";
 
-    try
-    {
-        qtalk::sqlite::statement query(*_pSqlDb, sql);
+    try {
+        st::sqlite::statement query(*_pSqlDb, sql);
         long long timeStamp = 0;
 
-        if (query.executeNext())
+        if (query.executeNext()) {
             timeStamp = query.getColumn(0).getInt64();
+        }
 
         return timeStamp;
-    }
-    catch (std::exception &e)
-    {
+    } catch (std::exception &e) {
         warn_log("MessageDao getMaxTimeStampByChatType exception : {0}", e.what());
     }
 
@@ -382,20 +381,19 @@ long long MessageDao::getMaxTimeStamp()
   */
 bool MessageDao::updateMState(const std::string &messageId, const QInt64 &time)
 {
-    if (!_pSqlDb)
+    if (!_pSqlDb) {
         return false;
+    }
 
-    std::string sql = "UPDATE IM_Message SET `State` = 1, LastUpdateTime = ? WHERE `MsgId` = ?;";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    std::string sql =
+        "UPDATE IM_Message SET `State` = 1, LastUpdateTime = ? WHERE `MsgId` = ?;";
+    st::sqlite::statement query(*_pSqlDb, sql);
 
-    try
-    {
+    try {
         query.bind(1, time);
         query.bind(2, messageId);
         return query.executeStep();
-    }
-    catch (std::exception &e)
-    {
+    } catch (std::exception &e) {
         warn_log("MessageDao updateMState exception : {0}", e.what());
         return false;
     }
@@ -410,18 +408,18 @@ bool MessageDao::updateMState(const std::string &messageId, const QInt64 &time)
   */
 bool MessageDao::updateReadMask(const std::map<std::string, QInt32> &readMasks)
 {
-    if (!_pSqlDb)
+    if (!_pSqlDb) {
         return false;
+    }
 
-    std::string sql = "UPDATE IM_Message SET `ReadedTag` = (`ReadedTag`|? ) WHERE `MsgId` = ?;";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    std::string sql =
+        "UPDATE IM_Message SET `ReadedTag` = (`ReadedTag`|? ) WHERE `MsgId` = ?;";
+    st::sqlite::statement query(*_pSqlDb, sql);
 
-    try
-    {
+    try {
         _pSqlDb->exec("begin immediate;");
 
-        for (const auto &readMask : readMasks)
-        {
+        for (const auto &readMask : readMasks) {
             query.bind(1, readMask.second);
             query.bind(2, readMask.first);
             query.executeStep();
@@ -431,9 +429,7 @@ bool MessageDao::updateReadMask(const std::map<std::string, QInt32> &readMasks)
         query.clearBindings();
         _pSqlDb->exec("commit transaction;");
         return true;
-    }
-    catch (std::exception &e)
-    {
+    } catch (std::exception &e) {
         query.clearBindings();
         _pSqlDb->exec("rollback transaction;");
         warn_log("MessageDao updateReadMask exception : {0}", e.what());
@@ -444,24 +440,24 @@ bool MessageDao::updateReadMask(const std::map<std::string, QInt32> &readMasks)
 //
 bool MessageDao::updateReadMask(const std::map<std::string, QInt64> &readMasks)
 {
-    if (!_pSqlDb)
+    if (!_pSqlDb) {
         return false;
+    }
 
-    if(readMasks.empty())
+    if (readMasks.empty()) {
         return true;
+    }
 
     std::map<std::string, QInt64> minUnReadTimes;
     getMinUnReadTimeStamp(readMasks, minUnReadTimes);
     std::string sql = "UPDATE IM_Message SET `ReadedTag` = (`ReadedTag`| 3 ) "
                       "WHERE `XmppId` = ? and `LastUpdateTime` <= ? and `LastUpdateTime` >= ? and Direction = 0";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
 
-    try
-    {
+    try {
         _pSqlDb->exec("begin immediate;");
 
-        for (const auto &readMask : readMasks)
-        {
+        for (const auto &readMask : readMasks) {
             query.bind(1, readMask.first);
             query.bind(2, readMask.second);
             query.bind(3, minUnReadTimes[readMask.first]);
@@ -472,9 +468,7 @@ bool MessageDao::updateReadMask(const std::map<std::string, QInt64> &readMasks)
         query.clearBindings();
         _pSqlDb->exec("commit transaction;");
         return true;
-    }
-    catch (std::exception &e)
-    {
+    } catch (std::exception &e) {
         query.clearBindings();
         _pSqlDb->exec("rollback transaction;");
         error_log("MessageDao updateReadMask exception : {0}", e.what());
@@ -482,106 +476,106 @@ bool MessageDao::updateReadMask(const std::map<std::string, QInt64> &readMasks)
     }
 }
 
-bool MessageDao::getUnreadedMessages(const std::string &messageId, std::vector<std::string> &msgIds)
+bool MessageDao::getUnreadedMessages(const std::string &messageId,
+                                     std::vector<std::string> &msgIds)
 {
-    if (!_pSqlDb)
+    if (!_pSqlDb) {
         return false;
+    }
 
-//    a.LastUpdateTime <= b.LastUpdateTime and 去掉时间比对
+    //    a.LastUpdateTime <= b.LastUpdateTime and 去掉时间比对
     std::string sql = "select a.MsgId  from IM_Message a, "
                       "( select XmppId, RealJid from IM_Message where MsgId = ? ) b "
                       "where a.XmppId = b.XmppId and a.RealJid = b.RealJid "
                       "and (a.ReadedTag&2) <> 2 and a.Direction = 0";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
 
-    try
-    {
+    try {
         query.bind(1, messageId);
 
-        while (query.executeNext())
+        while (query.executeNext()) {
             msgIds.push_back(query.getColumn(0).getString());
+        }
 
         return true;
-    }
-    catch (std::exception &e)
-    {
+    } catch (std::exception &e) {
         error_log("MessageDao getUnreadedMessages exception : {0}", e.what());
         return false;
     }
 }
 
-bool MessageDao::getGroupMessageLastUpdateTime(const std::string &messageId, QInt64 &time)
+bool MessageDao::getGroupMessageLastUpdateTime(const std::string &messageId,
+                                               QInt64 &time)
 {
-    if (!_pSqlDb)
+    if (!_pSqlDb) {
         return false;
+    }
 
     std::string sql = "SELECT LastUpdateTime from IM_Message WHERE MsgId = ?;";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
 
-    try
-    {
+    try {
         query.bind(1, messageId);
 
-        if (query.executeNext())
+        if (query.executeNext()) {
             time = query.getColumn(0).getInt64();
+        }
 
         return true;
-    }
-    catch (std::exception &e)
-    {
+    } catch (std::exception &e) {
         warn_log("MessageDao getGroupMessageLastUpdateTime exception : {0}", e.what());
         return false;
     }
 }
 
-bool MessageDao::getGroupUnreadedCount(const std::map<std::string, QInt64> &readMasks,
+bool MessageDao::getGroupUnreadedCount(const std::map<std::string, QInt64>
+                                       &readMasks,
                                        std::map<std::string, int> &unreadedCount)
 {
-    if (!_pSqlDb)
+    if (!_pSqlDb) {
         return false;
+    }
 
-    std::string sql = "SELECT count(1) from IM_Message WHERE XmppId = ? and `LastUpdateTime` <= ? "
-                      " and (ReadedTag&2) <> 2;";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    std::string sql =
+        "SELECT count(1) from IM_Message WHERE XmppId = ? and `LastUpdateTime` <= ? "
+        " and (ReadedTag&2) <> 2;";
+    st::sqlite::statement query(*_pSqlDb, sql);
 
-    try
-    {
-        for (const auto &readMask : readMasks)
-        {
+    try {
+        for (const auto &readMask : readMasks) {
             query.bind(1, readMask.first);
             query.bind(2, readMask.second);
 
-            if (query.executeNext())
+            if (query.executeNext()) {
                 unreadedCount[readMask.first] = query.getColumn(0).getInt();
+            }
         }
 
         return true;
-    }
-    catch (std::exception &e)
-    {
+    } catch (std::exception &e) {
         warn_log("MessageDao getGroupUnreadedCount exception : {0}", e.what());
         return false;
     }
 }
 
 //
-bool MessageDao::getMessageByMessageId(const std::string &messageId, QTalk::Entity::ImMessageInfo &imMessageInfo)
+bool MessageDao::getMessageByMessageId(const std::string &messageId,
+                                       st::entity::ImMessageInfo &imMessageInfo)
 {
-    if (!_pSqlDb)
+    if (!_pSqlDb) {
         return false;
+    }
 
     std::string sql = "SELECT MsgId, XmppId, `ChatType`, Platform, `From`,"
                       " `To`, Content, Type, State, Direction, ReadedTag, LastUpdateTime, "
                       "  MessageRaw, RealJid, ExtendedInfo, ExtendedFlag, `BackupInfo` from IM_Message"
                       " WHERE MsgId = ?";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
 
-    try
-    {
+    try {
         query.bind(1, messageId);
 
-        if (query.executeNext())
-        {
+        if (query.executeNext()) {
             imMessageInfo.MsgId = query.getColumn(0).getString();
             imMessageInfo.XmppId = query.getColumn(1).getString();
             imMessageInfo.ChatType = query.getColumn(2).getInt();
@@ -602,9 +596,7 @@ bool MessageDao::getMessageByMessageId(const std::string &messageId, QTalk::Enti
         }
 
         return true;
-    }
-    catch (std::exception &e)
-    {
+    } catch (std::exception &e) {
         warn_log("MessageDao getMessageByMessageId exception : {0}", e.what());
         return false;
     }
@@ -612,21 +604,20 @@ bool MessageDao::getMessageByMessageId(const std::string &messageId, QTalk::Enti
 
 bool MessageDao::updateRevokeMessage(const std::string &messageId)
 {
-    if (!_pSqlDb)
+    if (!_pSqlDb) {
         return false;
+    }
 
-    std::string sql = "UPDATE IM_Message SET `Content` = '[撤销一条消息]', Type = -1 "
-                      "WHERE `MsgId` = ?;";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    std::string sql =
+        "UPDATE IM_Message SET `Content` = '[撤销一条消息]', Type = -1 "
+        "WHERE `MsgId` = ?;";
+    st::sqlite::statement query(*_pSqlDb, sql);
 
-    try
-    {
+    try {
         query.bind(1, messageId);
         query.executeStep();
         return true;
-    }
-    catch (std::exception &e)
-    {
+    } catch (std::exception &e) {
         warn_log("MessageDao updateRevokeMessage exception : {0}", e.what());
         return false;
     }
@@ -635,27 +626,28 @@ bool MessageDao::updateRevokeMessage(const std::string &messageId)
 /**
  *
  */
-bool MessageDao::getUnreadCountById(const std::string &id, const std::string &realJid, int &count)
+bool MessageDao::getUnreadCountById(const std::string &id,
+                                    const std::string &realJid, int &count)
 {
-    if (!_pSqlDb)
+    if (!_pSqlDb) {
         return false;
+    }
 
-    std::string sql = "SELECT COUNT(`MsgId`) FROM IM_Message WHERE (ReadedTag&2) <> 2  and Direction = 0 and XmppId = ? and RealJid = ?; ";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    std::string sql =
+        "SELECT COUNT(`MsgId`) FROM IM_Message WHERE (ReadedTag&2) <> 2  and Direction = 0 and XmppId = ? and RealJid = ?; ";
+    st::sqlite::statement query(*_pSqlDb, sql);
 
-    try
-    {
+    try {
         query.bind(1, id);
         query.bind(2, realJid == "" ? id : realJid);
 
-        if (query.executeNext())
+        if (query.executeNext()) {
             count = query.getColumn(0).getInt();
+        }
 
         debug_log("gotUnreadCount id:{0} count:{1}", id, count);
         return true;
-    }
-    catch (std::exception &e)
-    {
+    } catch (std::exception &e) {
         warn_log("MessageDao getUnreadCountById exception : {0}", e.what());
         return false;
     }
@@ -664,10 +656,12 @@ bool MessageDao::getUnreadCountById(const std::string &id, const std::string &re
 /**
  *
  */
-bool MessageDao::getAtCount(const std::string &selfName, const std::string &id, int &count)
+bool MessageDao::getAtCount(const std::string &selfName, const std::string &id,
+                            int &count)
 {
-    if (!_pSqlDb)
+    if (!_pSqlDb) {
         return false;
+    }
 
     std::string sql = "SELECT COUNT(`MsgId`) FROM IM_Message "
                       "WHERE (ReadedTag&2) <> 2  "
@@ -675,30 +669,28 @@ bool MessageDao::getAtCount(const std::string &selfName, const std::string &id, 
                       "and XmppId = ? "
                       "and (`Content` like '%@all%' or `Content` like ?) ; ";
 
-    if (selfName.empty())
-    {
+    if (selfName.empty()) {
         sql = "SELECT COUNT(`MsgId`) FROM IM_Message "
               "WHERE (ReadedTag&2) <> 2  "
               "and Direction = 0 "
               "and `Content` like '%@all%'; ";
     }
 
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
 
-    try
-    {
+    try {
         query.bind(1, id);
 
-        if (!selfName.empty())
+        if (!selfName.empty()) {
             query.bind(2, std::string("%@") + selfName + "%");
+        }
 
-        if (query.executeNext())
+        if (query.executeNext()) {
             count = query.getColumn(0).getInt();
+        }
 
         return true;
-    }
-    catch (std::exception &e)
-    {
+    } catch (std::exception &e) {
         warn_log("MessageDao updateRevokeMessage exception : {0}", e.what());
         return false;
     }
@@ -708,21 +700,21 @@ bool MessageDao::getAtCount(const std::string &selfName, const std::string &id, 
 
 bool MessageDao::getAllUnreadCount(int &count)
 {
-    if (!_pSqlDb)
+    if (!_pSqlDb) {
         return false;
+    }
 
-    std::string sql = "SELECT COUNT(`MsgId`) FROM IM_Message WHERE (ReadedTag&2) <> 2  and Direction = 0 ";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    std::string sql =
+        "SELECT COUNT(`MsgId`) FROM IM_Message WHERE (ReadedTag&2) <> 2  and Direction = 0 ";
+    st::sqlite::statement query(*_pSqlDb, sql);
 
-    try
-    {
-        if (query.executeNext())
+    try {
+        if (query.executeNext()) {
             count = query.getColumn(0).getInt();
+        }
 
         return true;
-    }
-    catch (std::exception &e)
-    {
+    } catch (std::exception &e) {
         warn_log("MessageDao getUnreadCountById exception : {0}", e.what());
         return false;
     }
@@ -733,15 +725,18 @@ bool MessageDao::getAllUnreadCount(int &count)
  */
 long long MessageDao::getMinUnReadTimeStamp()
 {
-    if (!_pSqlDb)
+    if (!_pSqlDb) {
         return false;
+    }
 
-    std::string sql = "SELECT min(LastUpdateTime) FROM IM_Message where (ReadedTag&2) = 2 and Direction = 0 and ChatType = 1";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    std::string sql =
+        "SELECT min(LastUpdateTime) FROM IM_Message where (ReadedTag&2) = 2 and Direction = 0 and ChatType = 1";
+    st::sqlite::statement query(*_pSqlDb, sql);
     long long ret = 0;
 
-    if (query.executeNext())
+    if (query.executeNext()) {
         ret = query.getColumn(0).getInt64();
+    }
 
     return ret;
 }
@@ -749,18 +744,17 @@ long long MessageDao::getMinUnReadTimeStamp()
 
 bool MessageDao::bulkDeleteMessage(const std::vector<std::string> &groupIds)
 {
-    if (!_pSqlDb)
+    if (!_pSqlDb) {
         return false;
+    }
 
     std::string sql = "DELETE FROM IM_Message WHERE `XmppId` = ?;";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
 
-    try
-    {
+    try {
         _pSqlDb->exec("begin immediate;");
 
-        for (std::string id : groupIds)
-        {
+        for (std::string id : groupIds) {
             query.bind(1, id);
             query.executeStep();
             query.resetBindings();
@@ -769,9 +763,7 @@ bool MessageDao::bulkDeleteMessage(const std::vector<std::string> &groupIds)
         query.clearBindings();
         _pSqlDb->exec("commit transaction;");
         return true;
-    }
-    catch (std::exception &e)
-    {
+    } catch (std::exception &e) {
         query.clearBindings();
         _pSqlDb->exec("rollback transaction;");
         return false;
@@ -783,19 +775,17 @@ bool MessageDao::bulkDeleteMessage(const std::vector<std::string> &groupIds)
  */
 bool MessageDao::deleteMessageByMessageId(const std::string &meesageId)
 {
-    if (!_pSqlDb)
+    if (!_pSqlDb) {
         return false;
+    }
 
     std::string sql = "DELETE FROM IM_Message WHERE `MsgId` = ?;";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
 
-    try
-    {
+    try {
         query.bind(1, meesageId);
         return query.executeStep();
-    }
-    catch (std::exception &e)
-    {
+    } catch (std::exception &e) {
         error_log(" deleteMessageByMessageId exception {0}", e.what());
         return false;
     }
@@ -806,39 +796,39 @@ bool MessageDao::deleteMessageByMessageId(const std::string &meesageId)
  * @param readMasks
  * @return
  */
-void MessageDao::getMinUnReadTimeStamp(const std::map<std::string, QInt64> &readMasks, std::map<std::string, QInt64 > &minUnReadedTimes)
+void MessageDao::getMinUnReadTimeStamp(const std::map<std::string, QInt64>
+                                       &readMasks, std::map<std::string, QInt64 > &minUnReadedTimes)
 {
     perf_counter("getMinUnReadTimeStamp<map, map> {0}", readMasks.size());
-//    std::ostringstream os;
-//    os << "SELECT min(LastUpdateTime), XmppId FROM IM_Message where XmppId in (";
-//
-//    int count = 0;
-//    for(const auto& item : readMasks )
-//    {
-//        if(count >= readMasks.size() - 1)
-//            os << "'" << item.first << "') and (ReadedTag&2) = 2 group by XmppId;";
-//        else
-//            os << "'" << item.first << "' ,";
-//
-//        count++;
-//    }
-//
-//    std::string sql = os.str();
-//    qtalk::sqlite::statement query(*_pSqlDb, sql);
-//    while (query.executeNext()) {
-//        QInt64 t = query.getColumn(0).getInt64();
-//        std::string xmppid = query.getColumn(1).getString();
-//        minUnReadedTimes[xmppid] = t;
-//    }
-    std::string sql = "SELECT min(LastUpdateTime) FROM IM_Message where (ReadedTag&2) <> 2 and XmppId = ?";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    //    std::ostringstream os;
+    //    os << "SELECT min(LastUpdateTime), XmppId FROM IM_Message where XmppId in (";
+    //
+    //    int count = 0;
+    //    for(const auto& item : readMasks )
+    //    {
+    //        if(count >= readMasks.size() - 1)
+    //            os << "'" << item.first << "') and (ReadedTag&2) = 2 group by XmppId;";
+    //        else
+    //            os << "'" << item.first << "' ,";
+    //
+    //        count++;
+    //    }
+    //
+    //    std::string sql = os.str();
+    //    st::sqlite::statement query(*_pSqlDb, sql);
+    //    while (query.executeNext()) {
+    //        QInt64 t = query.getColumn(0).getInt64();
+    //        std::string xmppid = query.getColumn(1).getString();
+    //        minUnReadedTimes[xmppid] = t;
+    //    }
+    std::string sql =
+        "SELECT min(LastUpdateTime) FROM IM_Message where (ReadedTag&2) <> 2 and XmppId = ?";
+    st::sqlite::statement query(*_pSqlDb, sql);
 
-    for(const auto &item : readMasks)
-    {
+    for (const auto &item : readMasks) {
         query.bind(1, item.first);
 
-        if(query.executeNext())
-        {
+        if (query.executeNext()) {
             QInt64 t = query.getColumn(0).getInt64();
             minUnReadedTimes[item.first] = t;
             query.clearBindings();
@@ -849,8 +839,9 @@ void MessageDao::getMinUnReadTimeStamp(const std::map<std::string, QInt64> &read
 void MessageDao::getBeforeImageMessage(const std::string &messageId,
                                        std::vector<std::pair<std::string, std::string>> &msgs)
 {
-    if (!_pSqlDb)
+    if (!_pSqlDb) {
         return;
+    }
 
     std::string sql = "select  MsgId,  Content "
                       "from IM_Message "
@@ -859,12 +850,11 @@ void MessageDao::getBeforeImageMessage(const std::string &messageId,
                       "and LastUpdateTime < (select LastUpdateTime from IM_Message where MsgId = ?) "
                       "order by LastUpdateTime desc "
                       "limit 20;";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     query.bind(1, messageId);
     query.bind(2, messageId);
 
-    while (query.executeNext())
-    {
+    while (query.executeNext()) {
         std::string msgId = query.getColumn(0).getString();
         std::string content = query.getColumn(1).getString();
         msgs.emplace_back(msgId, content);
@@ -872,10 +862,12 @@ void MessageDao::getBeforeImageMessage(const std::string &messageId,
 }
 
 void
-MessageDao::getNextImageMessage(const std::string &messageId, std::vector<std::pair<std::string, std::string>> &msgs)
+MessageDao::getNextImageMessage(const std::string &messageId,
+                                std::vector<std::pair<std::string, std::string>> &msgs)
 {
-    if (!_pSqlDb)
+    if (!_pSqlDb) {
         return;
+    }
 
     std::string sql = "select  MsgId,  Content "
                       "from IM_Message "
@@ -884,23 +876,22 @@ MessageDao::getNextImageMessage(const std::string &messageId, std::vector<std::p
                       "and LastUpdateTime > (select LastUpdateTime from IM_Message where MsgId = ?) "
                       "order by LastUpdateTime  "
                       "limit 20;";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     query.bind(1, messageId);
     query.bind(2, messageId);
 
-    while (query.executeNext())
-    {
+    while (query.executeNext()) {
         std::string msgId = query.getColumn(0).getString();
         std::string content = query.getColumn(1).getString();
         msgs.emplace_back(msgId, content);
     }
 }
 
-void dealMessage(qtalk::sqlite::statement &query, std::vector<QTalk::Entity::ImMessageInfo> &msgList)
+void dealMessage(st::sqlite::statement &query,
+                 std::vector<st::entity::ImMessageInfo> &msgList)
 {
-    while (query.executeNext())
-    {
-        QTalk::Entity::ImMessageInfo msgInfo;
+    while (query.executeNext()) {
+        st::entity::ImMessageInfo msgInfo;
         msgInfo.XmppId = query.getColumn(0).getString();
         msgInfo.ChatType = query.getColumn(1).getInt();
         msgInfo.UserName = query.getColumn(2).getString();
@@ -919,135 +910,146 @@ void dealMessage(qtalk::sqlite::statement &query, std::vector<QTalk::Entity::ImM
     }
 }
 
-void MessageDao::getLocalMessage(const long long &time, const std::string &userId, const std::string &realJid,
-                                 std::vector<QTalk::Entity::ImMessageInfo> &msgList)
+void MessageDao::getLocalMessage(const long long &time,
+                                 const std::string &userId, const std::string &realJid,
+                                 std::vector<st::entity::ImMessageInfo> &msgList)
 {
-    if (!_pSqlDb)
+    if (!_pSqlDb) {
         return;
+    }
 
     bool hasR = (time != 0);
     long long t = hasR ? time : LLONG_MAX;
-    std::string sql = "SELECT M.`XmppId`, M.`ChatType`, U.`Name`, M.`Content`, M.`State`, M.`Direction`, M.`ReadedTag`, M.`LastUpdateTime`,  "
-                      "U.`HeaderSrc`, M.`From`, M.`Type`, M.`ExtendedFlag`, M.`MsgId`, M.`ExtendedInfo`,M.`RealJid`  "
-                      "from IM_Message AS M  "
-                      "left join  IM_User AS U  "
-                      "on M.`From` = U.`XmppId` "
-                      "where M.`XmppId` = ? "
-                      "and M.`RealJid` = ? "
-                      "and M.`LastUpdateTime` < ?  "
-                      "order by M.`LastUpdateTime` DESC "
-                      "limit 20;";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    std::string sql =
+        "SELECT M.`XmppId`, M.`ChatType`, U.`Name`, M.`Content`, M.`State`, M.`Direction`, M.`ReadedTag`, M.`LastUpdateTime`,  "
+        "U.`HeaderSrc`, M.`From`, M.`Type`, M.`ExtendedFlag`, M.`MsgId`, M.`ExtendedInfo`,M.`RealJid`  "
+        "from IM_Message AS M  "
+        "left join  IM_User AS U  "
+        "on M.`From` = U.`XmppId` "
+        "where M.`XmppId` = ? "
+        "and M.`RealJid` = ? "
+        "and M.`LastUpdateTime` < ?  "
+        "order by M.`LastUpdateTime` DESC "
+        "limit 20;";
+    st::sqlite::statement query(*_pSqlDb, sql);
     query.bind(1, userId);
     query.bind(2, realJid);
     query.bind(3, t);
     dealMessage(query, msgList);
-//    if(hasR)
-//    {
-//        sql = "SELECT M.`XmppId`, M.`ChatType`, U.`Name`, M.`Content`, M.`State`, M.`Direction`, M.`ReadedTag`, M.`LastUpdateTime`,  "
-//              "U.`HeaderSrc`, M.`From`, M.`Type`, M.`ExtendedFlag`, M.`MsgId`, M.`ExtendedInfo`,M.`RealJid`  "
-//              "from IM_Message AS M  "
-//              "left join  IM_User AS U  "
-//              "on M.`From` = U.`XmppId` "
-//              "where M.`XmppId` = ? "
-//              "and M.`RealJid` = ? "
-//              "and M.`LastUpdateTime` >= ?  "
-//              "order by M.`LastUpdateTime` DESC "
-//              "limit 10;";
-//
-//        qtalk::sqlite::statement query_r(*_pSqlDb, sql);
-//        query_r.bind(1, userId);
-//        query_r.bind(2, realJid);
-//        query_r.bind(3, t);
-//
-//        dealMessage(query_r, msgList);
-//    }
+    //    if(hasR)
+    //    {
+    //        sql = "SELECT M.`XmppId`, M.`ChatType`, U.`Name`, M.`Content`, M.`State`, M.`Direction`, M.`ReadedTag`, M.`LastUpdateTime`,  "
+    //              "U.`HeaderSrc`, M.`From`, M.`Type`, M.`ExtendedFlag`, M.`MsgId`, M.`ExtendedInfo`,M.`RealJid`  "
+    //              "from IM_Message AS M  "
+    //              "left join  IM_User AS U  "
+    //              "on M.`From` = U.`XmppId` "
+    //              "where M.`XmppId` = ? "
+    //              "and M.`RealJid` = ? "
+    //              "and M.`LastUpdateTime` >= ?  "
+    //              "order by M.`LastUpdateTime` DESC "
+    //              "limit 10;";
+    //
+    //        st::sqlite::statement query_r(*_pSqlDb, sql);
+    //        query_r.bind(1, userId);
+    //        query_r.bind(2, realJid);
+    //        query_r.bind(3, t);
+    //
+    //        dealMessage(query_r, msgList);
+    //    }
 }
 
-void MessageDao::getFileMessage(const long long &time, const std::string &userId, const std::string &realJid,
-                                std::vector<QTalk::Entity::ImMessageInfo> &msgList)
+void MessageDao::getFileMessage(const long long &time,
+                                const std::string &userId, const std::string &realJid,
+                                std::vector<st::entity::ImMessageInfo> &msgList)
 {
     long long t = time == 0 ? LLONG_MAX : time;
-    std::string sql = "SELECT M.`XmppId`, M.`ChatType`, U.`Name`, M.`Content`, M.`State`, M.`Direction`, M.`ReadedTag`, M.`LastUpdateTime`,  "
-                      "U.`HeaderSrc`, M.`From`, M.`Type`, M.`ExtendedFlag`, M.`MsgId`, M.`ExtendedInfo`,M.`RealJid`  "
-                      "from IM_Message AS M  "
-                      "left join  IM_User AS U  "
-                      "on M.`From` = U.`XmppId` "
-                      "where M.`XmppId` = ? "
-                      "and M.`RealJid` = ? "
-                      "and M.`LastUpdateTime` < ?  "
-                      "and M.`Type` = ? "
-                      "order by M.`LastUpdateTime` DESC "
-                      "limit 20;";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    std::string sql =
+        "SELECT M.`XmppId`, M.`ChatType`, U.`Name`, M.`Content`, M.`State`, M.`Direction`, M.`ReadedTag`, M.`LastUpdateTime`,  "
+        "U.`HeaderSrc`, M.`From`, M.`Type`, M.`ExtendedFlag`, M.`MsgId`, M.`ExtendedInfo`,M.`RealJid`  "
+        "from IM_Message AS M  "
+        "left join  IM_User AS U  "
+        "on M.`From` = U.`XmppId` "
+        "where M.`XmppId` = ? "
+        "and M.`RealJid` = ? "
+        "and M.`LastUpdateTime` < ?  "
+        "and M.`Type` = ? "
+        "order by M.`LastUpdateTime` DESC "
+        "limit 20;";
+    st::sqlite::statement query(*_pSqlDb, sql);
     query.bind(1, userId);
     query.bind(2, realJid);
     query.bind(3, t);
-    query.bind(4, QTalk::Entity::MessageTypeFile);
+    query.bind(4, st::entity::MessageTypeFile);
     dealMessage(query, msgList);
     debug_log("got file message {0}", msgList.size());
 }
 
-void MessageDao::getImageMessage(const long long &time, const std::string &userId, const std::string &realJid,
-                                 std::vector<QTalk::Entity::ImMessageInfo> &msgList)
+void MessageDao::getImageMessage(const long long &time,
+                                 const std::string &userId, const std::string &realJid,
+                                 std::vector<st::entity::ImMessageInfo> &msgList)
 {
     long long t = time == 0 ? LLONG_MAX : time;
-    std::string sql = "SELECT M.`XmppId`, M.`ChatType`, U.`Name`, M.`Content`, M.`State`, M.`Direction`, M.`ReadedTag`, M.`LastUpdateTime`,  "
-                      "U.`HeaderSrc`, M.`From`, M.`Type`, M.`ExtendedFlag`, M.`MsgId`, M.`ExtendedInfo`,M.`RealJid`  "
-                      "from IM_Message AS M  "
-                      "left join  IM_User AS U  "
-                      "on M.`From` = U.`XmppId` "
-                      "where M.`XmppId` = ? "
-                      "and M.`RealJid` = ? "
-                      "and M.`LastUpdateTime` < ?  "
-                      "and M.content like '%[obj type=\"image\"%' "
-                      "order by M.`LastUpdateTime` DESC "
-                      "limit 50;";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    std::string sql =
+        "SELECT M.`XmppId`, M.`ChatType`, U.`Name`, M.`Content`, M.`State`, M.`Direction`, M.`ReadedTag`, M.`LastUpdateTime`,  "
+        "U.`HeaderSrc`, M.`From`, M.`Type`, M.`ExtendedFlag`, M.`MsgId`, M.`ExtendedInfo`,M.`RealJid`  "
+        "from IM_Message AS M  "
+        "left join  IM_User AS U  "
+        "on M.`From` = U.`XmppId` "
+        "where M.`XmppId` = ? "
+        "and M.`RealJid` = ? "
+        "and M.`LastUpdateTime` < ?  "
+        "and M.content like '%[obj type=\"image\"%' "
+        "order by M.`LastUpdateTime` DESC "
+        "limit 50;";
+    st::sqlite::statement query(*_pSqlDb, sql);
     query.bind(1, userId);
     query.bind(2, realJid);
     query.bind(3, t);
     dealMessage(query, msgList);
 }
 
-void MessageDao::getLinkMessage(const long long &time, const std::string &userId, const std::string &realJid,
-                                std::vector<QTalk::Entity::ImMessageInfo> &msgList)
+void MessageDao::getLinkMessage(const long long &time,
+                                const std::string &userId, const std::string &realJid,
+                                std::vector<st::entity::ImMessageInfo> &msgList)
 {
     long long t = time == 0 ? LLONG_MAX : time;
-    std::string sql = "SELECT M.`XmppId`, M.`ChatType`, U.`Name`, M.`Content`, M.`State`, M.`Direction`, M.`ReadedTag`, M.`LastUpdateTime`,  "
-                      "U.`HeaderSrc`, M.`From`, M.`Type`, M.`ExtendedFlag`, M.`MsgId`, M.`ExtendedInfo`,M.`RealJid`  "
-                      "from IM_Message AS M  "
-                      "left join  IM_User AS U  "
-                      "on M.`From` = U.`XmppId` "
-                      "where M.`XmppId` = ? "
-                      "and M.`RealJid` = ? "
-                      "and M.`LastUpdateTime` < ?  "
-                      "and M.content like '%[obj type=\"url\"%' "
-                      "order by M.`LastUpdateTime` DESC "
-                      "limit 50;";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    std::string sql =
+        "SELECT M.`XmppId`, M.`ChatType`, U.`Name`, M.`Content`, M.`State`, M.`Direction`, M.`ReadedTag`, M.`LastUpdateTime`,  "
+        "U.`HeaderSrc`, M.`From`, M.`Type`, M.`ExtendedFlag`, M.`MsgId`, M.`ExtendedInfo`,M.`RealJid`  "
+        "from IM_Message AS M  "
+        "left join  IM_User AS U  "
+        "on M.`From` = U.`XmppId` "
+        "where M.`XmppId` = ? "
+        "and M.`RealJid` = ? "
+        "and M.`LastUpdateTime` < ?  "
+        "and M.content like '%[obj type=\"url\"%' "
+        "order by M.`LastUpdateTime` DESC "
+        "limit 50;";
+    st::sqlite::statement query(*_pSqlDb, sql);
     query.bind(1, userId);
     query.bind(2, realJid);
     query.bind(3, t);
     dealMessage(query, msgList);
 }
 
-void MessageDao::getSearchMessage(const long long &time, const std::string &userId, const std::string &realJid,
-                                  const std::string &searchKey, std::vector<QTalk::Entity::ImMessageInfo> &msgList)
+void MessageDao::getSearchMessage(const long long &time,
+                                  const std::string &userId, const std::string &realJid,
+                                  const std::string &searchKey, std::vector<st::entity::ImMessageInfo> &msgList)
 {
     long long t = time == 0 ? LLONG_MAX : time;
-    std::string sql = "SELECT M.`XmppId`, M.`ChatType`, U.`Name`, M.`Content`, M.`State`, M.`Direction`, M.`ReadedTag`, M.`LastUpdateTime`,  "
-                      "U.`HeaderSrc`, M.`From`, M.`Type`, M.`ExtendedFlag`, M.`MsgId`, M.`ExtendedInfo`,M.`RealJid`  "
-                      "from IM_Message AS M  "
-                      "left join  IM_User AS U  "
-                      "on M.`From` = U.`XmppId` "
-                      "where M.`XmppId` = ? "
-                      "and M.`RealJid` = ? "
-                      "and M.`LastUpdateTime` < ?  "
-                      "and lower(M.content) like ? "
-                      "order by M.`LastUpdateTime` DESC "
-                      "limit 50 ;";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    std::string sql =
+        "SELECT M.`XmppId`, M.`ChatType`, U.`Name`, M.`Content`, M.`State`, M.`Direction`, M.`ReadedTag`, M.`LastUpdateTime`,  "
+        "U.`HeaderSrc`, M.`From`, M.`Type`, M.`ExtendedFlag`, M.`MsgId`, M.`ExtendedInfo`,M.`RealJid`  "
+        "from IM_Message AS M  "
+        "left join  IM_User AS U  "
+        "on M.`From` = U.`XmppId` "
+        "where M.`XmppId` = ? "
+        "and M.`RealJid` = ? "
+        "and M.`LastUpdateTime` < ?  "
+        "and lower(M.content) like ? "
+        "order by M.`LastUpdateTime` DESC "
+        "limit 50 ;";
+    st::sqlite::statement query(*_pSqlDb, sql);
     query.bind(1, userId);
     query.bind(2, realJid);
     query.bind(3, t);
@@ -1055,21 +1057,23 @@ void MessageDao::getSearchMessage(const long long &time, const std::string &user
     dealMessage(query, msgList);
 }
 
-void MessageDao::getAfterMessage(const long long &time, const std::string &userId, const std::string &realJid,
-                                 std::vector<QTalk::Entity::ImMessageInfo> &msgList)
+void MessageDao::getAfterMessage(const long long &time,
+                                 const std::string &userId, const std::string &realJid,
+                                 std::vector<st::entity::ImMessageInfo> &msgList)
 {
     long long t = time == 0 ? LLONG_MAX : time;
-    std::string sql = "SELECT M.`XmppId`, M.`ChatType`, U.`Name`, M.`Content`, M.`State`, M.`Direction`, M.`ReadedTag`, M.`LastUpdateTime`,  "
-                      "U.`HeaderSrc`, M.`From`, M.`Type`, M.`ExtendedFlag`, M.`MsgId`, M.`ExtendedInfo`,M.`RealJid`  "
-                      "from IM_Message AS M  "
-                      "left join  IM_User AS U  "
-                      "on M.`From` = U.`XmppId` "
-                      "where M.`XmppId` = ? "
-                      "and M.`RealJid` = ? "
-                      "and M.`LastUpdateTime` >= ?  "
-                      "order by M.`LastUpdateTime` "
-                      "limit 20 ;";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    std::string sql =
+        "SELECT M.`XmppId`, M.`ChatType`, U.`Name`, M.`Content`, M.`State`, M.`Direction`, M.`ReadedTag`, M.`LastUpdateTime`,  "
+        "U.`HeaderSrc`, M.`From`, M.`Type`, M.`ExtendedFlag`, M.`MsgId`, M.`ExtendedInfo`,M.`RealJid`  "
+        "from IM_Message AS M  "
+        "left join  IM_User AS U  "
+        "on M.`From` = U.`XmppId` "
+        "where M.`XmppId` = ? "
+        "and M.`RealJid` = ? "
+        "and M.`LastUpdateTime` >= ?  "
+        "order by M.`LastUpdateTime` "
+        "limit 20 ;";
+    st::sqlite::statement query(*_pSqlDb, sql);
     query.bind(1, userId);
     query.bind(2, realJid);
     query.bind(3, t);
@@ -1078,39 +1082,39 @@ void MessageDao::getAfterMessage(const long long &time, const std::string &userI
 
 void MessageDao::fixMessageType()
 {
-    if(!_pSqlDb)
+    if (!_pSqlDb) {
         return;
+    }
 
-    std::string sql = "update IM_Message set ChatType = ChatType - 1 where ChatType = 1 or ChatType = 2;";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    std::string sql =
+        "update IM_Message set ChatType = ChatType - 1 where ChatType = 1 or ChatType = 2;";
+    st::sqlite::statement query(*_pSqlDb, sql);
 
-    try
-    {
+    try {
         _pSqlDb->exec("begin immediate;");
         query.executeStep();
         _pSqlDb->exec("commit transaction;");
-    }
-    catch (std::exception &e)
-    {
+    } catch (std::exception &e) {
         error_log(e.what());
         _pSqlDb->exec("rollback transaction;");
     }
 }
 
-void MessageDao::updateMessageReadFlags(const std::map<std::string, int> &readFlags)
+void MessageDao::updateMessageReadFlags(const std::map<std::string, int>
+                                        &readFlags)
 {
-    if(!_pSqlDb)
+    if (!_pSqlDb) {
         return;
+    }
 
-    std::string sql = "update IM_Message set ReadedTag = ?, State = 1 where MsgId = ?;";
+    std::string sql =
+        "update IM_Message set ReadedTag = ?, State = 1 where MsgId = ?;";
 
-    try
-    {
-        qtalk::sqlite::statement query(*_pSqlDb, sql);
+    try {
+        st::sqlite::statement query(*_pSqlDb, sql);
         _pSqlDb->exec("begin immediate;");
 
-        for(const auto &flag : readFlags)
-        {
+        for (const auto &flag : readFlags) {
             query.bind(1, flag.second);
             query.bind(2, flag.first);
             query.executeStep();
@@ -1118,43 +1122,43 @@ void MessageDao::updateMessageReadFlags(const std::map<std::string, int> &readFl
         }
 
         _pSqlDb->exec("commit transaction;");
-    }
-    catch (std::exception &e)
-    {
+    } catch (std::exception &e) {
         _pSqlDb->exec("rollback transaction;");
-//        throw e.what();
+        //        throw e.what();
     }
 }
 
-void MessageDao::updateMessageExtendInfo(const std::string &msgId, const std::string &info)
+void MessageDao::updateMessageExtendInfo(const std::string &msgId,
+                                         const std::string &info)
 {
-    if(!_pSqlDb)
+    if (!_pSqlDb) {
         return;
+    }
 
     std::string sql = "update IM_Message set `ExtendedInfo` = ? where `MsgId` = ? ";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     query.bind(1, info);
     query.bind(2, msgId);
 
-    if (!query.executeStep())
+    if (!query.executeStep()) {
         warn_log("excute failed {0}, {1}", msgId, info);
+    }
 }
 
 void MessageDao::addMessageFlag()
 {
-    if(!_pSqlDb)
+    if (!_pSqlDb) {
         return;
+    }
 
     // MessageFlag false - new | true - old
-    std::string sql = "ALTER TABLE IM_Message ADD COLUMN MessageFlag Boolean DEFAULT false;";
+    std::string sql =
+        "ALTER TABLE IM_Message ADD COLUMN MessageFlag Boolean DEFAULT false;";
 
-    try
-    {
-        qtalk::sqlite::statement query(*_pSqlDb, sql);
+    try {
+        st::sqlite::statement query(*_pSqlDb, sql);
         query.executeStep();
-    }
-    catch (std::exception &e)
-    {
+    } catch (std::exception &e) {
         error_log(e.what());
     }
 }

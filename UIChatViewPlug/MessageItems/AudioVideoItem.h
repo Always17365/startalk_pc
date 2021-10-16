@@ -2,8 +2,8 @@
 // Created by cc on 2019-02-28.
 //
 
-#ifndef QTALK_V2_AudioVideoItem_H
-#define QTALK_V2_AudioVideoItem_H
+#ifndef STALK_V2_AudioVideoItem_H
+#define STALK_V2_AudioVideoItem_H
 
 #include "MessageItemBase.h"
 
@@ -50,4 +50,4 @@ private:
 };
 
 
-#endif //QTALK_V2_AudioVideoItem_H
+#endif //STALK_V2_AudioVideoItem_H

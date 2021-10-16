@@ -5,7 +5,7 @@
 #include <QMetaMethod>
 #include <QThread>
 #include <QDebug>
-#include "../../Platform/AppSetting.h"
+#include "DataCenter/AppSetting.h"
 
 Q_LOGGING_CATEGORY(logQHotkey, "QHotkey")
 

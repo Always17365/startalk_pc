@@ -2,19 +2,19 @@
 // Created by cc on 18-12-29.
 //
 
-#ifndef QTALK_V2_MESSAGEMANAGER_H
-#define QTALK_V2_MESSAGEMANAGER_H
+#ifndef STALK_V2_MESSAGEMANAGER_H
+#define STALK_V2_MESSAGEMANAGER_H
 
-#include "../EventBus/Object.hpp"
-#include "../EventBus/EventHandler.hpp"
-#include "../include/CommonStrcut.h"
+#include "EventBus/Object.hpp"
+#include "EventBus/EventHandler.hpp"
+#include "include/CommonStrcut.h"
 
 class MessageManager : public Object
 {
 public:
-    static bool getOAUiData(std::vector<QTalk::StOAUIData>&oAUIData);
+    static bool getOAUiData(std::vector<st::StOAUIData>&oAUIData);
 
 };
 
 
-#endif //QTALK_V2_MESSAGEMANAGER_H
+#endif //STALK_V2_MESSAGEMANAGER_H

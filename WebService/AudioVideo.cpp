@@ -14,13 +14,13 @@
 #include <QTimer>
 #include <QJsonObject>
 #include <QApplication>
-#include "../Platform/Platform.h"
-#include "../QtUtil/Utils/Log.h"
+#include "DataCenter/Platform.h"
+#include "Util/Log.h"
 #include "WebJsObj.h"
-#include "../Platform/dbPlatForm.h"
-#include "../Platform/NavigationManager.h"
-#include "../QtUtil/Utils/utils.h"
-#include "../CustomUi/QtMessageBox.h"
+#include "DataCenter/dbPlatForm.h"
+#include "DataCenter/NavigationManager.h"
+#include "Util/utils.h"
+#include "CustomUi/QtMessageBox.h"
 
 std::function<void(const std::string &, const std::string &)> _sendMsgFunc;
 
@@ -97,7 +97,7 @@ AudioVideo::AudioVideo()
 
                 if(info)
                 {
-                    QString name = QTalk::getUserName(info).data();
+                    QString name = st::getUserName(info).data();
                     QString js = QString("sgsetUserInfo('%1','%2','%3');").arg(_peerId, name, info->HeaderSrc.data());
                     _webView->excuteJs(js);
                 }
@@ -209,7 +209,7 @@ AudioVideoManager::~AudioVideoManager()
 QString get2TalkKey(const QString &peerId)
 {
     QString key;
-    QString self = PLAT.getSelfUserId().data();
+    QString self = DC.getSelfUserId().data();
 
     if(self < peerId)
         key.append(self).append(peerId);
@@ -252,7 +252,7 @@ void AudioVideoManager::start2Talk_old(const QString &json, const std::string &p
     pAudioVideo->_isVideo = isVideo;
     pAudioVideo->_peerId = peerId.data();
     pAudioVideo->_conversationId = QString::number(QDateTime::currentMSecsSinceEpoch());
-    std::string userId = PLAT.getSelfUserId();
+    std::string userId = DC.getSelfUserId();
     QWebEngineHttpRequest req;
     QString strUrl = QString("%1/single?ver=new&plat=0").arg(NavigationManager::instance().getVideoUrl().data());
     QUrl url(strUrl);
@@ -310,8 +310,8 @@ void AudioVideoManager::start2Talk(const std::string &caller, const std::string 
     auto *pAudioVideo = new AudioVideo;
     _2Talks[key] = pAudioVideo;
     pAudioVideo->isGroupVideo = false;
-    std::string userId = PLAT.getSelfUserId();
-    std::string ckey = PLAT.getClientAuthKey();
+    std::string userId = DC.getSelfUserId();
+    std::string ckey = DC.getClientAuthKey();
     QWebEngineHttpRequest req;
     auto  strUrl = QString("%1/single?ver=new")
                    .arg(NavigationManager::instance().getVideoUrl().data());
@@ -342,19 +342,19 @@ void AudioVideoManager::startGroupTalk(const QString &id, const QString &name)
 
     auto *pAudioVideo = new AudioVideo;
     _groupTalks[id] = pAudioVideo;
-    std::string strCkey = PLAT.getClientAuthKey();
-    QString agent = QString("startalk/%1/(pc:%2)").arg(PLAT.getGlobalVersion().data(), QSysInfo::productType());
+    std::string strCkey = DC.getClientAuthKey();
+    QString agent = QString("startalk/%1/(pc:%2)").arg(DC.getGlobalVersion().data(), QSysInfo::productType());
     pAudioVideo->_webView->clearHistory();
     pAudioVideo->isGroupVideo = true;
     QWebEngineHttpRequest req;
     auto  url = QString("%4/conference#/login?userId=%1&roomId=%2&topic=%3")
-                .arg(PLAT.getSelfXmppId().data())
+                .arg(DC.getSelfXmppId().data())
                 .arg(id)
                 .arg(QUrl(name.toUtf8()).toEncoded().data())
                 .arg(NavigationManager::instance().getVideoUrl().data());
     req.setUrl(QUrl(url));
-    std::string ckey = PLAT.getClientAuthKey();
-    ckey = QTalk::utils::UrlEncode(ckey);
+    std::string ckey = DC.getClientAuthKey();
+    ckey = st::utils::UrlEncode(ckey);
 
     if(ckey.empty())
         return;

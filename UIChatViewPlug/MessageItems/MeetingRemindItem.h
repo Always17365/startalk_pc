@@ -2,8 +2,8 @@
 // Created by lihaibin on 2019-06-20.
 //
 
-#ifndef QTALK_V2_MEETINGREMINDITEM_H
-#define QTALK_V2_MEETINGREMINDITEM_H
+#ifndef STALK_V2_MEETINGREMINDITEM_H
+#define STALK_V2_MEETINGREMINDITEM_H
 
 #include <QWebEngineView>
 #include "MessageItemBase.h"
@@ -52,4 +52,4 @@ private:
 
 };
 
-#endif //QTALK_V2_MEETINGREMINDITEM_H
+#endif //STALK_V2_MEETINGREMINDITEM_H

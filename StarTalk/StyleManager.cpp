@@ -4,7 +4,7 @@
 #include <set>
 #include <QDebug>
 #include "GlobalManager.h"
-#include "../interface/view/UIPluginInterface.h"
+#include "interface/view/UIPluginInterface.h"
 
 //
 void adjustFontSize(QString& qss)

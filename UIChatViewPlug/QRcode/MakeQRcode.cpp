@@ -14,14 +14,14 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QMimeData>
-#include <../qzxing/QZXing>
+#include "qzxing/QZXing"
 
 #include "TipButton.h"
 #include "QRcode.h"
 #include "../ChatViewMainPanel.h"
-#include "../../include/Line.h"
-#include "../../Platform/Platform.h"
-#include "../../CustomUi/QtMessageBox.h"
+#include "CustomUi/Line.h"
+#include "DataCenter/Platform.h"
+#include "CustomUi/QtMessageBox.h"
 
 extern ChatViewMainPanel *g_pMainPanel;
 MakeQRcode::MakeQRcode(QRcode *parent)
@@ -123,7 +123,7 @@ void MakeQRcode::onCopyAct(bool)
 {
     if (!_pixmap.isNull()) {
         QString localPath = QString("%1/image/temp/").arg(
-                                PLAT.getAppdataRoamingUserPath().c_str());
+                                DC.getAppdataRoamingUserPath().c_str());
         QString fileName = localPath +
                            QDateTime::currentDateTime().toString("yyyyMMddhhmmsszzz.png");
         bool bret = _pixmap.save(fileName, "PNG");
@@ -140,7 +140,7 @@ void MakeQRcode::onCopyAct(bool)
 void MakeQRcode::onSaveAct(bool)
 {
     if (!_pixmap.isNull()) {
-        std::string histor = PLAT.getHistoryDir();
+        std::string histor = DC.getHistoryDir();
         QString fileName = QFileDialog::getSaveFileName(g_pMainPanel,
                                                         tr("请选择需要保存的目录"), histor.data());
 

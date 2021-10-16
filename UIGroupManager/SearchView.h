@@ -2,8 +2,8 @@
 // Created by cc on 2019-06-20.
 //
 
-#ifndef QTALK_V2_SEARCHVIEW_H
-#define QTALK_V2_SEARCHVIEW_H
+#ifndef STALK_V2_SEARCHVIEW_H
+#define STALK_V2_SEARCHVIEW_H
 
 
 #include <QListView>
@@ -51,4 +51,4 @@ protected:
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
 };
 
-#endif //QTALK_V2_SEARCHVIEW_H
+#endif //STALK_V2_SEARCHVIEW_H

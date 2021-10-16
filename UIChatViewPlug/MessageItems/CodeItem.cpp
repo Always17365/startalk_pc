@@ -4,15 +4,15 @@
 
 #include "CodeItem.h"
 
-#include "ChatViewMainPanel.h"
-#include "../CustomUi/HeadPhotoLab.h"
+#include "../ChatViewMainPanel.h"
+#include "CustomUi/HeadPhotoLab.h"
 
 #include <QSpacerItem>
 #include <QHBoxLayout>
 #include <QJsonDocument>
 #include <QDesktopServices>
 #include <QMouseEvent>
-#include "../../UICom/qimage/qimage.h"
+#include "Util/ui/qimage/qimage.h"
 
 extern ChatViewMainPanel *g_pMainPanel;
 CodeItem::CodeItem(const StNetMessageResult &msgInfo, QWidget *parent) :
@@ -32,8 +32,7 @@ void CodeItem::initLayout()
     _mainMargin = QMargins(15, 0, 20, 0);
     _mainSpacing = 10;
 
-    if (QTalk::Entity::MessageDirectionSent == _msgInfo.direction)
-    {
+    if (st::entity::MessageDirectionSent == _msgInfo.direction) {
         _headPixSize = QSize(0, 0);
         _nameLabHeight = 0;
         _leftMargin = QMargins(0, 0, 0, 0);
@@ -41,9 +40,7 @@ void CodeItem::initLayout()
         _leftSpacing = 0;
         _rightSpacing = 0;
         initSendLayout();
-    }
-    else if (QTalk::Entity::MessageDirectionReceive == _msgInfo.direction)
-    {
+    } else if (st::entity::MessageDirectionReceive == _msgInfo.direction) {
         _headPixSize = QSize(28, 28);
         _nameLabHeight = 16;
         _leftMargin = QMargins(0, 10, 0, 0);
@@ -53,20 +50,23 @@ void CodeItem::initLayout()
         initReceiveLayout();
     }
 
-    if (QTalk::Enum::ChatType::GroupChat != _msgInfo.type)
+    if (st::Enum::ChatType::GroupChat != _msgInfo.type) {
         _nameLabHeight = 0;
+    }
 
     setContentsMargins(0, 5, 0, 5);
 }
 
 QSize CodeItem::itemWdtSize()
 {
-    int height = qMax(_mainMargin.top() + _nameLabHeight + _mainSpacing + _contentFrm->height() + _mainMargin.bottom(),
+    int height = qMax(_mainMargin.top() + _nameLabHeight + _mainSpacing +
+                      _contentFrm->height() + _mainMargin.bottom(),
                       _headPixSize.height()); // 头像和文本取大的
     int width = _contentFrm->width();
 
-    if(nullptr != _readStateLabel)
+    if (nullptr != _readStateLabel) {
         height += 12;
+    }
 
     return {width, height + 8};
 }
@@ -84,14 +84,16 @@ void CodeItem::initSendLayout()
     mainLay->setContentsMargins(_mainMargin);
     mainLay->setSpacing(_mainSpacing);
     mainLay->addWidget(_btnShareCheck);
-    auto *horizontalSpacer = new QSpacerItem(40, 1, QSizePolicy::Expanding, QSizePolicy::Fixed);
+    auto *horizontalSpacer = new QSpacerItem(40, 1, QSizePolicy::Expanding,
+                                             QSizePolicy::Fixed);
     mainLay->addItem(horizontalSpacer);
     auto *rightLay = new QVBoxLayout;
     rightLay->setContentsMargins(_rightMargin);
     mainLay->addLayout(rightLay);
 
-    if (!_contentFrm)
+    if (!_contentFrm) {
         _contentFrm = new QFrame(this);
+    }
 
     _contentFrm->setObjectName("messSendContentFrm");
     _contentFrm->setFixedWidth(_contentSize.width());
@@ -101,8 +103,7 @@ void CodeItem::initSendLayout()
     tmpLay->setSpacing(5);
     tmpLay->addItem(new QSpacerItem(10, 10, QSizePolicy::Expanding));
 
-    if(nullptr != _sending && nullptr != _resending)
-    {
+    if (nullptr != _sending && nullptr != _resending) {
         tmpLay->addWidget(_sending);
         tmpLay->addWidget(_resending);
     }
@@ -111,8 +112,7 @@ void CodeItem::initSendLayout()
     tmpLay->setAlignment(_contentFrm, Qt::AlignRight);
     rightLay->addLayout(tmpLay);
 
-    if (nullptr != _readStateLabel)
-    {
+    if (nullptr != _readStateLabel) {
         auto *rsLay = new QHBoxLayout;
         rsLay->addItem(new QSpacerItem(10, 10, QSizePolicy::Expanding));
         rsLay->setMargin(0);
@@ -143,7 +143,8 @@ void CodeItem::initReceiveLayout()
     leftLay->setSpacing(_leftSpacing);
     mainLay->addLayout(leftLay);
     leftLay->addWidget(_headLab);
-    auto *vSpacer = new QSpacerItem(1, 1, QSizePolicy::Fixed, QSizePolicy::Expanding);
+    auto *vSpacer = new QSpacerItem(1, 1, QSizePolicy::Fixed,
+                                    QSizePolicy::Expanding);
     leftLay->addItem(vSpacer);
     leftLay->setStretch(0, 0);
     leftLay->setStretch(1, 1);
@@ -152,9 +153,8 @@ void CodeItem::initReceiveLayout()
     rightLay->setSpacing(_rightSpacing);
     mainLay->addLayout(rightLay);
 
-    if (QTalk::Enum::ChatType::GroupChat == _msgInfo.type
-            && QTalk::Entity::MessageDirectionReceive == _msgInfo.direction )
-    {
+    if (st::Enum::ChatType::GroupChat == _msgInfo.type
+        && st::entity::MessageDirectionReceive == _msgInfo.direction ) {
         auto *nameLay = new QHBoxLayout;
         nameLay->setMargin(0);
         nameLay->setSpacing(5);
@@ -163,25 +163,24 @@ void CodeItem::initReceiveLayout()
         rightLay->addLayout(nameLay);
     }
 
-    if (!_contentFrm)
+    if (!_contentFrm) {
         _contentFrm = new QFrame(this);
+    }
 
     _contentFrm->setObjectName("messReceiveContentFrm");
     _contentFrm->setFixedWidth(_contentSize.width());
     rightLay->addWidget(_contentFrm);
     rightLay->setStretch(0, 0);
     rightLay->setStretch(1, 1);
-    auto *horizontalSpacer = new QSpacerItem(40, 1, QSizePolicy::Expanding, QSizePolicy::Fixed);
+    auto *horizontalSpacer = new QSpacerItem(40, 1, QSizePolicy::Expanding,
+                                             QSizePolicy::Fixed);
     mainLay->addItem(horizontalSpacer);
 
-    if (QTalk::Enum::ChatType::GroupChat == _msgInfo.type)
-    {
+    if (st::Enum::ChatType::GroupChat == _msgInfo.type) {
         mainLay->setStretch(0, 0);
         mainLay->setStretch(1, 0);
         mainLay->setStretch(2, 1);
-    }
-    else
-    {
+    } else {
         mainLay->setStretch(0, 0);
         mainLay->setStretch(1, 1);
     }
@@ -195,12 +194,12 @@ void CodeItem::initReceiveLayout()
 void CodeItem::initContentLayout()
 {
     _contentFrm->installEventFilter(this);
-    QJsonDocument jsonDocument = QJsonDocument::fromJson(_msgInfo.extend_info.toUtf8());
+    QJsonDocument jsonDocument = QJsonDocument::fromJson(
+                                     _msgInfo.extend_info.toUtf8());
 
-    if(jsonDocument.isNull())
+    if (jsonDocument.isNull()) {
         _code = _msgInfo.body;
-    else
-    {
+    } else {
         QJsonObject jsonObject = jsonDocument.object();
         _codeStyle = jsonObject.value("CodeStyle").toString();
         _codeLanguage = jsonObject.value("CodeType").toString();
@@ -219,10 +218,12 @@ void CodeItem::initContentLayout()
     auto *leftLay = new QVBoxLayout(leftFrm);
     _iconLab = new QLabel(this);
     _iconLab->setFixedSize(40, 40);
-    auto pix = QTalk::qimage::loadImage(":/chatview/image1/messageItem/code.png", false, true, 40, 40);
+    auto pix = st::qimage::loadImage(":/chatview/image1/messageItem/code.png",
+                                        false, true, 40, 40);
     _iconLab->setPixmap(pix);
     leftLay->addWidget(_iconLab);
-    leftLay->addItem(new QSpacerItem(10, 10, QSizePolicy::Fixed, QSizePolicy::Expanding));
+    leftLay->addItem(new QSpacerItem(10, 10, QSizePolicy::Fixed,
+                                     QSizePolicy::Expanding));
     auto *rightLay = new QVBoxLayout(rightFrm);
     rightLay->setSpacing(5);
     _titleLab = new QLabel(tr("代码片段"), this);
@@ -246,10 +247,11 @@ void CodeItem::initContentLayout()
 
 void CodeItem::mousePressEvent(QMouseEvent *event)
 {
-    if(event->button() == Qt::LeftButton && _contentFrm->geometry().contains(event->pos()))
-    {
-        if(g_pMainPanel)
+    if (event->button() == Qt::LeftButton
+        && _contentFrm->geometry().contains(event->pos())) {
+        if (g_pMainPanel) {
             g_pMainPanel->showShowCodeWnd(_codeStyle, _codeLanguage, _code);
+        }
     }
 
     QFrame::mousePressEvent(event);
@@ -257,12 +259,12 @@ void CodeItem::mousePressEvent(QMouseEvent *event)
 
 bool CodeItem::eventFilter(QObject *o, QEvent *e)
 {
-    if(o == _contentFrm)
-    {
-        if(e->type() == QEvent::Enter)
+    if (o == _contentFrm) {
+        if (e->type() == QEvent::Enter) {
             setCursor(Qt::PointingHandCursor);
-        else if(e->type() == QEvent::Leave)
+        } else if (e->type() == QEvent::Leave) {
             setCursor(Qt::ArrowCursor);
+        }
     }
 
     return MessageItemBase::eventFilter(o, e);

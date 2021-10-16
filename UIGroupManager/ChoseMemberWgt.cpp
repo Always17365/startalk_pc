@@ -9,10 +9,10 @@
 #include <QListWidgetItem>
 #include <QPainter>
 #include <QMouseEvent>
-#include "../CustomUi/HeadPhotoLab.h"
-#include "../UICom/qimage/qimage.h"
-#include "../UICom/StyleDefine.h"
-#include "../Platform/AppSetting.h"
+#include "CustomUi/HeadPhotoLab.h"
+#include "Util/ui/qimage/qimage.h"
+#include "Util/ui/StyleDefine.h"
+#include "DataCenter/AppSetting.h"
 
 ChoseItemDelegate::ChoseItemDelegate(QWidget *parent)
     : QStyledItemDelegate(parent)
@@ -33,12 +33,12 @@ void ChoseItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
     closeBtn = ":/GroupManager/image1/delete_normal.png";
 //    if ((option.state & QStyle::State_Selected) || (option.state & QStyle::State_MouseOver))
 //    {
-        painter->fillRect(option.rect, QTalk::StyleDefine::instance().getGroupManagerNormalColor());
+        painter->fillRect(option.rect, st::StyleDefine::instance().getGroupManagerNormalColor());
 //        closeBtn = ":/GroupManager/image1/delete_horver.png";
 //    }
 //    else
 //    {
-//        painter->fillRect(option.rect, QTalk::StyleDefine::instance().getGroupManagerNormalColor());
+//        painter->fillRect(option.rect, st::StyleDefine::instance().getGroupManagerNormalColor());
 //    }
 
     painter->drawPixmap(btnRect, QPixmap(closeBtn));
@@ -46,14 +46,14 @@ void ChoseItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
     {
         QString head = index.data(EM_ITEM_DATA_HEAD).toString();
         QString text = index.data(EM_ITEM_DATA_NAME).toString();
-        QPixmap headPix = QTalk::qimage::loadCirclePixmap(head, 11 * QTalk::qimage::dpi());
+        QPixmap headPix = st::qimage::loadCirclePixmap(head, 11 * st::qimage::dpi());
         painter->setRenderHints(QPainter::Antialiasing, true);
         painter->setRenderHints(QPainter::SmoothPixmapTransform, true);
         painter->drawPixmap(rect.x() + 9, rect.y() + 9, 22, 22, headPix);
 
-        QTalk::setPainterFont(painter, AppSetting::instance().getFontLevel());
+        st::setPainterFont(painter, AppSetting::instance().getFontLevel());
         painter->setPen(QPen(QColor(51,51,51)));
-        painter->setPen(QTalk::StyleDefine::instance().getGroupManagerNormalFontColor());
+        painter->setPen(st::StyleDefine::instance().getGroupManagerNormalFontColor());
         painter->drawText(rect.x() + 40, rect.y(), rect.width() - 40, rect.height(), Qt::AlignVCenter, text);
     }
 

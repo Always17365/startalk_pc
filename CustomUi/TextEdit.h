@@ -2,8 +2,8 @@
 // Created by cc on 18-12-19.
 //
 
-#ifndef QTALK_V2_TEXTEDIT_H
-#define QTALK_V2_TEXTEDIT_H
+#ifndef STALK_V2_TEXTEDIT_H
+#define STALK_V2_TEXTEDIT_H
 
 #include <QTextEdit>
 #include "customui_global.h"
@@ -45,4 +45,4 @@ private:
 };
 
 
-#endif //QTALK_V2_TEXTEDIT_H
+#endif //STALK_V2_TEXTEDIT_H

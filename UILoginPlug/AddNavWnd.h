@@ -5,16 +5,16 @@
 #pragma execution_character_set("utf-8")
 #endif
 
-#ifndef QTALK_V2_ADDNAVWND_H
-#define QTALK_V2_ADDNAVWND_H
+#ifndef STALK_V2_ADDNAVWND_H
+#define STALK_V2_ADDNAVWND_H
 
 #include <QFrame>
 #include <QLineEdit>
 #include <QTextEdit>
 #include <QCheckBox>
 #include <QPushButton>
-#include "../CustomUi/UShadowWnd.h"
-#include "../CustomUi/LinkButton.h"
+#include "CustomUi/UShadowWnd.h"
+#include "CustomUi/LinkButton.h"
 
 enum {
     EM_NO,
@@ -50,4 +50,4 @@ private:
 };
 
 
-#endif //QTALK_V2_ADDNAVWND_H
+#endif //STALK_V2_ADDNAVWND_H

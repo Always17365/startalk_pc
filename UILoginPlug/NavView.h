@@ -1,8 +1,8 @@
 ﻿//
 // Created by cc on 2018-12-26.
 //
-#ifndef QTALK_V2_NAVVIEW_H
-#define QTALK_V2_NAVVIEW_H
+#ifndef STALK_V2_NAVVIEW_H
+#define STALK_V2_NAVVIEW_H
 
 #include <QFrame>
 #include <QListView>
@@ -14,7 +14,7 @@
 #include <QLineEdit>
 #include <QTextEdit>
 #include <QCheckBox>
-#include "../CustomUi/LinkButton.h"
+#include "CustomUi/LinkButton.h"
 #include "AddNavWnd.h"
 
 struct StNav {
@@ -136,4 +136,4 @@ private:
 };
 
 
-#endif //QTALK_V2_NAVVIEW_H
+#endif //STALK_V2_NAVVIEW_H

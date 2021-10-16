@@ -2,8 +2,8 @@
 // Created by cc on 2019/08/29.
 //
 
-#ifndef QTALK_V2_HOTLINEANSWERITEM_H
-#define QTALK_V2_HOTLINEANSWERITEM_H
+#ifndef STALK_V2_HOTLINEANSWERITEM_H
+#define STALK_V2_HOTLINEANSWERITEM_H
 
 
 #include "MessageItemBase.h"
@@ -15,7 +15,7 @@
 #include <QListView>
 #include <QStandardItemModel>
 #include <QToolButton>
-#include "../../CustomUi/HeadPhotoLab.h"
+#include "CustomUi/HeadPhotoLab.h"
 
 /**
 * @description: HotLineAnswer
@@ -169,4 +169,4 @@ private:
 
 };
 
-#endif //QTALK_V2_HOTLINEANSWERITEM_H
+#endif //STALK_V2_HOTLINEANSWERITEM_H

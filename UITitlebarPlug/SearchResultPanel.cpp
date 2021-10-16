@@ -7,16 +7,17 @@
 #include <QDebug>
 #include <QtConcurrent>
 #include <QDateTime>
-#include "../Message/ChatMessage.h"
-#include "../QtUtil/Utils/Log.h"
+#include "Message/ChatMessage.h"
+#include "Util/Log.h"
 #include "SearchThread.h"
-#include "../Platform/Platform.h"
-#include "../include/Line.h"
+#include "DataCenter/Platform.h"
+#include "CustomUi/Line.h"
 
-using namespace QTalk::Search;
+using namespace st::Search;
 
 SearchResultPanel::SearchResultPanel(QWidget *parent) :
-        UShadowDialog(parent, false, false) {
+    UShadowDialog(parent, false, false)
+{
     initPanel();
 #ifndef _WINDOWS
     Qt::WindowFlags flags = this->windowFlags()
@@ -29,7 +30,8 @@ SearchResultPanel::SearchResultPanel(QWidget *parent) :
     _searchLength = 3;
 }
 
-SearchResultPanel::~SearchResultPanel() {
+SearchResultPanel::~SearchResultPanel()
+{
 
 }
 
@@ -39,7 +41,8 @@ SearchResultPanel::~SearchResultPanel() {
   * @参数
   * @date 2018.11.06
   */
-void SearchResultPanel::initPanel() {
+void SearchResultPanel::initPanel()
+{
     this->setFixedWidth(310);
     auto *gLay = new QVBoxLayout(_pCenternWgt);
     gLay->setMargin(0);
@@ -53,7 +56,7 @@ void SearchResultPanel::initPanel() {
     mainLay->addWidget(btmsFrm);
 
     _tabGroup = new UCButtonGroup(this);
-    _allBtn = new UCButton(tr("全部"),this);
+    _allBtn = new UCButton(tr("全部"), this);
     _contactBtn = new UCButton(tr("联系人"), this);
     _groupChatBtn = new UCButton(tr("群聊"), this);
     _chatRecordBtn = new UCButton(tr("聊天记录"), this);
@@ -97,7 +100,7 @@ void SearchResultPanel::initPanel() {
     connect(_pSearchView, &SearchView::sgShowMessageRecordWnd, this, &SearchResultPanel::sgShowMessageRecordWnd);
     connect(_pSearchView, &SearchView::sgShowFileRecordWnd, this, &SearchResultPanel::sgShowFileRecordWnd);
 
-    _searchThread = new SearchThread(this);
+    _searchThread = new SearchThread;
     connect(_searchThread, &SearchThread::sgSearchStart, this, &SearchResultPanel::onSearchStart);
 
     connect(this, &SearchResultPanel::sgSelectUp, _pSearchView, &SearchView::selectUp);
@@ -120,7 +123,8 @@ void SearchResultPanel::initPanel() {
   * @参数
   * @date 2018.11.08
   */
-void SearchResultPanel::closeSearch() {
+void SearchResultPanel::closeSearch()
+{
     if (_pSearchView) {
         _pSearchView->clear();
         _pWnLabel->setVisible(true);
@@ -134,7 +138,8 @@ void SearchResultPanel::closeSearch() {
   * @参数
   * @date 2018.11.06
   */
-void SearchResultPanel::onFunSelect(const int &index) {
+void SearchResultPanel::onFunSelect(const int &index)
+{
 
     _tabGroup->setCheck(index);
     _reqType = index;
@@ -147,57 +152,66 @@ void SearchResultPanel::onFunSelect(const int &index) {
   * @参数
   * @date 2018.11.08
   */
-void SearchResultPanel::onSearchStart(const QString &keywords) {
+void SearchResultPanel::onSearchStart(const QString &keywords)
+{
 
     isGetMore = false;
     _keywords = keywords;
+
     if (_keywords.isEmpty() || _keywords.size() == 1) {
         closeSearch();
         return;
     }
 
-    if (!this->isVisible())
-            emit sgOpenSearch(true);
-
-    switch(_reqType)
-    {
-        case REQ_TYPE_ALL:
-            _searchStart = 0;
-            _searchLength = 3;
-            break;
-        case REQ_TYPE_USER:
-            _searchStart = 0;
-            _searchLength = 30;
-            break;
-        case REQ_TYPE_GROUP:
-        case REQ_TYPE_HISTORY:
-        case REQ_TYPE_FILE:
-            _searchStart = 0;
-            _searchLength = 10;
-            break;
-        default:
-            break;
+    if (!this->isVisible()) {
+        emit sgOpenSearch(true);
     }
 
-    switch(_reqType)
-    {
-        case REQ_TYPE_ALL:
-            onSearchAll();
-            break;
-        case REQ_TYPE_USER:
-            onSearchContact();
-            break;
-        case REQ_TYPE_GROUP:
-            onSearchGroup();
-            break;
-        case REQ_TYPE_HISTORY:
-            onSearchHistory();
-            break;
-        case REQ_TYPE_FILE:
-            onSearchFile();
-            break;
-        default:
-            break;
+    switch (_reqType) {
+    case REQ_TYPE_ALL:
+        _searchStart = 0;
+        _searchLength = 3;
+        break;
+
+    case REQ_TYPE_USER:
+        _searchStart = 0;
+        _searchLength = 30;
+        break;
+
+    case REQ_TYPE_GROUP:
+    case REQ_TYPE_HISTORY:
+    case REQ_TYPE_FILE:
+        _searchStart = 0;
+        _searchLength = 10;
+        break;
+
+    default:
+        break;
+    }
+
+    switch (_reqType) {
+    case REQ_TYPE_ALL:
+        onSearchAll();
+        break;
+
+    case REQ_TYPE_USER:
+        onSearchContact();
+        break;
+
+    case REQ_TYPE_GROUP:
+        onSearchGroup();
+        break;
+
+    case REQ_TYPE_HISTORY:
+        onSearchHistory();
+        break;
+
+    case REQ_TYPE_FILE:
+        onSearchFile();
+        break;
+
+    default:
+        break;
     }
 
     emit sgSetEditFocus();
@@ -209,13 +223,15 @@ void SearchResultPanel::onSearchStart(const QString &keywords) {
   * @参数
   * @date 2018.11.08
   */
-void SearchResultPanel::onSearchAll() {
-    QtConcurrent::run([this](){
+void SearchResultPanel::onSearchAll()
+{
+    QtConcurrent::run([this]() {
         SearchInfoEvent searchInfo;
         searchInfo.start = _searchStart;
         searchInfo.length = _searchLength;
         searchInfo.key = _keywords.toStdString();
-        _action = searchInfo.action = EM_ACTION_USER | EM_ACTION_MUC | EM_ACTION_COMMON_MUC /*| EM_ACTION_HS_SINGLE | EM_ACTION_HS_MUC | EM_ACTION_HS_FILE*/;
+        _action = searchInfo.action = EM_ACTION_USER | EM_ACTION_MUC |
+                                      EM_ACTION_COMMON_MUC /*| EM_ACTION_HS_SINGLE | EM_ACTION_HS_MUC | EM_ACTION_HS_FILE*/;
         TitlebarMsgManager::sendSearch(searchInfo);
 
         emit sgGotSearchResult(searchInfo.key.data(), searchInfo.searchRet);
@@ -228,8 +244,9 @@ void SearchResultPanel::onSearchAll() {
   * @参数
   * @date 2018.11.08
   */
-void SearchResultPanel::onSearchContact() {
-    QtConcurrent::run([this](){
+void SearchResultPanel::onSearchContact()
+{
+    QtConcurrent::run([this]() {
         SearchInfoEvent searchInfo;
         searchInfo.start = _searchStart;
         searchInfo.length = _searchLength;
@@ -247,8 +264,9 @@ void SearchResultPanel::onSearchContact() {
   * @参数
   * @date 2018.11.08
   */
-void SearchResultPanel::onSearchGroup() {
-    QtConcurrent::run([this](){
+void SearchResultPanel::onSearchGroup()
+{
+    QtConcurrent::run([this]() {
         SearchInfoEvent searchInfo;
         searchInfo.start = _searchStart;
         searchInfo.length = _searchLength;
@@ -259,9 +277,10 @@ void SearchResultPanel::onSearchGroup() {
     });
 }
 
-void SearchResultPanel::onSearchHistory() {
+void SearchResultPanel::onSearchHistory()
+{
     //
-    QtConcurrent::run([this](){
+    QtConcurrent::run([this]() {
         SearchInfoEvent searchInfo;
         searchInfo.start = _searchStart;
         searchInfo.length = _searchLength;
@@ -273,9 +292,10 @@ void SearchResultPanel::onSearchHistory() {
     });
 }
 
-void SearchResultPanel::onSearchFile() {
+void SearchResultPanel::onSearchFile()
+{
     //
-    QtConcurrent::run([this](){
+    QtConcurrent::run([this]() {
         SearchInfoEvent searchInfo;
         searchInfo.start = _searchStart;
         searchInfo.length = _searchLength;
@@ -291,7 +311,8 @@ void SearchResultPanel::onSearchFile() {
  *
  * @param req
  */
-void SearchResultPanel::addSearchReq(const QString &req) {
+void SearchResultPanel::addSearchReq(const QString &req)
+{
     _searchThread->addSearchReq(req);
 }
 
@@ -300,80 +321,92 @@ void SearchResultPanel::addSearchReq(const QString &req) {
  * @param key
  * @param ret
  */
-void SearchResultPanel::onGotSearchResult(const QString& key, const SearchResult& ret)
+void SearchResultPanel::onGotSearchResult(const QString &key, const SearchResult &ret)
 {
-    if(nullptr == _pSearchView)
+    if (nullptr == _pSearchView) {
         return;
+    }
+
     //
     bool getmore = isGetMore;
-    if(!getmore)
+
+    if (!getmore) {
         _pSearchView->clear();
+    }
+
     //
     if (!_pSearchView->isVisible()) {
         _pSearchView->setVisible(true);
         _pWnLabel->setVisible(false);
     }
+
     //
-    if(_keywords != key)
+    if (_keywords != key) {
         return;
+    }
+
     //
-    if(getmore)
+    if (getmore) {
         _pSearchView->removeMoreBar();
+    }
+
     //
-    for(const auto & it : ret)
-    {
-        if((_action & it.first) == 0)
+    for (const auto &it : ret) {
+        if ((_action & it.first) == 0) {
             continue;
+        }
 
         _pSearchView->addSearchResult(it.second, _reqType, getmore);
     }
 
-    if(REQ_TYPE_ALL == _reqType)
-    {
+    if (REQ_TYPE_ALL == _reqType) {
         _pSearchView->addOpenWithIdItem(_keywords);
     }
 }
 
 void SearchResultPanel::onGetMore(int req)
 {
-    if(_reqType == req)
-    {
+    if (_reqType == req) {
         isGetMore = true;
         _tabGroup->setCheck(req);
 
-        switch(_reqType)
-        {
-            case REQ_TYPE_USER:
-            case REQ_TYPE_GROUP:
-            case REQ_TYPE_HISTORY:
-            case REQ_TYPE_FILE:
-                _searchStart += _searchLength;
-                _searchLength = 10;
-                break;
-            case REQ_TYPE_ALL:
-            default:
-                break;
+        switch (_reqType) {
+        case REQ_TYPE_USER:
+        case REQ_TYPE_GROUP:
+        case REQ_TYPE_HISTORY:
+        case REQ_TYPE_FILE:
+            _searchStart += _searchLength;
+            _searchLength = 10;
+            break;
+
+        case REQ_TYPE_ALL:
+        default:
+            break;
         }
 
-        if (!this->isVisible())
-                emit sgOpenSearch(true);
+        if (!this->isVisible()) {
+            emit sgOpenSearch(true);
+        }
 
-        switch(_reqType)
-        {
-            case REQ_TYPE_USER:
-                onSearchContact();
-                break;
-            case REQ_TYPE_GROUP:
-                onSearchGroup();
-                break;
-            case REQ_TYPE_HISTORY:
-                onSearchHistory();
-                break;
-            case REQ_TYPE_FILE:
-                onSearchFile();
-                break;
-            default:
-                break;
+        switch (_reqType) {
+        case REQ_TYPE_USER:
+            onSearchContact();
+            break;
+
+        case REQ_TYPE_GROUP:
+            onSearchGroup();
+            break;
+
+        case REQ_TYPE_HISTORY:
+            onSearchHistory();
+            break;
+
+        case REQ_TYPE_FILE:
+            onSearchFile();
+            break;
+
+        default:
+            break;
         }
 
         emit sgSetEditFocus();

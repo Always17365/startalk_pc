@@ -2,8 +2,8 @@
 // Created by cc on 2019-06-25.
 //
 
-#ifndef QTALK_V2_SEARCHITEMDELEGATE_H
-#define QTALK_V2_SEARCHITEMDELEGATE_H
+#ifndef STALK_V2_SEARCHITEMDELEGATE_H
+#define STALK_V2_SEARCHITEMDELEGATE_H
 
 #include <QSortFilterProxyModel>
 #include <QStyledItemDelegate>
@@ -82,4 +82,4 @@ protected:
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 };
 
-#endif //QTALK_V2_SEARCHITEMDELEGATE_H
+#endif //STALK_V2_SEARCHITEMDELEGATE_H

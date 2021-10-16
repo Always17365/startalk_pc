@@ -5,9 +5,9 @@
 #ifndef _UIGROUPMANAGER_H_
 #define _UIGROUPMANAGER_H_
 
-#include "../CustomUi/UShadowWnd.h"
+#include "CustomUi/UShadowWnd.h"
 #include <QMap>
-#include "../include/Spinlock.h"
+#include "Util/Spinlock.h"
 #include <QtWidgets/QListWidgetItem>
 #include "MessageManager.h"
 #include "SearchView.h"
@@ -39,7 +39,7 @@ private:
 Q_SIGNALS:
     void setTreeDataFinish();
     void initDataFinish();
-    void sgUpdateSession(const std::vector<QTalk::StShareSession>&);
+    void sgUpdateSession(const std::vector<st::StShareSession>&);
 
 public slots:
     // 建群
@@ -50,13 +50,13 @@ public slots:
 public:
     void onCreatGroupRet(bool ret, const std::string &groupId);
     void addGroupMember(const QString &memberId, const QString &headSrc);
-//    void onRecvFriends(const std::vector<QTalk::Entity::IMFriendList>& friends);
-    void onRecvGroupList(const std::vector<QTalk::Entity::ImGroupInfo>& groupInfos);
-    void updateUserConfig(const std::vector<QTalk::Entity::ImConfig> &arConfigs);
+//    void onRecvFriends(const std::vector<st::Entity::IMFriendList>& friends);
+    void onRecvGroupList(const std::vector<st::entity::ImGroupInfo>& groupInfos);
+    void updateUserConfig(const std::vector<st::entity::ImConfig> &arConfigs);
     void updateUserConfig(const std::map<std::string, std::string> &deleteData,
-                          const std::vector<QTalk::Entity::ImConfig>& arImConfig);
+                          const std::vector<st::entity::ImConfig>& arImConfig);
     //
-    void gotIncrementUser(const std::vector<QTalk::Entity::ImUserInfo> &arUserInfo,
+    void gotIncrementUser(const std::vector<st::entity::ImUserInfo> &arUserInfo,
                           const std::vector<std::string> &arDeletes);
 
 
@@ -74,7 +74,7 @@ protected:
     void initStructure();
     void initData();
     void updateUi();
-    void onUpdateSession(const std::vector<QTalk::StShareSession>&);
+    void onUpdateSession(const std::vector<st::StShareSession>&);
 
 protected:
     void sendAddGroupMemberMessage(const QString &groupId, const QList<QString> &members, bool = true);
@@ -110,11 +110,11 @@ private:
     QMap<QString, QStandardItem *> _mapLstWgtItem;
     QMap<QString, QList<QString>> _mapGroupMembers;
 
-    QTalk::util::spin_mutex sm;
-    std::map<std::string, std::shared_ptr<QTalk::Entity::ImUserInfo>> _structure;
+    st::util::spin_mutex sm;
+    std::map<std::string, std::shared_ptr<st::entity::ImUserInfo>> _structure;
     std::map<std::string, std::set<std::string>> _groupmemebers;
-//    std::vector<QTalk::Entity::IMFriendList> _friends;
-    std::map<std::string, QTalk::Entity::ImGroupInfo> _groupInfos;
+//    std::vector<st::Entity::IMFriendList> _friends;
+    std::map<std::string, st::entity::ImGroupInfo> _groupInfos;
     std::set<std::string>            _arStarContact; // 星标联系人
     std::set<std::string>            _arTopUsers;    // 置顶
     std::map<std::string, std::map<int, QStandardItem*>> _mapItems;

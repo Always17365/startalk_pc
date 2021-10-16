@@ -5,8 +5,8 @@
 #include "SessionBtn.h"
 #include <QPaintEvent>
 #include <QPainter>
-#include "../Platform/Platform.h"
-#include "../Platform/dbPlatForm.h"
+#include "DataCenter/Platform.h"
+#include "DataCenter/dbPlatForm.h"
 #include <QEvent>
 #ifdef _MACOS
 #include <QtMacExtras>

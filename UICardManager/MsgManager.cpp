@@ -5,27 +5,31 @@
 #include "MsgManager.h"
 
 #include <utility>
-#include "../EventBus/EventBus.h"
+#include "EventBus/EventBus.h"
 #include "CardManager.h"
-#include "../QtUtil/Utils/Log.h"
-#include "../Message/GroupMessage.h"
-#include "../Message/ChatMessage.h"
+#include "Util/Log.h"
+#include "Message/GroupMessage.h"
+#include "Message/ChatMessage.h"
 
-UserCardMsgManager::UserCardMsgManager() {
-
+UserCardMsgManager::UserCardMsgManager()
+{
 }
 
-UserCardMsgManager::~UserCardMsgManager() {
-
+UserCardMsgManager::~UserCardMsgManager()
+{
 }
 
-void UserCardMsgManager::getUserCard(std::shared_ptr<QTalk::Entity::ImUserSupplement> &imUserSup,
-                                     std::shared_ptr<QTalk::Entity::ImUserInfo>& userInfo) {
+void UserCardMsgManager::getUserCard(
+    std::shared_ptr<st::entity::ImUserSupplement> &imUserSup,
+    std::shared_ptr<st::entity::ImUserInfo> &userInfo)
+{
     UserCardSupple e(imUserSup, userInfo);
     EventBus::FireEvent(e);
 }
 
-void UserCardMsgManager::getUserPhoneNo(const std::string &userId, std::string &phoneNo) {
+void UserCardMsgManager::getUserPhoneNo(const std::string &userId,
+                                        std::string &phoneNo)
+{
     UserPhoneNo e;
     e.userId = userId;
     EventBus::FireEvent(e);
@@ -39,13 +43,15 @@ void UserCardMsgManager::getUserPhoneNo(const std::string &userId, std::string &
  * @param subKey
  * @param val
  */
-void UserCardMsgManager::setUserSetting(bool isSetting, const std::string &key, const std::string &subKey,
-                                        const std::string &val) {
-
-    debug_log("setting userconfig -> issetting:{0}, key:{1}, subKey:{2}, val:{3}", isSetting, key, subKey, val);
-
+void UserCardMsgManager::setUserSetting(bool isSetting, const std::string &key,
+                                        const std::string &subKey,
+                                        const std::string &val)
+{
+    debug_log("setting userconfig -> issetting:{0}, key:{1}, subKey:{2}, val:{3}",
+              isSetting, key, subKey, val);
     UserSettingMsg e;
-    e.operatorType = isSetting ? UserSettingMsg::EM_OPERATOR_CANCEL : UserSettingMsg::EM_OPERATOR_SET;
+    e.operatorType = isSetting ? UserSettingMsg::EM_OPERATOR_CANCEL :
+                     UserSettingMsg::EM_OPERATOR_SET;
     e.key = key;
     e.subKey = subKey;
     e.value = val;
@@ -56,7 +62,9 @@ void UserCardMsgManager::setUserSetting(bool isSetting, const std::string &key, 
  * 获取群卡片信息
  * @param groupInfo
  */
-void UserCardMsgManager::getGroupCard(std::shared_ptr<QTalk::Entity::ImGroupInfo> &groupInfo) {
+void UserCardMsgManager::getGroupCard(std::shared_ptr<st::entity::ImGroupInfo>
+                                      &groupInfo)
+{
     GetGroupInfoMessage e(groupInfo);
     EventBus::FireEvent(e);
 }
@@ -65,13 +73,16 @@ void UserCardMsgManager::getGroupCard(std::shared_ptr<QTalk::Entity::ImGroupInfo
  * 获取最新群成员列表
  * @param groupId
  */
-void UserCardMsgManager::getGroupMembers(const std::string &groupId) {
+void UserCardMsgManager::getGroupMembers(const std::string &groupId)
+{
     GetGroupMessage e;
     e.groupId = groupId;
     EventBus::FireEvent(e);
 }
 
-void UserCardMsgManager::updateGroupInfo(std::shared_ptr<QTalk::StGroupInfo> groupinfo) {
+void UserCardMsgManager::updateGroupInfo(std::shared_ptr<st::StGroupInfo>
+                                         groupinfo)
+{
     UpdateGroupInfoMsg e;
     e.groupinfo = std::move(groupinfo);
     EventBus::FireEvent(e);
@@ -81,7 +92,8 @@ void UserCardMsgManager::updateGroupInfo(std::shared_ptr<QTalk::StGroupInfo> gro
  *
  * @param groupi
  */
-void UserCardMsgManager::quitGroup(const std::string &groupId) {
+void UserCardMsgManager::quitGroup(const std::string &groupId)
+{
     QuitGroupMsg e;
     e.groupId = groupId;
     EventBus::FireEvent(e);
@@ -91,8 +103,25 @@ void UserCardMsgManager::quitGroup(const std::string &groupId) {
  *
  * @param groupId
  */
-void UserCardMsgManager::destroyGroupMsg(const std::string &groupId) {
+void UserCardMsgManager::destroyGroupMsg(const std::string &groupId)
+{
     DestroyGroupMsg e;
+    e.groupId = groupId;
+    EventBus::FireEvent(e);
+}
+
+void UserCardMsgManager::forbiddenWord(const std::string &groupId,
+                                       bool modStatus)
+{
+    ForbiddenWordGroupMsg e;
+    e.groupId = groupId;
+    e.status = modStatus;
+    EventBus::FireEvent(e);
+}
+
+void UserCardMsgManager::getforbiddenWordState(const std::string &groupId)
+{
+    GetForbiddenWordGroupMsg e;
     e.groupId = groupId;
     EventBus::FireEvent(e);
 }
@@ -103,7 +132,7 @@ void UserCardMsgManager::updateMood(const std::string &mood)
     EventBus::FireEvent(e);
 }
 
-std::string UserCardMsgManager::getSourceImage(const std::string& netPath)
+std::string UserCardMsgManager::getSourceImage(const std::string &netPath)
 {
     SourceNetImage e;
     e.netFilePath = netPath;
@@ -111,19 +140,24 @@ std::string UserCardMsgManager::getSourceImage(const std::string& netPath)
     return e.localFilePath;
 }
 
-void UserCardMsgManager::getUserMedal(const std::string& xmppId, std::set<QTalk::StUserMedal>& medal) {
+void UserCardMsgManager::getUserMedal(const std::string &xmppId,
+                                      std::set<st::StUserMedal> &medal)
+{
     UserMedalEvt e(xmppId, medal);
     EventBus::FireEvent(e);
 }
 
-void UserCardMsgManager::getMedalUser(int medalId, std::vector<QTalk::StMedalUser> &metalUsers) {
+void UserCardMsgManager::getMedalUser(int medalId,
+                                      std::vector<st::StMedalUser> &metalUsers)
+{
     GetMedalUserEvt e;
     e.medalId = medalId;
     EventBus::FireEvent(e);
     metalUsers = e.metalUsers;
 }
 
-bool UserCardMsgManager::modifyUserMedal(int medalId, bool wear) {
+bool UserCardMsgManager::modifyUserMedal(int medalId, bool wear)
+{
     ModifyUserMedalStatusEvt e;
     e.medalId = medalId;
     e.isWear = wear;
@@ -133,19 +167,23 @@ bool UserCardMsgManager::modifyUserMedal(int medalId, bool wear) {
 
 /***/
 UserCardMessageListener::UserCardMessageListener(CardManager *mainPanel)
-        : _pMainPanel(mainPanel) {
-//	EventBus::AddHandler<AllFriends>(*this);
-	EventBus::AddHandler<UpdateUserConfigMsg>(*this);
-	EventBus::AddHandler<UpdateGroupMember>(*this);
-	EventBus::AddHandler<GroupMemberMessage>(*this);
-	EventBus::AddHandler<IncrementConfig>(*this);
+    : _pMainPanel(mainPanel)
+{
+    //  EventBus::AddHandler<AllFriends>(*this);
+    EventBus::AddHandler<UpdateUserConfigMsg>(*this);
+    EventBus::AddHandler<UpdateGroupMember>(*this);
+    EventBus::AddHandler<GroupMemberMessage>(*this);
+    EventBus::AddHandler<IncrementConfig>(*this);
+    EventBus::AddHandler<ForbiddenWordGroupStateMsg>(*this);
+    EventBus::AddHandler<GetForbiddenWordResult>(*this);
 }
 
-UserCardMessageListener::~UserCardMessageListener() {
-
+UserCardMessageListener::~UserCardMessageListener()
+{
 }
 
-void UserCardMessageListener::onEvent(UpdateUserConfigMsg &e) {
+void UserCardMessageListener::onEvent(UpdateUserConfigMsg &e)
+{
     if (_pMainPanel) {
         _pMainPanel->updateUserConfig(e.arConfigs);
     }
@@ -163,8 +201,11 @@ void UserCardMessageListener::onEvent(UpdateUserConfigMsg &e) {
  *
  * @param e
  */
-void UserCardMessageListener::onEvent(UpdateGroupMember &e) {
-    if (e.getCanceled()) return;
+void UserCardMessageListener::onEvent(UpdateGroupMember &e)
+{
+    if (e.getCanceled()) {
+        return;
+    }
 
     if (_pMainPanel) {
         //_pMainPanel->onRecvGroupMember(e.groupId, e.userCards);
@@ -175,19 +216,38 @@ void UserCardMessageListener::onEvent(UpdateGroupMember &e) {
  *
  * @param e
  */
-void UserCardMessageListener::onEvent(GroupMemberMessage &e) {
-    if (e.getCanceled()) return;
+void UserCardMessageListener::onEvent(GroupMemberMessage &e)
+{
+    if (e.getCanceled()) {
+        return;
+    }
 
     if (_pMainPanel) {
         _pMainPanel->onRecvGroupMember(e.groupId, e.members, e.userRole);
     }
 }
 
-void UserCardMessageListener::onEvent(IncrementConfig &e) {
-    if (e.getCanceled()) return;
+void UserCardMessageListener::onEvent(IncrementConfig &e)
+{
+    if (e.getCanceled()) {
+        return;
+    }
 
     if (_pMainPanel) {
         _pMainPanel->updateUserConfig(e.deleteData, e.arImConfig);
     }
 }
 
+void UserCardMessageListener::onEvent(ForbiddenWordGroupStateMsg &e)
+{
+    if (_pMainPanel) {
+        _pMainPanel->onForbiddenWordGroupState(e.groupId, e.status);
+    }
+}
+
+void UserCardMessageListener::onEvent(GetForbiddenWordResult &e)
+{
+    if (_pMainPanel) {
+        _pMainPanel->onForbiddenWordGroupState(e.groupId, e.status);
+    }
+}

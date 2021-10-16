@@ -4,14 +4,14 @@
 #ifndef _EmoticonMainWgt_H_
 #define _EmoticonMainWgt_H_
 
-#include "../CustomUi/UShadowWnd.h"
+#include "CustomUi/UShadowWnd.h"
 #include <QMap>
 #include <QPair>
 #include <QMutexLocker>
 #include "emoticon_global.h"
 #include "EmoticonStruct.h"
-#include "../include/CommonStrcut.h"
-#include "../entity/im_config.h"
+#include "include/CommonStrcut.h"
+#include "entity/im_config.h"
 
 class QStackedWidget;
 
@@ -63,9 +63,9 @@ public:
 
     void init();
     // 更新收藏
-    void updateCollectionConfig(const std::vector<QTalk::Entity::ImConfig>& arConfigs);
+    void updateCollectionConfig(const std::vector<st::entity::ImConfig>& arConfigs);
     void updateCollectionConfig(const std::map<std::string, std::string> &deleteData,
-                                const std::vector<QTalk::Entity::ImConfig>& arImConfig);
+                                const std::vector<st::entity::ImConfig>& arImConfig);
 
 Q_SIGNALS:
     void readLocalEmoticons();

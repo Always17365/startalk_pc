@@ -2,13 +2,13 @@
 // Created by cc on 2019-03-22.
 //
 
-#ifndef QTALK_V2_BATCHADDMEMBERWND_H
-#define QTALK_V2_BATCHADDMEMBERWND_H
+#ifndef STALK_V2_BATCHADDMEMBERWND_H
+#define STALK_V2_BATCHADDMEMBERWND_H
 #if _MSC_VER >= 1600
 #pragma execution_character_set("utf-8")
 #endif
 #include <QFrame>
-#include "../CustomUi/UShadowWnd.h"
+#include "CustomUi/UShadowWnd.h"
 #include "AddGroupEdit.h"
 
 /**
@@ -34,4 +34,4 @@ private:
 };
 
 
-#endif //QTALK_V2_BATCHADDMEMBERWND_H
+#endif //STALK_V2_BATCHADDMEMBERWND_H

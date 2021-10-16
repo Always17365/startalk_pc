@@ -5,12 +5,12 @@
 #pragma execution_character_set("utf-8")
 #endif
 
-#ifndef QTALK_V2_USERMEDALITEM_H
-#define QTALK_V2_USERMEDALITEM_H
+#ifndef STALK_V2_USERMEDALITEM_H
+#define STALK_V2_USERMEDALITEM_H
 
 #include <QFrame>
 #include "../../entity/im_medal_list.h"
-#include "../../include/CommonStrcut.h"
+#include "include/CommonStrcut.h"
 
 
 /**
@@ -24,7 +24,7 @@ public:
     explicit UserMedalItem(QWidget* parent = nullptr);
 
 public:
-    void setUserMedal(const QTalk::Entity::ImMedalList& medalInfo,
+    void setUserMedal(const st::entity::ImMedalList& medalInfo,
                       int status,
                       bool isDetail);
 
@@ -42,4 +42,4 @@ private:
     bool    _isDetail;
 };
 
-#endif //QTALK_V2_USERMEDALITEM_H
+#endif //STALK_V2_USERMEDALITEM_H

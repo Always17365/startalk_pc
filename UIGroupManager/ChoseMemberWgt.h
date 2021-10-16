@@ -2,8 +2,8 @@
 // Created by cc on 18-11-12.
 //
 
-#ifndef QTALK_V2_CHOSEMEMBERWGT_H
-#define QTALK_V2_CHOSEMEMBERWGT_H
+#ifndef STALK_V2_CHOSEMEMBERWGT_H
+#define STALK_V2_CHOSEMEMBERWGT_H
 
 #include <QStyledItemDelegate>
 
@@ -35,4 +35,4 @@ protected:
     bool editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index) override;
 };
 
-#endif //QTALK_V2_CHOSEMEMBERWGT_H
+#endif //STALK_V2_CHOSEMEMBERWGT_H

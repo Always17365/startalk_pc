@@ -2,8 +2,8 @@
 // Created by cc on 2019-01-27.
 //
 
-#ifndef QTALK_V2_QTMESSAGEBOX_H
-#define QTALK_V2_QTMESSAGEBOX_H
+#ifndef STALK_V2_QTMESSAGEBOX_H
+#define STALK_V2_QTMESSAGEBOX_H
 
 #include "UShadowWnd.h"
 #include "customui_global.h"
@@ -59,4 +59,4 @@ private:
 };
 
 
-#endif //QTALK_V2_QTMESSAGEBOX_H
+#endif //STALK_V2_QTMESSAGEBOX_H

@@ -3,13 +3,13 @@
 //
 
 #include "ChangeHeadWnd.h"
-#include "../include/Line.h"
+#include "CustomUi/Line.h"
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QFileDialog>
-#include "../Platform/Platform.h"
-#include "../UICom/qimage/qimage.h"
+#include "DataCenter/Platform.h"
+#include "Util/ui/qimage/qimage.h"
 #include <QMouseEvent>
 #include <QApplication>
 #include <QClipboard>
@@ -114,7 +114,7 @@ void ChangeHeadWnd::onChangeHeadWnd(const QString &headPath)
  */
 void ChangeHeadWnd::showChangeHeadWnd()
 {
-    std::string hisDir = PLAT.getHistoryDir();
+    std::string hisDir = DC.getHistoryDir();
     QString headPath = QFileDialog::getOpenFileName(this, tr("选择头像文件"),
                        QString::fromStdString(hisDir), "image (*.jpg *.jpeg *.png *.bmp *.gif)");
     _headPath = headPath;

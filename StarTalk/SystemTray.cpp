@@ -10,13 +10,13 @@
 #include <QFile>
 #include <QtConcurrent>
 #include <QScreen>
-#include "../interface/view/IUILoginPlug.h"
+#include "interface/view/IUILoginPlug.h"
 #include "MainWindow.h"
-#include "../Platform/AppSetting.h"
-#include "../Platform/Platform.h"
+#include "DataCenter/AppSetting.h"
+#include "DataCenter/Platform.h"
 #include "../quazip/JlCompress.h"
 #include "MessageManager.h"
-#include "../CustomUi/QtMessageBox.h"
+#include "CustomUi/QtMessageBox.h"
 
 extern bool _bSystemRun;
 SystemTray::SystemTray(MainWindow *mainWnd)
@@ -163,7 +163,7 @@ void SystemTray::activeTray(QSystemTrayIcon::ActivationReason reason)
 //    }
 //}
 
-void SystemTray::onShowNotify(const QTalk::StNotificationParam &param)
+void SystemTray::onShowNotify(const st::StNotificationParam &param)
 {
     if(_pSysTrayIcon)
         _pSysTrayIcon->showMessage(param.title.data(), param.message.data(), QIcon(param.icon.data()));
@@ -220,7 +220,7 @@ void SystemTray::onSendLog()
     {
         //db 文件
         QString logBasePath;
-        logBasePath = QString::fromStdString(PLAT.getAppdataRoamingPath()) + "/logs";
+        logBasePath = QString::fromStdString(DC.getAppdataRoamingPath()) + "/logs";
         // zip
         QString logZip = logBasePath + "/log.zip";
 

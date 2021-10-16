@@ -2,7 +2,7 @@
 #define _TOOLWGT_H_
 
 #include <QFrame>
-#include "../entity/im_transfer.h"
+#include "entity/im_transfer.h"
 #include <QPointer>
 
 class QPushButton;

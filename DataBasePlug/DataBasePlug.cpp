@@ -4,14 +4,14 @@
 #include "UserDao.h"
 #include "GroupDao.h"
 #include "GroupMemberDao.h"
-#include "../QtUtil/Utils/Log.h"
-#include "../QtUtil/Utils/utils.h"
+#include "Util/Log.h"
+#include "Util/utils.h"
 #include "ConfigDao.h"
 #include "UserSupplementDao.h"
 #include "DbConfig.h"
-#include "../Platform/Platform.h"
-#include "../entity/IM_Session.h"
-#include "../include/perfcounter.h"
+#include "DataCenter/Platform.h"
+#include "entity/IM_Session.h"
+#include "Util/perfcounter.h"
 #include "CacheDataDao.h"
 #include "QuickReplyDao.h"
 #include "MedalListDao.h"
@@ -19,8 +19,7 @@
 #include "TriggerConfig.h"
 #include "ProcessExceptDao.h"
 
-DataBasePlug::DataBasePlug() :
-    _dbPool("db thread pool")
+DataBasePlug::DataBasePlug() : _dbPool()
 {
 }
 
@@ -28,8 +27,9 @@ DataBasePlug::~DataBasePlug()
 {
 #ifndef _LINUX
 
-    if(_dataBass)
+    if (_dataBass) {
         delete _dataBass;
+    }
 
 #endif
 }
@@ -43,13 +43,10 @@ DataBasePlug::~DataBasePlug()
 bool DataBasePlug::OpenDB(const std::string &dbPath, std::string &errorMsg)
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, dbPath, & errorMsg]()
-    {
-        try
-        {
-            if (!_dataBass)
-            {
-                _dataBass = new qtalk::sqlite::database(dbPath);
+    auto func = _dbPool.enqueue([this, &ret, dbPath, & errorMsg]() {
+        try {
+            if (!_dataBass) {
+                _dataBass = new st::sqlite::database(dbPath);
                 _dataBass->exec("PRAGMA journal_mode=WAL;");
             }
 
@@ -57,15 +54,11 @@ bool DataBasePlug::OpenDB(const std::string &dbPath, std::string &errorMsg)
             //
             modifyDbByVersion();
             ret = true;
-        }
-        catch (qtalk::sqlite::exception &e)
-        {
+        } catch (st::sqlite::exception &e) {
             ret = false;
             errorMsg = e.what();
             error_log("OpenDB failed! {0}", e.what());
-        }
-        catch (std::exception &exception)
-        {
+        } catch (std::exception &exception) {
             ret = false;
             errorMsg = exception.what();
             error_log("OpenDB failed! {0}", exception.what());
@@ -74,8 +67,7 @@ bool DataBasePlug::OpenDB(const std::string &dbPath, std::string &errorMsg)
     //
     func.get();
 
-    if (ret)
-    {
+    if (ret) {
         //
         // 初始化各种版本号列表
         initConfigVersions();
@@ -91,86 +83,99 @@ void DataBasePlug::ClearDBData()
 {
     DbConfig dbConfig(_dataBass);
 
-    if (_dataBass->tableExists("DB_Config") && !dbConfig.clearData())
+    if (_dataBass->tableExists("DB_Config") && !dbConfig.clearData()) {
         error_log("DB_Config  clear database failed");
+    }
 
     SessionListDao userDao(_dataBass);
 
-    if (_dataBass->tableExists("IM_SessionList") && !userDao.clearData())
+    if (_dataBass->tableExists("IM_SessionList") && !userDao.clearData()) {
         error_log("IM_SessionList  clear database failed");
+    }
 
     MessageDao msgDao(_dataBass);
 
-    if (_dataBass->tableExists("IM_Message") && !msgDao.clearData())
+    if (_dataBass->tableExists("IM_Message") && !msgDao.clearData()) {
         error_log("IM_Message  clear database failed");
+    }
 
     UserDao usrDao(_dataBass);
 
-    if (_dataBass->tableExists("IM_User") && !usrDao.clearData())
+    if (_dataBass->tableExists("IM_User") && !usrDao.clearData()) {
         error_log("IM_User  clear database failed");
+    }
 
-//    FriendListDao friendDao(_dataBass);
-//    if (_dataBass->tableExists("IM_Friend_List") && !friendDao.clearData()) {
-//        error_log("IM_Friend_List  clear database failed");
-//    }
+    //    FriendListDao friendDao(_dataBass);
+    //    if (_dataBass->tableExists("IM_Friend_List") && !friendDao.clearData()) {
+    //        error_log("IM_Friend_List  clear database failed");
+    //    }
     GroupDao grpDao(_dataBass);
 
-    if (_dataBass->tableExists("IM_Group") && !grpDao.clearData())
+    if (_dataBass->tableExists("IM_Group") && !grpDao.clearData()) {
         error_log("IM_Group  clear database failed");
+    }
 
     GroupMemberDao grpMemer(_dataBass);
 
-    if (_dataBass->tableExists("IM_Group_Member") && !grpMemer.clearData())
+    if (_dataBass->tableExists("IM_Group_Member") && !grpMemer.clearData()) {
         error_log("IM_Group_Member  clear database failed");
+    }
 
     ConfigDao confDao(_dataBass);
 
-    if (_dataBass->tableExists("IM_Config") && !confDao.clearData())
+    if (_dataBass->tableExists("IM_Config") && !confDao.clearData()) {
         error_log("IM_Config  clear database failed");
+    }
 
     UserSupplementDao userSupDao(_dataBass);
 
-    if (_dataBass->tableExists("IM_UserSupplement") && !userSupDao.clearData())
+    if (_dataBass->tableExists("IM_UserSupplement") && !userSupDao.clearData()) {
         error_log("IM_UserSupplement  clear database failed");
+    }
 
     CacheDataDao cacheDataDao(_dataBass);
 
-    if (!cacheDataDao.clearData())
+    if (!cacheDataDao.clearData()) {
         error_log("IM_Cache_Data  clear database failed");
+    }
 
     QuickReplyDao quickReplyDao(_dataBass);
 
-    if (!quickReplyDao.clearData())
+    if (!quickReplyDao.clearData()) {
         error_log("QuickReplyDao  clear database failed");
+    }
 
     // Medal
     MedalListDao medalListDao(_dataBass);
 
-    if (!medalListDao.clearData())
+    if (!medalListDao.clearData()) {
         error_log("IM_Medal_List  clear database failed");
+    }
 
     UserMedalDao medalDao(_dataBass);
 
-    if (!medalDao.clearData())
+    if (!medalDao.clearData()) {
         error_log("IM_User_Status_Medal clear database failed");
+    }
 
     ProcessExceptDao processExceptDao(_dataBass);
 
-    if (!medalDao.clearData())
+    if (!medalDao.clearData()) {
         error_log("IM_User_Status_Medal clear database failed");
+    }
 }
 
 bool DataBasePlug::bulkDeleteSessions(const std::vector<std::string> &peerIds)
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, peerIds]()
-    {
+    auto func = _dbPool.enqueue([this, &ret, peerIds]() {
         perf_counter("bulkDeleteSessions size is {0}", peerIds.size());
         SessionListDao dao(_dataBass);
         ret = dao.bulkDeleteSession(peerIds);
 
-        if (ret)
+        if (ret) {
             dao.bulkremoveSessionMessage(peerIds);
+        }
     });
     func.get();
     return ret;
@@ -180,11 +185,12 @@ bool DataBasePlug::bulkDeleteSessions(const std::vector<std::string> &peerIds)
  * 获取最新的session
  * @return
  */
-std::shared_ptr<std::vector<std::shared_ptr<QTalk::Entity::ImSessionInfo> > > DataBasePlug::reloadSession()
+std::shared_ptr<std::vector<std::shared_ptr<st::entity::ImSessionInfo> > >
+DataBasePlug::reloadSession()
 {
-    std::shared_ptr<std::vector<std::shared_ptr<QTalk::Entity::ImSessionInfo> > > ret;
-    auto func = _dbPool.enqueue([this, &ret]()
-    {
+    std::shared_ptr<std::vector<std::shared_ptr<st::entity::ImSessionInfo> > >
+    ret;
+    auto func = _dbPool.enqueue([this, &ret]() {
         perf_counter("reloadSession");
         SessionListDao dao(_dataBass);
         ret = dao.reloadSession();
@@ -199,50 +205,54 @@ std::shared_ptr<std::vector<std::shared_ptr<QTalk::Entity::ImSessionInfo> > > Da
   * @参数
   * @date 2018.9.25
   */
-bool DataBasePlug::insertMessageInfo(const QTalk::Entity::ImMessageInfo &imMessageInfo)
+bool DataBasePlug::insertMessageInfo(const st::entity::ImMessageInfo
+                                     &imMessageInfo)
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, imMessageInfo]()
-    {
-        perf_counter("insertMessageInfo {1}:{0}", imMessageInfo.Content, imMessageInfo.MsgId);
-        std::vector<QTalk::Entity::ImMessageInfo> msgList;
+    auto func = _dbPool.enqueue([this, &ret, imMessageInfo]() {
+        perf_counter("insertMessageInfo {1}:{0}", imMessageInfo.Content,
+                     imMessageInfo.MsgId);
+        std::vector<st::entity::ImMessageInfo> msgList;
         msgList.push_back(imMessageInfo);
         MessageDao dao(_dataBass);
-        std::map<QTalk::Entity::UID, QTalk::Entity::ImSessionInfo> mapSessions;
+        std::map<st::entity::UID, st::entity::ImSessionInfo> mapSessions;
         ret = dao.bulkInsertMessageInfo(msgList, &mapSessions);
 
-        if (ret)
+        if (ret) {
             dao.bulkUpdateSessionList(&mapSessions);
+        }
     });
     func.get();
     return ret;
 }
 
-bool DataBasePlug::bulkInsertMessageInfo(const std::vector<QTalk::Entity::ImMessageInfo> &msgList)
+bool DataBasePlug::bulkInsertMessageInfo(const
+                                         std::vector<st::entity::ImMessageInfo> &msgList)
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, msgList]()
-    {
+    auto func = _dbPool.enqueue([this, &ret, msgList]() {
         perf_counter("bulkInsertMessageInfo {0}", msgList.size());
         MessageDao dao(_dataBass);
-        std::map<QTalk::Entity::UID, QTalk::Entity::ImSessionInfo> map;
+        std::map<st::entity::UID, st::entity::ImSessionInfo> map;
         ret = dao.bulkInsertMessageInfo(msgList, &map);
 
-        if (ret)
+        if (ret) {
             dao.bulkUpdateSessionList(&map);
+        }
     });
     func.get();
     return ret;
 }
 
-long long DataBasePlug::getMaxTimeStampByChatType(QTalk::Enum::ChatType chatType)
+long long DataBasePlug::getMaxTimeStampByChatType(st::Enum::ChatType
+                                                  chatType)
 {
     long long ret = 0;
-//    auto func = _dbPool.enqueue([this, &ret, chatType]() {
+    //    auto func = _dbPool.enqueue([this, &ret, chatType]() {
     MessageDao dao(_dataBass);
     ret = dao.getMaxTimeStampByChatType(chatType);
-//    });
-//    func.get();
+    //    });
+    //    func.get();
     return ret;
 }
 
@@ -259,16 +269,17 @@ long long DataBasePlug::getMaxTimeStamp()
   * @author   cc
   * @date     2018/09/28
   */
-bool DataBasePlug::getUserMessage(const long long &time, const std::string &userName, const std::string &realJid,
-                                  std::vector<QTalk::Entity::ImMessageInfo> &msgList)
+bool DataBasePlug::getUserMessage(const long long &time,
+                                  const std::string &userName, const std::string &realJid,
+                                  std::vector<st::entity::ImMessageInfo> &msgList)
 {
-//    bool ret = false;
-//    auto func = _dbPool.enqueue([this, &ret, time, userName,realJid, &msgList]() {
+    //    bool ret = false;
+    //    auto func = _dbPool.enqueue([this, &ret, time, userName,realJid, &msgList]() {
     MessageDao dao(_dataBass);
     return dao.getUserMessage(time, userName, realJid, msgList);
-//    });
-//    func.get();
-//    return ret;
+    //    });
+    //    func.get();
+    //    return ret;
 }
 
 /**
@@ -279,13 +290,13 @@ bool DataBasePlug::getUserMessage(const long long &time, const std::string &user
   */
 bool DataBasePlug::getUserVersion(int &version)
 {
-//    bool ret = false;
-//    auto func = _dbPool.enqueue([this, &ret, &version]() {
+    //    bool ret = false;
+    //    auto func = _dbPool.enqueue([this, &ret, &version]() {
     UserDao dao(_dataBass);
     return dao.getUserVersion(version);
-//    });
-//    func.get();
-//    return ret;
+    //    });
+    //    func.get();
+    //    return ret;
 }
 
 /**
@@ -294,11 +305,10 @@ bool DataBasePlug::getUserVersion(int &version)
   * @参数
   * @date 2018.9.29
   */
-bool DataBasePlug::insertGroupInfo(const QTalk::Entity::ImGroupInfo &userInfo)
+bool DataBasePlug::insertGroupInfo(const st::entity::ImGroupInfo &userInfo)
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, userInfo]()
-    {
+    auto func = _dbPool.enqueue([this, &ret, userInfo]() {
         GroupDao dao(_dataBass);
         ret = dao.insertGroupInfo(userInfo);
     });
@@ -312,11 +322,11 @@ bool DataBasePlug::insertGroupInfo(const QTalk::Entity::ImGroupInfo &userInfo)
   * @参数
   * @date 2018.9.29
   */
-bool DataBasePlug::bulkInsertGroupInfo(const std::vector<QTalk::Entity::ImGroupInfo> &userInfos)
+bool DataBasePlug::bulkInsertGroupInfo(const
+                                       std::vector<st::entity::ImGroupInfo> &userInfos)
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, userInfos]()
-    {
+    auto func = _dbPool.enqueue([this, &ret, userInfos]() {
         GroupDao dao(_dataBass);
         ret = dao.bulkInsertGroupInfo(userInfos);
     });
@@ -334,19 +344,18 @@ bool DataBasePlug::bulkInsertGroupInfo(const std::vector<QTalk::Entity::ImGroupI
 bool DataBasePlug::getGroupMainVersion(long long &lastUpdateTime)
 {
     bool ret = false;
-//    auto func = _dbPool.enqueue([this, &ret, &lastUpdateTime]() {
+    //    auto func = _dbPool.enqueue([this, &ret, &lastUpdateTime]() {
     GroupDao dao(_dataBass);
     ret = dao.getGroupLastUpdateTime(lastUpdateTime);
-//    });
-//    func.get();
+    //    });
+    //    func.get();
     return ret;
 }
 
 bool DataBasePlug::setGroupMainVersion(long long mainVersion)
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, mainVersion]()
-    {
+    auto func = _dbPool.enqueue([this, &ret, mainVersion]() {
         GroupDao dao(_dataBass);
         ret = dao.setGroupMainVersion(mainVersion);
     });
@@ -361,11 +370,11 @@ bool DataBasePlug::setGroupMainVersion(long long mainVersion)
   * @author   cc
   * @date     2018/09/30
   */
-bool DataBasePlug::updateGroupCard(const std::vector<QTalk::Entity::ImGroupInfo> &groups)
+bool DataBasePlug::updateGroupCard(const std::vector<st::entity::ImGroupInfo>
+                                   &groups)
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, groups]()
-    {
+    auto func = _dbPool.enqueue([this, &ret, groups]() {
         GroupDao dao(_dataBass);
         ret = dao.updateGroupCard(groups);
     });
@@ -379,14 +388,15 @@ bool DataBasePlug::updateGroupCard(const std::vector<QTalk::Entity::ImGroupInfo>
   * @参数
   * @date 2018.9.30
   */
-std::shared_ptr<QTalk::Entity::ImGroupInfo> DataBasePlug::getGroupInfoByXmppId(const std::string &xmppids)
+std::shared_ptr<st::entity::ImGroupInfo> DataBasePlug::getGroupInfoByXmppId(
+    const std::string &xmppids)
 {
-    std::shared_ptr<QTalk::Entity::ImGroupInfo> ret;
-//    auto func = _dbPool.enqueue([this, &ret, xmppids]() {
+    std::shared_ptr<st::entity::ImGroupInfo> ret;
+    //    auto func = _dbPool.enqueue([this, &ret, xmppids]() {
     GroupDao dao(_dataBass);
     ret = dao.getGroupInfoByXmppId(xmppids);
-//    });
-//    func.get();
+    //    });
+    //    func.get();
     return ret;
 }
 
@@ -397,15 +407,16 @@ std::shared_ptr<QTalk::Entity::ImGroupInfo> DataBasePlug::getGroupInfoByXmppId(c
   * @author   cc
   * @date     2018/10/03
   */
-bool DataBasePlug::getGroupMemberById(const std::string &groupId, std::map<std::string, QTalk::StUserCard> &member,
+bool DataBasePlug::getGroupMemberById(const std::string &groupId,
+                                      std::map<std::string, st::StUserCard> &member,
                                       std::map<std::string, QUInt8> &userRole)
 {
-//    bool ret = false;
-//    auto func = _dbPool.enqueue([this, &ret, groupId, &member, &userRole]() {
+    //    bool ret = false;
+    //    auto func = _dbPool.enqueue([this, &ret, groupId, &member, &userRole]() {
     GroupMemberDao dao(_dataBass);
     dao.getGroupMemberById(groupId, member, userRole);
-//    });
-//    func.get();
+    //    });
+    //    func.get();
     return true;
 }
 
@@ -417,26 +428,28 @@ bool DataBasePlug::getGroupMemberById(const std::string &groupId, std::map<std::
   * @date     2018/10/08
   */
 bool
-DataBasePlug::getGroupMemberInfo(const std::vector<std::string> &members, std::vector<QTalk::StUserCard> &userInfos)
+DataBasePlug::getGroupMemberInfo(const std::vector<std::string> &members,
+                                 std::vector<st::StUserCard> &userInfos)
 {
     bool ret = false;
-//    auto func = _dbPool.enqueue([this, &ret, members, &userInfos]() {
+    //    auto func = _dbPool.enqueue([this, &ret, members, &userInfos]() {
     UserDao dao(_dataBass);
     ret = dao.getUserCardInfos(members, userInfos);
-//    });
-//    func.get();
+    //    });
+    //    func.get();
     return ret;
 }
 
 
-bool DataBasePlug::getGroupMemberInfo(std::map<std::string, QTalk::StUserCard> &userInfos)
+bool DataBasePlug::getGroupMemberInfo(std::map<std::string, st::StUserCard>
+                                      &userInfos)
 {
     bool ret = false;
-//    auto func = _dbPool.enqueue([this, &ret, &userInfos]() {
+    //    auto func = _dbPool.enqueue([this, &ret, &userInfos]() {
     UserDao dao(_dataBass);
     ret = dao.getUserCardInfos(userInfos);
-//    });
-//    func.get();
+    //    });
+    //    func.get();
     return ret;
 }
 
@@ -448,11 +461,11 @@ bool DataBasePlug::getGroupMemberInfo(std::map<std::string, QTalk::StUserCard> &
   * @author   cc
   * @date     2018/10/11
   */
-bool DataBasePlug::bulkInsertGroupMember(const std::string &groupId, const std::map<std::string, QUInt8> &member)
+bool DataBasePlug::bulkInsertGroupMember(const std::string &groupId,
+                                         const std::map<std::string, QUInt8> &member)
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, groupId, member]()
-    {
+    auto func = _dbPool.enqueue([this, &ret, groupId, member]() {
         GroupMemberDao dao(_dataBass);
         ret = dao.bulkInsertGroupMember(groupId, member);
     });
@@ -467,14 +480,15 @@ bool DataBasePlug::bulkInsertGroupMember(const std::string &groupId, const std::
   * @author   cc
   * @date     2018/10/12
   */
-bool DataBasePlug::getGroupTopic(const std::string &groupId, std::string &groupTopic)
+bool DataBasePlug::getGroupTopic(const std::string &groupId,
+                                 std::string &groupTopic)
 {
     bool ret = false;
-//    auto func = _dbPool.enqueue([this, &ret, groupId, &groupTopic]() {
+    //    auto func = _dbPool.enqueue([this, &ret, groupId, &groupTopic]() {
     GroupDao dao(_dataBass);
     ret = dao.getGroupTopic(groupId, groupTopic);
-//    });
-//    func.get();
+    //    });
+    //    func.get();
     return ret;
 }
 
@@ -485,11 +499,11 @@ bool DataBasePlug::getGroupTopic(const std::string &groupId, std::string &groupT
   * @author   cc
   * @date     2018/10/25
   */
-bool DataBasePlug::updateMState(const std::string &messageId, const QInt64 &time)
+bool DataBasePlug::updateMState(const std::string &messageId,
+                                const QInt64 &time)
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, messageId, time]()
-    {
+    auto func = _dbPool.enqueue([this, &ret, messageId, time]() {
         perf_counter("updateMState");
         MessageDao dao(_dataBass);
         ret = dao.updateMState(messageId, time);
@@ -506,11 +520,11 @@ bool DataBasePlug::updateMState(const std::string &messageId, const QInt64 &time
   * @author   cc
   * @date     2018/10/25
   */
-bool DataBasePlug::updateReadMask(const std::map<std::string, QInt32> &readMasks)
+bool DataBasePlug::updateReadMask(const std::map<std::string, QInt32>
+                                  &readMasks)
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, readMasks]()
-    {
+    auto func = _dbPool.enqueue([this, &ret, readMasks]() {
         auto start = std::chrono::system_clock::now();
         MessageDao dao(_dataBass);
         ret = dao.updateReadMask(readMasks);
@@ -522,11 +536,11 @@ bool DataBasePlug::updateReadMask(const std::map<std::string, QInt32> &readMasks
     return ret;
 }
 
-bool DataBasePlug::updateReadMask(const std::map<std::string, QInt64> &readMasks)
+bool DataBasePlug::updateReadMask(const std::map<std::string, QInt64>
+                                  &readMasks)
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, readMasks]()
-    {
+    auto func = _dbPool.enqueue([this, &ret, readMasks]() {
         perf_counter("updateReadMask");
         MessageDao dao(_dataBass);
         ret = dao.updateReadMask(readMasks);
@@ -543,11 +557,10 @@ bool DataBasePlug::updateReadMask(const std::map<std::string, QInt64> &readMasks
   * @author   cc
   * @date     2018/09/30
   */
-bool DataBasePlug::insertUserInfo(const QTalk::Entity::ImUserInfo &userInfo)
+bool DataBasePlug::insertUserInfo(const st::entity::ImUserInfo &userInfo)
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, userInfo]()
-    {
+    auto func = _dbPool.enqueue([this, &ret, userInfo]() {
         UserDao dao(_dataBass);
         ret = dao.insertUserInfo(userInfo);
     });
@@ -562,11 +575,11 @@ bool DataBasePlug::insertUserInfo(const QTalk::Entity::ImUserInfo &userInfo)
   * @author   cc
   * @date     2018/09/29
   */
-bool DataBasePlug::setUserCardInfo(const std::vector<QTalk::StUserCard> &userInfos)
+bool DataBasePlug::setUserCardInfo(const std::vector<st::StUserCard>
+                                   &userInfos)
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, userInfos]()
-    {
+    auto func = _dbPool.enqueue([this, &ret, userInfos]() {
         UserDao dao(_dataBass);
         ret = dao.setUserCardInfo(userInfos);
     });
@@ -581,11 +594,11 @@ bool DataBasePlug::setUserCardInfo(const std::vector<QTalk::StUserCard> &userInf
   * @author   cc
   * @date     2018/09/29
   */
-bool DataBasePlug::bulkInsertUserInfo(const std::vector<QTalk::Entity::ImUserInfo> &userInfos)
+bool DataBasePlug::bulkInsertUserInfo(const
+                                      std::vector<st::entity::ImUserInfo> &userInfos)
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, userInfos]()
-    {
+    auto func = _dbPool.enqueue([this, &ret, userInfos]() {
         UserDao dao(_dataBass);
         ret = dao.bulkInsertUserInfo(userInfos);
     });
@@ -593,15 +606,16 @@ bool DataBasePlug::bulkInsertUserInfo(const std::vector<QTalk::Entity::ImUserInf
     return ret;
 }
 
-std::shared_ptr<QTalk::Entity::ImUserInfo> DataBasePlug::getUserInfoByXmppId(const std::string &xmppid)
+std::shared_ptr<st::entity::ImUserInfo> DataBasePlug::getUserInfoByXmppId(
+    const std::string &xmppid)
 {
     //assert(xmppid.size() <= 45);
-    std::shared_ptr<QTalk::Entity::ImUserInfo> ret = nullptr;
-//    auto func = _dbPool.enqueue([this, &ret, xmppid]() {
+    std::shared_ptr<st::entity::ImUserInfo> ret = nullptr;
+    //    auto func = _dbPool.enqueue([this, &ret, xmppid]() {
     UserDao dao(_dataBass);
     ret = dao.getUserInfoByXmppId(xmppid);
-//    });
-//    func.get();
+    //    });
+    //    func.get();
     return ret;
 }
 
@@ -615,89 +629,97 @@ void DataBasePlug::CreatTables()
 {
     DbConfig dbConfig(_dataBass);
 
-    if (!_dataBass->tableExists("DB_Config") && !dbConfig.creatTable())
-    {
+    if (!_dataBass->tableExists("DB_Config") && !dbConfig.creatTable()) {
         error_log("DB_Config  create database table  failed");
         dbConfig.creatTable();
     }
 
     SessionListDao userDao(_dataBass);
 
-    if (!_dataBass->tableExists("IM_SessionList") && !userDao.creatTable())
-    {
+    if (!_dataBass->tableExists("IM_SessionList") && !userDao.creatTable()) {
         // "IM_SessionList create database table  failed";
         error_log("IM_SessionList  create database table  failed");
     }
 
     MessageDao msgDao(_dataBass);
 
-    if (!_dataBass->tableExists("IM_Message") && !msgDao.creatTable())
-    {
+    if (!_dataBass->tableExists("IM_Message") && !msgDao.creatTable()) {
         // "IM_Message create database table  failed";
         error_log("IM_Message  create database table  failed");
     }
 
     UserDao usrDao(_dataBass);
 
-    if (!_dataBass->tableExists("IM_User") && !usrDao.creatTable())
-    {
+    if (!_dataBass->tableExists("IM_User") && !usrDao.creatTable()) {
         // "IM_User create database table  failed";
         error_log("IM_User  create database table  failed");
     }
 
     GroupDao grpDao(_dataBass);
 
-    if (!_dataBass->tableExists("IM_Group") && !grpDao.creatTable())
-    {
+    if (!_dataBass->tableExists("IM_Group") && !grpDao.creatTable()) {
         // "IM_Group create database table  failed";
         error_log("IM_Group  create database table  failed");
     }
 
     GroupMemberDao grpMemer(_dataBass);
 
-    if (!_dataBass->tableExists("IM_Group_Member") && !grpMemer.creatTable())
+    if (!_dataBass->tableExists("IM_Group_Member") && !grpMemer.creatTable()) {
         error_log("IM_Group_Member  create database table  failed");
+    }
 
     ConfigDao confDao(_dataBass);
 
-    if (!_dataBass->tableExists("IM_Config") && !confDao.creatTable())
+    if (!_dataBass->tableExists("IM_Config") && !confDao.creatTable()) {
         error_log("IM_Config  create database table  failed");
+    }
 
     UserSupplementDao userSupDao(_dataBass);
 
-    if (!_dataBass->tableExists("IM_UserSupplement") && !userSupDao.creatTable())
+    if (!_dataBass->tableExists("IM_UserSupplement") && !userSupDao.creatTable()) {
         error_log("IM_UserSupplement  create database table  failed");
+    }
 
     CacheDataDao cacheDataDao(_dataBass);
 
-    if (!_dataBass->tableExists("IM_Cache_Data") && !cacheDataDao.creatTable())
+    if (!_dataBass->tableExists("IM_Cache_Data") && !cacheDataDao.creatTable()) {
         error_log("IM_Cache_Data  create database table  failed");
+    }
 
     QuickReplyDao quickReplyDao(_dataBass);
 
-    if ((!_dataBass->tableExists("IM_QUICK_REPLY_GROUP") || !_dataBass->tableExists("IM_QUICK_REPLY_CONTENT")) && !quickReplyDao.creatTable())
+    if ((!_dataBass->tableExists("IM_QUICK_REPLY_GROUP")
+         || !_dataBass->tableExists("IM_QUICK_REPLY_CONTENT"))
+        && !quickReplyDao.creatTable()) {
         error_log("IM_QUICK_REPLY_GROUP  create database table  failed");
+    }
 
     TriggerConfig triggerConfig(_dataBass);
 
-    if(!triggerConfig.createUnreadInserttrigger() || !triggerConfig.createUnreadUpdateTrigger())
+    if (!triggerConfig.createUnreadInserttrigger()
+        || !triggerConfig.createUnreadUpdateTrigger()) {
         error_log("TriggerConfig  create database trigger  failed");
+    }
 
     // Medal
     MedalListDao medalListDao(_dataBass);
 
-    if (!_dataBass->tableExists("IM_Medal_List") && !medalListDao.creatTable())
+    if (!_dataBass->tableExists("IM_Medal_List") && !medalListDao.creatTable()) {
         error_log("IM_Medal_List  create database table  failed");
+    }
 
     UserMedalDao medalDao(_dataBass);
 
-    if (!_dataBass->tableExists("IM_User_Status_Medal") && !medalDao.creatTable())
+    if (!_dataBass->tableExists("IM_User_Status_Medal") && !medalDao.creatTable()) {
         error_log("IM_User_Status_Medal create database table  failed");
+    }
 
     ProcessExceptDao processExceptDao(_dataBass);
 
-    if (!_dataBass->tableExists("IM_PROCESS_EXCEPT") && !processExceptDao.creatTable())
+    if (!_dataBass->tableExists("IM_PROCESS_EXCEPT")
+        && !processExceptDao.creatTable()) {
         error_log("processExceptDao create database table  failed");
+    }
 }
 
 //
@@ -708,33 +730,27 @@ void DataBasePlug::modifyDbByVersion()
     dbConfig.getDbVersion(dbVersion);
 
     // todo
-    if (dbVersion <= 100001)
-    {
+    if (dbVersion <= 100001) {
         GroupDao groupDao(_dataBass);
         groupDao.deleteAllGroup();
     }
 
-    if (dbVersion <= 100002)
-    {
+    if (dbVersion <= 100002) {
         MessageDao msgdao(_dataBass);
         msgdao.creatIndex();
     }
 
-    if (dbVersion <= 100003)
-    {
+    if (dbVersion <= 100003) {
         UserDao userDao(_dataBass);
         userDao.addColumn_03();
     }
 
-    if(dbVersion == 100005)
-    {
+    if (dbVersion == 100005) {
         UserDao userDao(_dataBass);
         //
         userDao.modDefaultValue_05();
         userDao.clearData();
-    }
-    else if (dbVersion <= 100004)
-    {
+    } else if (dbVersion <= 100004) {
         // user表 增加字段 sex isRobot visible
         UserDao userDao(_dataBass);
         userDao.addColumn_04();
@@ -742,16 +758,14 @@ void DataBasePlug::modifyDbByVersion()
         userDao.clearData();
     }
 
-    if(dbVersion <= 100007)
-    {
+    if (dbVersion <= 100007) {
         // deal unread count
         SessionListDao sessionListDao(_dataBass);
         sessionListDao.updateUnreadCount();
         sessionListDao.updateRealJidForFixBug();
     }
 
-    if(dbVersion <= 100008)
-    {
+    if (dbVersion <= 100008) {
         // deal unread count
         SessionListDao sessionListDao(_dataBass);
         sessionListDao.fixMessageType();
@@ -760,15 +774,13 @@ void DataBasePlug::modifyDbByVersion()
         messageDao.fixMessageType();
     }
 
-    if(dbVersion <= 100009)
-    {
+    if (dbVersion <= 100009) {
         CacheDataDao dao(_dataBass);
         dao.clear_data_01();
     }
 
     // message table upadte time
-    if(dbVersion <= 100011)
-    {
+    if (dbVersion <= 100011) {
         // time
         QInt64 time = getMaxTimeStamp();
         CacheDataDao cache(_dataBass);
@@ -778,18 +790,17 @@ void DataBasePlug::modifyDbByVersion()
         dao.addMessageFlag();
     }
 
-    if(dbVersion <= 100013)
-    {
+    if (dbVersion <= 100013) {
         // 自己发给自己的未读数清零
         SessionListDao sessionListDao(_dataBass);
-        sessionListDao.clearSelfUnRead(PLAT.getSelfXmppId());
+        sessionListDao.clearSelfUnRead(DC.getSelfXmppId());
         // 修改阅读状态 触发器
         TriggerConfig tridao(_dataBass);
         tridao.modifyUnreadCountTrigger();
     }
 
     //
-    dbConfig.setDbVersion(PLAT.getDbVersion());
+    dbConfig.setDbVersion(DC.getDbVersion());
 }
 
 /**
@@ -799,11 +810,11 @@ void DataBasePlug::modifyDbByVersion()
   * @author   cc
   * @date     2018/10/25
   */
-bool DataBasePlug::insertConfig(const std::string &key, const std::string &subKey, const std::string &val)
+bool DataBasePlug::insertConfig(const std::string &key,
+                                const std::string &subKey, const std::string &val)
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, key, subKey, val]()
-    {
+    auto func = _dbPool.enqueue([this, &ret, key, subKey, val]() {
         ConfigDao confDao(_dataBass);
         ret = confDao.insertConfig(key, subKey, val);
     });
@@ -811,33 +822,35 @@ bool DataBasePlug::insertConfig(const std::string &key, const std::string &subKe
     return ret;
 }
 
-bool DataBasePlug::getConfig(const std::string &key, const std::string &subKey, std::string &val)
+bool DataBasePlug::getConfig(const std::string &key, const std::string &subKey,
+                             std::string &val)
 {
     bool ret = false;
-//    auto func = _dbPool.enqueue([this, &ret, key, subKey, &val]() {
+    //    auto func = _dbPool.enqueue([this, &ret, key, subKey, &val]() {
     ConfigDao confDao(_dataBass);
     ret = confDao.getConfig(key, subKey, val);
-//    });
-//    func.get();
+    //    });
+    //    func.get();
     return ret;
 }
 
-bool DataBasePlug::getConfig(const std::string &key, std::map<std::string, std::string> &mapConf)
+bool DataBasePlug::getConfig(const std::string &key,
+                             std::map<std::string, std::string> &mapConf)
 {
     bool ret = false;
-//    auto func = _dbPool.enqueue([this, &ret, key, &mapConf]() {
+    //    auto func = _dbPool.enqueue([this, &ret, key, &mapConf]() {
     ConfigDao confDao(_dataBass);
     ret = confDao.getConfig(key, mapConf);
-//    });
-//    func.get();
+    //    });
+    //    func.get();
     return ret;
 }
 
-bool DataBasePlug::insertOrUpdateUserMood(const std::string &userId, const std::string &userMood, const int &version)
+bool DataBasePlug::insertOrUpdateUserMood(const std::string &userId,
+                                          const std::string &userMood, const int &version)
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, userId, userMood, version]()
-    {
+    auto func = _dbPool.enqueue([this, &ret, userId, userMood, version]() {
         UserSupplementDao dao(_dataBass);
         ret = dao.insertOrUpdateUserMood(userId, userMood, version);
     });
@@ -845,11 +858,11 @@ bool DataBasePlug::insertOrUpdateUserMood(const std::string &userId, const std::
     return ret;
 }
 
-bool DataBasePlug::insertOrUpdateUserPhoneNo(const std::string &userId, const std::string &phoneNo)
+bool DataBasePlug::insertOrUpdateUserPhoneNo(const std::string &userId,
+                                             const std::string &phoneNo)
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, userId, phoneNo]()
-    {
+    auto func = _dbPool.enqueue([this, &ret, userId, phoneNo]() {
         UserSupplementDao dao(_dataBass);
         ret = dao.insertOrUpdateUserPhoneNo(userId, phoneNo);
     });
@@ -857,11 +870,11 @@ bool DataBasePlug::insertOrUpdateUserPhoneNo(const std::string &userId, const st
     return ret;
 }
 
-bool DataBasePlug::insertOrUpdateUserSuppl(std::shared_ptr<QTalk::Entity::ImUserSupplement> imUserSup)
+bool DataBasePlug::insertOrUpdateUserSuppl(
+    std::shared_ptr<st::entity::ImUserSupplement> imUserSup)
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, &imUserSup]()
-    {
+    auto func = _dbPool.enqueue([this, &ret, &imUserSup]() {
         UserSupplementDao dao(_dataBass);
         ret = dao.insertOrUpdateUserSuppl(imUserSup);
     });
@@ -869,68 +882,72 @@ bool DataBasePlug::insertOrUpdateUserSuppl(std::shared_ptr<QTalk::Entity::ImUser
     return ret;
 }
 
-bool DataBasePlug::getStructure(std::vector<std::shared_ptr<QTalk::Entity::ImUserInfo>> &structure)
+bool DataBasePlug::getStructure(
+    std::vector<std::shared_ptr<st::entity::ImUserInfo>> &structure)
 {
     bool ret = false;
-//    auto func = _dbPool.enqueue([this, &ret, &structure]() {
+    //    auto func = _dbPool.enqueue([this, &ret, &structure]() {
     UserDao dao(_dataBass);
     ret = dao.getStructure(structure);
-//    });
-//    func.get();
+    //    });
+    //    func.get();
     return ret;
 }
 
-bool DataBasePlug::getUnreadedMessages(const std::string &messageId, std::vector<std::string> &msgIds)
+bool DataBasePlug::getUnreadedMessages(const std::string &messageId,
+                                       std::vector<std::string> &msgIds)
 {
     bool ret = false;
-//    auto func = _dbPool.enqueue([this, &ret, messageId, &msgIds]() {
+    //    auto func = _dbPool.enqueue([this, &ret, messageId, &msgIds]() {
     MessageDao dao(_dataBass);
     ret = dao.getUnreadedMessages(messageId, msgIds);
-//    });
-//    func.get();
+    //    });
+    //    func.get();
     return ret;
 }
 
-bool DataBasePlug::getGroupMessageLastUpdateTime(const std::string &messageId, QInt64 &time)
+bool DataBasePlug::getGroupMessageLastUpdateTime(const std::string &messageId,
+                                                 QInt64 &time)
 {
     bool ret = false;
-//    auto func = _dbPool.enqueue([this, &ret, messageId, &time]() {
+    //    auto func = _dbPool.enqueue([this, &ret, messageId, &time]() {
     MessageDao dao(_dataBass);
     ret = dao.getGroupMessageLastUpdateTime(messageId, time);
-//    });
-//    func.get();
+    //    });
+    //    func.get();
     return ret;
 }
 
-bool DataBasePlug::getGroupUnreadedCount(const std::map<std::string, QInt64> &readMasks,
-        std::map<std::string, int> &unreadedCount)
+bool DataBasePlug::getGroupUnreadedCount(const std::map<std::string, QInt64>
+                                         &readMasks,
+                                         std::map<std::string, int> &unreadedCount)
 {
     bool ret = false;
-//    auto func = _dbPool.enqueue([this, &ret, readMasks, &unreadedCount]() {
-//        perf_counter("getGroupUnreadedCount");
+    //    auto func = _dbPool.enqueue([this, &ret, readMasks, &unreadedCount]() {
+    //        perf_counter("getGroupUnreadedCount");
     MessageDao dao(_dataBass);
     ret = dao.getGroupUnreadedCount(readMasks, unreadedCount);
-//    });
-//    func.get();
+    //    });
+    //    func.get();
     return ret;
 }
 
-bool DataBasePlug::getMessageByMessageId(const std::string &messageId, QTalk::Entity::ImMessageInfo &imMessageInfo)
+bool DataBasePlug::getMessageByMessageId(const std::string &messageId,
+                                         st::entity::ImMessageInfo &imMessageInfo)
 {
     bool ret = false;
-//    auto func = _dbPool.enqueue([this, &ret, messageId, &imMessageInfo]() {
+    //    auto func = _dbPool.enqueue([this, &ret, messageId, &imMessageInfo]() {
     MessageDao dao(_dataBass);
     ret = dao.getMessageByMessageId(messageId, imMessageInfo);
-//    });
-//    func.get();
+    //    });
+    //    func.get();
     return ret;
 }
 
 bool DataBasePlug::updateRevokeMessage(const std::string &messageId)
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, messageId]()
-    {
+    auto func = _dbPool.enqueue([this, &ret, messageId]() {
         MessageDao dao(_dataBass);
         ret = dao.updateRevokeMessage(messageId);
     });
@@ -941,19 +958,19 @@ bool DataBasePlug::updateRevokeMessage(const std::string &messageId)
 bool DataBasePlug::getConfigVersion(int &version)
 {
     bool ret = false;
-//    auto func = _dbPool.enqueue([this, &ret, & version]() {
+    //    auto func = _dbPool.enqueue([this, &ret, & version]() {
     ConfigDao dao(_dataBass);
     ret = dao.getConfigVersion(version);
-//    });
-//    func.get();
+    //    });
+    //    func.get();
     return ret;
 }
 
-bool DataBasePlug::bulkInsertConfig(const std::vector<QTalk::Entity::ImConfig> &config)
+bool DataBasePlug::bulkInsertConfig(const std::vector<st::entity::ImConfig>
+                                    &config)
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, config]()
-    {
+    auto func = _dbPool.enqueue([this, &ret, config]() {
         ConfigDao dao(_dataBass);
         ret = dao.bulkInsertConfig(config);
     });
@@ -961,11 +978,11 @@ bool DataBasePlug::bulkInsertConfig(const std::vector<QTalk::Entity::ImConfig> &
     return ret;
 }
 
-bool DataBasePlug::bulkRemoveConfig(const std::map<std::string, std::string> &mapConf)
+bool DataBasePlug::bulkRemoveConfig(const std::map<std::string, std::string>
+                                    &mapConf)
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, mapConf]()
-    {
+    auto func = _dbPool.enqueue([this, &ret, mapConf]() {
         ConfigDao dao(_dataBass);
         ret = dao.bulkRemoveConfig(mapConf);
     });
@@ -973,25 +990,25 @@ bool DataBasePlug::bulkRemoveConfig(const std::map<std::string, std::string> &ma
     return ret;
 }
 
-bool DataBasePlug::getAllConfig(std::vector<QTalk::Entity::ImConfig> &configs)
+bool DataBasePlug::getAllConfig(std::vector<st::entity::ImConfig> &configs)
 {
     bool ret = false;
-//    auto func = _dbPool.enqueue([this, &ret, &configs]() {
+    //    auto func = _dbPool.enqueue([this, &ret, &configs]() {
     ConfigDao dao(_dataBass);
     ret = dao.getAllConfig(configs);
-//    });
-//    func.get();
+    //    });
+    //    func.get();
     return ret;
 }
 
 bool DataBasePlug::bulkDeleteGroup(const std::vector<std::string> &groupIds)
 {
-    if (groupIds.empty())
+    if (groupIds.empty()) {
         return true;
+    }
 
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, groupIds]()
-    {
+    auto func = _dbPool.enqueue([this, &ret, groupIds]() {
         //
         GroupDao groupdao(_dataBass);
         groupdao.bulkDeleteGroup(groupIds);
@@ -1010,14 +1027,15 @@ bool DataBasePlug::bulkDeleteGroup(const std::vector<std::string> &groupIds)
     return ret;
 }
 
-bool DataBasePlug::bulkDeleteGroupMember(const std::vector<std::string> &groupIds)
+bool DataBasePlug::bulkDeleteGroupMember(const std::vector<std::string>
+                                         &groupIds)
 {
-    if (groupIds.empty())
+    if (groupIds.empty()) {
         return true;
+    }
 
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, groupIds]()
-    {
+    auto func = _dbPool.enqueue([this, &ret, groupIds]() {
         GroupMemberDao gMemberDao(_dataBass);
         gMemberDao.bulkDeleteGroupMember(groupIds);
         ret = true;
@@ -1027,7 +1045,7 @@ bool DataBasePlug::bulkDeleteGroupMember(const std::vector<std::string> &groupId
 }
 
 //
-//bool DataBasePlug::bulkInsertFriends(const std::vector<QTalk::Entity::IMFriendList> &friends) {
+//bool DataBasePlug::bulkInsertFriends(const std::vector<st::Entity::IMFriendList> &friends) {
 //    bool ret = false;
 //    auto func = _dbPool.enqueue([this, &ret, friends]() {
 //        FriendListDao dao(_dataBass);
@@ -1037,7 +1055,7 @@ bool DataBasePlug::bulkDeleteGroupMember(const std::vector<std::string> &groupId
 //    return ret;
 //}
 
-//bool DataBasePlug::insertFriend(QTalk::Entity::IMFriendList imfriend) {
+//bool DataBasePlug::insertFriend(st::Entity::IMFriendList imfriend) {
 //    bool ret = false;
 //    auto func = _dbPool.enqueue([this, &ret, imfriend]() {
 //        FriendListDao dao(_dataBass);
@@ -1067,7 +1085,7 @@ bool DataBasePlug::bulkDeleteGroupMember(const std::vector<std::string> &groupId
 //    return ret;
 //}
 //
-//bool DataBasePlug::getAllFriends(std::vector<QTalk::Entity::IMFriendList> &friends) {
+//bool DataBasePlug::getAllFriends(std::vector<st::Entity::IMFriendList> &friends) {
 //    bool ret = false;
 ////    auto func = _dbPool.enqueue([this, &ret, &friends]() {
 //    FriendListDao dao(_dataBass);
@@ -1077,22 +1095,21 @@ bool DataBasePlug::bulkDeleteGroupMember(const std::vector<std::string> &groupId
 //    return ret;
 //}
 
-bool DataBasePlug::getAllGroup(std::vector<QTalk::Entity::ImGroupInfo> &groups)
+bool DataBasePlug::getAllGroup(std::vector<st::entity::ImGroupInfo> &groups)
 {
     bool ret = false;
-//    auto func = _dbPool.enqueue([this, &ret, &groups]() {
+    //    auto func = _dbPool.enqueue([this, &ret, &groups]() {
     GroupDao dao(_dataBass);
     ret = dao.getAllGroup(groups);
-//    });
-//    func.get();
+    //    });
+    //    func.get();
     return ret;
 }
 
 bool DataBasePlug::deleteMessageByMessageId(const std::string &messageId)
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, messageId]()
-    {
+    auto func = _dbPool.enqueue([this, &ret, messageId]() {
         MessageDao dao(_dataBass);
         ret = dao.deleteMessageByMessageId(messageId);
     });
@@ -1103,8 +1120,7 @@ bool DataBasePlug::deleteMessageByMessageId(const std::string &messageId)
 bool DataBasePlug::bulkDeleteUserInfo(const std::vector<std::string> &userIds)
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, userIds]()
-    {
+    auto func = _dbPool.enqueue([this, &ret, userIds]() {
         UserDao dao(_dataBass);
         ret = dao.bulkDeleteUserInfo(userIds);
     });
@@ -1115,37 +1131,39 @@ bool DataBasePlug::bulkDeleteUserInfo(const std::vector<std::string> &userIds)
 bool DataBasePlug::getStructureCount(const std::string &strName, int &count)
 {
     bool ret = false;
-//    auto func = _dbPool.enqueue([this, &ret, strName, &count]() {
+    //    auto func = _dbPool.enqueue([this, &ret, strName, &count]() {
     UserDao dao(_dataBass);
     ret = dao.getStructureCount(strName, count);
-//    });
-//    func.get();
+    //    });
+    //    func.get();
     return ret;
 }
 
 
-bool DataBasePlug::getStructureMember(const std::string &strName, std::vector<std::string> &arMember)
+bool DataBasePlug::getStructureMember(const std::string &strName,
+                                      std::vector<std::string> &arMember)
 {
     bool ret = false;
-//    auto func = _dbPool.enqueue([this, &ret, strName, &arMember]() {
+    //    auto func = _dbPool.enqueue([this, &ret, strName, &arMember]() {
     UserDao dao(_dataBass);
     ret = dao.getStructureMember(strName, arMember);
-//    });
-//    func.get();
+    //    });
+    //    func.get();
     return ret;
 }
 
 /**
  *
  */
-bool DataBasePlug::getGroupCardById(std::shared_ptr<QTalk::Entity::ImGroupInfo> &group)
+bool DataBasePlug::getGroupCardById(std::shared_ptr<st::entity::ImGroupInfo>
+                                    &group)
 {
     bool ret = false;
-//    auto func = _dbPool.enqueue([this, &ret, &group]() {
+    //    auto func = _dbPool.enqueue([this, &ret, &group]() {
     GroupDao dao(_dataBass);
     ret = dao.getGroupCardById(group);
-//    });
-//    func.get();
+    //    });
+    //    func.get();
     return ret;
 }
 
@@ -1171,29 +1189,30 @@ bool DataBasePlug::getGroupCardById(std::shared_ptr<QTalk::Entity::ImGroupInfo> 
 //
 //}
 
-void DataBasePlug::getRecentSession(std::vector<QTalk::StShareSession> &sessions)
+void DataBasePlug::getRecentSession(std::vector<st::StShareSession>
+                                    &sessions)
 {
-//    auto func = _dbPool.enqueue([this, &sessions]() {
+    //    auto func = _dbPool.enqueue([this, &sessions]() {
     SessionListDao dao(_dataBass);
     dao.getRecentSession(sessions);
-//    });
-//    func.get();
+    //    });
+    //    func.get();
 }
 
-void DataBasePlug::geContactsSession(std::vector<QTalk::StShareSession> &sessions)
+void DataBasePlug::geContactsSession(std::vector<st::StShareSession>
+                                     &sessions)
 {
-//    auto func = _dbPool.enqueue([this, &sessions]() {
+    //    auto func = _dbPool.enqueue([this, &sessions]() {
     UserDao dao(_dataBass);
     dao.geContactsSession(sessions);
-//    });
-//    func.get();
+    //    });
+    //    func.get();
 }
 
 bool DataBasePlug::initConfigVersions()
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret]()
-    {
+    auto func = _dbPool.enqueue([this, &ret]() {
         DbConfig dbConfig(_dataBass);
         ret = dbConfig.initVersions();
     });
@@ -1204,8 +1223,7 @@ bool DataBasePlug::initConfigVersions()
 bool DataBasePlug::insertUserId(std::string value)
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, value]()
-    {
+    auto func = _dbPool.enqueue([this, &ret, value]() {
         CacheDataDao cacheDataDao(_dataBass);
         ret = cacheDataDao.insertUserId(value);
     });
@@ -1216,8 +1234,7 @@ bool DataBasePlug::insertUserId(std::string value)
 bool DataBasePlug::insertHotLine(std::string value)
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, value]()
-    {
+    auto func = _dbPool.enqueue([this, &ret, value]() {
         CacheDataDao cacheDataDao(_dataBass);
         ret = cacheDataDao.insertHotLine(value);
     });
@@ -1227,18 +1244,17 @@ bool DataBasePlug::insertHotLine(std::string value)
 
 void DataBasePlug::getHotLines(std::string &hotLines)
 {
-//    auto func = _dbPool.enqueue([this, &hotLines]() {
+    //    auto func = _dbPool.enqueue([this, &hotLines]() {
     CacheDataDao cacheDataDao(_dataBass);
     cacheDataDao.getHotLines(hotLines);
-//    });
-//    func.get();
+    //    });
+    //    func.get();
 }
 
 bool DataBasePlug::isHotlineMerchant(const std::string xmppid)
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, xmppid]()
-    {
+    auto func = _dbPool.enqueue([this, &ret, xmppid]() {
         CacheDataDao cacheDataDao(_dataBass);
         ret = cacheDataDao.isHotlineMerchant(xmppid);
     });
@@ -1249,18 +1265,17 @@ bool DataBasePlug::isHotlineMerchant(const std::string xmppid)
 std::string DataBasePlug::getGroupReadMarkTime()
 {
     std::string ret = "0";
-//    auto func = _dbPool.enqueue([this, &ret]() {
+    //    auto func = _dbPool.enqueue([this, &ret]() {
     CacheDataDao cacheDataDao(_dataBass);
     ret = cacheDataDao.getGroupReadMarkTime();
-//    });
-//    func.get();
+    //    });
+    //    func.get();
     return ret;
 }
 bool DataBasePlug::updateGroupReadMarkTime(std::string time)
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, time]()
-    {
+    auto func = _dbPool.enqueue([this, &ret, time]() {
         CacheDataDao cacheDataDao(_dataBass);
         ret = cacheDataDao.updateGroupReadMarkTime(time);
     });
@@ -1271,19 +1286,18 @@ bool DataBasePlug::updateGroupReadMarkTime(std::string time)
 std::string DataBasePlug::getLoginBeforeGroupReadMarkTime()
 {
     std::string ret = "0";
-//    auto func = _dbPool.enqueue([this, &ret]() {
+    //    auto func = _dbPool.enqueue([this, &ret]() {
     CacheDataDao cacheDataDao(_dataBass);
     ret = cacheDataDao.getLoginBeforeGroupReadMarkTime();
-//    });
-//    func.get();
+    //    });
+    //    func.get();
     return ret;
 }
 
 bool DataBasePlug::saveLoginBeforeGroupReadMarkTime(const std::string &time)
 {
     bool ret = false;
-    auto func = _dbPool.enqueue([this, &ret, time]()
-    {
+    auto func = _dbPool.enqueue([this, &ret, time]() {
         CacheDataDao cacheDataDao(_dataBass);
         ret = cacheDataDao.saveLoginBeforeGroupReadMarkTime(time);
     });
@@ -1293,23 +1307,23 @@ bool DataBasePlug::saveLoginBeforeGroupReadMarkTime(const std::string &time)
 
 
 void DataBasePlug::getBeforeImageMessage(const std::string &messageId,
-        std::vector<std::pair<std::string, std::string>> &msgs)
+                                         std::vector<std::pair<std::string, std::string>> &msgs)
 {
-//    auto func = _dbPool.enqueue([this, &msgs, messageId]() {
+    //    auto func = _dbPool.enqueue([this, &msgs, messageId]() {
     MessageDao dao(_dataBass);
     dao.getBeforeImageMessage(messageId, msgs);
-//    });
-//    func.get();
+    //    });
+    //    func.get();
 }
 
 void DataBasePlug::getNextImageMessage(const std::string &messageId,
                                        std::vector<std::pair<std::string, std::string>> &msgs)
 {
-//    auto func = _dbPool.enqueue([this, &msgs, messageId]() {
+    //    auto func = _dbPool.enqueue([this, &msgs, messageId]() {
     MessageDao dao(_dataBass);
     dao.getNextImageMessage(messageId, msgs);
-//    });
-//    func.get();
+    //    });
+    //    func.get();
 }
 
 /**
@@ -1318,11 +1332,11 @@ void DataBasePlug::getNextImageMessage(const std::string &messageId,
  */
 void DataBasePlug::getCareUsers(std::set<std::string> &users)
 {
-//    auto func = _dbPool.enqueue([this, &users]() {
+    //    auto func = _dbPool.enqueue([this, &users]() {
     GroupMemberDao dao(_dataBass);
     dao.getCareUsers(users);
-//    });
-//    func.get();
+    //    });
+    //    func.get();
 }
 
 void DataBasePlug::getGroupCardMaxVersion(long long &version)
@@ -1335,7 +1349,8 @@ void DataBasePlug::getGroupCardMaxVersion(long long &version)
  *
  * @param members
  */
-void DataBasePlug::getAllGroupMembers(std::map<std::string, std::set<std::string>> &members)
+void DataBasePlug::getAllGroupMembers(
+    std::map<std::string, std::set<std::string>> &members)
 {
     GroupMemberDao dao(_dataBass);
     dao.getAllGroupMembers(members);
@@ -1357,71 +1372,80 @@ void DataBasePlug::getQuickReplyVersion(QInt64 version[])
     dao.getQuickReplyVersion(version);
 }
 
-void DataBasePlug::getQuickGroups(std::vector<QTalk::Entity::ImQRgroup> &groups)
+void DataBasePlug::getQuickGroups(std::vector<st::entity::ImQRgroup> &groups)
 {
     QuickReplyDao dao(_dataBass);
     dao.getQuickGroups(groups);
 }
 
-void DataBasePlug::getQuickContentByGroup(std::vector<QTalk::Entity::IMQRContent> &contents, int id)
+void DataBasePlug::getQuickContentByGroup(
+    std::vector<st::entity::IMQRContent> &contents, int id)
 {
     QuickReplyDao dao(_dataBass);
     dao.getQuickContentByGroup(contents, id);
 }
 
-void DataBasePlug::getLocalMessage(const long long &time, const std::string &userId, const std::string &realJid,
-                                   std::vector<QTalk::Entity::ImMessageInfo> &msgList)
+void DataBasePlug::getLocalMessage(const long long &time,
+                                   const std::string &userId, const std::string &realJid,
+                                   std::vector<st::entity::ImMessageInfo> &msgList)
 {
     MessageDao dao(_dataBass);
     dao.getLocalMessage(time, userId, realJid, msgList);
 }
 
-void DataBasePlug::getFileMessage(const long long &time, const std::string &userId, const std::string &realJid,
-                                  std::vector<QTalk::Entity::ImMessageInfo> &msgList)
+void DataBasePlug::getFileMessage(const long long &time,
+                                  const std::string &userId, const std::string &realJid,
+                                  std::vector<st::entity::ImMessageInfo> &msgList)
 {
     MessageDao dao(_dataBass);
     dao.getFileMessage(time, userId, realJid, msgList);
 }
 
-void DataBasePlug::getImageMessage(const long long &time, const std::string &userId, const std::string &realJid,
-                                   std::vector<QTalk::Entity::ImMessageInfo> &msgList)
+void DataBasePlug::getImageMessage(const long long &time,
+                                   const std::string &userId, const std::string &realJid,
+                                   std::vector<st::entity::ImMessageInfo> &msgList)
 {
     MessageDao dao(_dataBass);
     dao.getImageMessage(time, userId, realJid, msgList);
 }
 
-void DataBasePlug::getLinkMessage(const long long &time, const std::string &userId, const std::string &realJid,
-                                  std::vector<QTalk::Entity::ImMessageInfo> &msgList)
+void DataBasePlug::getLinkMessage(const long long &time,
+                                  const std::string &userId, const std::string &realJid,
+                                  std::vector<st::entity::ImMessageInfo> &msgList)
 {
     MessageDao dao(_dataBass);
     dao.getLinkMessage(time, userId, realJid, msgList);
 }
 
-void DataBasePlug::getSearchMessage(const long long &time, const std::string &userId, const std::string &realJid,
-                                    const std::string &searchKey, std::vector<QTalk::Entity::ImMessageInfo> &msgList)
+void DataBasePlug::getSearchMessage(const long long &time,
+                                    const std::string &userId, const std::string &realJid,
+                                    const std::string &searchKey,
+                                    std::vector<st::entity::ImMessageInfo> &msgList)
 {
     MessageDao dao(_dataBass);
     dao.getSearchMessage(time, userId, realJid, searchKey, msgList);
 }
 
-void DataBasePlug::getAfterMessage(const long long &time, const std::string &userId, const std::string &realJid,
-                                   std::vector<QTalk::Entity::ImMessageInfo> &msgList)
+void DataBasePlug::getAfterMessage(const long long &time,
+                                   const std::string &userId, const std::string &realJid,
+                                   std::vector<st::entity::ImMessageInfo> &msgList)
 {
     MessageDao dao(_dataBass);
     dao.getAfterMessage(time, userId, realJid, msgList);
 }
 
 // 批量更新单人消息阅读状态
-void DataBasePlug::updateMessageReadFlags(const std::map<std::string, int> &readFlags)
+void DataBasePlug::updateMessageReadFlags(const std::map<std::string, int>
+                                          &readFlags)
 {
     MessageDao dao(_dataBass);
     dao.updateMessageReadFlags(readFlags);
 }
 
-void DataBasePlug::updateMessageExtendInfo(const std::string &msgId, const std::string &info)
+void DataBasePlug::updateMessageExtendInfo(const std::string &msgId,
+                                           const std::string &info)
 {
-    auto func = _dbPool.enqueue([this, &msgId, info]()
-    {
+    auto func = _dbPool.enqueue([this, &msgId, info]() {
         MessageDao dao(_dataBass);
         dao.updateMessageExtendInfo(msgId, info);
     });
@@ -1429,61 +1453,63 @@ void DataBasePlug::updateMessageExtendInfo(const std::string &msgId, const std::
 }
 
 //
-void DataBasePlug::insertMedalList(const std::vector<QTalk::Entity::ImMedalList> &medals)
+void DataBasePlug::insertMedalList(const std::vector<st::entity::ImMedalList>
+                                   &medals)
 {
-    auto func = _dbPool.enqueue([this, medals]()
-    {
+    auto func = _dbPool.enqueue([this, medals]() {
         MedalListDao dao(_dataBass);
         dao.insertMedalList(medals);
     });
     func.get();
 }
 
-void DataBasePlug::insertMedals(const std::vector<QTalk::Entity::ImUserStatusMedal> &medals)
+void DataBasePlug::insertMedals(const
+                                std::vector<st::entity::ImUserStatusMedal> &medals)
 {
-    auto func = _dbPool.enqueue([this, medals]()
-    {
+    auto func = _dbPool.enqueue([this, medals]() {
         UserMedalDao dao(_dataBass);
         dao.insertMedals(medals);
     });
     func.get();
 }
 
-void DataBasePlug::getUserMedal(const std::string &xmppId, std::set<QTalk::StUserMedal> &stMedal)
+void DataBasePlug::getUserMedal(const std::string &xmppId,
+                                std::set<st::StUserMedal> &stMedal)
 {
     UserMedalDao dao(_dataBass);
     dao.getUserMedal(xmppId, stMedal);
 }
 
-void DataBasePlug::getMedalList(std::vector<QTalk::Entity::ImMedalList> &medals)
+void DataBasePlug::getMedalList(std::vector<st::entity::ImMedalList> &medals)
 {
     MedalListDao dao(_dataBass);
     dao.getMedalList(medals);
 }
 
 //
-void DataBasePlug::getMedalUsers(int medalId, std::vector<QTalk::StMedalUser> &metalUsers)
+void DataBasePlug::getMedalUsers(int medalId,
+                                 std::vector<st::StMedalUser> &metalUsers)
 {
     UserMedalDao dao(_dataBass);
     dao.getMedalUsers(medalId, metalUsers);
 }
 
-void DataBasePlug::modifyUserMedalStatus(const std::string &userId, int medalId, int status)
+void DataBasePlug::modifyUserMedalStatus(const std::string &userId, int medalId,
+                                         int status)
 {
-    auto func = _dbPool.enqueue([this, userId, medalId, status]()
-    {
+    auto func = _dbPool.enqueue([this, userId, medalId, status]() {
         UserMedalDao dao(_dataBass);
         dao.modifyUserMedalStatus(userId, medalId, status);
     });
     func.get();
 }
 
-void DataBasePlug::addExceptCpu(double cpu, long long time, const std::string &stack)
+void DataBasePlug::addExceptCpu(double cpu, long long time,
+                                const std::string &stack)
 {
-    auto func = _dbPool.enqueue([this, cpu, time, stack]()
-    {
+    auto func = _dbPool.enqueue([this, cpu, time, stack]() {
         ProcessExceptDao dao(_dataBass);
         dao.addExceptCpu(cpu, time, stack);
     });
-//    func.get();
+    //    func.get();
 }

@@ -3,8 +3,8 @@
 //
 
 #include "UserHeadWgt.h"
-#include "../../Platform/Platform.h"
-#include "../../UICom/qimage/qimage.h"
+#include "DataCenter/Platform.h"
+#include "Util/ui/qimage/qimage.h"
 #include <QFileInfo>
 #include <QPainter>
 #include <QRegExp>
@@ -18,7 +18,7 @@ UserHeadWgt::UserHeadWgt(QString name, const QString &headSrc,
 {
     if(!onlyShowText)
     {
-        QString tmp = QTalk::GetHeadPathByUrl(headSrc.toStdString()).data();
+        QString tmp = st::GetHeadPathByUrl(headSrc.toStdString()).data();
         QFileInfo info(tmp);
 
         if(info.exists() && info.isFile())
@@ -63,7 +63,7 @@ void UserHeadWgt::paintEvent(QPaintEvent *e)
         QPainterPath path;
         path.addEllipse(contentRect);
         painter.setClipPath(path);
-        auto image = QTalk::qimage::loadImage(_headSrc, false);
+        auto image = st::qimage::loadImage(_headSrc, false);
         painter.drawPixmap(contentRect, image);
     }
 

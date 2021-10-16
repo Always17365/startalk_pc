@@ -9,14 +9,14 @@
 #include <QFile>
 #include <QApplication>
 #include <QDesktopServices>
-#include "../include/Line.h"
-#include "../CustomUi/LinkButton.h"
-#include "../CustomUi/QtMessageBox.h"
-#include "../Platform/Platform.h"
+#include "CustomUi/Line.h"
+#include "CustomUi/LinkButton.h"
+#include "CustomUi/QtMessageBox.h"
+#include "DataCenter/Platform.h"
 #include "AddressBookPanel.h"
 #include "MessageManager.h"
-#include "../Platform/NavigationManager.h"
-#include "../QtUtil/Entity/JID.h"
+#include "DataCenter/NavigationManager.h"
+#include "Util/Entity/JID.h"
 
 GroupWnd::GroupWnd(AddressBookPanel *parent)
     : QFrame(parent), _mainPanel(parent)
@@ -174,7 +174,7 @@ GroupWnd::GroupWnd(AddressBookPanel *parent)
     });
     connect(_pExitGroupBtn, &QPushButton::clicked, this, [this]()
     {
-        int ret = QtMessageBox::warning(this, tr("警告"), tr("即将退出本群, 是否继续?"),
+        int ret = QtMessageBox::warning(this, QObject::tr("警告"), tr("即将退出本群, 是否继续?"),
                                         QtMessageBox::EM_BUTTON_YES | QtMessageBox::EM_BUTTON_NO);
 
         if (ret == QtMessageBox::EM_BUTTON_YES)
@@ -189,9 +189,9 @@ GroupWnd::GroupWnd(AddressBookPanel *parent)
     connect(this, &GroupWnd::sgUpdateGroupMember, this, &GroupWnd::showGroupMember);
 }
 
-void GroupWnd::setData(std::shared_ptr<QTalk::Entity::ImGroupInfo> &data)
+void GroupWnd::setData(std::shared_ptr<st::entity::ImGroupInfo> &data)
 {
-    QString localHead = QString::fromStdString(QTalk::GetHeadPathByUrl(data->HeaderSrc));
+    QString localHead = QString::fromStdString(st::GetHeadPathByUrl(data->HeaderSrc));
 
     if (QFile::exists(localHead))
         _pHeadLabel->setHead(localHead, 30, false, true);
@@ -212,7 +212,7 @@ void GroupWnd::setData(std::shared_ptr<QTalk::Entity::ImGroupInfo> &data)
 
 void GroupWnd::sendMessageSlot()
 {
-    StSessionInfo stSession(QTalk::Enum::GroupChat, _strGroupId, _groupName);
+    StSessionInfo stSession(st::Enum::GroupChat, _strGroupId, _groupName);
     stSession.headPhoto = _srtHead;
     emit _mainPanel->sgSwitchCurFun(0);
     emit _mainPanel->sgOpenNewSession(stSession);
@@ -221,7 +221,7 @@ void GroupWnd::sendMessageSlot()
         _pGroupMemberPopWnd->close();
 }
 
-void GroupWnd::showGroupMember(const std::map<std::string, QTalk::StUserCard> &userCards, const std::map<std::string, QUInt8> &userRole)
+void GroupWnd::showGroupMember(const std::map<std::string, st::StUserCard> &userCards, const std::map<std::string, QUInt8> &userRole)
 {
     _pSendMailBtn->setVisible(true);
     _pDestroyGroupBtn->setVisible(false);
@@ -238,11 +238,11 @@ void GroupWnd::showGroupMember(const std::map<std::string, QTalk::StUserCard> &u
         std::string name = it->second.nickName;
 
         if (name.empty())
-            name = QTalk::getUserNameNoMask(it->first);
+            name = st::getUserNameNoMask(it->first);
 
         QString xmppId = QString::fromStdString(it->first);
         QString userName = QString::fromStdString(name);
-        QString headSrc = QString::fromStdString(QTalk::GetHeadPathByUrl(it->second.headerSrc));
+        QString headSrc = QString::fromStdString(st::GetHeadPathByUrl(it->second.headerSrc));
         QString searchKey = QString::fromStdString(it->second.searchKey);
         QUInt8 role = 3;
 
@@ -250,12 +250,12 @@ void GroupWnd::showGroupMember(const std::map<std::string, QTalk::StUserCard> &u
             role = userRole.at(it->first);
 
         //
-        bool isOnline = PLAT.isOnline(it->first);
+        bool isOnline = DC.isOnline(it->first);
 
         if (role == 1)
         {
             std::string userId = it->first;
-            std::string selfId = PLAT.getSelfXmppId();
+            std::string selfId = DC.getSelfXmppId();
             _pDestroyGroupBtn->setVisible(userId == selfId);
         }
 
@@ -281,11 +281,11 @@ void GroupWnd::onSendMail()
             return;
 
         QString mailUrl = QString("mailto:");
-        auto selfDomain = PLAT.getSelfDomain();
+        auto selfDomain = DC.getSelfDomain();
 
         for (const auto &u : groupMembers)
         {
-            QTalk::Entity::JID jid(u);
+            st::entity::JID jid(u);
 
             if (selfDomain != jid.domainname())
                 continue;
@@ -304,7 +304,7 @@ void GroupWnd::onSendMail()
 
 void GroupWnd::onDestroyGroupGroupCard()
 {
-    int ret = QtMessageBox::warning(this, tr("警告"), tr("群即将被销毁, 是否继续?"), QtMessageBox::EM_BUTTON_YES | QtMessageBox::EM_BUTTON_NO);
+    int ret = QtMessageBox::warning(this, QObject::tr("警告"), tr("群即将被销毁, 是否继续?"), QtMessageBox::EM_BUTTON_YES | QtMessageBox::EM_BUTTON_NO);
 
     if (ret == QtMessageBox::EM_BUTTON_YES)
     {

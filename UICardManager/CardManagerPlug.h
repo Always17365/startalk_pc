@@ -2,12 +2,12 @@
 // Created by cc on 18-11-6.
 //
 
-#ifndef QTALK_V2_CARDMANAGERPLUG_H
-#define QTALK_V2_CARDMANAGERPLUG_H
+#ifndef STALK_V2_CARDMANAGERPLUG_H
+#define STALK_V2_CARDMANAGERPLUG_H
 
 #include "cardmanager_global.h"
 #include <QObject>
-#include "../interface/view/IUICardManagerPlug.h"
+#include "interface/view/IUICardManagerPlug.h"
 
 class CardManager;
 class CARDMANAGER_EXPORT CardManagerPlug : public QObject, public IUICardManagerPlug
@@ -32,4 +32,4 @@ private:
 };
 
 
-#endif //QTALK_V2_CARDMANAGERPLUG_H
+#endif //STALK_V2_CARDMANAGERPLUG_H

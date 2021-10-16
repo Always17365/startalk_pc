@@ -2,8 +2,8 @@
 // Created by cc on 2018/11/17.
 //
 
-#ifndef QTALK_V2_PICITEM_H
-#define QTALK_V2_PICITEM_H
+#ifndef STALK_V2_PICITEM_H
+#define STALK_V2_PICITEM_H
 
 #include <QGraphicsItem>
 #include <QPixmap>
@@ -45,4 +45,4 @@ private:
 };
 
 
-#endif //QTALK_V2_PICITEM_H
+#endif //STALK_V2_PICITEM_H

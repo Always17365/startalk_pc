@@ -2,13 +2,13 @@
 // Created by may on 2018/7/27.
 //
 
-#ifndef QTALK_QTALKSOCKET_H
-#define QTALK_QTALKSOCKET_H
+#ifndef STALK_QTALKSOCKET_H
+#define STALK_QTALKSOCKET_H
 
 
 #include <string>
 
-namespace QTalk {
+namespace st {
     namespace Socket {
         class SocketDelegate;
 
@@ -42,4 +42,4 @@ namespace QTalk {
     }
 }
 
-#endif //QTALK_QTALKSOCKET_H
+#endif //STALK_QTALKSOCKET_H

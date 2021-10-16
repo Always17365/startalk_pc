@@ -13,8 +13,8 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QNetworkCookie>
-#include "../CustomUi/LiteMessageBox.h"
-#include "../Platform/Platform.h"
+#include "CustomUi/LiteMessageBox.h"
+#include "DataCenter/Platform.h"
 #ifdef _MACOS
     #include <objc/objc-runtime.h>
 #endif
@@ -209,8 +209,8 @@ void WebService::loadUrl(const QUrl &url, const std::string &domain, bool showUr
         if(_service->isVisible())
             _service->setVisible(false);
 
-        std::string strCkey = PLAT.getClientAuthKey();
-        QString agent = QString("startalk/%1/(pc:%2)").arg(PLAT.getGlobalVersion().data())
+        std::string strCkey = DC.getClientAuthKey();
+        QString agent = QString("startalk/%1/(pc:%2)").arg(DC.getGlobalVersion().data())
 #if defined(_WINDOWS )
                         .arg("windows");
 #elif defined(_LINUX)

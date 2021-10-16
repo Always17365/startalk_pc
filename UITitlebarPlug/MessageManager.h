@@ -1,11 +1,11 @@
 ﻿#ifndef _MESSAGEMANAGER_H_
 #define _MESSAGEMANAGER_H_
 
-#include "../EventBus/EventHandler.hpp"
-#include "../Message/LoginMessgae.h"
-#include "../EventBus/HandlerRegistration.hpp"
-#include "../Message/UserMessage.h"
-#include "../Message/ChatMessage.h"
+#include "EventBus/EventHandler.hpp"
+#include "Message/LoginMessgae.h"
+#include "EventBus/HandlerRegistration.hpp"
+#include "Message/UserMessage.h"
+#include "Message/ChatMessage.h"
 #include <functional>
 
 class SearchInfoEvent;

@@ -13,15 +13,16 @@
 
 #include "../MessageItems/FileRoundProgressBar.h"
 #include "../ChatViewMainPanel.h"
-#include "../../CustomUi/TitleBar.h"
-#include "../../UICom/StyleDefine.h"
+#include "CustomUi/TitleBar.h"
+#include "Util/ui/StyleDefine.h"
 #include "../NetImageLabel.h"
-#include "../../CustomUi/QtMessageBox.h"
+#include "CustomUi/QtMessageBox.h"
 
 extern ChatViewMainPanel *g_pMainPanel;
 
 /** FileRecordItemWgt **/
-FileRecordItemWgt::FileRecordItemWgt(const StFileRecord &record, QWidget *parent)
+FileRecordItemWgt::FileRecordItemWgt(const StFileRecord &record,
+                                     QWidget *parent)
     : QFrame(parent)
     , _msg_id(record.msg_id.toStdString())
     , _md5(record.file_md5.toStdString())
@@ -32,7 +33,7 @@ FileRecordItemWgt::FileRecordItemWgt(const StFileRecord &record, QWidget *parent
     contentFrm->setFixedSize(350, 55);
     contentFrm->setObjectName("borderFrm");
     auto *iconLabel = new NetImageLabel("", this);
-    iconLabel->setLocalImage(QTalk::getIconByFileName(record.file_name));
+    iconLabel->setLocalImage(st::getIconByFileName(record.file_name));
     iconLabel->setFixedSize(36, 36);
     auto *nameLabel = new QLabel(record.file_name, this);
     nameLabel->setMaximumWidth(300);
@@ -72,34 +73,36 @@ FileRecordItemWgt::FileRecordItemWgt(const StFileRecord &record, QWidget *parent
     lay->addLayout(mainLay);
     lay->addWidget(sourceLabel);
     //
-    auto localPath = QTalk::File::getRealFilePath(record.msg_id.toStdString(), record.file_md5.toStdString());
+    auto localPath = st::File::getRealFilePath(record.msg_id.toStdString(),
+                                               record.file_md5.toStdString());
     bool downloaded = !localPath.isEmpty();
     processBar->setVisible(false);
     downloadBtn->setVisible(!downloaded);
     openPathBtn->setVisible(downloaded);
-    connect(openPathBtn, &QToolButton::clicked, this, &FileRecordItemWgt::onOpenFilePath);
-    connect(downloadBtn, &QToolButton::clicked, this, [this]()
-    {
+    connect(openPathBtn, &QToolButton::clicked, this,
+            &FileRecordItemWgt::onOpenFilePath);
+    connect(downloadBtn, &QToolButton::clicked, this, [this]() {
         QDesktopServices::openUrl(QUrl(_file_link));
     });
 }
 
 void FileRecordItemWgt::onOpenFilePath()
 {
-    QString fileName = QTalk::File::getRealFilePath(_msg_id, _md5);
+    QString fileName = st::File::getRealFilePath(_msg_id, _md5);
     QFileInfo info(fileName);
 
-    if (fileName.isEmpty() || !info.exists())
-    {
-        int ret = QtMessageBox::question(this, tr("提醒"), tr("未找到本地文件, 是否下载?"));
+    if (fileName.isEmpty() || !info.exists()) {
+        int ret = QtMessageBox::question(this, tr("提醒"),
+                                         tr("未找到本地文件, 是否下载?"));
 
-        if (ret == QtMessageBox::EM_BUTTON_NO)
+        if (ret == QtMessageBox::EM_BUTTON_NO) {
             return;
-        else
+        } else {
             QDesktopServices::openUrl(QUrl(_file_link));
+        }
+    } else {
+        st::File::openFileFolder(fileName);
     }
-    else
-        QTalk::File::openFileFolder(fileName);
 }
 
 /** FileRecordDelegate **/
@@ -108,46 +111,49 @@ FileRecordDelegate::FileRecordDelegate(QListView *parent)
 {
 }
 
-void FileRecordDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+void FileRecordDelegate::paint(QPainter *painter,
+                               const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     painter->save();
     painter->setRenderHint(QPainter::TextAntialiasing);
     QRect rect = option.rect;
 
-    if (option.state & QStyle::State_Selected)
-        painter->fillRect(rect, QTalk::StyleDefine::instance().getSearchSelectColor());
-    else
-        painter->fillRect(rect, QTalk::StyleDefine::instance().getSearchNormalColor());
+    if (option.state & QStyle::State_Selected) {
+        painter->fillRect(rect, st::StyleDefine::instance().getSearchSelectColor());
+    } else {
+        painter->fillRect(rect, st::StyleDefine::instance().getSearchNormalColor());
+    }
 
     auto *pThis = const_cast<FileRecordDelegate *>(this);
 
-    if (pThis)
+    if (pThis) {
         pThis->dealWidget(option, index);
+    }
 
     painter->restore();
 }
 
-QSize FileRecordDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+QSize FileRecordDelegate::sizeHint(const QStyleOptionViewItem &option,
+                                   const QModelIndex &index) const
 {
-//    auto size = QStyledItemDelegate::sizeHint(option, index);
+    //    auto size = QStyledItemDelegate::sizeHint(option, index);
     return {_pParentView->width(), 100};
 }
 
-void FileRecordDelegate::dealWidget(const QStyleOptionViewItem &option, const QModelIndex &index)
+void FileRecordDelegate::dealWidget(const QStyleOptionViewItem &option,
+                                    const QModelIndex &index)
 {
     QWidget *indexWgt = _pParentView->indexWidget(index);
 
-    if (indexWgt)
-    {
-    }
-    else
-    {
+    if (indexWgt) {
+    } else {
         auto *itemBase = creatWgt(option, index);
         _pParentView->setIndexWidget(index, itemBase);
     }
 }
 
-QWidget *FileRecordDelegate::creatWgt(const QStyleOptionViewItem &option, const QModelIndex &index)
+QWidget *FileRecordDelegate::creatWgt(const QStyleOptionViewItem &option,
+                                      const QModelIndex &index)
 {
     StFileRecord record = index.data(EM_FILE_RECORD_INFO).value<StFileRecord>();
     auto *wgt = new FileRecordItemWgt(record);
@@ -161,26 +167,17 @@ FileRecordWnd::FileRecordWnd(QWidget *parent)
     initUI();
     setFixedWidth(500);
     setMinimumHeight(720);
-    std::function<int(STLazyQueue<QString>*)> searchFun = [this](STLazyQueue<QString> *q) ->int
-    {
-        int runningCount = 0;
 
-        if (!q->empty())
-        {
-            QString key = q->tail();
-
-            while (!q->empty())
-            {
-                q->pop();
-                runningCount++;
-            }
-
-            emit sgGoSearch(key);
+    QPointer<FileRecordWnd> that(this);
+    auto searchFun = [that](lazyq<QString>::lazyqq & q) {
+        if (q->empty() || !that) {
+            return;
         }
 
-        return runningCount;
+        QString key = q->back();
+        emit that->sgGoSearch(key);
     };
-    _searchQueue = new STLazyQueue<QString>(300, searchFun);
+    _searchQueue = new lazyq<QString>(300, searchFun);
 }
 
 void FileRecordWnd::initUI()
@@ -211,8 +208,8 @@ void FileRecordWnd::initUI()
     _pView->verticalScrollBar()->setSingleStep(12);
     auto *itemDelegate = new FileRecordDelegate(_pView);
     _pView->setItemDelegate(itemDelegate);
-    _pLoading = QTalk::makeLoadingLabel();
-    _pLoadingBottom = QTalk::makeLoadingLabel(true, {50, 50});
+    _pLoading = st::makeLoadingLabel();
+    _pLoadingBottom = st::makeLoadingLabel(true, {50, 50});
     _pLoadingBottom->setVisible(false);
     _pStackWgt = new QStackedWidget(this);
     _pStackWgt->addWidget(_pView);
@@ -231,8 +228,8 @@ void FileRecordWnd::initUI()
     lay->setSpacing(0);
     lay->addWidget(titleBar);
     lay->addWidget(mainFrm);
-    connect(_pSearchEdit, &Search_Edit::textChanged, this, [this](const QString & text)
-    {
+    connect(_pSearchEdit, &Search_Edit::textChanged,
+    this, [this](const QString & text) {
         _searchQueue->push(text);
     });
     connect(this, &FileRecordWnd::sgGoSearch, this, &FileRecordWnd::searchFile);
@@ -243,12 +240,12 @@ void FileRecordWnd::initUI()
 
 void FileRecordWnd::setSearch(const QString &key)
 {
-    if (_pSearchEdit)
-    {
-        if(_pSearchEdit->text() != key)
+    if (_pSearchEdit) {
+        if (_pSearchEdit->text() != key) {
             _pSearchEdit->setText(key);
-        else
+        } else {
             searchFile(key);
+        }
     }
 }
 
@@ -270,13 +267,11 @@ void FileRecordWnd::searchFile(const QString &key)
 //
 void FileRecordWnd::goSearch()
 {
-    using namespace QTalk::Search;
+    using namespace st::Search;
     _hasMore = false;
 
-    if (g_pMainPanel)
-    {
-        QtConcurrent::run([this]()
-        {
+    if (g_pMainPanel) {
+        QtConcurrent::run([this]() {
             SearchInfoEvent searchInfo;
             searchInfo.start = _pos;
             searchInfo.length = 15;
@@ -286,8 +281,7 @@ void FileRecordWnd::goSearch()
             ChatMsgManager::sendSearch(searchInfo);
             _fileRecords.clear();
 
-            for(const auto &it : searchInfo.searchRet)
-            {
+            for (const auto &it : searchInfo.searchRet) {
                 _hasMore |= it.second.hasMore;
                 const auto history = it.second._files;
                 _fileRecords.insert(_fileRecords.end(), history.begin(), history.end());
@@ -300,14 +294,14 @@ void FileRecordWnd::goSearch()
 
 void FileRecordWnd::updateUi(const QString &key)
 {
-    if(_key.data() != key)
+    if (_key.data() != key) {
         return;
+    }
 
-    for(const auto &it : _fileRecords)
-    {
+    for (const auto &it : _fileRecords) {
         auto *item = new QStandardItem;
         StFileRecord record;
-//        record.from_name = it.;
+        //        record.from_name = it.;
         record.msg_id = it.msg_id.data();
         record.source = it.source.data();
         record.file_name = it.file_name.data();
@@ -330,25 +324,27 @@ void FileRecordWnd::updateUi(const QString &key)
 void FileRecordWnd::onScrollChanged(int value)
 {
     // no more -> return
-    if(!_hasMore)
+    if (!_hasMore) {
         return;
+    }
 
     // scroll bar direction
-    if (value <= _scroll_value)
+    if (value <= _scroll_value) {
         return;
+    }
 
     //
     _scroll_value = value;
     auto max = _pView->verticalScrollBar()->maximum();
 
-    if(max - value <= 5)
-    {
+    if (max - value <= 5) {
         // less then 500 ms -> return
         static qint64 req_time = 0;
         auto now = QDateTime::currentMSecsSinceEpoch();
 
-        if(now - req_time < 500)
+        if (now - req_time < 500) {
             return;
+        }
 
         req_time = now;
         // show loading movie

@@ -6,8 +6,8 @@
 #include <QFileInfo>
 #include <QPainter>
 #include <QPainterPath>
-#include "../UICom/qimage/qimage.h"
-#include "../UICom/StyleDefine.h"
+#include "Util/ui/qimage/qimage.h"
+#include "Util/ui/StyleDefine.h"
 
 EmoticonView::EmoticonView(QWidget *parent)
     : QFrame(parent), _mov(nullptr), _width(0)
@@ -41,7 +41,7 @@ EmoticonView::~EmoticonView()
 
 void EmoticonView::paintEvent(QPaintEvent *e)
 {
-    const int dpi = QTalk::qimage::dpi();
+    const int dpi = st::qimage::dpi();
     QPixmap pix;
 
     if(nullptr != _mov)
@@ -49,11 +49,11 @@ void EmoticonView::paintEvent(QPaintEvent *e)
         pix = _mov->currentPixmap();
 
         if(!pix.isNull())
-            pix = QTalk::qimage::scaledPixmap(pix, _width * dpi, _width * dpi);
+            pix = st::qimage::scaledPixmap(pix, _width * dpi, _width * dpi);
     }
 
     if(pix.isNull())
-        pix = QTalk::qimage::loadImage(_imagePath, false, true, _width * dpi, _width * dpi);
+        pix = st::qimage::loadImage(_imagePath, false, true, _width * dpi, _width * dpi);
 
     int w = pix.width() / dpi;
     int h = pix.height() / dpi;
@@ -61,7 +61,7 @@ void EmoticonView::paintEvent(QPaintEvent *e)
     QPainterPath path;
     QRect rect(0, 0, this->width(), this->height());
     path.addRoundedRect(rect, 6, 6);
-    painter.fillPath(path, QTalk::StyleDefine::instance().getNavNormalColor());
+    painter.fillPath(path, st::StyleDefine::instance().getNavNormalColor());
     QPen pen;
     pen.setColor(QColor(181, 181, 181));
     pen.setWidthF(1.5);
@@ -76,7 +76,7 @@ void EmoticonView::paintEvent(QPaintEvent *e)
 void EmoticonView::setImagePath(const QString &imgPath)
 {
     _imagePath = imgPath;
-    QString suffix = QTalk::qimage::getRealImageSuffix(_imagePath);
+    QString suffix = st::qimage::getRealImageSuffix(_imagePath);
 
     if(suffix.toUpper() == "GIF")
     {
@@ -103,7 +103,7 @@ void EmoticonView::setImagePath(const QString &imgPath)
         }
     }
 
-    QPixmap img = QTalk::qimage::loadImage(_imagePath, false);
+    QPixmap img = st::qimage::loadImage(_imagePath, false);
     _width = qMin((int)img.height(), (int)img.width());
     _width = qMin(100, _width);
     update();

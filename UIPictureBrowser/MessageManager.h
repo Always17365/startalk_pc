@@ -2,13 +2,13 @@
 // Created by cc on 2019-02-22.
 //
 
-#ifndef QTALK_V2_MESSAGEMANAGER_H
-#define QTALK_V2_MESSAGEMANAGER_H
+#ifndef STALK_V2_MESSAGEMANAGER_H
+#define STALK_V2_MESSAGEMANAGER_H
 
-#include "../EventBus/EventHandler.hpp"
-#include "../Message/LoginMessgae.h"
-#include "../EventBus/HandlerRegistration.hpp"
-#include "../Message/UserMessage.h"
+#include "EventBus/EventHandler.hpp"
+#include "Message/LoginMessgae.h"
+#include "EventBus/HandlerRegistration.hpp"
+#include "Message/UserMessage.h"
 #include <vector>
 
 class SearchInfoEvent;
@@ -33,4 +33,4 @@ public:
 //    PictureBrowser* _pMainPanel;
 //};
 
-#endif //QTALK_V2_MESSAGEMANAGER_H
+#endif //STALK_V2_MESSAGEMANAGER_H

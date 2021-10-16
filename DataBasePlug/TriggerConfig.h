@@ -2,15 +2,15 @@
 // Created by lihaibin on 2019-07-08.
 //
 
-#ifndef QTALK_V2_TRIGGERCONFIG_H
-#define QTALK_V2_TRIGGERCONFIG_H
+#ifndef STALK_V2_TRIGGERCONFIG_H
+#define STALK_V2_TRIGGERCONFIG_H
 
 #include "sqlite/database.h"
 
 class TriggerConfig
 {
 public:
-    explicit TriggerConfig(qtalk::sqlite::database *sqlDb = nullptr);
+    explicit TriggerConfig(st::sqlite::database *sqlDb = nullptr);
     bool  createUnreadUpdateTrigger();
     bool  createUnreadInserttrigger();
 
@@ -18,7 +18,7 @@ public:
     void modifyUnreadCountTrigger();
 
 private:
-    qtalk::sqlite::database *_sqlDb;
+    st::sqlite::database *_sqlDb;
 };
 
-#endif //QTALK_V2_TRIGGERCONFIG_H
+#endif //STALK_V2_TRIGGERCONFIG_H

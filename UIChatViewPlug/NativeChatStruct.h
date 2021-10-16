@@ -5,8 +5,8 @@
 #include <QFont>
 #include <QMap>
 #include <QString>
-#include "../include/im_enum.h"
-#include "../include/CommonDefine.h"
+#include "include/im_enum.h"
+#include "include/CommonDefine.h"
 
 
 class QVBoxLayout;

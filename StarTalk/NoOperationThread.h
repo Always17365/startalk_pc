@@ -2,8 +2,8 @@
 // Created by cc on 2019-06-17.
 //
 
-#ifndef QTALK_V2_NOOPERATIONTHREAD_H
-#define QTALK_V2_NOOPERATIONTHREAD_H
+#ifndef STALK_V2_NOOPERATIONTHREAD_H
+#define STALK_V2_NOOPERATIONTHREAD_H
 
 #include <QThread>
 #include <QMutexLocker>
@@ -44,4 +44,4 @@ private:
 };
 
 
-#endif //QTALK_V2_NOOPERATIONTHREAD_H
+#endif //STALK_V2_NOOPERATIONTHREAD_H

@@ -9,7 +9,7 @@ GIFManager::GIFManager() {
 }
 
 QMovie *GIFManager::getMovie(const QString &filePath) {
-//    static std::lock_guard<QTalk::util::spin_mutex> lock(sm);
+//    static std::lock_guard<st::util::spin_mutex> lock(sm);
 //    if(_mapMovie.contains(filePath))
 //    {
 //        auto* mov = _mapMovie[filePath];
@@ -27,7 +27,7 @@ QMovie *GIFManager::getMovie(const QString &filePath) {
 }
 
 void GIFManager::removeMovie(QMovie *mov) {
-//    static std::lock_guard<QTalk::util::spin_mutex> lock(sm);
+//    static std::lock_guard<st::util::spin_mutex> lock(sm);
 
 //    if(_movieCount.contains(mov) && _movieCount[mov] >= 1)
     {

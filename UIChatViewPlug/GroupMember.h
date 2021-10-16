@@ -6,9 +6,9 @@
 #include <QPushButton>
 #include <QListWidget>
 #include <QMutexLocker>
-#include "../include/CommonDefine.h"
-#include "../include/CommonStrcut.h"
-#include "../include/Spinlock.h"
+#include "include/CommonDefine.h"
+#include "include/CommonStrcut.h"
+#include "Util/Spinlock.h"
 #include <QStandardItemModel>
 
 enum memberType
@@ -39,7 +39,7 @@ public:
 	        const QString& headSrc, QInt8 userType, bool isOnline, const QString& searchKey);
 	void deleteMember(const std::string& xmppid);
 	void updateHead();
-	void updateMemberInfo(const std::vector<QTalk::StUserCard>& users);
+	void updateMemberInfo(const std::vector<st::StUserCard>& users);
 
 	void updateGroupMember(const std::string& memberJid, const std::string& nick, int affiliation);
 
@@ -81,7 +81,7 @@ private:
     QPushButton*  _pSearchBtn;
 	QMenu*        _pContextMenu;
 
-    QTalk::util::spin_mutex _sm;
+    st::util::spin_mutex _sm;
 //
 
     QAction*	  _setAdminAction;

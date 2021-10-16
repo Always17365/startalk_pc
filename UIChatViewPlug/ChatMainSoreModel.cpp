@@ -3,7 +3,7 @@
 //
 
 #include "ChatMainSoreModel.h"
-#include "../entity/im_message.h"
+#include "entity/im_message.h"
 #include <QDebug>
 
 /** message  **/
@@ -25,8 +25,8 @@ bool ChatMainSoreModel::lessThan(const QModelIndex &source_left, const QModelInd
     {
         int leftRole = source_left.data(EM_USER_MSG_TYPE).toInt();
         int rightRole = source_right.data(EM_USER_MSG_TYPE).toInt();
-        if(QTalk::Entity::MessageTypeTime == leftRole || QTalk::Entity::MessageTypeTime == rightRole)
-            return QTalk::Entity::MessageTypeTime == leftRole;
+        if(st::entity::MessageTypeTime == leftRole || st::entity::MessageTypeTime == rightRole)
+            return st::entity::MessageTypeTime == leftRole;
         else
             return false;
     }

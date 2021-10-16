@@ -2,8 +2,8 @@
 // Created by cc on 18-12-17.
 //
 
-#ifndef QTALK_V2_LISTITEMVIEW_H
-#define QTALK_V2_LISTITEMVIEW_H
+#ifndef STALK_V2_LISTITEMVIEW_H
+#define STALK_V2_LISTITEMVIEW_H
 
 
 #include <QFrame>
@@ -11,7 +11,7 @@
 #include <QStandardItemModel>
 #include <QStyledItemDelegate>
 #include <QMutexLocker>
-#include "../include/CommonDefine.h"
+#include "include/CommonDefine.h"
 
 enum {
     EM_DATA_TYPE_ICON = Qt::UserRole + 1,
@@ -83,4 +83,4 @@ private:
 };
 
 
-#endif //QTALK_V2_LISTITEMVIEW_H
+#endif //STALK_V2_LISTITEMVIEW_H

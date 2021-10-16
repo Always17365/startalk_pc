@@ -2,8 +2,8 @@
 // Created by cc on 2018/11/16.
 //
 
-#ifndef QTALK_V2_IUIPICTUREBROSWER_H
-#define QTALK_V2_IUIPICTUREBROSWER_H
+#ifndef STALK_V2_IUIPICTUREBROSWER_H
+#define STALK_V2_IUIPICTUREBROSWER_H
 
 #include "UIPluginInterface.h"
 
@@ -15,4 +15,4 @@ public:
 
 Q_DECLARE_INTERFACE(IUIPictureBroswerPlug, "com.plugin.pictureBroswer.www/1.0")
 
-#endif //QTALK_V2_IUIPICTUREBROSWER_H
+#endif //STALK_V2_IUIPICTUREBROSWER_H

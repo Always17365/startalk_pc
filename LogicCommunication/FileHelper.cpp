@@ -3,12 +3,14 @@
 #include <sstream>
 #include <curl/curl.h>
 #include <functional>
-#include "../Platform/NavigationManager.h"
-#include "../Platform/Platform.h"
-#include "../QtUtil/nJson/nJson.h"
+#include <fstream>
+#include "DataCenter/NavigationManager.h"
+#include "DataCenter/Platform.h"
+#include "Util/nJson/nJson.h"
 #include "Communication.h"
-#include "../QtUtil/Utils/Log.h"
-#include "../include/EncodeHelper.h"
+#include "Util/Log.h"
+#include "Util/utils.h"
+#include "Util/EncodeHelper.h"
 
 #ifdef _WINDOWS
     #include <direct.h>
@@ -30,8 +32,8 @@
 #endif
 
 
-#define DEM_TEMPFILE_PATH PLAT.getAppdataRoamingUserPath() + "/image/temp/"
-#define DEM_HEADPAOTO_PATH PLAT.getAppdataRoamingUserPath() + "/image/headphoto/"
+#define DEM_TEMPFILE_PATH DC.getAppdataRoamingUserPath() + "/image/temp/"
+#define DEM_HEADPAOTO_PATH DC.getAppdataRoamingUserPath() + "/image/headphoto/"
 
 
 Communication *_pComm = nullptr;
@@ -80,7 +82,7 @@ std::string FileHelper::getLocalImgFilePath(const std::string &filePath,
 {
     //
     std::string localPath =
-        PLAT.getAppdataRoamingUserPath() + dirPostfix + QTalk::GetFileNameByUrl(
+        DC.getAppdataRoamingUserPath() + dirPostfix + st::GetFileNameByUrl(
             filePath);
 
     // 判断文件存在即直接返回路径
@@ -128,7 +130,7 @@ std::string FileHelper::getLocalImgFilePath(const std::string &filePath,
 
     if (_pComm) {
         //
-        QTalk::HttpRequest req(netPath);
+        st::HttpRequest req(netPath);
         _pComm->addHttpRequest(req, callBack);
 
         if (ret) {
@@ -155,16 +157,16 @@ std::string FileHelper::getLocalImgFilePath(const std::string &filePath,
 std::string FileHelper::getEmotionPath(const std::string &pid,
                                        const std::string &sid, const std::string &fileName)
 {
-    std::string localPath = PLAT.getTempEmoticonPath(pid);
+    std::string localPath = DC.getTempEmoticonPath(pid);
     std::ostringstream url;
     url << NavigationManager::instance().getFileHttpHost()
         << "/file/v2/emo/d/e/"
         << pid
         << "/" << sid
         << "/org"
-        << "?u=" << PLAT.getSelfUserId() + "@" +
+        << "?u=" << DC.getSelfUserId() + "@" +
         NavigationManager::instance().getDomain()
-        << "&k=" << PLAT.getServerAuthKey();
+        << "&k=" << DC.getServerAuthKey();
     std::string strUrl = url.str();
     bool ret = false;
     std::string data = "";
@@ -180,7 +182,7 @@ std::string FileHelper::getEmotionPath(const std::string &pid,
     };
 
     if (_pComm) {
-        QTalk::HttpRequest req(strUrl);
+        st::HttpRequest req(strUrl);
         _pComm->
         addHttpRequest(req, callback
                       );
@@ -285,7 +287,7 @@ void FileHelper::batchDownloadHead(const std::vector<std::string> &urls)
     for (const auto &url : urls) {
         if (!url.empty()) {
             std::string netPath = url;
-            std::string localPath = DEM_HEADPAOTO_PATH + QTalk::GetFileNameByUrl(netPath);
+            std::string localPath = DEM_HEADPAOTO_PATH + st::GetFileNameByUrl(netPath);
 
             //
             if (_access(localPath.c_str(), 0) != -1) {
@@ -312,7 +314,7 @@ void FileHelper::batchDownloadHead(const std::vector<std::string> &urls)
             };
 
             if (_pComm) {
-                QTalk::HttpRequest req(netPath);
+                st::HttpRequest req(netPath);
                 workerUrls.push_back(netPath);
                 _pComm->addHttpRequest(req, callback);
             }
@@ -343,7 +345,7 @@ void FileHelper::getNetFileInfo(const std::string &filePath,
         pthread_setname_np("FileHelper::getNetFileInfo");
 #endif
 #ifdef _WINDOWS
-        std::string nfilePath = QTalk::Utf8ToGbk(filePath.data());
+        std::string nfilePath = st::Utf8ToGbk(filePath.data());
 #else
         std::string nfilePath(filePath);
 #endif // _WINDOWS
@@ -362,7 +364,7 @@ void FileHelper::getNetFileInfo(const std::string &filePath,
         callbackFun(strUrl, fileMd5);
     };
 
-    if (PLAT.isMainThread()) {
+    if (DC.isMainThread()) {
         std::thread(func).detach();
         return;
     }
@@ -390,11 +392,11 @@ void FileHelper::uploadLogFile(const std::string &filePath,
             url << "https://i.startalk.im"
                 << "/file/v2/upload/file"
                 << "?name=" << fileName
-                << "&p=" << PLAT.getPlatformStr()
+                << "&p=" << DC.getPlatformStr()
                 << "&u="
-                << PLAT.getSelfUserId() + "@" + NavigationManager::instance().getDomain()
-                << "&k=" << PLAT.getServerAuthKey()
-                << "&v=" << PLAT.getClientVersion()
+                << DC.getSelfUserId() + "@" + NavigationManager::instance().getDomain()
+                << "&k=" << DC.getServerAuthKey()
+                << "&v=" << DC.getClientVersion()
                 << "&key=" << key
                 << "&size=" << size;
             std::string strUrl = url.str();
@@ -415,7 +417,7 @@ void FileHelper::uploadLogFile(const std::string &filePath,
             };
 
             if (_pComm) {
-                QTalk::HttpRequest req(strUrl);
+                st::HttpRequest req(strUrl);
                 req.formFile = filePath;
                 req.addProcessCallback = true;
                 req.processCallbackKey = filePath;
@@ -425,7 +427,7 @@ void FileHelper::uploadLogFile(const std::string &filePath,
         callbackFun(strNetUrl, key);
     };
 
-    if (PLAT.isMainThread()) {
+    if (DC.isMainThread()) {
         std::thread(func).detach();
         return;
     }
@@ -463,7 +465,7 @@ void FileHelper::downloadFile(const std::string &uri,
         };
 
         if (_pComm) {
-            QTalk::HttpRequest req(netPath);
+            st::HttpRequest req(netPath);
             req.addProcessCallback = addCallBack;
             req.processCallbackKey = processKey;
             _pComm->addHttpRequest(req, callback);
@@ -477,7 +479,7 @@ void FileHelper::downloadFile(const std::string &uri,
         }
     };
 
-    if (PLAT.isMainThread()) {
+    if (DC.isMainThread()) {
         std::thread(func).detach();
         return;
     }
@@ -494,7 +496,7 @@ void FileHelper::downloadFile(const std::string &uri,
 //  * @date     2018/10/16
 //  */
 //void FileHelper::checkAndDowloadFile(const std::string &uri, const std::string &md5) {
-//    const std::string localFilePath = QTalk::GetFilePathByUrl(uri);
+//    const std::string localFilePath = st::GetFilePathByUrl(uri);
 //    if (_access(localFilePath.c_str(), 0) != -1)
 //        return;
 //
@@ -512,7 +514,7 @@ std::string FileHelper::downloadEmoticonIcon(const std::string &uri,
                                              const std::string &pkgId)
 {
     //
-    std::string localPath = PLAT.getEmoticonIconPath();
+    std::string localPath = DC.getEmoticonIconPath();
     //
     std::string data = "";
     bool ret = false;
@@ -528,7 +530,7 @@ std::string FileHelper::downloadEmoticonIcon(const std::string &uri,
     };
 
     if (_pComm) {
-        QTalk::HttpRequest req(uri);
+        st::HttpRequest req(uri);
         _pComm->addHttpRequest(req, callback);
 
         if (ret) {
@@ -554,7 +556,7 @@ std::string FileHelper::downloadEmoticonIcon(const std::string &uri,
 bool FileHelper::writeFile(const std::string &filePath, const std::string *data)
 {
 #ifdef _WINDOWS
-    std::string nfilePath = QTalk::Utf8ToGbk(filePath.data());
+    std::string nfilePath = st::Utf8ToGbk(filePath.data());
 #else
     const std::string &nfilePath(filePath);
 #endif // _WINDOWS
@@ -614,27 +616,7 @@ void FileHelper::creatDir(const std::string &filePath)
   */
 string FileHelper::getFileDataMD5(const string &filePath)
 {
-    ifstream in(filePath.c_str(), ios::binary);
-
-    if (!in) {
-        return "";
-    }
-
-    MD5 md5;
-    streamsize length;
-    char buffer[1024];
-
-    while (!in.eof()) {
-        in.read(buffer, 1024);
-        length = in.gcount();
-
-        if (length > 0) {
-            md5.update(buffer, length);
-        }
-    }
-
-    in.close();
-    return md5.toString();
+    return st::utils::getFileMd5(filePath);
 }
 
 /**
@@ -647,9 +629,7 @@ string FileHelper::getFileDataMD5(const string &filePath)
   */
 std::string FileHelper::getFileDataMD5(const std::string *fileData)
 {
-    MD5 md5;
-    md5.update(fileData, strlen(fileData->c_str()));
-    return md5.toString();
+    return st::utils::getFileDataMd5(fileData);
 }
 
 /**
@@ -670,11 +650,11 @@ string FileHelper::checkImgFileKey(const std::string &key, QInt64 fileSize,
         << "?key=" << key
         << "&size=" << fileSize
         << "&name=" << key << "." << suffix
-        << "&platform=" << PLAT.getPlatformStr()
-        << "&u=" << PLAT.getSelfUserId() + "@" +
+        << "&platform=" << DC.getPlatformStr()
+        << "&u=" << DC.getSelfUserId() + "@" +
         NavigationManager::instance().getDomain()
-        << "&k=" << PLAT.getServerAuthKey()
-        << "&version=" << PLAT.getClientVersion();
+        << "&k=" << DC.getServerAuthKey()
+        << "&version=" << DC.getClientVersion();
     string strNetUrl;
     std::string strUrl = url.str();
     auto callback = [strUrl, &strNetUrl](int code,
@@ -696,7 +676,7 @@ string FileHelper::checkImgFileKey(const std::string &key, QInt64 fileSize,
     };
 
     if (_pComm) {
-        QTalk::HttpRequest req(strUrl);
+        st::HttpRequest req(strUrl);
         _pComm->addHttpRequest(req, callback);
     }
 
@@ -719,11 +699,11 @@ std::string FileHelper::checkFileKey(const std::string &key, QInt64 fileSize,
         << "?key=" << key
         << "&size=" << fileSize
         << "&name=" << key << "." << suffix
-        << "&platform=" << PLAT.getPlatformStr()
-        << "&u=" << PLAT.getSelfUserId() + "@" +
+        << "&platform=" << DC.getPlatformStr()
+        << "&u=" << DC.getSelfUserId() + "@" +
         NavigationManager::instance().getDomain()
-        << "&k=" << PLAT.getServerAuthKey()
-        << "&version=" << PLAT.getClientVersion();
+        << "&k=" << DC.getServerAuthKey()
+        << "&version=" << DC.getClientVersion();
     std::string strUrl = url.str();
     string strNetUrl;
     auto callback = [strUrl, &strNetUrl](int code,
@@ -738,7 +718,7 @@ std::string FileHelper::checkFileKey(const std::string &key, QInt64 fileSize,
 
             if (!Json::get<int>(data, "ret")) {
                 strNetUrl = Json::get<std::string>(data, "data");
-                string fileName = QTalk::GetFileNameByUrl(strNetUrl);
+                string fileName = st::GetFileNameByUrl(strNetUrl);
                 strNetUrl += "&file=file/" + fileName;
                 strNetUrl += "&filename=file/" + fileName;
                 return;
@@ -749,7 +729,7 @@ std::string FileHelper::checkFileKey(const std::string &key, QInt64 fileSize,
     };
 
     if (_pComm) {
-        QTalk::HttpRequest req(strUrl);
+        st::HttpRequest req(strUrl);
         _pComm->addHttpRequest(req, callback);
     }
 
@@ -773,11 +753,11 @@ FileHelper::uploadImg(const std::string &filePath, const std::string &key,
     url << NavigationManager::instance().getFileHttpHost()
         << "/file/v2/upload/img"
         << "?name=" << fileName
-        << "&p=" << PLAT.getPlatformStr()
-        << "&u=" << PLAT.getSelfUserId() + "@" +
+        << "&p=" << DC.getPlatformStr()
+        << "&u=" << DC.getSelfUserId() + "@" +
         NavigationManager::instance().getDomain()
-        << "&k=" << PLAT.getServerAuthKey()
-        << "&v=" << PLAT.getClientVersion()
+        << "&k=" << DC.getServerAuthKey()
+        << "&v=" << DC.getClientVersion()
         << "&key=" << key
         << "&size=" << size;
     std::string strUrl = url.str();
@@ -803,7 +783,7 @@ FileHelper::uploadImg(const std::string &filePath, const std::string &key,
     };
 
     if (_pComm) {
-        QTalk::HttpRequest req(strUrl);
+        st::HttpRequest req(strUrl);
         req.formFile = filePath;
         _pComm->addHttpRequest(req, callback);
     }
@@ -828,10 +808,10 @@ FileHelper::uploadFile(const std::string &filePath, const std::string &key,
     url << NavigationManager::instance().getFileHttpHost()
         << "/file/v2/upload/file"
         << "?name=" << fileName
-        << "&p=" << PLAT.getPlatformStr()
-        << "&u=" << PLAT.getSelfXmppId()
-        << "&k=" << PLAT.getServerAuthKey()
-        << "&v=" << PLAT.getClientVersion()
+        << "&p=" << DC.getPlatformStr()
+        << "&u=" << DC.getSelfXmppId()
+        << "&k=" << DC.getServerAuthKey()
+        << "&v=" << DC.getClientVersion()
         << "&key=" << key
         << "&size=" << size;
     std::string strUrl = url.str();
@@ -857,7 +837,7 @@ FileHelper::uploadFile(const std::string &filePath, const std::string &key,
     };
 
     if (_pComm) {
-        QTalk::HttpRequest req(strUrl);
+        st::HttpRequest req(strUrl);
         req.formFile = filePath;
         req.addProcessCallback = withProcess;
         req.processCallbackKey = processKey;
@@ -870,11 +850,11 @@ FileHelper::uploadFile(const std::string &filePath, const std::string &key,
 //
 bool FileHelper::DownloadPubKey()
 {
-    std::string localPubKeyPath = PLAT.getAppdataRoamingUserPath()
+    std::string localPubKeyPath = DC.getAppdataRoamingUserPath()
                                   + "/" + NavigationManager::instance().getPubkey();
 #ifdef _WINDOWS
 
-    if (_access(QTalk::Utf8ToGbk(localPubKeyPath.data()).data(), 0) == -1) {
+    if (_access(st::Utf8ToGbk(localPubKeyPath.data()).data(), 0) == -1) {
 #else
 
     if (_access(localPubKeyPath.data(), 0) == -1) {
@@ -910,7 +890,7 @@ bool FileHelper::DownloadPubKey()
         };
 
         if (_pComm) {
-            QTalk::HttpRequest req(strUrl);
+            st::HttpRequest req(strUrl);
             _pComm->addHttpRequest(req, callback);
 
             if (!pubKey.empty()) {

@@ -2,8 +2,8 @@
 // Created by cc on 2019/12/27.
 //
 
-#ifndef QTALK_V2_CHATMAINSOREMODEL_H
-#define QTALK_V2_CHATMAINSOREMODEL_H
+#ifndef STALK_V2_CHATMAINSOREMODEL_H
+#define STALK_V2_CHATMAINSOREMODEL_H
 
 #include <QSortFilterProxyModel>
 #include "ChatMainDelegate.h"
@@ -19,4 +19,4 @@ protected:
 
 
 
-#endif //QTALK_V2_CHATMAINSOREMODEL_H
+#endif //STALK_V2_CHATMAINSOREMODEL_H

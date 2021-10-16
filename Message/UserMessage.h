@@ -6,17 +6,17 @@
 #include <map>
 #include <string>
 #include <set>
-#include "../include/CommonStrcut.h"
-#include "../EventBus/Event.hpp"
-#include "../entity/im_user.h"
-#include "../entity/im_userSupplement.h"
-#include "../entity/im_config.h"
-//#include "../entity/im_friend_list.h"
-#include "../entity/im_transfer.h"
-#include "../entity/UID.h"
-#include "../entity/im_qr_group.h"
-#include "../entity/im_qr_content.h"
-#include "../entity/im_user_status_medal.h"
+#include "include/CommonStrcut.h"
+#include "EventBus/Event.hpp"
+#include "entity/im_user.h"
+#include "entity/im_userSupplement.h"
+#include "entity/im_config.h"
+//#include "entity/im_friend_list.h"
+#include "entity/im_transfer.h"
+#include "entity/UID.h"
+#include "entity/im_qr_group.h"
+#include "entity/im_qr_content.h"
+#include "entity/im_user_status_medal.h"
 
 // 获取用户列表
 class GetUserCardMessage : public Event
@@ -29,22 +29,22 @@ public:
 class UserCardMessgae : public Event
 {
 public:
-    std::vector<QTalk::StUserCard> userCards;
+    std::vector<st::StUserCard> userCards;
 };
 
 // 用户列表结果
 class UserCardSupple: public Event
 {
 public:
-    UserCardSupple(std::shared_ptr<QTalk::Entity::ImUserSupplement> &imUserSup,
-                   std::shared_ptr<QTalk::Entity::ImUserInfo> &userInfo)
+    UserCardSupple(std::shared_ptr<st::entity::ImUserSupplement> &imUserSup,
+                   std::shared_ptr<st::entity::ImUserInfo> &userInfo)
         : imUserSup(imUserSup), userInfo(userInfo)
     {
     }
 
 public:
-    std::shared_ptr<QTalk::Entity::ImUserSupplement> &imUserSup;
-    std::shared_ptr<QTalk::Entity::ImUserInfo> &userInfo;
+    std::shared_ptr<st::entity::ImUserSupplement> &imUserSup;
+    std::shared_ptr<st::entity::ImUserInfo> &userInfo;
 };
 
 //
@@ -71,7 +71,7 @@ public:
 class UpdateUserConfigMsg : public Event
 {
 public:
-    std::vector<QTalk::Entity::ImConfig> arConfigs;
+    std::vector<st::entity::ImConfig> arConfigs;
 };
 
 // 增量配置修改
@@ -79,23 +79,23 @@ class IncrementConfig : public Event
 {
 public:
     std::map<std::string, std::string> deleteData;
-    std::vector<QTalk::Entity::ImConfig> arImConfig;
+    std::vector<st::entity::ImConfig> arImConfig;
 };
 
 //class AllFriends : public Event
 //{
 //public:
-//    std::vector<QTalk::Entity::IMFriendList> friends;
+//    std::vector<st::Entity::IMFriendList> friends;
 //};
 
 class UserCardInfo : public Event
 {
 public:
-    explicit UserCardInfo(std::shared_ptr<QTalk::Entity::ImUserInfo> &info) : info(
+    explicit UserCardInfo(std::shared_ptr<st::entity::ImUserInfo> &info) : info(
             info) {};
 
 public:
-    std::shared_ptr<QTalk::Entity::ImUserInfo> &info;
+    std::shared_ptr<st::entity::ImUserInfo> &info;
 };
 
 class UpdateMoodEvt : public Event
@@ -150,34 +150,34 @@ public:
 class IncrementUser : public Event
 {
 public:
-    std::vector<QTalk::Entity::ImUserInfo> arUserInfo;
+    std::vector<st::entity::ImUserInfo> arUserInfo;
     std::vector<std::string> arDeletes;
 };
 
 class UserMedalEvt: public Event
 {
 public:
-    UserMedalEvt(std::string xmppId, std::set<QTalk::StUserMedal> &medal)
+    UserMedalEvt(std::string xmppId, std::set<st::StUserMedal> &medal)
         : medal(medal), xmppId(std::move(xmppId))
     {
     }
 
 public:
-    std::set<QTalk::StUserMedal> &medal;
+    std::set<st::StUserMedal> &medal;
     std::string xmppId;
 };
 
 class UserMedalChangedEvt : public Event
 {
 public:
-    std::vector<QTalk::Entity::ImUserStatusMedal> userMedals;
+    std::vector<st::entity::ImUserStatusMedal> userMedals;
 };
 
 class GetMedalUserEvt : public Event
 {
 public:
     int medalId;
-    std::vector<QTalk::StMedalUser> metalUsers;
+    std::vector<st::StMedalUser> metalUsers;
 };
 
 class ModifyUserMedalStatusEvt : public Event

@@ -3,8 +3,8 @@
 
 #include <utility>
 
-#include "../EventBus/Event.hpp"
-#include "../include/CommonStrcut.h"
+#include "EventBus/Event.hpp"
+#include "include/CommonStrcut.h"
 
 // tcp断链
 class DisconnectToServer : public Event { };
@@ -66,12 +66,12 @@ public:
 class OperatorStatistics : public Event
 {
 public:
-    explicit OperatorStatistics(std::string ip, std::vector<QTalk::StActLog> operators)
+    explicit OperatorStatistics(std::string ip, std::vector<st::StActLog> operators)
         : ip(std::move(ip)), operators(std::move(operators)) {}
 
 public:
     const std::string ip;
-    const std::vector<QTalk::StActLog> operators;
+    const std::vector<st::StActLog> operators;
 
 };
 

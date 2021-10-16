@@ -1,17 +1,18 @@
 ﻿#include "GroupManager.h"
 #include <iostream>
 #include <sstream>
-#include "../Platform/NavigationManager.h"
-#include "../Platform/Platform.h"
-#include "../interface/logic/IDatabasePlug.h"
-#include "../QtUtil/nJson/nJson.h"
-#include "../QtUtil/Utils/utils.h"
+#include "DataCenter/NavigationManager.h"
+#include "DataCenter/Platform.h"
+#include "interface/logic/IDatabasePlug.h"
+#include "Util/nJson/nJson.h"
+#include "Util/utils.h"
 #include "MessageManager.h"
 #include "Communication.h"
-#include "../QtUtil/Utils/Log.h"
+#include "Util/Log.h"
 #include "UserConfig.h"
 
-using namespace QTalk;
+using namespace st;
+using std::string;
 
 GroupManager::GroupManager(Communication *pComm)
     : _pComm(pComm)
@@ -28,100 +29,92 @@ GroupManager::GroupManager(Communication *pComm)
   */
 bool GroupManager::getUserGroupInfo(MapGroupCard &mapGroups)
 {
-    // {"u":"dan.liu", "d" : "ejabhost1", "t" : 1537521131996}
     long long originVersion = 0;
     LogicManager::instance()->getDatabase()->getGroupMainVersion(originVersion);
     std::ostringstream url;
     url << NavigationManager::instance().getHttpHost()
         << "/muc/get_increment_mucs.qunar"
-        << "?v=" << PLAT.getClientVersion()
-        << "&p=" << PLAT.getPlatformStr()
-        << "&u=" << PLAT.getSelfUserId()
-        << "&k=" << PLAT.getServerAuthKey()
-        << "&d=" << PLAT.getSelfDomain();
+        << "?v=" << DC.getClientVersion()
+        << "&p=" << DC.getPlatformStr()
+        << "&u=" << DC.getSelfUserId()
+        << "&k=" << DC.getServerAuthKey()
+        << "&d=" << DC.getSelfDomain();
     nJson obj;
-    obj["u"] = PLAT.getSelfUserId();
-    obj["d"] = PLAT.getSelfDomain();
+    obj["u"] = DC.getSelfUserId();
+    obj["d"] = DC.getSelfDomain();
     obj["t"] = originVersion;
-    std::string postData = obj.dump();
-    std::string strUrl = url.str();
-    std::vector<Entity::ImGroupInfo> groups;
-    std::vector<std::string> deleteGroups;
+    string postData = obj.dump();
+    string strUrl = url.str();
+    std::vector<entity::ImGroupInfo> groups;
+    std::vector<string> deleteGroups;
     bool restSts = false;
     long long mainVersion = 0;
-    auto callback = [strUrl, &mapGroups, &restSts, &groups, &deleteGroups, &mainVersion](int code,
-                    const string & responseData)
-    {
+    auto callback = [strUrl, &mapGroups, &restSts, &groups, &deleteGroups,
+                             &mainVersion](int code,
+    const string & responseData) {
         info_log("{0} \n{1}", strUrl, responseData);
 
-        if (code == 200)
-        {
+        if (code == 200) {
             nJson data = Json::parse(responseData);
 
-            if (data == nullptr)
-            {
+            if (data == nullptr) {
                 error_log("json paring error");
                 return;
             }
 
             bool ret = Json::get<bool>(data, "ret");
 
-            if (ret)
-            {
-                std::string vs = Json::get<std::string>(data, "version");
+            if (ret) {
+                string vs = Json::get<string>(data, "version");
                 mainVersion = std::stoll(vs);
                 nJson msgList = Json::get<nJson>(data, "data");
 
-                for (auto &item : msgList)
-                {
-                    Entity::ImGroupInfo group;
-                    std::string groupid = Json::get<std::string>(item, "M");
-                    std::string localdomain = Json::get<std::string>(item, "D");
+                for (auto &item : msgList) {
+                    entity::ImGroupInfo group;
+                    string groupid = Json::get<string>(item, "M");
+                    string localdomain = Json::get<string>(item, "D");
                     group.GroupId = groupid + "@" + localdomain;
                     int flag = Json::get<int>(item, "F");
 
-                    if (flag)
-                    {
+                    if (flag) {
                         group.LastUpdateTime = 0;
                         mapGroups[localdomain].push_back(group);
                         groups.push_back(group);
-                    }
-                    else
+                    } else {
                         deleteGroups.push_back(group.GroupId);
+                    }
                 }
 
                 restSts = true;
                 return;
             }
-        }
-        else
+        } else {
             warn_log("请求失败  url: {0}", strUrl);
+        }
     };
 
-    if (_pComm)
-    {
+    if (_pComm) {
         HttpRequest req(strUrl, RequestMethod::POST);
         req.header["Content-Type"] = "application/json;";
         req.body = postData;
         _pComm->addHttpRequest(req, callback);
 
-        if (restSts && !groups.empty())
+        if (restSts && !groups.empty()) {
             restSts = LogicManager::instance()->getDatabase()->bulkInsertGroupInfo(groups);
+        }
 
-        if (restSts && !deleteGroups.empty())
-        {
-            restSts = LogicManager::instance()->getDatabase()->bulkDeleteGroup(deleteGroups);
+        if (restSts && !deleteGroups.empty()) {
+            restSts = LogicManager::instance()->getDatabase()->bulkDeleteGroup(
+                          deleteGroups);
             // all top
-            std::map<std::string, std::string> allTop;
+            std::map<string, string> allTop;
             LogicManager::instance()->getDatabase()->getConfig("kStickJidDic", allTop);
 
             // 删除置顶群
-            for (const auto &groupId : deleteGroups)
-            {
-                std::string uid = QTalk::Entity::UID(groupId).toStdString();
+            for (const auto &groupId : deleteGroups) {
+                string uid = st::entity::UID(groupId).toStdString();
 
-                if (allTop.find(uid) != allTop.end())
-                {
+                if (allTop.find(uid) != allTop.end()) {
                     _pComm->_pUserConfig->updateUserSetting(UserSettingMsg::EM_OPERATOR_CANCEL,
                                                             "kStickJidDic",
                                                             uid,
@@ -130,8 +123,10 @@ bool GroupManager::getUserGroupInfo(MapGroupCard &mapGroups)
             }
         }
 
-        if (restSts && mainVersion != originVersion)
-            restSts = LogicManager::instance()->getDatabase()->setGroupMainVersion(mainVersion);
+        if (restSts && mainVersion != originVersion) {
+            restSts = LogicManager::instance()->getDatabase()->setGroupMainVersion(
+                          mainVersion);
+        }
     }
 
     return restSts;
@@ -151,22 +146,20 @@ bool GroupManager::getGroupCard(const MapGroupCard &groups)
     std::ostringstream url;
     url << NavigationManager::instance().getHttpHost()
         << "/muc/get_muc_vcard.qunar"
-        << "?v=" << PLAT.getClientVersion()
-        << "&p=" << PLAT.getPlatformStr()
-        << "&u=" << PLAT.getSelfUserId()
-        << "&k=" << PLAT.getServerAuthKey()
-        << "&d=" << PLAT.getSelfDomain();
+        << "?v=" << DC.getClientVersion()
+        << "&p=" << DC.getPlatformStr()
+        << "&u=" << DC.getSelfUserId()
+        << "&k=" << DC.getServerAuthKey()
+        << "&d=" << DC.getSelfDomain();
     nJson objs;
     auto itObj = groups.cbegin();
 
-    for (; itObj != groups.cend(); itObj++)
-    {
+    for (; itObj != groups.cend(); itObj++) {
         nJson obj;
         obj["domain"] = itObj->first;
         nJson group;
 
-        for (const auto &itG : itObj->second)
-        {
+        for (const auto &itG : itObj->second) {
             nJson g;
             g["muc_name"] = itG.GroupId;
             g["version"] = 0;
@@ -177,67 +170,65 @@ bool GroupManager::getGroupCard(const MapGroupCard &groups)
         objs.push_back(obj);
     }
 
-    std::string postData = objs.dump();
+    string postData = objs.dump();
     bool retSts = false;
-    std::string strUrl = url.str();
-    std::vector<Entity::ImGroupInfo> arGroups;
-    auto callback = [strUrl, &retSts, &arGroups](int code, const std::string & responseData)
-    {
+    string strUrl = url.str();
+    std::vector<entity::ImGroupInfo> arGroups;
+    auto callback = [strUrl, &retSts, &arGroups](int code,
+    const string & responseData) {
         info_log("{0} \n{1}", strUrl, responseData);
 
-        if (code == 200)
-        {
+        if (code == 200) {
             nJson data = Json::parse(responseData);
 
-            if (data == nullptr)
-            {
+            if (data == nullptr) {
                 warn_log("parsing json error.{0}", strUrl);
                 return;
             }
 
             bool ret = Json::get<bool>(data, "ret");
 
-            if (ret)
-            {
+            if (ret) {
                 nJson jsonGroups = Json::get<nJson>(data, "data");
 
-                for (auto &item : jsonGroups)
-                {
+                for (auto &item : jsonGroups) {
                     nJson mucs = Json::get<nJson>(item, "mucs");
 
-                    for (auto &gobj : mucs)
-                    {
-                        Entity::ImGroupInfo group;
-                        group.GroupId = Json::get<std::string>(gobj, "MN");
-                        group.Name = Json::get<std::string>(gobj, "SN");
-                        group.Introduce = Json::get<std::string>(gobj, "MD");
-                        group.Topic = Json::get<std::string>(gobj, "MT");
-                        group.HeaderSrc = Json::get<std::string>(gobj, "MP");
+                    for (auto &gobj : mucs) {
+                        entity::ImGroupInfo group;
+                        group.GroupId = Json::get<string>(gobj, "MN");
+                        group.Name = Json::get<string>(gobj, "SN");
+                        group.Introduce = Json::get<string>(gobj, "MD");
+                        group.Topic = Json::get<string>(gobj, "MT");
+                        group.HeaderSrc = Json::get<string>(gobj, "MP");
 
-                        if (!group.HeaderSrc.empty() && group.HeaderSrc.find("http") != 0)
-                            group.HeaderSrc = NavigationManager::instance().getFileHttpHost() + "/" + group.HeaderSrc;
+                        if (!group.HeaderSrc.empty() && group.HeaderSrc.find("http") != 0) {
+                            group.HeaderSrc = NavigationManager::instance().getFileHttpHost() + "/" +
+                                              group.HeaderSrc;
+                        }
 
-                        group.LastUpdateTime = std::strtoll(Json::get<std::string>(gobj, "UT").data(), nullptr, 0);
+                        group.LastUpdateTime = std::strtoll(Json::get<string>(gobj, "UT").data(),
+                                                            nullptr, 0);
                         arGroups.push_back(group);
                     }
                 }
 
                 retSts = true;
             }
-        }
-        else
+        } else {
             warn_log("请求失败  url:{0}", strUrl);
+        }
     };
 
-    if (_pComm)
-    {
+    if (_pComm) {
         HttpRequest req(strUrl, RequestMethod::POST);
         req.header["Content-Type"] = "application/json;";
         req.body = postData;
         _pComm->addHttpRequest(req, callback);
 
-        if (retSts)
+        if (retSts) {
             retSts = LogicManager::instance()->getDatabase()->updateGroupCard(arGroups);
+        }
     }
 
     return retSts;
@@ -246,16 +237,16 @@ bool GroupManager::getGroupCard(const MapGroupCard &groups)
 /**
  * 更新群资料
  */
-bool GroupManager::upateGroupInfo(const QTalk::StGroupInfo &groupInfo)
+bool GroupManager::upateGroupInfo(const st::StGroupInfo &groupInfo)
 {
     std::ostringstream url;
     url << NavigationManager::instance().getHttpHost()
         << "/muc/set_muc_vcard.qunar"
-        << "?v=" << PLAT.getClientVersion()
-        << "&p=" << PLAT.getPlatformStr()
-        << "&u=" << PLAT.getSelfUserId()
-        << "&k=" << PLAT.getServerAuthKey()
-        << "&d=" << PLAT.getSelfDomain();
+        << "?v=" << DC.getClientVersion()
+        << "&p=" << DC.getPlatformStr()
+        << "&u=" << DC.getSelfUserId()
+        << "&k=" << DC.getServerAuthKey()
+        << "&d=" << DC.getSelfDomain();
     nJson objs;
     nJson obj;
     obj["desc"] = groupInfo.desc;
@@ -263,66 +254,57 @@ bool GroupManager::upateGroupInfo(const QTalk::StGroupInfo &groupInfo)
     obj["nick"] = groupInfo.name;
     obj["title"] = groupInfo.title;
     objs.push_back(obj);
-    std::string postData = objs.dump();
+    string postData = objs.dump();
     //
-    std::string strUrl = url.str();
-    std::vector<Entity::ImGroupInfo> groups;
-    auto callback = [strUrl, &groups](int code, const string & response)
-    {
-        if (code == 200)
-        {
+    string strUrl = url.str();
+    std::vector<entity::ImGroupInfo> groups;
+    auto callback = [strUrl, &groups](int code, const string & response) {
+        if (code == 200) {
             nJson resData = Json::parse(response);
 
-            if (nullptr == resData)
-            {
+            if (nullptr == resData) {
                 error_log("upateGroupInfo json error {0}", response);
                 return;
             }
 
             int ret = Json::get<bool>(resData, "ret");
 
-            if (ret)
-            {
+            if (ret) {
                 nJson data = Json::get<nJson>(resData, "data");
 
-                for (auto &item : data)
-                {
-                    Entity::ImGroupInfo groupInfo;
-                    groupInfo.GroupId = Json::get<std::string>(item, "muc_name");
-                    groupInfo.Name = Json::get<std::string>(item, "show_name");
-                    groupInfo.Introduce = Json::get<std::string>(item, "muc_desc");
-                    groupInfo.Topic = Json::get<std::string>(item, "muc_title");
+                for (auto &item : data) {
+                    entity::ImGroupInfo groupInfo;
+                    groupInfo.GroupId = Json::get<string>(item, "muc_name");
+                    groupInfo.Name = Json::get<string>(item, "show_name");
+                    groupInfo.Introduce = Json::get<string>(item, "muc_desc");
+                    groupInfo.Topic = Json::get<string>(item, "muc_title");
                     groups.emplace_back(groupInfo);
                 }
-            }
-            else
-            {
-                if (resData.contains("errmsg"))
-                    info_log(Json::get<std::string>(resData, "errmsg"));
+            } else {
+                if (resData.contains("errmsg")) {
+                    info_log(Json::get<string>(resData, "errmsg"));
+                }
             }
 
             info_log("update group info success {0}", response);
-        }
-        else
+        } else {
             info_log("update group info error {0}", response);
+        }
     };
 
-    if (_pComm)
-    {
+    if (_pComm) {
         HttpRequest req(strUrl, RequestMethod::POST);
         req.header["Content-Type"] = "application/json;";
         req.body = postData;
         _pComm->addHttpRequest(req, callback);
 
-        if (!groups.empty())
-        {
+        if (!groups.empty()) {
             // 更新ui
             {
                 auto it = groups.begin();
 
-                for (; it != groups.end(); it++)
-                {
-                    std::shared_ptr<QTalk::StGroupInfo> info(new QTalk::StGroupInfo);
+                for (; it != groups.end(); it++) {
+                    std::shared_ptr<st::StGroupInfo> info(new st::StGroupInfo);
                     info->groupId = it->GroupId;
                     info->name = it->Name;
                     info->desc = it->Introduce;
@@ -332,9 +314,8 @@ bool GroupManager::upateGroupInfo(const QTalk::StGroupInfo &groupInfo)
             }
             MapGroupCard params;
 
-            for (const auto &it : groups)
-            {
-                QTalk::Entity::JID jid(it.GroupId);
+            for (const auto &it : groups) {
+                st::entity::JID jid(it.GroupId);
                 params[jid.domainname()].push_back(it);
             }
 
@@ -345,81 +326,73 @@ bool GroupManager::upateGroupInfo(const QTalk::StGroupInfo &groupInfo)
     return !groups.empty();
 }
 
-bool GroupManager::updateTopic(const std::string &groupId, const std::string &topic)
+bool GroupManager::updateTopic(const string &groupId,
+                               const string &topic)
 {
     std::ostringstream url;
     url << NavigationManager::instance().getHttpHost()
         << "/muc/set_muc_vcard.qunar"
-        << "?v=" << PLAT.getClientVersion()
-        << "&p=" << PLAT.getPlatformStr()
-        << "&u=" << PLAT.getSelfUserId()
-        << "&k=" << PLAT.getServerAuthKey()
-        << "&d=" << PLAT.getSelfDomain();
+        << "?v=" << DC.getClientVersion()
+        << "&p=" << DC.getPlatformStr()
+        << "&u=" << DC.getSelfUserId()
+        << "&k=" << DC.getServerAuthKey()
+        << "&d=" << DC.getSelfDomain();
     nJson objs;
     nJson obj;
     obj["muc_name"] = groupId;
     obj["title"] = topic;
     objs.push_back(obj);
-    std::string postData = objs.dump();
+    string postData = objs.dump();
     //
-    std::string strUrl = url.str();
-    std::vector<Entity::ImGroupInfo> groups;
-    auto callback = [strUrl, &groups](int code, const string & response)
-    {
-        if (code == 200)
-        {
+    string strUrl = url.str();
+    std::vector<entity::ImGroupInfo> groups;
+    auto callback = [strUrl, &groups](int code, const string & response) {
+        if (code == 200) {
             nJson resData = Json::parse(response);
 
-            if (nullptr == resData)
-            {
+            if (nullptr == resData) {
                 error_log("updateTopic json error {0}", response);
                 return;
             }
 
             int ret = Json::get<bool>(resData, "ret");
 
-            if (ret)
-            {
+            if (ret) {
                 nJson data = Json::get<nJson>(resData, "data");
 
-                for (auto &item : data)
-                {
-                    Entity::ImGroupInfo groupInfo;
-                    groupInfo.GroupId = Json::get<std::string>(item, "muc_name");
-                    groupInfo.Name = Json::get<std::string>(item, "show_name");
-                    groupInfo.Introduce = Json::get<std::string>(item, "muc_desc");
-                    groupInfo.Topic = Json::get<std::string>(item, "muc_title");
+                for (auto &item : data) {
+                    entity::ImGroupInfo groupInfo;
+                    groupInfo.GroupId = Json::get<string>(item, "muc_name");
+                    groupInfo.Name = Json::get<string>(item, "show_name");
+                    groupInfo.Introduce = Json::get<string>(item, "muc_desc");
+                    groupInfo.Topic = Json::get<string>(item, "muc_title");
                     groups.emplace_back(groupInfo);
                 }
-            }
-            else
-            {
-                if (resData.contains("errmsg"))
-                    info_log(Json::get<std::string>(resData, "errmsg"));
+            } else {
+                if (resData.contains("errmsg")) {
+                    info_log(Json::get<string>(resData, "errmsg"));
+                }
             }
 
             info_log("update group info success {0}", response);
-        }
-        else
+        } else {
             info_log("update group info error {0}", response);
+        }
     };
 
-    if (_pComm)
-    {
+    if (_pComm) {
         HttpRequest req(strUrl, RequestMethod::POST);
         req.header["Content-Type"] = "application/json;";
         req.body = postData;
         _pComm->addHttpRequest(req, callback);
 
-        if (!groups.empty())
-        {
+        if (!groups.empty()) {
             // 更新ui
             {
                 auto it = groups.begin();
 
-                for (; it != groups.end(); it++)
-                {
-                    std::shared_ptr<QTalk::StGroupInfo> info(new QTalk::StGroupInfo);
+                for (; it != groups.end(); it++) {
+                    std::shared_ptr<st::StGroupInfo> info(new st::StGroupInfo);
                     info->groupId = it->GroupId;
                     info->name = it->Name;
                     info->desc = it->Introduce;
@@ -430,9 +403,8 @@ bool GroupManager::updateTopic(const std::string &groupId, const std::string &to
             //            更新群资料需要调接口 否则时间戳不能及时更新
             MapGroupCard params;
 
-            for (const auto &it : groups)
-            {
-                QTalk::Entity::JID jid(it.GroupId);
+            for (const auto &it : groups) {
+                st::entity::JID jid(it.GroupId);
                 params[jid.domainname()].push_back(it);
             }
 
@@ -448,82 +420,79 @@ bool GroupManager::updateTopic(const std::string &groupId, const std::string &to
  */
 void GroupManager::getUserIncrementMucVcard()
 {
-    try
-    {
+    try {
         //
         long long maxGroupCardVersion = 0;
-        LogicManager::instance()->getDatabase()->getGroupCardMaxVersion(maxGroupCardVersion);
+        LogicManager::instance()->getDatabase()->getGroupCardMaxVersion(
+            maxGroupCardVersion);
         //
         std::ostringstream url;
         url << NavigationManager::instance().getHttpHost()
             << "/muc/get_user_increment_muc_vcard.qunar"
-            << "?v=" << PLAT.getClientVersion()
-            << "&p=" << PLAT.getPlatformStr()
-            << "&u=" << PLAT.getSelfUserId()
-            << "&k=" << PLAT.getServerAuthKey()
-            << "&d=" << PLAT.getSelfDomain();
+            << "?v=" << DC.getClientVersion()
+            << "&p=" << DC.getPlatformStr()
+            << "&u=" << DC.getSelfUserId()
+            << "&k=" << DC.getServerAuthKey()
+            << "&d=" << DC.getSelfDomain();
         nJson obj;
-        obj["userid"] = PLAT.getSelfUserId().data();
+        obj["userid"] = DC.getSelfUserId().data();
         obj["lastupdtime"] = std::to_string(maxGroupCardVersion);
-        std::string postData = obj.dump();
+        string postData = obj.dump();
         //
         bool retSts = false;
-        std::string strUrl = url.str();
-        std::vector<Entity::ImGroupInfo> arGroups;
-        auto callback = [strUrl, &retSts, &arGroups](int code, const std::string & responseData)
-        {
-            if (code == 200)
-            {
+        string strUrl = url.str();
+        std::vector<entity::ImGroupInfo> arGroups;
+        auto callback = [strUrl, &retSts, &arGroups](int code,
+        const string & responseData) {
+            if (code == 200) {
                 nJson data = Json::parse(responseData);
 
-                if (data == nullptr)
-                {
+                if (data == nullptr) {
                     warn_log("parsing json error.{0}", strUrl);
                     return;
                 }
 
                 bool ret = Json::get<bool>(data, "ret");
 
-                if (ret)
-                {
+                if (ret) {
                     nJson jsonGroups = Json::get<nJson>(data, "data");
 
-                    for (auto &item : jsonGroups)
-                    {
-                        Entity::ImGroupInfo group;
-                        group.GroupId = Json::get<std::string>(item, "MN");
-                        group.Name = Json::get<std::string>(item, "SN");
-                        group.Introduce = Json::get<std::string>(item, "MD");
-                        group.Topic = Json::get<std::string>(item, "MT");
-                        group.HeaderSrc = Json::get<std::string>(item, "MP");
+                    for (auto &item : jsonGroups) {
+                        entity::ImGroupInfo group;
+                        group.GroupId = Json::get<string>(item, "MN");
+                        group.Name = Json::get<string>(item, "SN");
+                        group.Introduce = Json::get<string>(item, "MD");
+                        group.Topic = Json::get<string>(item, "MT");
+                        group.HeaderSrc = Json::get<string>(item, "MP");
 
-                        if (!group.HeaderSrc.empty() && group.HeaderSrc.find("http") != 0)
-                            group.HeaderSrc = NavigationManager::instance().getFileHttpHost() + "/" + group.HeaderSrc;
+                        if (!group.HeaderSrc.empty() && group.HeaderSrc.find("http") != 0) {
+                            group.HeaderSrc = NavigationManager::instance().getFileHttpHost() + "/" +
+                                              group.HeaderSrc;
+                        }
 
-                        group.LastUpdateTime = std::strtoll(Json::get<std::string>(item, "UT").data(), nullptr, 0);
+                        group.LastUpdateTime = std::strtoll(Json::get<string>(item, "UT").data(),
+                                                            nullptr, 0);
                         arGroups.push_back(group);
                     }
 
                     retSts = true;
                 }
-            }
-            else
+            } else {
                 debug_log("请求失败  url:{0}", strUrl);
+            }
         };
 
-        if (_pComm)
-        {
+        if (_pComm) {
             HttpRequest req(strUrl, RequestMethod::POST);
             req.header["Content-Type"] = "application/json;";
             req.body = postData;
             _pComm->addHttpRequest(req, callback);
 
-            if (retSts)
+            if (retSts) {
                 LogicManager::instance()->getDatabase()->updateGroupCard(arGroups);
+            }
         }
-    }
-    catch (const std::exception &e)
-    {
+    } catch (const std::exception &e) {
         error_log("exception {0}", e.what());
     }
 }

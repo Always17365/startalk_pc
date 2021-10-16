@@ -2,8 +2,8 @@
 // Created by cc on 2019-06-18.
 //
 
-#ifndef QTALK_V2_MACNOTIFICATION_H
-#define QTALK_V2_MACNOTIFICATION_H
+#ifndef STALK_V2_MACNOTIFICATION_H
+#define STALK_V2_MACNOTIFICATION_H
 
 /**
 * @description: MacNotification
@@ -11,13 +11,13 @@
 * @create: 2019-06-18 10:46
 **/
 
-#include "../include/im_enum.h"
-#include "../QtUtil/Utils/Log.h"
+#include "include/im_enum.h"
+#include "Util/Log.h"
 #include "ChatViewMainPanel.h"
-#include "../Platform/Platform.h"
-#include "../QtUtil/Utils/utils.h"
+#include "DataCenter/Platform.h"
+#include "Util/utils.h"
 
-namespace QTalk {
+namespace st {
     namespace mac {
 
             class Notification {
@@ -27,4 +27,4 @@ namespace QTalk {
     }
 }
 
-#endif //QTALK_V2_MACNOTIFICATION_H
+#endif //STALK_V2_MACNOTIFICATION_H

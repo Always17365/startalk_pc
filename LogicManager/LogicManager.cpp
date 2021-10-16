@@ -1,7 +1,7 @@
 ﻿#include "LogicManager.h"
-#include "../interface/logic/ILogicObject.h"
-#include "../interface/logic/ILogicBase.h"
-#include "../QtUtil/Utils/Log.h"
+#include "interface/logic/ILogicObject.h"
+#include "interface/logic/ILogicBase.h"
+#include "Util/Log.h"
 #include <assert.h>
 #include <vector>
 #ifdef _WINDOWS

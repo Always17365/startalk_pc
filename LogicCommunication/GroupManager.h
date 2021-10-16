@@ -4,10 +4,10 @@
 
 #include <map>
 #include <vector>
-#include "../entity/im_group.h"
-#include "../include/CommonStrcut.h"
+#include "entity/im_group.h"
+#include "include/CommonStrcut.h"
 
-typedef std::map<std::string, std::vector<QTalk::Entity::ImGroupInfo> > MapGroupCard;
+typedef std::map<std::string, std::vector<st::entity::ImGroupInfo> > MapGroupCard;
 
 class Communication;
 
@@ -21,7 +21,7 @@ public:
     //
     bool getGroupCard(const MapGroupCard &groups);
     //
-    bool upateGroupInfo(const QTalk::StGroupInfo& groupInfo);
+    bool upateGroupInfo(const st::StGroupInfo& groupInfo);
     bool updateTopic(const std::string& groupId, const std::string& topic);
     //
     void getUserIncrementMucVcard();

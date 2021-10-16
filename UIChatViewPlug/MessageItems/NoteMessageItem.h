@@ -2,8 +2,8 @@
 // Created by lihaibin on 2019-06-05.
 //
 
-#ifndef QTALK_V2_NOTEMESSAGEITEM_H
-#define QTALK_V2_NOTEMESSAGEITEM_H
+#ifndef STALK_V2_NOTEMESSAGEITEM_H
+#define STALK_V2_NOTEMESSAGEITEM_H
 
 #include "MessageItemBase.h"
 
@@ -53,4 +53,4 @@ private:
     void initContentLayout();
 };
 
-#endif //QTALK_V2_NOTEMESSAGEITEM_H
+#endif //STALK_V2_NOTEMESSAGEITEM_H

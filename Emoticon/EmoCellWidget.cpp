@@ -1,7 +1,7 @@
 ﻿#include <utility>
 #include <QPainter>
 #include "EmoCellWidget.h"
-#include "../UICom/qimage/qimage.h"
+#include "Util/ui/qimage/qimage.h"
 #include <QPixmap>
 #include <QFileInfo>
 
@@ -13,7 +13,7 @@ EmoCellWidget::EmoCellWidget(QString emoPath, QString pkgId, QString shortCut, Q
 	setAlignment(Qt::AlignCenter | Qt::AlignHCenter);
     QFileInfo fileInfo(_imagePath);
     if(fileInfo.exists()) {
-        QPixmap img = QTalk::qimage::loadImage(_imagePath, false);
+        QPixmap img = st::qimage::loadImage(_imagePath, false);
         _width = qMin((int)img.height(), (int)img.width());
         _width = qMin(45, _width);
     }
@@ -38,9 +38,9 @@ bool EmoCellWidget::event(QEvent *event) {
 
 void EmoCellWidget::paintEvent(QPaintEvent *e) {
 
-    const int dpi = QTalk::qimage::dpi();
+    const int dpi = st::qimage::dpi();
 
-    QPixmap pix = QTalk::qimage::loadImage(_imagePath, false, true, _width * dpi, _width * dpi);
+    QPixmap pix = st::qimage::loadImage(_imagePath, false, true, _width * dpi, _width * dpi);
 
     int w = pix.width() / dpi;
     int h = pix.height() / dpi;

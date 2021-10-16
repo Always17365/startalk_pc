@@ -7,7 +7,7 @@
 
 #include "LoginPanel.h"
 #include "uiloginplug_global.h"
-#include "../interface/view/IUILoginPlug.h"
+#include "interface/view/IUILoginPlug.h"
 
 class UILOGINPLUGSHARED_EXPORT UILoginPlug : public QObject, public IUILoginPlug
 {

@@ -2,7 +2,7 @@
 #define UINAVIGATIONPLUG_H
 
 #include "uinavigationplug_global.h"
-#include "../interface/view/IUINavigationPlug.h"
+#include "interface/view/IUINavigationPlug.h"
 #include "SessionFrm.h"
 
 class UINAVIGATIONPLUGSHARED_EXPORT UINavigationPlug : public QObject, public IUINavigationPlug

@@ -2,16 +2,16 @@
 // Created by cc on 2019-02-19.
 //
 
-#ifndef QTALK_V2_IMAGEBLOCK_H
-#define QTALK_V2_IMAGEBLOCK_H
+#ifndef STALK_V2_IMAGEBLOCK_H
+#define STALK_V2_IMAGEBLOCK_H
 
 #include <QObject>
 #include <QTextObjectInterface>
 #include <QPainter>
 #include <QMovie>
 #include <QFileInfo>
-#include "../../UICom/qimage/qimage.h"
-#include "../../QtUtil/Utils/Log.h"
+#include "Util/ui/qimage/qimage.h"
+#include "Util/Log.h"
 #include "block_define.h"
 
 //
@@ -46,13 +46,13 @@ public:
                 //warn_log("load head failed, use default picture-> imagePath:{0}, realMessage:{0}", imagePath);
 
                 imagePath = ":/chatview/image1/defaultImage.png";
-                image = QTalk::qimage::loadImage(imagePath, false, true, 80, 80);
+                image = st::qimage::loadImage(imagePath, false, true, 80, 80);
             } else {
 
                 image = QPixmap(imagePath);
                 if (image.isNull()) {
                     imagePath = ":/chatview/image1/defaultImage.png";
-                    image = QTalk::qimage::loadImage(imagePath, false, true, 80, 80);
+                    image = st::qimage::loadImage(imagePath, false, true, 80, 80);
                 } else {
                     image = image.scaled(width, height, Qt::KeepAspectRatio, Qt::SmoothTransformation);
                 }
@@ -70,4 +70,4 @@ private:
     QPixmap _image;
 };
 
-#endif //QTALK_V2_IMAGEBLOCK_H
+#endif //STALK_V2_IMAGEBLOCK_H

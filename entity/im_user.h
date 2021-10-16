@@ -2,14 +2,14 @@
 #define IM_USER_H
 
 #include <string>
-#include "../include/CommonDefine.h"
+#include "include/CommonDefine.h"
 /**
  * @brief The ImSessionInfo struct 组织架构信息结构体
  * @author cyz
  * @date 2018.9.21
  */
-namespace QTalk {
-    namespace Entity {
+namespace st {
+    namespace entity {
         struct ImUserInfo {
             ImUserInfo() {
 

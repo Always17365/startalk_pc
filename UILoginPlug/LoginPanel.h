@@ -1,5 +1,5 @@
 ﻿#if _MSC_VER >= 1600
-#pragma execution_character_set("utf-8")
+    #pragma execution_character_set("utf-8")
 #endif
 
 #ifndef LOGINPANEL_H
@@ -13,16 +13,16 @@
 #include <QLocalServer>
 #include <QCompleter>
 #include "MessageManager.h"
-#include "../CustomUi/HeadPhotoLab.h"
-#include "../CustomUi/UShadowWnd.h"
+#include "CustomUi/HeadPhotoLab.h"
+#include "CustomUi/UShadowWnd.h"
 #include "NavManager.h"
-#include "../UICom/qconfig/qconfig.h"
-#include "../CustomUi/HeadPhotoLab.h"
-#include "../include/Line.h"
+#include "CustomUi/HeadPhotoLab.h"
+#include "CustomUi/Line.h"
+#include "Util/ui/qconfig/qconfig.h"
 
 class LoginPanel : public QDialog
 {
-Q_OBJECT
+    Q_OBJECT
 
 public:
     explicit LoginPanel(QWidget *parent = nullptr);
@@ -30,7 +30,7 @@ public:
 
 public:
     void loadConf();
-    void onGotLoginStatus(const QString& msg);
+    void onGotLoginStatus(const QString &msg);
     void authFailed();
     void loginSuccess();
     void enableAutoLogin(bool);
@@ -38,20 +38,20 @@ public:
 public:
     bool getAutoLoginFlag();
     void setAutoLoginFlag(bool flag);
-    QString getDomainByNav(const QString& nav);
+    QString getDomainByNav(const QString &nav);
     void saveHeadPath();
-    void loginError(const std::string& errMsg);
+    void loginError(const std::string &errMsg);
 
 public slots:
     void onSynDataSuccess();
-    Q_INVOKABLE void onAuthFailed(const QString& msg);
+    Q_INVOKABLE void onAuthFailed(const QString &msg);
 
 Q_SIGNALS:
-    void showStatusMessage(const QString&);
+    void showStatusMessage(const QString &);
     void sgSynDataSuccess();
-    void AuthFailedSignal(const QString& msg);
+    void AuthFailedSignal(const QString &msg);
     void systemQuitSignal();
-    void sgSetTip(const QString&);
+    void sgSetTip(const QString &);
     void sgStartLocalServer();
 
 protected:
@@ -68,14 +68,14 @@ protected:
     void mouseReleaseEvent(QMouseEvent *e) override ;
     void mouseMoveEvent(QMouseEvent *e) override ;
     void closeEvent(QCloseEvent *e) override ;
-    bool event(QEvent* e) override ;
-//    void paintEvent(QPaintEvent* e);
+    bool event(QEvent *e) override ;
+    //    void paintEvent(QPaintEvent* e);
 
 protected:
-    bool eventFilter(QObject* o, QEvent* e) override;
+    bool eventFilter(QObject *o, QEvent *e) override;
 
 private:
-    void setHead(const QString& headPath);
+    void setHead(const QString &headPath);
 
 private:
     UILoginMsgListener  *_pListener{};
@@ -120,8 +120,8 @@ private:
 
 private:
     QString            _strConfPath;
-    QTalk::StConfig  *_pStLoginConfig{};
-    QTalk::StConfig  *_pDefaultConfig{};
+    st::StConfig  *_pStLoginConfig{};
+    st::StConfig  *_pDefaultConfig{};
 
 private:
     QTimer  *_pTimer{};

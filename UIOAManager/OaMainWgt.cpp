@@ -14,13 +14,13 @@
 #include <QDesktopServices>
 #include <QUrl>
 #include <QHeaderView>
-#include "../Platform/Platform.h"
+#include "DataCenter/Platform.h"
 #include "OADefine.h"
 #include "../WebService/WebService.h"
-#include "../UICom/qimage/qimage.h"
-#include "../UICom/StyleDefine.h"
+#include "Util/ui/qimage/qimage.h"
+#include "Util/ui/StyleDefine.h"
 
-using namespace QTalk;
+using namespace st;
 CellWgtItem::CellWgtItem(QString name, QString icon, QWidget *parent)
     : QFrame(parent), _name(std::move(name)), _icon(std::move(icon))
 {
@@ -47,8 +47,8 @@ void CellWgtItem::mousePressEvent(QMouseEvent *e)
 void CellWgtItem::paintEvent(QPaintEvent *e)
 {
     QPainter painter(this);
-    std::string localPath = QTalk::getOAIconPath(_icon.toStdString());
-    QPixmap pixmap = QTalk::qimage::loadImage(localPath.data(), false, true, 40, 40);
+    std::string localPath = st::getOAIconPath(_icon.toStdString());
+    QPixmap pixmap = st::qimage::loadImage(localPath.data(), false, true, 40, 40);
     painter.setRenderHints(QPainter::Antialiasing, true);
     painter.setRenderHints(QPainter::SmoothPixmapTransform, true);
     painter.drawPixmap( (width() - 40) / 2, (height() - 70) / 2, 40, 40, pixmap);
@@ -132,7 +132,7 @@ void OaMainWgt::initUi()
                 if(AppSetting::instance().getOpenOaLinkWithAppBrowser())
                 {
                     MapCookie cookie;
-                    cookie["q_u"] = PLAT.getSelfUserId().data();
+                    cookie["q_u"] = DC.getSelfUserId().data();
                     WebService::loadUrl(url, true, cookie);
                 }
                 else

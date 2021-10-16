@@ -1,15 +1,15 @@
 ﻿#ifndef IM_MESSAGE_H
 #define IM_MESSAGE_H
 #include <string>
-#include "../include/CommonDefine.h"
+#include "include/CommonDefine.h"
 #include "limits.h"
 /**
  * @brief The ImMessageInfo struct 消息信息结构体
  * @author
  * @date 2018.9.25
  */
-namespace QTalk {
-	namespace Entity {
+namespace st {
+	namespace entity {
 
 		enum MessageDirection {
 			MessageDirectionSent = 1,

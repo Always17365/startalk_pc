@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include <QObject>
-#include "../interface/view/IUIOAManagerPlug.h"
+#include "interface/view/IUIOAManagerPlug.h"
 #include "OAManagerPanel.h"
 
 class OAManagerPlug : public QObject, public IUIOAManagerPlug

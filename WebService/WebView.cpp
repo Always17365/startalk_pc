@@ -11,7 +11,7 @@
 #include <QWebEngineCookieStore>
 #include <QWebEngineUrlRequestInterceptor>
 #include <QFileDialog>
-#include "../QtUtil/Utils/Log.h"
+#include "Util/Log.h"
 #include "WebEngineUrlRequestInterceptor.h"
 #include <QWebEngineHistory>
 

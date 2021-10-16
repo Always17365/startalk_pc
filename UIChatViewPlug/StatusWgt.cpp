@@ -4,13 +4,13 @@
 #include <QHBoxLayout>
 #include <QEvent>
 #include <QPainter>
-#include "../Platform/dbPlatForm.h"
-#include "../UICom/UIEntity.h"
-#include "../include/im_enum.h"
+#include "DataCenter/dbPlatForm.h"
+#include "entity/UIEntity.h"
+#include "include/im_enum.h"
 #include "ChatViewMainPanel.h"
-#include "../QtUtil/Utils/Log.h"
-#include "../Platform/Platform.h"
-#include "../Platform/NavigationManager.h"
+#include "Util/Log.h"
+#include "DataCenter/Platform.h"
+#include "DataCenter/NavigationManager.h"
 #include "../WebService/WebService.h"
 
 #define DEM_BTN_ICON_LEN 30
@@ -110,19 +110,19 @@ StatusWgt::~StatusWgt() = default;
   * @author   cc
   * @date     2018/09/19
   */
-void StatusWgt::switchUser(QUInt8 t, const QTalk::Entity::UID &uid, const QString &userName)
+void StatusWgt::switchUser(QUInt8 t, const st::entity::UID &uid, const QString &userName)
 {
-    _isGroupChat = (t == QTalk::Enum::ChatType::GroupChat);
-    _isConsultServer = (t == QTalk::Enum::ChatType::ConsultServer);
+    _isGroupChat = (t == st::Enum::ChatType::GroupChat);
+    _isConsultServer = (t == st::Enum::ChatType::ConsultServer);
     _uid = uid;
     //    _pEdit->setVisible(_isGroupChat);
     _pLabelPlat->setVisible(false);
     _pStsLabel->setVisible(!_isGroupChat);
     _pmood->setVisible(!_isGroupChat);
-    _pBtnStructure->setVisible(!_isGroupChat && PLAT.getShowStaff());
-    _medalWgt->setVisible(t == QTalk::Enum::TwoPersonChat);
+    _pBtnStructure->setVisible(!_isGroupChat && DC.getShowStaff());
+    _medalWgt->setVisible(t == st::Enum::TwoPersonChat);
 
-    if (t == QTalk::Enum::TwoPersonChat)
+    if (t == st::Enum::TwoPersonChat)
         onUpdateMedal();
 
     if (_isGroupChat)
@@ -150,7 +150,7 @@ void StatusWgt::switchUser(QUInt8 t, const QTalk::Entity::UID &uid, const QStrin
                 setName(name);
             else
             {
-                std::shared_ptr<QTalk::Entity::ImGroupInfo> groupInfo = DB_PLAT.getGroupInfo(
+                std::shared_ptr<st::entity::ImGroupInfo> groupInfo = DB_PLAT.getGroupInfo(
                             uid.usrId());
 
                 if (groupInfo)
@@ -161,12 +161,12 @@ void StatusWgt::switchUser(QUInt8 t, const QTalk::Entity::UID &uid, const QStrin
         }
         else
         {
-            std::shared_ptr<QTalk::Entity::ImUserInfo> userInfo = DB_PLAT.getUserInfo(
+            std::shared_ptr<st::entity::ImUserInfo> userInfo = DB_PLAT.getUserInfo(
                         uid.realId());
 
             if (userInfo)
             {
-                setName(QString::fromStdString(QTalk::getUserName(userInfo)));
+                setName(QString::fromStdString(st::getUserName(userInfo)));
                 _pBtnStructure->setToolTip(QString::fromStdString(userInfo->DescInfo));
                 QString mood = QString::fromStdString(userInfo->Mood);
                 _pmood->setToolTip(mood);
@@ -185,7 +185,7 @@ void StatusWgt::switchUser(QUInt8 t, const QTalk::Entity::UID &uid, const QStrin
             }
 
             // 显示状态
-            auto status = PLAT.getUserStatus(uid.realId());
+            auto status = DC.getUserStatus(uid.realId());
             updateUserSts(status.data());
         }
     }
@@ -405,7 +405,7 @@ void StatusWgt::setMood(const QString &mood)
 
 void StatusWgt::onUpdateMedal()
 {
-    std::set<QTalk::StUserMedal> user_medal;
+    std::set<st::StUserMedal> user_medal;
     g_pMainPanel->getUserMedal(_uid.usrId(), user_medal);
     _medalWgt->addMedals(user_medal, true);
 }

@@ -5,19 +5,19 @@
 #include <sstream>
 #include <future>
 #include "ProtobufStream.h"
-#include "../QtUtil/Utils/utils.h"
-#include "../QtUtil/Utils/Log.h"
+#include "Util/utils.h"
+#include "Util/Log.h"
 #include "pb2json.h"
-#include "../include/threadhelper.h"
+#include "Util/threadhelper.h"
 
-namespace QTalk
+namespace st
 {
     namespace Protocol
     {
 
         ProtobufStream::ProtobufStream()
         {
-            _pSocket = QTalk::Socket::buildNewSocket();
+            _pSocket = st::Socket::buildNewSocket();
             _pSocket->setDelegate(this);
         }
 
@@ -35,9 +35,9 @@ namespace QTalk
             if (succeed)
             {
 //                std::string strMsg = message.SerializeAsString();
-//                std::string hexBuff = QTalk::utils::string_to_hex(strMsg, strMsg.size());
+//                std::string hexBuff = st::utils::string_to_hex(strMsg, strMsg.size());
 //                std::cout << "recv data: " << hexBuff << std::endl;
-//                info_log("recv data: {}", QTalk::toJson(&message));
+//                info_log("recv data: {}", st::toJson(&message));
                 _delegate->onMessageReceived(&message);
             }
         }

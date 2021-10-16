@@ -2,8 +2,8 @@
 // Created by cc on 2019/12/02.
 //
 
-#ifndef QTALK_V2_IMAGEDELEGATE_H
-#define QTALK_V2_IMAGEDELEGATE_H
+#ifndef STALK_V2_IMAGEDELEGATE_H
+#define STALK_V2_IMAGEDELEGATE_H
 
 #include <QStyledItemDelegate>
 #include <QTableView>
@@ -42,4 +42,4 @@ private:
     QTableView* _parentWgt = nullptr;
 };
 
-#endif //QTALK_V2_IMAGEDELEGATE_H
+#endif //STALK_V2_IMAGEDELEGATE_H

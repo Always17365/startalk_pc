@@ -1,5 +1,5 @@
 ﻿#include "SearchEdit.h"
-#include "../QtUtil/Utils/Log.h"
+#include "Util/Log.h"
 
 #include <QMouseEvent>
 #include <QDebug>

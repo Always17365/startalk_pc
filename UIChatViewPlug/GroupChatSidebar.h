@@ -6,7 +6,7 @@
 #include <QVector>
 #include <vector>
 #include <QMutexLocker>
-#include "../Message/GroupMessage.h"
+#include "Message/GroupMessage.h"
 
 class GroupMember;
 class GroupTopic;

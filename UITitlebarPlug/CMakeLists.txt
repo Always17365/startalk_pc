@@ -1,10 +1,6 @@
 project(UITitlebarPlug)
 
-include_directories(.)
-
-# 打开Qt的Moc功能和ui文件QRC文件处理功能
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 find_package(Qt5Widgets)
@@ -70,4 +66,4 @@ ADD_LIBRARY(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${MAC_SOURCE_FILE})
 target_link_libraries(${PROJECT_NAME}
         Qt5::Widgets
         Qt5::Concurrent
-        EventBus Platform CustomUi qzxing QtUtil)
+        EventBus DataCenter CustomUi qzxing Util)

@@ -2,8 +2,8 @@
 // Created by cc on 2019-02-25.
 //
 
-#ifndef QTALK_V2_MACAPP_H
-#define QTALK_V2_MACAPP_H
+#ifndef STALK_V2_MACAPP_H
+#define STALK_V2_MACAPP_H
 
 
 #include <QWidget>
@@ -24,4 +24,4 @@ public:
 };
 
 
-#endif //QTALK_V2_MACAPP_H
+#endif //STALK_V2_MACAPP_H

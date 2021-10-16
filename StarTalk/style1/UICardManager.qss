@@ -150,6 +150,14 @@ QPushButton#QuitGroup:hover
     border-image:url(:/CardManager/image1/QuitGroup_hover_1.png);
 }
 
+QPushButton#ForbiddenWord {
+    border-image:url(:/CardManager/image1/forbiddenWord_normal_1.svg);
+}
+
+QPushButton#ForbiddenWord:hover {
+    border-image:url(:/CardManager/image1/forbiddenWord_hover_1.svg);
+}
+
 QLabel#title {
     font-size:14px;
     color:rgba(51,51,51,1);
@@ -163,7 +171,7 @@ QHeaderView {
 }
 
 QHeaderView::section {
-	height: 30px;
+    height: 30px;
     font-size:14px;
     font-weight:400;
     color:rgba(153,153,153,1);

@@ -2,8 +2,8 @@
 // Created by cc on 2019-04-16.
 //
 
-#ifndef QTALK_V2_MAKEQRCODE_H
-#define QTALK_V2_MAKEQRCODE_H
+#ifndef STALK_V2_MAKEQRCODE_H
+#define STALK_V2_MAKEQRCODE_H
 
 #include <QFrame>
 #include <QMenu>
@@ -46,4 +46,4 @@ private:
 };
 
 
-#endif //QTALK_V2_MAKEQRCODE_H
+#endif //STALK_V2_MAKEQRCODE_H

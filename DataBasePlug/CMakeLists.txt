@@ -1,7 +1,5 @@
 project(DataBasePlug)
 
-include_directories(.)
-
 #
 set(SOURCE_FILES
         ConfigDao.cpp
@@ -64,5 +62,5 @@ ADD_LIBRARY(${PROJECT_NAME} SHARED ${SOURCE_FILES})
 
 #添加链接库
 target_link_libraries(${PROJECT_NAME}
-        QtUtil
-        Platform)
+        Util
+        DataCenter)

@@ -4,14 +4,14 @@
 #if _MSC_VER >= 1600
 #pragma execution_character_set("utf-8")
 #endif
-#ifndef QTALK_V2_SENDCODEWND_H
-#define QTALK_V2_SENDCODEWND_H
+#ifndef STALK_V2_SENDCODEWND_H
+#define STALK_V2_SENDCODEWND_H
 
-#include "../../CustomUi/UShadowWnd.h"
+#include "CustomUi/UShadowWnd.h"
 #include "CodeShell.h"
 #include "CodeEdit.h"
 #include "../../entity/UID.h"
-#include "../../QtUtil/Entity/JID.h"
+#include "Util/Entity/JID.h"
 
 /**
 * @description: SendCodeWnd
@@ -26,7 +26,7 @@ public:
     ~SendCodeWnd() override;
 
 public:
-    void addCode(const QTalk::Entity::UID& uid, const QString& code);
+    void addCode(const st::entity::UID& uid, const QString& code);
 
 private:
     void initUi();
@@ -37,8 +37,8 @@ private:
     CodeEdit*  _pCodeEdit;
 
 private:
-    QTalk::Entity::UID  _uid;
+    st::entity::UID  _uid;
 };
 
 
-#endif //QTALK_V2_SENDCODEWND_H
+#endif //STALK_V2_SENDCODEWND_H

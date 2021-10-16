@@ -2,8 +2,8 @@
 #define UICHATVIEW_H
 
 #include "uichatviewplug_global.h"
-//#include "../interface/view/IUIChatViewPLug.h"
-#include "../interface/view/IUIChatViewPlug.h"
+//#include "interface/view/IUIChatViewPLug.h"
+#include "interface/view/IUIChatViewPlug.h"
 #include "ChatViewMainPanel.h"
 
 class UICHATVIEWSHARED_EXPORT UIChatViewPlug : public QObject, public IUIChatViewPlug

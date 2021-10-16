@@ -10,18 +10,18 @@
 #include "MessageManager.h"
 #include <thread>
 #include <regex>
-#include "../include/ThreadPool.h"
-#include "../include/Spinlock.h"
-#include "../include/STLazyQueue.h"
-#include "../interface/logic/ILogicObject.h"
-#include "../QtUtil/Entity/JID.h"
-#include "../QtUtil/lib/http/QtHttpRequest.h"
-#include "../include/CommonStrcut.h"
-#include "../entity/im_medal_list.h"
-#include "../entity/im_user_status_medal.h"
+#include "Util/ThreadPool.h"
+#include "Util/Spinlock.h"
+#include "Util/lazy/lazyq.h"
+#include "interface/logic/ILogicObject.h"
+#include "Util/Entity/JID.h"
+#include "http/QtHttpRequest.h"
+#include "include/CommonStrcut.h"
+#include "entity/im_medal_list.h"
+#include "entity/im_user_status_medal.h"
 
 typedef std::map<std::string, std::map<std::string, int>> UserCardMapParam;
-
+using UserCardPair = std::pair<std::string, UserCardMapParam>;
 
 class FileHelper;
 class UserManager;
@@ -30,7 +30,7 @@ class OnLineManager;
 class SearchManager;
 class OfflineMessageManager;
 class UserConfig;
-class LOGICMANAGER_EXPORT Communication : public ILogicObject
+class Communication : public ILogicObject
 {
 public:
     Communication();
@@ -45,7 +45,7 @@ public:
     bool tryConnectToServer();
 
 public:
-    void addHttpRequest(const QTalk::HttpRequest &req,
+    void addHttpRequest(const st::HttpRequest &req,
                         const std::function<void(int, const std::string &)> &callback,
                         bool = true);
 
@@ -54,22 +54,22 @@ public:
     //
     void updateTimeStamp();
     // 获取导航信息
-    bool getNavInfo(const std::string &navAddr, QTalk::StNav &nav);
+    bool getNavInfo(const std::string &navAddr, st::StNav &nav);
     //
-    static void setLoginNav(const QTalk::StNav &nav);
+    static void setLoginNav(const st::StNav &nav);
     // 登陆后同步服务器
     void synSeverData();
     // 获取用户的状态
     void synUsersUserStatus();
     // 获取某人的历史消息
     void getUserHistoryMessage(const QInt64 &time, const QUInt8 &chatType,
-                               const QTalk::Entity::UID &uid,
-                               std::vector<QTalk::Entity::ImMessageInfo> &msgList);
+                               const st::entity::UID &uid,
+                               std::vector<st::entity::ImMessageInfo> &msgList);
     // 获取网络聊天记录(不落地)
     void getNetHistoryMessage(const QInt64 &time, const QUInt8 &chatType,
-                              const QTalk::Entity::UID &uid,
+                              const st::entity::UID &uid,
                               const std::string &direction,
-                              std::vector<QTalk::Entity::ImMessageInfo> &msgList);
+                              std::vector<st::entity::ImMessageInfo> &msgList);
 
     //批量获取头像信息
     void batchUpdateHead(const std::vector<std::string> &arXmppids);
@@ -83,10 +83,10 @@ public:
     //
     void getNetEmoticon(GetNetEmoticon &e);
 
-    void downloadUserHeadByStUserCard(const std::vector<QTalk::StUserCard>
+    void downloadUserHeadByStUserCard(const std::vector<st::StUserCard>
                                       &arUserInfo);
     //
-    void getStructure(std::vector<std::shared_ptr<QTalk::Entity::ImUserInfo>>
+    void getStructure(std::vector<std::shared_ptr<st::entity::ImUserInfo>>
                       &structure);
 
     // 获取会话信息
@@ -101,11 +101,11 @@ public:
     //
     void downloadCollection(const std::vector<std::string> &arDownloads);
     // 动态获取oa部分 ui组件
-    bool geiOaUiData(std::vector<QTalk::StOAUIData> &arOAUIData);
+    bool geiOaUiData(std::vector<st::StOAUIData> &arOAUIData);
 
     // 发送点击统计
     void sendOperatorStatistics(const std::string &ip,
-                                const std::vector<QTalk::StActLog> &operators);
+                                const std::vector<st::StActLog> &operators);
 
     //
     void reportLog(const std::string &desc, const std::string &logPath);
@@ -116,15 +116,15 @@ public:
 
     void clearSystemCache();
 
-    void getUserCard(std::shared_ptr<QTalk::Entity::ImUserInfo> &info);
+    void getUserCard(std::shared_ptr<st::entity::ImUserInfo> &info);
     // 移除会话
-    void removeSession(const string &peerId);
+    void removeSession(const std::string &peerId);
     //
     void getMedalList();
     //
     void getUserMedal(bool = false);
     //
-    void getMedalUser(int medalId, std::vector<QTalk::StMedalUser> &metalUsers);
+    void getMedalUser(int medalId, std::vector<st::StMedalUser> &metalUsers);
     //
     bool modifyUserMedalStatus(int medalId, bool wear);
     //
@@ -132,7 +132,7 @@ public:
 
 public: // 群组相关
     //
-    void getGroupCardInfo(std::shared_ptr<QTalk::Entity::ImGroupInfo> &e);
+    void getGroupCardInfo(std::shared_ptr<st::entity::ImGroupInfo> &e);
 
     // 设置群管理员
     void setGroupAdmin(const std::string &groupId, const std::string &nickName,
@@ -159,8 +159,6 @@ public:
     //
     void onInviteGroupMembers(const std::string &groupId);
     //
-    //    void onRecvFriendList(const std::vector<QTalk::Entity::IMFriendList> &friends);
-    //
     void onUserJoinGroup(const std::string &groupId, const std::string &memberId,
                          int affiliation);
     //
@@ -174,14 +172,16 @@ private:
 
 public:
     // 最近聊天
-    void getRecntSession(std::vector<QTalk::StShareSession> &sessions);
+    void getRecntSession(std::vector<st::StShareSession> &sessions);
     // 联系人
-    void geContactsSession(std::vector<QTalk::StShareSession> &sessions);
+    void geContactsSession(std::vector<st::StShareSession> &sessions);
 
 public:
     //新登录获取token
     void getNewLoginToken(const std::string &u, const std::string &p,
                           std::map<std::string, std::string> &info);
+
+    void getForbiddenWordGroup(const std::string &groupId);
 
 public:
     FileHelper    *_pFileHelper{nullptr};
@@ -196,7 +196,7 @@ public:
 private:
     CommMsgListener *_pMsgListener{nullptr};
 
-    QTalk::util::spin_mutex sm;
+    st::util::spin_mutex sm;
 
 private:
     std::map<std::string, std::string> _mapGroupIdName;
@@ -209,7 +209,7 @@ private:
 
 private:
     static const int _threadPoolCount {3};
-    STLazyQueue<std::pair<std::string, UserCardMapParam>> *userCardQueue;
+    lazyq<UserCardPair> *_userCardQueue;
     std::vector<ThreadPool *> _httpPool;
 };
 

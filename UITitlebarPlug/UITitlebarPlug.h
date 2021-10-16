@@ -2,7 +2,7 @@
 #define UITITLEBARPLUG_H
 
 #include "uititlebarplug_global.h"
-#include "../interface/view/IUITitleBarPlug.h"
+#include "interface/view/IUITitleBarPlug.h"
 #include "MainPanel.h"
 
 class UITITLEBARPLUGSHARED_EXPORT UITitlebarPlug : public QObject, public IUITitlebarPlug

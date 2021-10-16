@@ -2,8 +2,8 @@
 // Created by cc on 2018/11/16.
 //
 
-#ifndef QTALK_V2_PICTUREFRM_H
-#define QTALK_V2_PICTUREFRM_H
+#ifndef STALK_V2_PICTUREFRM_H
+#define STALK_V2_PICTUREFRM_H
 
 #include <QFrame>
 #include <QGraphicsScene>
@@ -48,4 +48,4 @@ private:
 };
 
 
-#endif //QTALK_V2_PICTUREFRM_H
+#endif //STALK_V2_PICTUREFRM_H

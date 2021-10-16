@@ -4,13 +4,13 @@
 
 #include "TitleFrm.h"
 #include "PictureBrowser.h"
-#include "../include/Line.h"
+#include "CustomUi/Line.h"
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QToolButton>
 #include <QSplitter>
 #include <QMouseEvent>
-#include "../UICom/uicom.h"
+#include "Util/ui/uicom.h"
 
 #define BTN_SIZE 30
 
@@ -112,29 +112,24 @@ void TitleFrm::initUi()
     _pRestBtn->setVisible(false);
     connect(_pTurnBeforeBtn, &QToolButton::clicked, _pPicBrowser, &PictureBrowser::turnBefore);
     connect(_pTurnNextBtn, &QToolButton::clicked, _pPicBrowser, &PictureBrowser::turnNext);
-    connect(_pCloseBtn, &QToolButton::clicked, _pPicBrowser, [this]()
-    {
+    connect(_pCloseBtn, &QToolButton::clicked, _pPicBrowser, [this]() {
         _pPicBrowser->setVisible(false);
         _pPicBrowser->onCloseWnd();
     });
-    connect(_pMinBtn, &QToolButton::clicked, this, [this]()
-    {
-        if(nullptr != _pPicBrowser)
+    connect(_pMinBtn, &QToolButton::clicked, this, [this]() {
+        if (nullptr != _pPicBrowser) {
             _pPicBrowser->showMinimized();
+        }
     });
-    connect(_pMaxBtn, &QToolButton::clicked, this, [this]()
-    {
-        if(nullptr != _pPicBrowser)
-        {
+    connect(_pMaxBtn, &QToolButton::clicked, this, [this]() {
+        if (nullptr != _pPicBrowser) {
             _pMaxBtn->setVisible(false);
             _pRestBtn->setVisible(true);
             _pPicBrowser->showMaximized();
         }
     });
-    connect(_pRestBtn, &QToolButton::clicked, this, [this]()
-    {
-        if(nullptr != _pPicBrowser)
-        {
+    connect(_pRestBtn, &QToolButton::clicked, this, [this]() {
+        if (nullptr != _pPicBrowser) {
             _pMaxBtn->setVisible(true);
             _pRestBtn->setVisible(false);
             _pPicBrowser->showNormal();
@@ -145,8 +140,7 @@ void TitleFrm::initUi()
     connect(_pOne2OneBtn, &QToolButton::clicked, _pPicBrowser, &PictureBrowser::one2oneSiganl);
     connect(_pRotateBtn, &QToolButton::clicked, _pPicBrowser, &PictureBrowser::rotateSiganl);
     connect(_pSaveAsBtn, &QToolButton::clicked, _pPicBrowser, &PictureBrowser::saveAsSignal);
-    connect(dingBtn, &QToolButton::clicked, this, [this](bool checked)
-    {
+    connect(dingBtn, &QToolButton::clicked, this, [this](bool checked) {
         _pPicBrowser->setWindowFlag(Qt::X11BypassWindowManagerHint, checked);
         _pPicBrowser->setWindowFlag(Qt::WindowStaysOnTopHint, checked);
         _pPicBrowser->setVisible(true);

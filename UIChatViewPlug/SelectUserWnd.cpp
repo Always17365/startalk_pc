@@ -10,13 +10,15 @@
 #include <QFileInfo>
 #include <QEvent>
 #include <QPainterPath>
-#include "../include/Line.h"
+
+#include "CustomUi/Line.h"
 #include "ChatViewMainPanel.h"
-#include "../Platform/Platform.h"
-#include "../UICom/qimage/qimage.h"
-#include "../Platform/dbPlatForm.h"
-#include "../UICom/StyleDefine.h"
-#include "../CustomUi/TitleBar.h"
+#include "DataCenter/Platform.h"
+#include "Util/ui/qimage/qimage.h"
+#include "DataCenter/dbPlatForm.h"
+#include "Util/ui/StyleDefine.h"
+#include "CustomUi/TitleBar.h"
+#include "Util/Log.h"
 
 extern ChatViewMainPanel *g_pMainPanel;
 #define HEAD_WIDTH 22
@@ -27,17 +29,17 @@ SelectUserWndSort::SelectUserWndSort(QObject *parent)
 }
 
 bool SelectUserWndSort::filterAcceptsRow(int source_row,
-        const QModelIndex &source_parent) const
+                                         const QModelIndex &source_parent) const
 {
     QModelIndex index =  sourceModel()->index(source_row, 0, source_parent);
 
-    if (!index.isValid())
+    if (!index.isValid()) {
         return false;
+    }
 
     bool ret = index.data(EM_DATATYPE_CHECK).toBool();
 
-    if (!ret)
-    {
+    if (!ret) {
         //
         QString xmppId = index.data(EM_DATATYPE_XMPPID).toString().section("@", 0,
                          0).toLower();
@@ -71,10 +73,11 @@ SelectUserWndDelegate::paint(QPainter *painter,
     painter->setRenderHint(QPainter::TextAntialiasing);
     QRect rect = option.rect;
 
-    if (option.state & QStyle::State_Selected)
-        painter->fillRect(rect, QTalk::StyleDefine::instance().getNavSelectColor());
-    else
-        painter->fillRect(rect, QTalk::StyleDefine::instance().getNavNormalColor());
+    if (option.state & QStyle::State_Selected) {
+        painter->fillRect(rect, st::StyleDefine::instance().getNavSelectColor());
+    } else {
+        painter->fillRect(rect, st::StyleDefine::instance().getNavNormalColor());
+    }
 
     QString name = index.data(EM_DATATYPE_NAME).toString();
     QString headPath = index.data(EM_DATATYPE_HEAD).toString();
@@ -83,31 +86,31 @@ SelectUserWndDelegate::paint(QPainter *painter,
     bool isCheck = index.data(EM_DATATYPE_CHECK).toBool();
     QFontMetricsF nf(_nameFont);
 
-    if (name.isEmpty())
+    if (name.isEmpty()) {
         name = id.section("@", 0, 0);
+    }
 
     name = nf.elidedText(name, Qt::ElideRight, 200);
-    painter->setPen(QTalk::StyleDefine::instance().getNavNameFontColor());
+    painter->setPen(st::StyleDefine::instance().getNavNameFontColor());
     painter->setFont(_nameFont);
-    QTalk::setPainterFont(painter, AppSetting::instance().getFontLevel());
+    st::setPainterFont(painter, AppSetting::instance().getFontLevel());
     painter->drawText(QRect(rect.x() + 43, rect.y(), rect.width() - 43 - 30,
                             rect.height()), Qt::AlignVCenter, name);
     painter->setRenderHints(QPainter::Antialiasing, true);
     QFileInfo headFileInfo(headPath);
 
-    if (!headFileInfo.exists() || headFileInfo.isDir())
-    {
-        if (chatType == QTalk::Enum::GroupChat)
+    if (!headFileInfo.exists() || headFileInfo.isDir()) {
+        if (chatType == st::Enum::GroupChat) {
             headPath = ":/QTalk/image1/StarTalk_defaultGroup.png";
-        else
+        } else {
             headPath = ":/QTalk/image1/StarTalk_defaultHead.png";
+        }
     }
 
-    if (!QFile(headPath).isOpen())
-    {
-        int dpi = QTalk::qimage::dpi();
-        QPixmap pixmap = QTalk::qimage::loadImage(headPath, false, true,
-                         HEAD_WIDTH * dpi);
+    if (!QFile(headPath).isOpen()) {
+        int dpi = st::qimage::dpi();
+        QPixmap pixmap = st::qimage::loadImage(headPath, false, true,
+                                               HEAD_WIDTH * dpi);
         QPainterPath path;
         QRect headRect(rect.x() + 13, rect.y() + 8, HEAD_WIDTH, HEAD_WIDTH);
         path.addEllipse(headRect);
@@ -120,10 +123,11 @@ SelectUserWndDelegate::paint(QPainter *painter,
     // check state
     QString checkIcon;
 
-    if (isCheck)
+    if (isCheck) {
         checkIcon = ":/chatview/image1/toolBar/checkbox_checked.png";
-    else
+    } else {
         checkIcon = ":/chatview/image1/toolBar/checkbox_unchecked.png";
+    }
 
     QRect iconRect(rect.right() - 40, rect.top() + 10, 20, 20);
     painter->drawPixmap(iconRect, QPixmap(checkIcon));
@@ -141,14 +145,13 @@ bool SelectUserWndDelegate::editorEvent(QEvent *event,
                                         QAbstractItemModel *model, const QStyleOptionViewItem &option,
                                         const QModelIndex &index)
 {
-    if (event->type() == QEvent::MouseButtonPress)
-    {
+    if (event->type() == QEvent::MouseButtonPress) {
         bool isCheck = model->data(index, EM_DATATYPE_CHECK).toBool();
         model->setData(index, !isCheck, EM_DATATYPE_CHECK);
         emit itemCheckChanged(index);
-    }
-    else if (event->type() == QEvent::MouseButtonDblClick)
+    } else if (event->type() == QEvent::MouseButtonDblClick) {
         emit itemDbClicked(index);
+    }
 
     return QStyledItemDelegate::editorEvent(event, model, option, index);
 }
@@ -168,8 +171,9 @@ SelectUserWnd::SelectUserWnd(QWidget *parent)
 
 SelectUserWnd::~SelectUserWnd()
 {
-    if (_loop->isRunning())
+    if (_loop->isRunning()) {
         _loop->quit();
+    }
 }
 
 void SelectUserWnd::initUi()
@@ -254,16 +258,13 @@ void SelectUserWnd::initUi()
     //
     setMoverAble(true);
     //
-    connect(titleFrm->getCloseBtn(), &QToolButton::clicked, this, [this]()
-    {
+    connect(titleFrm->getCloseBtn(), &QToolButton::clicked, this, [this]() {
         this->close();
     });
-    connect(cancelBtn, &QPushButton::clicked, this, [this]()
-    {
+    connect(cancelBtn, &QPushButton::clicked, this, [this]() {
         this->close();
     });
-    connect(okBtn, &QPushButton::clicked, this, [this]()
-    {
+    connect(okBtn, &QPushButton::clicked, this, [this]() {
         _evtRet = 1;
         this->close();
     });
@@ -274,29 +275,16 @@ void SelectUserWnd::initUi()
             &SelectUserWnd::onItemCheckChanged);
     connect(selectUserWndDelegate, &SelectUserWndDelegate::itemDbClicked, this,
             &SelectUserWnd::onItemDbClicked);
-    connect(_pSearchEdit, &Search_Edit::textChanged, this, [this](const QString & text)
-    {
+    connect(_pSearchEdit, &Search_Edit::textChanged, this, [this](const QString & text) {
         _searchQueue->push(text.toStdString());
     });
-    //
-    std::function<int(STLazyQueue<std::string > *)> func
-    = [this](STLazyQueue<std::string > *queue)->int
-    {
-        int count = 0;
-        std::string key = queue->tail();
 
-        while (!queue->empty())
-        {
-            queue->pop();
-            count++;
-        }
-
-        if (g_pMainPanel)
-            _pSortModel->setFilterRegExp(QString::fromStdString(key).toLower());
-
-        return count;
+    auto func = [this](lazyq<std::string>::lazyqq & q) {
+        info_log("select user wnd lazy {}", q->size());
+        std::string key = q->back();
+        _pSortModel->setFilterRegExp(QString::fromStdString(key).toLower());
     };
-    _searchQueue = new STLazyQueue<std::string>(200, func);
+    _searchQueue = new lazyq<std::string>(200, func);
 }
 
 void SelectUserWnd::reset()
@@ -307,35 +295,34 @@ void SelectUserWnd::reset()
     _pModel->clear();
     _type = EM_TYPE_RECENT;
     _evtRet = 0;
-    _pBtnGroup->buttonClicked(EM_TYPE_RECENT);
+    emit _pBtnGroup->idClicked(EM_TYPE_RECENT);
     //
-    QPointer<SelectUserWnd> pThis(this);
-    QT_CONCURRENT_FUNC([pThis]()
-    {
-        if (g_pMainPanel)
-        {
+    QPointer<SelectUserWnd> that(this);
+    QT_CONCURRENT_FUNC([that]() {
+        if (g_pMainPanel) {
             // recent
             g_pMainPanel->searchLocalSession(EM_TYPE_RECENT, "");
             // group
-            std::vector<QTalk::Entity::ImGroupInfo> groups;
+            std::vector<st::entity::ImGroupInfo> groups;
             DB_PLAT.getAllGroup(groups);
 
-            if (!pThis)
+            if (!that) {
                 return;
+            }
 
-            QMutexLocker locker(&pThis->_mutex);
+            QMutexLocker locker(&that->_mutex);
 
-            for (const auto &group : groups)
-            {
-                QTalk::StShareSession sess;
+            for (const auto &group : groups) {
+                st::StShareSession sess;
                 sess.xmppId = group.GroupId;
                 sess.headUrl = group.HeaderSrc;
                 sess.name = group.Name;
                 sess.realJid = group.GroupId;
-                sess.chatType = QTalk::Enum::GroupChat;
+                sess.chatType = st::Enum::GroupChat;
 
-                if (pThis)
-                    pThis->groupSessions.push_back(sess);
+                if (that) {
+                    that->groupSessions.push_back(sess);
+                }
             }
         }
     });
@@ -343,8 +330,9 @@ void SelectUserWnd::reset()
 
 void SelectUserWnd::onBtnGroupClicked(int tab)
 {
-    if (_type == tab)
+    if (_type == tab) {
         return;
+    }
 
     _type = tab;
     //
@@ -352,26 +340,25 @@ void SelectUserWnd::onBtnGroupClicked(int tab)
 }
 
 void SelectUserWnd::setSessions(int type,
-                                const std::vector<QTalk::StShareSession> &sessions)
+                                const std::vector<st::StShareSession> &sessions)
 {
     QMutexLocker locker(&_mutex);
 
-    switch (type)
-    {
-        case SelectUserWnd::EM_TYPE_RECENT:
-            recentSessions = sessions;
-            break;
+    switch (type) {
+    case SelectUserWnd::EM_TYPE_RECENT:
+        recentSessions = sessions;
+        break;
 
-        case SelectUserWnd::EM_TYPE_CONTACTS:
-            contactsSessions = sessions;
-            break;
+    case SelectUserWnd::EM_TYPE_CONTACTS:
+        contactsSessions = sessions;
+        break;
 
-        case SelectUserWnd::EM_TYPE_GROUPCHAT:
-            groupSessions = sessions;
-            break;
+    case SelectUserWnd::EM_TYPE_GROUPCHAT:
+        groupSessions = sessions;
+        break;
 
-        default:
-            break;
+    default:
+        break;
     }
 
     emit sgUpdateUi();
@@ -380,36 +367,34 @@ void SelectUserWnd::setSessions(int type,
 void SelectUserWnd::updateUi()
 {
     QMutexLocker locker(&_mutex);
-    std::vector<QTalk::StShareSession> sessions;
+    std::vector<st::StShareSession> sessions;
 
-    switch (_type)
-    {
-        case SelectUserWnd::EM_TYPE_RECENT:
-            sessions = recentSessions;
-            break;
+    switch (_type) {
+    case SelectUserWnd::EM_TYPE_RECENT:
+        sessions = recentSessions;
+        break;
 
-        case SelectUserWnd::EM_TYPE_CONTACTS:
-            sessions = contactsSessions;
-            break;
+    case SelectUserWnd::EM_TYPE_CONTACTS:
+        sessions = contactsSessions;
+        break;
 
-        case SelectUserWnd::EM_TYPE_GROUPCHAT:
-            sessions = groupSessions;
-            break;
+    case SelectUserWnd::EM_TYPE_GROUPCHAT:
+        sessions = groupSessions;
+        break;
 
-        default:
-            break;
+    default:
+        break;
     }
 
     _pModel->clear();
 
-    for (const auto &sess : sessions)
-    {
+    for (const auto &sess : sessions) {
         auto *item = new QStandardItem;
         item->setData(sess.chatType, EM_DATATYPE_CHATTYPE);
         item->setData(sess.xmppId.data(), EM_DATATYPE_XMPPID);
         item->setData(sess.realJid.data(), EM_DATATYPE_REALJID);
         item->setData(sess.name.data(), EM_DATATYPE_NAME);
-        item->setData(QTalk::GetHeadPathByUrl(sess.headUrl).data(), EM_DATATYPE_HEAD);
+        item->setData(st::GetHeadPathByUrl(sess.headUrl).data(), EM_DATATYPE_HEAD);
         item->setData(false, EM_DATATYPE_CHECK);
         item->setData(sess.searchKey.data(), EM_DATATYPE_SEARCHKEY);
         _pModel->appendRow(item);
@@ -426,12 +411,13 @@ void SelectUserWnd::onItemCheckChanged(const QModelIndex &index)
     QString realJid = index.data(EM_DATATYPE_REALJID).toString();
     int chatType = index.data(EM_DATATYPE_CHATTYPE).toInt();
     bool isChecked = index.data(EM_DATATYPE_CHECK).toBool();
-    QTalk::Entity::UID uid(xmppId, realJid);
+    st::entity::UID uid(xmppId, realJid);
 
-    if (isChecked)
+    if (isChecked) {
         _selectedIds[uid] = chatType;
-    else
+    } else {
         _selectedIds.erase(uid);
+    }
 }
 
 void SelectUserWnd::closeEvent(QCloseEvent *e)
@@ -449,7 +435,7 @@ void SelectUserWnd::onItemDbClicked(const QModelIndex &index)
     QString xmppId = index.data(EM_DATATYPE_XMPPID).toString();
     QString realJid = index.data(EM_DATATYPE_REALJID).toString();
     int chatType = index.data(EM_DATATYPE_CHATTYPE).toInt();
-    QTalk::Entity::UID uid(xmppId, realJid);
+    st::entity::UID uid(xmppId, realJid);
     _selectedIds.clear();
     _selectedIds[uid] = chatType;
     //

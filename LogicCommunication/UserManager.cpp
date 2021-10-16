@@ -2,15 +2,15 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
-#include "../LogicManager/LogicManager.h"
-#include "../Platform/NavigationManager.h"
-#include "../Platform/Platform.h"
-#include "../QtUtil/nJson/nJson.h"
+#include "LogicManager/LogicManager.h"
+#include "DataCenter/NavigationManager.h"
+#include "DataCenter/Platform.h"
+#include "Util/nJson/nJson.h"
 #include "Communication.h"
-#include "../QtUtil/Utils/Log.h"
-#include "../Platform/dbPlatForm.h"
+#include "Util/Log.h"
+#include "DataCenter/dbPlatForm.h"
 
-using namespace QTalk;
+using namespace st;
 
 UserManager::UserManager(Communication *pComm)
     : _pComm(pComm)
@@ -37,16 +37,16 @@ bool UserManager::getNewStructure(bool sendEvt)
     std::ostringstream url;
     url << NavigationManager::instance().getHttpHost()
         << "/update/getUpdateUsers.qunar"
-        << "?v=" << PLAT.getClientVersion()
-        << "&p=" << PLAT.getPlatformStr()
-        << "&u=" << PLAT.getSelfUserId()
-        << "&k=" << PLAT.getServerAuthKey()
-        << "&d=" << PLAT.getSelfDomain();
+        << "?v=" << DC.getClientVersion()
+        << "&p=" << DC.getPlatformStr()
+        << "&u=" << DC.getSelfUserId()
+        << "&k=" << DC.getServerAuthKey()
+        << "&d=" << DC.getSelfDomain();
     nJson jsonObject;
     jsonObject["version"] = maxVersion;
     std::string postData = jsonObject.dump();
     bool retSts = false;
-    std::vector<Entity::ImUserInfo> arUserInfo;
+    std::vector<entity::ImUserInfo> arUserInfo;
     std::vector<std::string> arDeletes;
     auto callback = [postData, &retSts, &arUserInfo, &arDeletes](int code, const std::string & responseData)
     {
@@ -69,14 +69,14 @@ bool UserManager::getNewStructure(bool sendEvt)
                 nJson data = Json::get<nJson >(resData, "data");
                 int version = Json::get<int >(data, "version");
                 bool invisible = Json::get<bool>(data, "invisible");
-                PLAT.setShowStaff(!invisible);
-                std::string domain = PLAT.getSelfDomain();
+                DC.setShowStaff(!invisible);
+                std::string domain = DC.getSelfDomain();
                 // update
                 nJson update = Json::get<nJson >(data, "update");
 
                 for (auto &item : update)
                 {
-                    Entity::ImUserInfo user;
+                    entity::ImUserInfo user;
                     user.UserId = Json::get<std::string >(item, "U");
 
                     if(!user.UserId.empty() && user.UserId.find('@') != -1)
@@ -150,11 +150,11 @@ bool UserManager::getUserCard(const UserCardParam &param, std::vector<StUserCard
     std::ostringstream url;
     url << NavigationManager::instance().getHttpHost()
         << "/domain/get_vcard_info.qunar"
-        << "?v=" << PLAT.getClientVersion()
-        << "&p=" << PLAT.getPlatformStr()
-        << "&u=" << PLAT.getSelfUserId()
-        << "&k=" << PLAT.getServerAuthKey()
-        << "&d=" << PLAT.getSelfDomain();
+        << "?v=" << DC.getClientVersion()
+        << "&p=" << DC.getPlatformStr()
+        << "&u=" << DC.getSelfUserId()
+        << "&k=" << DC.getServerAuthKey()
+        << "&d=" << DC.getSelfDomain();
     nJson objs;
     auto itObj = param.cbegin();
 
@@ -256,13 +256,13 @@ bool UserManager::getUserCard(const UserCardParam &param, std::vector<StUserCard
     return retSts;
 }
 
-void UserManager::getUserFullInfo(std::shared_ptr<QTalk::Entity::ImUserSupplement> &imUserSup,
-                                  std::shared_ptr<QTalk::Entity::ImUserInfo> &userInfo)
+void UserManager::getUserFullInfo(std::shared_ptr<st::entity::ImUserSupplement> &imUserSup,
+                                  std::shared_ptr<st::entity::ImUserInfo> &userInfo)
 {
     //
     debug_log("请求名片 userId:{0}", imUserSup->XmppId);
     // 强制从服务器获取最新卡片
-    QTalk::Entity::JID jid(userInfo->XmppId);
+    st::entity::JID jid(userInfo->XmppId);
     UserCardParam param;
     std::vector<StUserCard> arUserInfo;
     param[jid.domainname()][jid.username()] = 0;
@@ -275,7 +275,7 @@ void UserManager::getUserFullInfo(std::shared_ptr<QTalk::Entity::ImUserSupplemen
 
         if(nullptr == userInfo)
         {
-            userInfo = std::make_shared<QTalk::Entity::ImUserInfo>();
+            userInfo = std::make_shared<st::entity::ImUserInfo>();
             userInfo->XmppId = jid.basename();
         }
 
@@ -309,18 +309,18 @@ void UserManager::getUserFullInfo(std::shared_ptr<QTalk::Entity::ImUserSupplemen
 
 // leader and userno
 bool
-UserManager::getUserSupplement(QTalk::Entity::JID *jid, std::shared_ptr<QTalk::Entity::ImUserSupplement> &imUserSup)
+UserManager::getUserSupplement(st::entity::JID *jid, std::shared_ptr<st::entity::ImUserSupplement> &imUserSup)
 {
     debug_log("请求leader userId: {0}", jid->username());
     std::ostringstream url;
     url << NavigationManager::instance().getLeaderUrl();
     nJson obj;
-    obj["platform"] = PLAT.getPlatformStr();
+    obj["platform"] = DC.getPlatformStr();
     obj["qtalk_id"] = jid->username();
     obj["user_id"] = jid->username();
-    obj["ckey"] = PLAT.getClientAuthKey();
+    obj["ckey"] = DC.getClientAuthKey();
     std::string postData = obj.dump();
-    std::cout << PLAT.getClientAuthKey() << std::endl;
+    std::cout << DC.getClientAuthKey() << std::endl;
     bool retSts = false;
     auto callback = [postData, jid, &retSts, &imUserSup](int code, const std::string & responsData)
     {
@@ -377,15 +377,15 @@ UserManager::getUserSupplement(QTalk::Entity::JID *jid, std::shared_ptr<QTalk::E
 bool UserManager::getPhoneNo(const std::string &userId, std::string &phoneNo)
 {
     debug_log("请求PhoneNo userId: {0}", userId);
-    auto *jid = new QTalk::Entity::JID(userId);
+    auto *jid = new st::entity::JID(userId);
     std::ostringstream url;
     url << NavigationManager::instance().getPhoneNumAddr();
-    std::string self_id = PLAT.getSelfUserId();
+    std::string self_id = DC.getSelfUserId();
     nJson obj;
-    obj["platform"] = PLAT.getPlatformStr().c_str();
+    obj["platform"] = DC.getPlatformStr().c_str();
     obj["qtalk_id"] = jid->username().c_str();
     obj["user_id"] = self_id.data();
-    obj["ckey"] = PLAT.getClientAuthKey().c_str();
+    obj["ckey"] = DC.getClientAuthKey().c_str();
     std::string postData = obj.dump();
     bool ret = false;
     std::string errMsg;
@@ -447,15 +447,15 @@ bool UserManager::changeUserHead(const std::string &headurl)
     std::ostringstream url;
     url << NavigationManager::instance().getHttpHost()
         << "/profile/set_profile.qunar"
-        << "?v=" << PLAT.getClientVersion()
-        << "&p=" << PLAT.getPlatformStr()
-        << "&u=" << PLAT.getSelfUserId()
-        << "&k=" << PLAT.getServerAuthKey()
-        << "&d=" << PLAT.getSelfDomain();
+        << "?v=" << DC.getClientVersion()
+        << "&p=" << DC.getPlatformStr()
+        << "&u=" << DC.getSelfUserId()
+        << "&k=" << DC.getServerAuthKey()
+        << "&d=" << DC.getSelfDomain();
     nJson obj;
     nJson objs;
-    obj["user"] = PLAT.getSelfUserId().data();
-    obj["domain"] = PLAT.getSelfDomain().data();
+    obj["user"] = DC.getSelfUserId().data();
+    obj["domain"] = DC.getSelfDomain().data();
     obj["url"] = headurl.data();
     objs.push_back(obj);
     std::string postData = objs.dump();
@@ -524,14 +524,14 @@ bool UserManager::changeUserHead(const std::string &headurl)
  */
 void UserManager::UpdateMood(const std::string &mood)
 {
-    QTalk::Entity::JID selfId(PLAT.getSelfXmppId().data());
+    st::entity::JID selfId(DC.getSelfXmppId().data());
     std::ostringstream url;
     url << NavigationManager::instance().getHttpHost()
         << "/profile/set_profile.qunar"
-        << "?v=" << PLAT.getClientVersion()
-        << "&p=" << PLAT.getPlatformStr()
+        << "?v=" << DC.getClientVersion()
+        << "&p=" << DC.getPlatformStr()
         << "&u=" << selfId.username()
-        << "&k=" << PLAT.getServerAuthKey()
+        << "&k=" << DC.getServerAuthKey()
         << "&d=" << selfId.domainname();
     //
     nJson obj;

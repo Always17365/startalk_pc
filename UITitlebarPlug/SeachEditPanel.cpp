@@ -1,6 +1,6 @@
 ﻿#include "SeachEditPanel.h"
-#include "../QtUtil/Utils/Log.h"
-#include "../UICom/StyleDefine.h"
+#include "Util/Log.h"
+#include "Util/ui/StyleDefine.h"
 #include <QStyle>
 #include <QHBoxLayout>
 
@@ -92,7 +92,7 @@ bool SeachEditPanel::eventFilter(QObject *o, QEvent *e)
         if(e->type() == QEvent::FocusIn)
         {
             _clearBtn->setVisible(true);
-            QColor selectColor = QTalk::StyleDefine::instance().getTitleSearchSelectColor();
+            QColor selectColor = st::StyleDefine::instance().getTitleSearchSelectColor();
             QString qss = QString("QFrame{background:rgba(%1, %2, %3, %4);"
                                   "border:1px solid rgba(0,202,190,1);}")
                           .arg(selectColor.red()).arg(selectColor.green())
@@ -103,7 +103,7 @@ bool SeachEditPanel::eventFilter(QObject *o, QEvent *e)
         else if(e->type() == QEvent::FocusOut)
         {
             _clearBtn->setVisible(false);
-            QColor normalColor = QTalk::StyleDefine::instance().getTitleSearchNormalColor();
+            QColor normalColor = st::StyleDefine::instance().getTitleSearchNormalColor();
             QString qss = QString("QFrame{background:rgba(%1, %2, %3, %4);}") .arg(normalColor.red()).arg(normalColor.green())
                           .arg(normalColor.blue()).arg(normalColor.alphaF());
             this->setStyleSheet(qss);

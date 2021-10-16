@@ -1,6 +1,6 @@
 ﻿#include "OAManagerPanel.h"
-#include "../Platform/Platform.h"
-#include "../include/Line.h"
+#include "DataCenter/Platform.h"
+#include "CustomUi/Line.h"
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <thread>
@@ -105,7 +105,7 @@ void OAManagerPanel::updateUi() {
     for (; it != _uidata.cend(); it++) {
         int id = it->groupId;
         QString name = QString::fromStdString(it->groupName);
-        QString path = QString::fromStdString(QTalk::getOAIconPath(it->groupIcon));
+        QString path = QString::fromStdString(st::getOAIconPath(it->groupIcon));
 
         _mapNavItems[id] = new OANavigationItem(id, name, path, this);
         auto* tmpOaWgt = new OaMainWgt(id, name, it->members, this);

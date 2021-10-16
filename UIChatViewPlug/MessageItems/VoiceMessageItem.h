@@ -2,8 +2,8 @@
 // Created by cc on 2019-05-08.
 //
 
-#ifndef QTALK_V2_VOICEMESSAGEITEM_H
-#define QTALK_V2_VOICEMESSAGEITEM_H
+#ifndef STALK_V2_VOICEMESSAGEITEM_H
+#define STALK_V2_VOICEMESSAGEITEM_H
 
 #include "MessageItemBase.h"
 #include <QTimer>
@@ -65,4 +65,4 @@ private:
     std::thread *_thread{nullptr};
 };
 
-#endif //QTALK_V2_VOICEMESSAGEITEM_H
+#endif //STALK_V2_VOICEMESSAGEITEM_H

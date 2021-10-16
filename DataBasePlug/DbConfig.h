@@ -2,15 +2,15 @@
 // Created by cc on 18-12-6.
 //
 
-#ifndef QTALK_V2_DBCONFIG_H
-#define QTALK_V2_DBCONFIG_H
+#ifndef STALK_V2_DBCONFIG_H
+#define STALK_V2_DBCONFIG_H
 
 #include "DaoInterface.h"
 
 class DbConfig : public DaoInterface
 {
 public:
-    explicit DbConfig(qtalk::sqlite::database * sqlDb = nullptr);
+    explicit DbConfig(st::sqlite::database * sqlDb = nullptr);
     bool creatTable() override;
 
 public:
@@ -24,4 +24,4 @@ private:
 };
 
 
-#endif //QTALK_V2_DBCONFIG_H
+#endif //STALK_V2_DBCONFIG_H

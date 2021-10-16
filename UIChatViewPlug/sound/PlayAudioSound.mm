@@ -16,13 +16,13 @@
 @end
 
 
-void QTalk::mac::util::PlayAudioSound::PlaySound(const char *path) {
+void st::mac::util::PlayAudioSound::PlaySound(const char *path) {
 
     NSString *nsPath = [NSString stringWithUTF8String:path];
     [[PlaySoundInst sharedInstance] playSoundWithPath:nsPath];
 }
 
-void QTalk::mac::util::PlayAudioSound::removeSound(const char *path)
+void st::mac::util::PlayAudioSound::removeSound(const char *path)
 {
     NSString *nsPath = [NSString stringWithUTF8String:path];
     [[PlaySoundInst sharedInstance] unRegisterSoundWithPath:nsPath];

@@ -5,15 +5,15 @@
 #pragma execution_character_set("utf-8")
 #endif
 
-#ifndef QTALK_V2_OAMAINWIDGETITEM_H
-#define QTALK_V2_OAMAINWIDGETITEM_H
+#ifndef STALK_V2_OAMAINWIDGETITEM_H
+#define STALK_V2_OAMAINWIDGETITEM_H
 
 #include <QFrame>
 #include <QTableWidget>
-#include "../include/CommonDefine.h"
-#include "../include/CommonStrcut.h"
+#include "include/CommonDefine.h"
+#include "include/CommonStrcut.h"
 
-typedef QTalk::StOAUIData::StMember StMember;
+typedef st::StOAUIData::StMember StMember;
 
 /**
  *
@@ -61,4 +61,4 @@ private:
 };
 
 
-#endif //QTALK_V2_OAMAINWIDGETITEM_H
+#endif //STALK_V2_OAMAINWIDGETITEM_H

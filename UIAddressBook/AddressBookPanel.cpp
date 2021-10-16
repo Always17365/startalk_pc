@@ -11,10 +11,10 @@
 #include <QtConcurrent>
 #include "ListItemView.h"
 #include "MessageManager.h"
-#include "../Platform/Platform.h"
-#include "../QtUtil/Utils/Log.h"
-#include "../QtUtil/Utils/utils.h"
-#include "../Platform/dbPlatForm.h"
+#include "DataCenter/Platform.h"
+#include "Util/Log.h"
+#include "Util/utils.h"
+#include "DataCenter/dbPlatForm.h"
 
 AddressBookPanel::AddressBookPanel(QWidget *parent)
     : QWidget(parent), _mainSplitter(nullptr), _pEmptyLabel(nullptr), _pUserCard(nullptr), _pstStrcuture(nullptr)
@@ -87,7 +87,7 @@ void AddressBookPanel::initUi()
     layout->setSpacing(0);
     layout->addWidget(_mainSplitter);
     connect(_pStaffDelegate, &StaffDelegate::itemClicked, this, &AddressBookPanel::onStaffItemClicked);
-    _mapNavItems[EM_ITEM_TYPE_STAFF]->setVisible(PLAT.getShowStaff());
+    _mapNavItems[EM_ITEM_TYPE_STAFF]->setVisible(DC.getShowStaff());
 }
 
 /**
@@ -210,7 +210,7 @@ void AddressBookPanel::onNavItemClicked(QUInt8 type)
   * @author   cc
   * @date     2018/12/16
   */
-void AddressBookPanel::updateUserConfig(const std::vector<QTalk::Entity::ImConfig> &arConfigs)
+void AddressBookPanel::updateUserConfig(const std::vector<st::entity::ImConfig> &arConfigs)
 {
     QVector<std::string> oldStarContact = _arStarContact;
     QVector<std::string> oldBlackList = _arBlackList;
@@ -251,7 +251,7 @@ void AddressBookPanel::updateUserConfig(const std::vector<QTalk::Entity::ImConfi
 }
 
 void AddressBookPanel::updateUserConfig(const std::map<std::string, std::string> &deleteData,
-                                        const std::vector<QTalk::Entity::ImConfig> &arImConfig)
+                                        const std::vector<st::entity::ImConfig> &arImConfig)
 {
     {
         QVector<std::string> delStarContact;
@@ -340,11 +340,11 @@ void AddressBookPanel::addItemByType(QUInt8 type, const QVector<std::string> &us
         {
             for (const std::string &id : users)
             {
-                std::shared_ptr<QTalk::Entity::ImUserInfo> userInfo = DB_PLAT.getUserInfo(id);
+                std::shared_ptr<st::entity::ImUserInfo> userInfo = DB_PLAT.getUserInfo(id);
 
                 if (nullptr == userInfo)
                 {
-                    userInfo = std::make_shared<QTalk::Entity::ImUserInfo>();
+                    userInfo = std::make_shared<st::entity::ImUserInfo>();
                     userInfo->XmppId = id;
                     AddressBookMsgManager::getUserInfo(userInfo);
                 }
@@ -352,9 +352,9 @@ void AddressBookPanel::addItemByType(QUInt8 type, const QVector<std::string> &us
                 if (nullptr != userInfo)
                 {
                     QString defaltHead = ":/QTalk/image1/StarTalk_defaultHead.png";
-                    QString iconPath = userInfo->HeaderSrc.empty() ? defaltHead : QString::fromStdString(QTalk::GetHeadPathByUrl(userInfo->HeaderSrc));
+                    QString iconPath = userInfo->HeaderSrc.empty() ? defaltHead : QString::fromStdString(st::GetHeadPathByUrl(userInfo->HeaderSrc));
                     listview->addItem(QString::fromStdString(id), EM_TYPE_USER, iconPath,
-                                      QString::fromStdString(QTalk::getUserName(userInfo)));
+                                      QString::fromStdString(st::getUserName(userInfo)));
                 }
             }
         }
@@ -387,8 +387,8 @@ void AddressBookPanel::removeItemByType(QUInt8 type, const QVector<std::string> 
 // *
 // * @param friends
 // */
-//void AddressBookPanel::onRecvFriends(const std::vector<QTalk::Entity::IMFriendList> &friends) {
-//    for (const QTalk::Entity::IMFriendList &imfriend : friends) {
+//void AddressBookPanel::onRecvFriends(const std::vector<st::Entity::IMFriendList> &friends) {
+//    for (const st::Entity::IMFriendList &imfriend : friends) {
 //        _arFriends.push_back(imfriend.XmppId);
 //    }
 //
@@ -399,7 +399,7 @@ void AddressBookPanel::removeItemByType(QUInt8 type, const QVector<std::string> 
  *
  * @param groups
  */
-void AddressBookPanel::onRecvGroups(const std::vector<QTalk::Entity::ImGroupInfo> &groups)
+void AddressBookPanel::onRecvGroups(const std::vector<st::entity::ImGroupInfo> &groups)
 {
     //_arGroups.fromStdVector(groups);
     QtConcurrent::run([this, groups]()
@@ -410,11 +410,11 @@ void AddressBookPanel::onRecvGroups(const std::vector<QTalk::Entity::ImGroupInfo
         if (nullptr == blkListview)
             return;
 
-        for (const QTalk::Entity::ImGroupInfo &group : groups)
+        for (const st::entity::ImGroupInfo &group : groups)
         {
             _arGroups.push_back(group);
             QString defaultGroupHead = ":/QTalk/image1/StarTalk_defaultGroup.png";
-            QString iconPath = group.HeaderSrc.empty() ? defaultGroupHead : QString::fromStdString(QTalk::GetHeadPathByUrl(group.HeaderSrc));
+            QString iconPath = group.HeaderSrc.empty() ? defaultGroupHead : QString::fromStdString(st::GetHeadPathByUrl(group.HeaderSrc));
 
             if (!QFile::exists(iconPath) || QFileInfo(iconPath).isDir())
                 iconPath = defaultGroupHead;
@@ -452,7 +452,7 @@ void AddressBookPanel::onListItemClicked(const QString &id, const QUInt8 &type)
 
         case EM_TYPE_GROUP:
             {
-                // StSessionInfo stSession(QTalk::Enum::GroupChat, id, "");
+                // StSessionInfo stSession(st::Enum::GroupChat, id, "");
                 // emit sgSwitchCurFun(0);
                 // emit sgOpenNewSession(stSession);
                 showGroupCard(id);
@@ -487,8 +487,8 @@ void AddressBookPanel::showUserCard(const QString &id)
     //
     auto ret = QtConcurrent::run([this, id]()
     {
-        _imuserSup = std::make_shared<QTalk::Entity::ImUserSupplement>();
-        _userInfo = std::make_shared<QTalk::Entity::ImUserInfo>();
+        _imuserSup = std::make_shared<st::entity::ImUserSupplement>();
+        _userInfo = std::make_shared<st::entity::ImUserInfo>();
         _userInfo->XmppId = id.toStdString();
         _imuserSup->XmppId = id.toStdString();
         AddressBookMsgManager::getUserCard(_imuserSup, _userInfo);
@@ -537,7 +537,7 @@ void AddressBookPanel::showGroupCard(const QString &id)
     auto ret = QtConcurrent::run([this, id]()
     {
         //
-        _imGroupSup = std::make_shared<QTalk::Entity::ImGroupInfo>();
+        _imGroupSup = std::make_shared<st::entity::ImGroupInfo>();
         _imGroupSup->GroupId = id.toStdString();
         AddressBookMsgManager::getGroupMembers(id.toStdString());
         AddressBookMsgManager::getGroupCard(_imGroupSup);
@@ -602,7 +602,7 @@ void AddressBookPanel::creatGroup(const QString &structure, const QString &group
     if (!arMembers.empty())
     {
         // 发送建群请求
-        QString groupId = QString("%1@conference.%2").arg(QTalk::utils::getMessageId().c_str()).arg(PLAT.getSelfDomain().c_str());
+        QString groupId = QString("%1@conference.%2").arg(st::utils::uuid().c_str()).arg(DC.getSelfDomain().c_str());
         groupId = groupId.replace("-", "");
         mapGroupMembers[groupId.toStdString()] = arMembers;
         //
@@ -831,11 +831,11 @@ void AddressBookPanel::getStructure()
     {
         {
             {
-                std::lock_guard<QTalk::util::spin_mutex> lock(sm);
-                std::vector<std::shared_ptr<QTalk::Entity::ImUserInfo>> structure;
+                std::lock_guard<st::util::spin_mutex> lock(sm);
+                std::vector<std::shared_ptr<st::entity::ImUserInfo>> structure;
                 AddressBookMsgManager::getStructure(structure);
                 _pstStrcuture = new StStrcuture;
-                std::for_each(structure.begin(), structure.end(), [this](const std::shared_ptr<QTalk::Entity::ImUserInfo> &info)
+                std::for_each(structure.begin(), structure.end(), [this](const std::shared_ptr<st::entity::ImUserInfo> &info)
                 {
                     if (info->isVisible)
                     {
@@ -925,7 +925,7 @@ void AddressBookPanel::creatChildItem(const StStrcuture *os, QStandardItem *pare
         while (itu != os->oUsers.end())
         {
             QStandardItem *item = new QStandardItem(QString((*itu)->Name.c_str()));
-            QString headrSrc = QString(QTalk::GetHeadPathByUrl((*itu)->HeaderSrc).c_str());
+            QString headrSrc = QString(st::GetHeadPathByUrl((*itu)->HeaderSrc).c_str());
 
             if (QFileInfo(headrSrc).isDir() || !QFile::exists(headrSrc))
                 headrSrc = ":/QTalk/image1/StarTalk_defaultHead.png";
@@ -944,7 +944,7 @@ void AddressBookPanel::creatChildItem(const StStrcuture *os, QStandardItem *pare
     }
 }
 
-void AddressBookPanel::gotIncrementUser(const std::vector<QTalk::Entity::ImUserInfo> &,
+void AddressBookPanel::gotIncrementUser(const std::vector<st::entity::ImUserInfo> &,
                                         const std::vector<std::string> &)
 {
     // 清楚数据
@@ -956,7 +956,7 @@ void AddressBookPanel::gotIncrementUser(const std::vector<QTalk::Entity::ImUserI
 }
 
 void AddressBookPanel::onRecvGroupMember(const std::string &groupId,
-        const std::map<std::string, QTalk::StUserCard> &userCards,
+        const std::map<std::string, st::StUserCard> &userCards,
         const std::map<std::string, QUInt8> &userRole)
 {
     if (_pGroupWnd && _imGroupSup && _imGroupSup->GroupId == groupId)

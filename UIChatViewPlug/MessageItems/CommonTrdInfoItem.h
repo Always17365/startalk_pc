@@ -2,8 +2,8 @@
 // Created by admin on 2019-01-22.
 //
 
-#ifndef QTALK_V2_COMMONTRDINFOITEM_H
-#define QTALK_V2_COMMONTRDINFOITEM_H
+#ifndef STALK_V2_COMMONTRDINFOITEM_H
+#define STALK_V2_COMMONTRDINFOITEM_H
 
 #include "MessageItemBase.h"
 
@@ -65,4 +65,4 @@ private:
 };
 
 
-#endif //QTALK_V2_COMMONTRDINFOITEM_H
+#endif //STALK_V2_COMMONTRDINFOITEM_H

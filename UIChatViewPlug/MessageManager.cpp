@@ -1,12 +1,12 @@
 ﻿#include "MessageManager.h"
-#include "../Message/ChatMessage.h"
-#include "../EventBus/EventBus.h"
+#include "Message/ChatMessage.h"
+#include "EventBus/EventBus.h"
 #include "ChatViewMainPanel.h"
 #include <QDateTime>
 #include <thread>
-#include "../Message/GroupMessage.h"
-#include "../QtUtil/Utils/Log.h"
-#include "../Message/LogicBaseMessage.h"
+#include "Message/GroupMessage.h"
+#include "Util/Log.h"
+#include "Message/LogicBaseMessage.h"
 
 //
 extern ChatViewMainPanel *g_pMainPanel;
@@ -75,7 +75,7 @@ std::string ChatMsgManager::getLocalHeadPath(const std::string &netHeadPath)
   * @date     2018/09/28
   */
 VectorMessage ChatMsgManager::getUserHistoryMessage(const QInt64 &time,
-                                                    const QUInt8 &chatType, const QTalk::Entity::UID &uid)
+                                                    const QUInt8 &chatType, const st::entity::UID &uid)
 {
     HistoryMessage e;
     e.time = time;
@@ -93,7 +93,7 @@ VectorMessage ChatMsgManager::getUserHistoryMessage(const QInt64 &time,
  * @return
  */
 VectorMessage ChatMsgManager::getUserLocalHistoryMessage(const QInt64 &time,
-                                                         const QTalk::Entity::UID &uid)
+                                                         const st::entity::UID &uid)
 {
     LocalHistoryMessage e;
     e.time = time;
@@ -136,7 +136,7 @@ void ChatMsgManager::sendMessage(S_Message &e)
     });
 }
 
-void ChatMsgManager::preSendMessage(const QTalk::Entity::ImMessageInfo &message)
+void ChatMsgManager::preSendMessage(const st::entity::ImMessageInfo &message)
 {
     g_pMainPanel->addSending(message.MsgId);
 
@@ -162,7 +162,7 @@ void ChatMsgManager::sendDownLoadFile(const std::string &strLocalPath,
 }
 
 //
-void ChatMsgManager::sendRevokeMessage(const QTalk::Entity::UID &uid,
+void ChatMsgManager::sendRevokeMessage(const st::entity::UID &uid,
                                        const std::string &from, const std::string &messageId, const QInt8 &chatType)
 {
     S_RevokeMessage e(uid, from, messageId, chatType);
@@ -215,7 +215,7 @@ void ChatMsgManager::removeGroupMember(const std::string &groupId,
     EventBus::FireEvent(e);
 }
 
-void ChatMsgManager::getUserInfo(std::shared_ptr<QTalk::Entity::ImUserInfo>
+void ChatMsgManager::getUserInfo(std::shared_ptr<st::entity::ImUserInfo>
                                  &info)
 {
     UserCardInfo e(info);
@@ -230,13 +230,13 @@ std::string ChatMsgManager::uploadFile(const std::string &localFile,
     return e.fileUrl;
 }
 
-void ChatMsgManager::getRecentSession(std::vector<QTalk::StShareSession> &ss)
+void ChatMsgManager::getRecentSession(std::vector<st::StShareSession> &ss)
 {
     RecentSessionEvt e(ss);
     EventBus::FireEvent(e);
 }
 
-void ChatMsgManager::getContactsSession(std::vector<QTalk::StShareSession> &ss)
+void ChatMsgManager::getContactsSession(std::vector<st::StShareSession> &ss)
 {
     ContactsSessionEvt e(ss);
     EventBus::FireEvent(e);
@@ -262,7 +262,7 @@ void ChatMsgManager::addGroupMember(const std::vector<std::string> &members,
 }
 
 VectorMessage ChatMsgManager::getUserFileHistoryMessage(const QInt64 &time,
-                                                        const QTalk::Entity::UID &uid)
+                                                        const st::entity::UID &uid)
 {
 
     FileHistoryMessage e;
@@ -275,7 +275,7 @@ VectorMessage ChatMsgManager::getUserFileHistoryMessage(const QInt64 &time,
 }
 
 VectorMessage ChatMsgManager::getUserImageHistoryMessage(const QInt64 &time,
-                                                         const QTalk::Entity::UID &uid)
+                                                         const st::entity::UID &uid)
 {
 
     ImageHistoryMessage e;
@@ -288,7 +288,7 @@ VectorMessage ChatMsgManager::getUserImageHistoryMessage(const QInt64 &time,
 }
 
 VectorMessage ChatMsgManager::getUserLinkHistoryMessage(const QInt64 &time,
-                                                        const QTalk::Entity::UID &uid)
+                                                        const st::entity::UID &uid)
 {
 
     LinkHistoryMessage e;
@@ -302,7 +302,7 @@ VectorMessage ChatMsgManager::getUserLinkHistoryMessage(const QInt64 &time,
 
 VectorMessage
 ChatMsgManager::getSearchMessage(const QInt64 &time,
-                                 const QTalk::Entity::UID &uid, const std::string &text)
+                                 const st::entity::UID &uid, const std::string &text)
 {
 
     SearchHistoryMessage e;
@@ -317,7 +317,7 @@ ChatMsgManager::getSearchMessage(const QInt64 &time,
 
 VectorMessage
 ChatMsgManager::getAfterMessage(const QInt64 &time,
-                                const QTalk::Entity::UID &uid)
+                                const st::entity::UID &uid)
 {
 
     AfterMessage e;
@@ -397,7 +397,7 @@ void ChatMsgManager::sendWebRtcCommand(int msgType, const std::string &json,
 }
 
 void ChatMsgManager::getUserMedal(const std::string &xmppId,
-                                  std::set<QTalk::StUserMedal> &medal)
+                                  std::set<st::StUserMedal> &medal)
 {
     UserMedalEvt e(xmppId, medal);
     EventBus::FireEvent(e);
@@ -411,7 +411,7 @@ void ChatMsgManager::sendSearch(SearchInfoEvent &event)
 VectorMessage
 ChatMsgManager::getNetHistoryMessage(const QInt64 &time,
                                      int chatType,
-                                     const QTalk::Entity::UID &uid,
+                                     const st::entity::UID &uid,
                                      int direction)
 {
 
@@ -432,6 +432,13 @@ void ChatMsgManager::updateGroupTopic(const std::string &groupId,
     UpdateGroupTopicEvt e;
     e.groupId = groupId;
     e.groupTopic = groupTopic;
+    EventBus::FireEvent(e);
+}
+
+void ChatMsgManager::getforbiddenWordState(const std::string &groupId)
+{
+    GetForbiddenWordGroupMsg e;
+    e.groupId = groupId;
     EventBus::FireEvent(e);
 }
 
@@ -466,6 +473,7 @@ ChatMsgListener::ChatMsgListener()
     EventBus::AddHandler<WebRtcCommand>(*this);
     EventBus::AddHandler<UserMedalChangedEvt>(*this);
     EventBus::AddHandler<LoginProcessMessage>(*this);
+    EventBus::AddHandler<ForbiddenWordGroupStateMsg>(*this);
 }
 
 ChatMsgListener::~ChatMsgListener()
@@ -637,7 +645,7 @@ void ChatMsgListener::onEvent(SignalReadState &e)
     }
 
     if (nullptr != g_pMainPanel) {
-        g_pMainPanel->gotReadState(QTalk::Entity::UID(e.userId, e.realJid),
+        g_pMainPanel->gotReadState(st::entity::UID(e.userId, e.realJid),
                                    e.mapReadState);
     }
 }
@@ -645,7 +653,7 @@ void ChatMsgListener::onEvent(SignalReadState &e)
 void ChatMsgListener::onEvent(MStateEvt &e)
 {
     if (nullptr != g_pMainPanel) {
-        g_pMainPanel->gotMState(QTalk::Entity::UID(e.userId, e.realJid), e.messageId,
+        g_pMainPanel->gotMState(st::entity::UID(e.userId, e.realJid), e.messageId,
                                 e.time);
     }
 }
@@ -850,5 +858,19 @@ void ChatMsgListener::onEvent(LoginProcessMessage &e)
 {
     if (g_pMainPanel) {
         g_pMainPanel->onRecvLoginProcessMessage(e.message.data());
+    }
+}
+
+void ChatMsgListener::onEvent(ForbiddenWordGroupStateMsg &e)
+{
+    if (g_pMainPanel) {
+        g_pMainPanel->onForbiddenWordGroupStateMsg(e.groupId.data(), e.status, true);
+    }
+}
+
+void ChatMsgListener::onEvent(GetForbiddenWordResult &e)
+{
+    if (g_pMainPanel) {
+        g_pMainPanel->onForbiddenWordGroupStateMsg(e.groupId.data(), e.status, false);
     }
 }

@@ -25,13 +25,13 @@
 #include <QButtonGroup>
 #include <QApplication>
 #include <QDate>
-#include "../include/Line.h"
+#include "CustomUi/Line.h"
 #include "DropMenu.h"
-#include "../Platform/Platform.h"
-#include "../CustomUi/QtMessageBox.h"
+#include "DataCenter/Platform.h"
+#include "CustomUi/QtMessageBox.h"
 #include "SKRecorder.h"
-#include "../QtUtil/Utils/Log.h"
-#include "../CustomUi/TitleBar.h"
+#include "Util/Log.h"
+#include "CustomUi/TitleBar.h"
 
 #include <QProcess>
 #include <QFontDatabase>
@@ -1010,7 +1010,7 @@ void SystemSettingWnd::initOtherSetting(QVBoxLayout *vlayout)
     //            level = 2;
     //        else
     //            level = 3;
-    //        QTalk::logger::setLevel(level);
+    //        st::logger::setLevel(level);
     //        AppSetting::instance().setLogLevel(level);
     //    });
 }
@@ -1040,7 +1040,7 @@ void deleteDictionary(const QString &dirPath)
 void deleteHistoryLogs()
 {
     QString logBasePath = QString("%1/logs").arg(
-                              PLAT.getAppdataRoamingPath().data());
+                              DC.getAppdataRoamingPath().data());
     QDir baseDir(logBasePath);
     auto infoList = baseDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
 
@@ -1069,14 +1069,14 @@ void SystemSettingWnd::initVersionInfo(QVBoxLayout *vlayout)
         vlayout->addLayout(versionLay);
         auto *versionLab = new QLabel(this);
         versionLay->addWidget(versionLab);
-        std::string clientVersion = PLAT.getGlobalVersion();
+        std::string clientVersion = DC.getGlobalVersion();
         QString currentVersion = QString("%1 ( %2 )").arg(clientVersion.data()).arg(
-                                     PLAT.getClientNumVerison());
+                                     DC.getClientNumVerison());
         versionLab->setText(currentVersion);
         auto *build_time_label = new QLabel(this);
         build_time_label->setContentsMargins(65, 0, 0, 0);
         vlayout->addWidget(build_time_label);
-        std::string build_time = PLAT.get_build_date_time();
+        std::string build_time = DC.get_build_date_time();
         build_time_label->setText(QString("build at: %1").arg(build_time.data()));
     }
     auto *repairLbl = new QLabel(tr("便捷维护:"), this);

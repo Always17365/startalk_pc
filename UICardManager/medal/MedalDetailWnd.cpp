@@ -3,7 +3,7 @@
 //
 
 #include "MedalDetailWnd.h"
-#include "../../include/Line.h"
+#include "CustomUi/Line.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QToolButton>
@@ -98,34 +98,26 @@ MedalDetailWnd::MedalDetailWnd(QWidget *parent)
     auto *lay = new QHBoxLayout(this);
     lay->setMargin(0);
     lay->addWidget(mainFrm);
-    connect(closeBtn, &QToolButton::clicked, this, [parent]()
-    {
+    connect(closeBtn, &QToolButton::clicked, this, [parent]() {
         parent->setVisible(false);
     });
     connect(backBtn, &QToolButton::clicked, this, &MedalDetailWnd::sgShowBack);
     connect(this, &MedalDetailWnd::sgUpdateUsers, this, &MedalDetailWnd::onUpdateUsers);
-    connect(moreBtn, &UserHeadWgt::clicked, this, [this]()
-    {
+    connect(moreBtn, &UserHeadWgt::clicked, this, [this]() {
         emit sgShowUserList(_metalUsers);
     });
-    connect(wearBtn, &QPushButton::clicked, this, [this]()
-    {
+    connect(wearBtn, &QPushButton::clicked, this, [this]() {
         emit sgModifyStatus(_medalId, true);
     });
-    connect(unloadBtn, &QPushButton::clicked, this, [this]()
-    {
+    connect(unloadBtn, &QPushButton::clicked, this, [this]() {
         emit sgModifyStatus(_medalId, false);
     });
 }
 
-MedalDetailWnd::~MedalDetailWnd() = default;
-
-
-void MedalDetailWnd::showMedalDetail(const QTalk::Entity::ImMedalList &medalInfo, bool isSelf, int status)
+void MedalDetailWnd::showMedalDetail(const st::entity::ImMedalList &medalInfo, bool isSelf, int status)
 {
     // title
-    for (auto *h : _userHeadWnds)
-    {
+    for (auto *h : _userHeadWnds) {
         _userLay->removeWidget(h);
         h->setVisible(false);
     }
@@ -135,20 +127,16 @@ void MedalDetailWnd::showMedalDetail(const QTalk::Entity::ImMedalList &medalInfo
     _pTipWgt->showTips(medalInfo.obtainCondition.data());
     _medalId = medalInfo.medalId;
 
-    if(isSelf && status > 0)
-    {
+    if (isSelf && status > 0) {
         unloadBtn->setVisible(true);
         wearBtn->setVisible(true);
         wearTipLabel->setVisible(true);
 
-        if((status & 0x02) > 0)
-        {
+        if ((status & 0x02) > 0) {
             wearBtn->setVisible(false);
             wearTipLabel->setText(tr("卸下后勋章将不再展示在姓名后"));
             return;
-        }
-        else if((status & 0x01) > 0)
-        {
+        } else if ((status & 0x01) > 0) {
             unloadBtn->setVisible(false);
             wearTipLabel->setText(tr("佩戴后勋章将展示在姓名后"));
             return;
@@ -167,24 +155,23 @@ void MedalDetailWnd::onUpdateUsers()
     moreBtn->setVisible(size > 6);
     auto index = 0;
 
-    for (const auto &u : _metalUsers)
-    {
+    for (const auto &u : _metalUsers) {
         auto *wgt = new UserHeadWgt(u.userName.data(), u.userHead.data());
         wgt->setFixedSize(30, 30);
         _userLay->insertWidget(index, wgt);
         _userHeadWnds.insert(wgt);
 
-        if(++index > 6)
+        if (++index > 6) {
             break;
+        }
     }
 }
 
-void MedalDetailWnd::setMedalUsers(int id, const std::vector<QTalk::StMedalUser> &metalUsers)
+void MedalDetailWnd::setMedalUsers(int id, const std::vector<st::StMedalUser> &metalUsers)
 {
     QMutexLocker locker(&_mutex);
 
-    if(id == _medalId)
-    {
+    if (id == _medalId) {
         _metalUsers = metalUsers;
         emit sgUpdateUsers();
     }
@@ -192,10 +179,12 @@ void MedalDetailWnd::setMedalUsers(int id, const std::vector<QTalk::StMedalUser>
 
 void MedalDetailWnd::onModifySuccess(int id, bool isWear)
 {
-    if(id != _medalId)
+    if (id != _medalId) {
         return;
+    }
 
     unloadBtn->setVisible(isWear);
     wearBtn->setVisible(!isWear);
-    wearTipLabel->setText(isWear ? tr("佩戴后勋章将展示在姓名后") : tr("卸下后勋章将不再展示在姓名后"));
+    wearTipLabel->setText(isWear ? tr("佩戴后勋章将展示在姓名后") :
+                          tr("卸下后勋章将不再展示在姓名后"));
 }

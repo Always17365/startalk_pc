@@ -2,8 +2,8 @@
 // Created by cc on 2019/11/02.
 //
 
-#ifndef QTALK_V2_LOCALSERVER_H
-#define QTALK_V2_LOCALSERVER_H
+#ifndef STALK_V2_LOCALSERVER_H
+#define STALK_V2_LOCALSERVER_H
 
 #include <QObject>
 #include <QLocalServer>
@@ -56,4 +56,4 @@ private:
 };
 
 
-#endif //QTALK_V2_LOCALSERVER_H
+#endif //STALK_V2_LOCALSERVER_H

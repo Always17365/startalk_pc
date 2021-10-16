@@ -2,11 +2,11 @@
 // Created by cc on 2019-02-22.
 //
 
-#ifndef QTALK_V2_AUDIOVIDEO_H
-#define QTALK_V2_AUDIOVIDEO_H
+#ifndef STALK_V2_AUDIOVIDEO_H
+#define STALK_V2_AUDIOVIDEO_H
 
 
-#include "../CustomUi/UShadowWnd.h"
+#include "CustomUi/UShadowWnd.h"
 #include "WebView.h"
 #include "webservice_global.h"
 
@@ -77,4 +77,4 @@ private:
     QMap<QString, bool> _isCall;
 
 };
-#endif //QTALK_V2_AUDIOVIDEO_H
+#endif //STALK_V2_AUDIOVIDEO_H

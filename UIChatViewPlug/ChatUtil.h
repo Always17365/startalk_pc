@@ -6,7 +6,7 @@
 #include <QLabel>
 #include <QMovie>
 
-namespace QTalk {
+namespace st {
 
     namespace Image {
         void scaImageSize(qreal &width, qreal &height);

@@ -1,7 +1,7 @@
 ﻿#include "SessionListDao.h"
-#include "../entity/IM_Session.h"
-#include "../QtUtil/Utils/Log.h"
-#include "../QtUtil/Utils/utils.h"
+#include "entity/IM_Session.h"
+#include "Util/Log.h"
+#include "Util/utils.h"
 #include <algorithm>
 #include <iostream>
 #include <sstream>
@@ -18,7 +18,7 @@
 #define END_TRANSACTION()
 #endif
 
-SessionListDao::SessionListDao(qtalk::sqlite::database *sqlDb) :
+SessionListDao::SessionListDao(st::sqlite::database *sqlDb) :
         DaoInterface(sqlDb, "IM_SessionList") {
 
 }
@@ -45,7 +45,7 @@ bool SessionListDao::creatTable() {
                       "`MessageState` INTEGER, "
                       "PRIMARY KEY(`XmppId`, `RealJid`) )";
 
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
 
     return query.executeStep();
 }
@@ -56,7 +56,7 @@ bool SessionListDao::creatTable() {
 //  * @参数
 //  * @date 2018.9.21
 //  */
-//bool SessionListDao::insertSessionInfo(const QTalk::Entity::ImSessionInfo &imSessionInfo) {
+//bool SessionListDao::insertSessionInfo(const st::Entity::ImSessionInfo &imSessionInfo) {
 //    if (!_pSqlDb) {
 //        return false;
 //    }
@@ -64,7 +64,7 @@ bool SessionListDao::creatTable() {
 //                      "LastUpdateTime, ChatType, ExtendedFlag, UnreadCount, MessageState ) "
 //                      "VALUES(?,?,?,?,?,?,?,?,?)";
 //
-//    qtalk::sqlite::statement query(*_pSqlDb, sql);
+//    st::sqlite::statement query(*_pSqlDb, sql);
 //    try {
 //        query.bind(1, imSessionInfo.XmppId);
 //        query.bind(2, imSessionInfo.RealJid);
@@ -82,7 +82,7 @@ bool SessionListDao::creatTable() {
 //    }
 //}
 //
-//bool SessionListDao::bulkInsertSessionInfo(const std::vector<QTalk::Entity::ImSessionInfo> &sessionList) {
+//bool SessionListDao::bulkInsertSessionInfo(const std::vector<st::Entity::ImSessionInfo> &sessionList) {
 //    if (!_pSqlDb) {
 //        return false;
 //    }
@@ -94,9 +94,9 @@ bool SessionListDao::creatTable() {
 //                      "update set LastMessageId = ?, LastUpdateTime = ?, MessageState = ?";
 //
 //    try {
-//        qtalk::sqlite::statement query(*_pSqlDb, sql);
+//        st::sqlite::statement query(*_pSqlDb, sql);
 //        _pSqlDb->exec("begin immediate;");
-//        for (const QTalk::Entity::ImSessionInfo &imSessionInfo : sessionList) {
+//        for (const st::Entity::ImSessionInfo &imSessionInfo : sessionList) {
 //            query.bind(1, imSessionInfo.XmppId);
 //            query.bind(2, imSessionInfo.RealJid);
 //            query.bind(3, imSessionInfo.UserId);
@@ -133,7 +133,7 @@ bool SessionListDao::creatTable() {
 //  * @参数
 //  * @date 2018.9.21
 //  */
-//std::shared_ptr<std::vector<std::shared_ptr<QTalk::Entity::ImSessionInfo> > > SessionListDao::QueryImSessionInfos() {
+//std::shared_ptr<std::vector<std::shared_ptr<st::Entity::ImSessionInfo> > > SessionListDao::QueryImSessionInfos() {
 //    if (!_pSqlDb) {
 //        return nullptr;
 //    }
@@ -145,7 +145,7 @@ bool SessionListDao::creatTable() {
 //    return reloadSession();
 //}
 
-std::shared_ptr<std::vector<std::shared_ptr<QTalk::Entity::ImSessionInfo> > > SessionListDao::reloadSession() {
+std::shared_ptr<std::vector<std::shared_ptr<st::entity::ImSessionInfo> > > SessionListDao::reloadSession() {
     if (!_pSqlDb) {
         return nullptr;
     }
@@ -156,7 +156,7 @@ std::shared_ptr<std::vector<std::shared_ptr<QTalk::Entity::ImSessionInfo> > > Se
                       "ON a.LastMessageId = b.MsgId "
                       "Where b.LastUpdateTime > ? order by b.LastUpdateTime";
 
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
 
     try {
 
@@ -164,10 +164,10 @@ std::shared_ptr<std::vector<std::shared_ptr<QTalk::Entity::ImSessionInfo> > > Se
         long long lastTime = (now - 100 * 24 * 60 * 60) * 1000;
         query.bind(1, lastTime);
 
-        std::shared_ptr<std::vector<std::shared_ptr<QTalk::Entity::ImSessionInfo> > > pImSessionInfos(
-                new std::vector<std::shared_ptr<QTalk::Entity::ImSessionInfo> >);
+        std::shared_ptr<std::vector<std::shared_ptr<st::entity::ImSessionInfo> > > pImSessionInfos(
+                new std::vector<std::shared_ptr<st::entity::ImSessionInfo> >);
         while (query.executeNext()) {
-            std::shared_ptr<QTalk::Entity::ImSessionInfo> pImSessionInfo(new QTalk::Entity::ImSessionInfo);
+            std::shared_ptr<st::entity::ImSessionInfo> pImSessionInfo(new st::entity::ImSessionInfo);
             pImSessionInfo->XmppId = query.getColumn(0).getText();
             pImSessionInfo->RealJid = query.getColumn(1).getText();
             pImSessionInfo->UserId = query.getColumn(2).getText();
@@ -199,7 +199,7 @@ void SessionListDao::updateUnreadCount() {
                       " (select count(MsgId) "
                       " from IM_Message where ReadedTag&2 <> 2  and Direction = 0 and IM_SessionList.XmppId = XmppId and IM_SessionList.RealJid = RealJid)";
 
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     try {
         query.executeStep();
     }
@@ -217,7 +217,7 @@ bool SessionListDao::bulkremoveSessionMessage(const std::vector<std::string> &pe
 
     std::string sql = "DELETE FROM IM_Message WHERE `XmppId` = ?;";
 
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     try {
         _pSqlDb->exec("begin immediate;");
         for (const std::string &id : peerIds) {
@@ -248,7 +248,7 @@ bool SessionListDao::bulkDeleteSession(const std::vector<std::string> &groupIds)
 
     std::string sql = "DELETE FROM IM_SessionList WHERE `XmppId` = ?;";
 
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     try {
         _pSqlDb->exec("begin immediate;");
         for (const std::string &id : groupIds) {
@@ -274,7 +274,7 @@ bool SessionListDao::deleteAllSession() {
         return false;
     //
     std::string sql = "DELETE FROM IM_SessionList;";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     try {
         return query.executeStep();
     } catch (std::exception &e) {
@@ -297,14 +297,14 @@ bool SessionListDao::deleteAllSession() {
 //
 //        for (const auto &id : *userList) {
 //            if (count >= userList->size() - 1) {
-//                stringStream << QTalk::utils::format("'%s') group by IM_Message.XmppId;", id.c_str());
+//                stringStream << st::utils::format("'%s') group by IM_Message.XmppId;", id.c_str());
 //            } else {
-//                stringStream << QTalk::utils::format("'%s', ", id.c_str());
+//                stringStream << st::utils::format("'%s', ", id.c_str());
 //            }
 //            count++;
 //        }
 //
-//        qtalk::sqlite::statement update(*_pSqlDb, stringStream.str());
+//        st::sqlite::statement update(*_pSqlDb, stringStream.str());
 //        try {
 //            return update.executeStep();
 //        } catch (std::exception &e) {
@@ -327,7 +327,7 @@ bool SessionListDao::deleteAllSession() {
 //
 //    // 获取所有用户
 //    std::string sql = "SELECT `ConfigSubKey`, `ConfigValue` FROM IM_Config WHERE `ConfigKey` = ?;";
-//    qtalk::sqlite::statement query(*_pSqlDb, sql);
+//    st::sqlite::statement query(*_pSqlDb, sql);
 //    try {
 //        query.bind(1, key);
 //
@@ -367,7 +367,7 @@ bool SessionListDao::deleteAllSession() {
 //                      "(XmppId, RealJid, UserId, LastMessageId, LastUpdateTime, ChatType ) "
 //                      "select XmppId, RealJid, `from`, MsgId, max(LastUpdateTime), ChatType from IM_Message where XmppId in "
 //                      "(select DISTINCT(XmppId) from IM_Message where (((ReadedTag&2) <> 2)  and Direction = 0))  group by IM_Message.XmppId;";
-//    qtalk::sqlite::statement query(*_pSqlDb, sql);
+//    st::sqlite::statement query(*_pSqlDb, sql);
 //    try {
 //        return query.executeStep();
 //    } catch (std::exception &e) {
@@ -376,7 +376,7 @@ bool SessionListDao::deleteAllSession() {
 //    }
 //}
 
-//void SessionListDao::searchSessionByUser(const std::string &key, std::vector<QTalk::StShareSession> &sessions, int pos,
+//void SessionListDao::searchSessionByUser(const std::string &key, std::vector<st::StShareSession> &sessions, int pos,
 //                                         int count) {
 //
 //    if (pos > 0 || count > 0) {
@@ -385,7 +385,7 @@ bool SessionListDao::deleteAllSession() {
 //                          "where (a.XmppId=b.ConfigSubKey or a.UserId like '%%?%%' OR a.Name like '%%?%%' OR "
 //                          "a.SearchIndex like '%%?%%') limit ? offset ?;";
 //
-//        qtalk::sqlite::statement query(*_pSqlDb, sql);
+//        st::sqlite::statement query(*_pSqlDb, sql);
 //
 //        query.bind(1, key);
 //        query.bind(2, key);
@@ -395,8 +395,8 @@ bool SessionListDao::deleteAllSession() {
 //        query.bind(6, pos);
 //
 //        while (query.executeNext()) {
-//            QTalk::StShareSession sess;
-//            sess.chatType = QTalk::Enum::ChatType::TwoPersonChat;
+//            st::StShareSession sess;
+//            sess.chatType = st::Enum::ChatType::TwoPersonChat;
 //            sess.xmppId = query.getColumn(1).getString();
 //            sess.realJid = query.getColumn(1).getString();
 //            sess.headUrl = query.getColumn(4).getString();
@@ -409,7 +409,7 @@ bool SessionListDao::deleteAllSession() {
 //                          "where (a.XmppId=b.ConfigSubKey or a.UserId like '%%?%%' OR a.Name like '%%?%%' OR "
 //                          "a.SearchIndex like '%%?%%');";
 //
-//        qtalk::sqlite::statement query(*_pSqlDb, sql);
+//        st::sqlite::statement query(*_pSqlDb, sql);
 //
 //        query.bind(1, key);
 //        query.bind(2, key);
@@ -417,8 +417,8 @@ bool SessionListDao::deleteAllSession() {
 //        query.bind(4, key);
 //
 //        while (query.executeNext()) {
-//            QTalk::StShareSession sess;
-//            sess.chatType = QTalk::Enum::ChatType::TwoPersonChat;
+//            st::StShareSession sess;
+//            sess.chatType = st::Enum::ChatType::TwoPersonChat;
 //            sess.xmppId = query.getColumn(1).getString();
 //            sess.realJid = query.getColumn(1).getString();
 //            sess.headUrl = query.getColumn(4).getString();
@@ -433,7 +433,7 @@ bool SessionListDao::deleteAllSession() {
  * @param key
  * @param sessions
  */
-void SessionListDao::getRecentSession(std::vector<QTalk::StShareSession> &sessions)
+void SessionListDao::getRecentSession(std::vector<st::StShareSession> &sessions)
 {
     if (!_pSqlDb)
         return;
@@ -449,14 +449,14 @@ void SessionListDao::getRecentSession(std::vector<QTalk::StShareSession> &sessio
                       "Where  S.LastUpdateTime > ? "
                       " order by S.LastUpdateTime desc;";
 
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     time_t now = time(0);
     long long lastTime = (now - 100 * 24 * 60 * 60) * 1000;
     query.bind(1, lastTime);
 
     while (query.executeNext())
     {
-        QTalk::StShareSession sess;
+        st::StShareSession sess;
         sess.chatType = query.getColumn(0).getInt();
         sess.xmppId = query.getColumn(1).getString();
         sess.realJid = query.getColumn(2).getString();
@@ -474,7 +474,7 @@ void SessionListDao::updateRealJidForFixBug() {
         return;
     }
     std::string sql = "update IM_Message set RealJid = XmppId where content='' and RealJid ='';";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     try {
         _pSqlDb->exec("begin immediate;");
         query.executeStep();
@@ -494,7 +494,7 @@ void SessionListDao::fixMessageType()
         return;
     }
     std::string sql = "update IM_SessionList set ChatType = ChatType - 1 where ChatType = 1 or ChatType = 2;";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     try {
         _pSqlDb->exec("begin immediate;");
         query.executeStep();
@@ -512,7 +512,7 @@ void SessionListDao::clearSelfUnRead(const std::string& xmppId) {
         return;
     }
     std::string sql = "update IM_SessionList set UnreadCount = 0 where xmppid = ?;";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     try {
         query.bind(1, xmppId);
         query.executeStep();

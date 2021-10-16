@@ -1,21 +1,22 @@
 ﻿#include "MessageItemBase.h"
 #include <QLabel>
 #include <QtCore/QEvent>
-#include "ChatViewMainPanel.h"
+#include "../ChatViewMainPanel.h"
 #include <QDebug>
 #include <QFileInfo>
 #include <QTimer>
-#include "../../CustomUi/HeadPhotoLab.h"
-#include "../QtUtil/Entity/JID.h"
+#include "CustomUi/HeadPhotoLab.h"
+#include "Util/Entity/JID.h"
 #include "../ChatMainWgt.h"
 #include "../InputWgt.h"
-#include "../../Platform/NavigationManager.h"
-#include "../../Platform/Platform.h"
-#include "../../CustomUi/QtMessageBox.h"
-#include "../../UICom/qimage/qimage.h"
+#include "DataCenter/NavigationManager.h"
+#include "DataCenter/Platform.h"
+#include "CustomUi/QtMessageBox.h"
+#include "Util/ui/qimage/qimage.h"
 #include "TextMessItem.h"
 
 extern ChatViewMainPanel *g_pMainPanel;
+
 MessageItemBase::MessageItemBase(const StNetMessageResult &msgInfo,
                                  QWidget *parent) :
     QFrame(parent), _readSts(0)
@@ -28,8 +29,8 @@ MessageItemBase::MessageItemBase(const StNetMessageResult &msgInfo,
     connect(_btnShareCheck, &QToolButton::clicked, this,
             &MessageItemBase::sgSelectItem);
 
-    if (QTalk::Enum::ChatType::GroupChat == _msgInfo.type
-        && QTalk::Entity::MessageDirectionReceive == _msgInfo.direction ) {
+    if (st::Enum::ChatType::GroupChat == _msgInfo.type
+        && st::entity::MessageDirectionReceive == _msgInfo.direction ) {
         if (!_nameLab) {
             _nameLab = new QLabel(this);
         }
@@ -50,13 +51,13 @@ MessageItemBase::MessageItemBase(const StNetMessageResult &msgInfo,
         _msgInfo.user_head = ":/QTalk/image1/StarTalk_defaultHead.png";
     }
 
-    if (QTalk::Entity::MessageDirectionReceive == _msgInfo.direction
+    if (st::entity::MessageDirectionReceive == _msgInfo.direction
         && nullptr == _headLab) {
         _headLab = new HeadPhotoLab;
         _headLab->setParent(this);
 
         if (imageInfo.suffix().toLower() == "gif") {
-            auto headPath = QTalk::qimage::getGifImagePathNoMark(_msgInfo.user_head);
+            auto headPath = st::qimage::getGifImagePathNoMark(_msgInfo.user_head);
             _headLab->setHead(headPath, HEAD_RADIUS);
         } else {
             _headLab->setHead(_msgInfo.user_head, HEAD_RADIUS);
@@ -67,10 +68,10 @@ MessageItemBase::MessageItemBase(const StNetMessageResult &msgInfo,
     }
 
     if (NavigationManager::instance().isShowmsgstat() &&
-        _msgInfo.direction == QTalk::Entity::MessageDirectionSent &&
-        (_msgInfo.type == QTalk::Enum::TwoPersonChat ||
-         _msgInfo.type == QTalk::Enum::Consult ||
-         _msgInfo.type == QTalk::Enum::ConsultServer)) {
+        _msgInfo.direction == st::entity::MessageDirectionSent &&
+        (_msgInfo.type == st::Enum::TwoPersonChat ||
+         _msgInfo.type == st::Enum::Consult ||
+         _msgInfo.type == st::Enum::ConsultServer)) {
         _readSts = EM_SENDDING;
         _readStateLabel = new QLabel(this);
         _readStateLabel->setContentsMargins(0, 0, 0, 0);
@@ -78,7 +79,7 @@ MessageItemBase::MessageItemBase(const StNetMessageResult &msgInfo,
     }
 
     if (_msgInfo.state == 0
-        && QTalk::Entity::MessageDirectionSent == _msgInfo.direction) {
+        && st::entity::MessageDirectionSent == _msgInfo.direction) {
         _resending = new HeadPhotoLab;
         _resending->setParent(this);
         _resending->setHead(":/chatview/image1/error.png", 8, false, false, true);
@@ -127,13 +128,13 @@ bool MessageItemBase::eventFilter(QObject *o, QEvent *e)
     if ((o == _headLab /*|| (_nameLab && o == _nameLab)*/) && g_pMainPanel) {
         // if(e->type() == QEvent::MouseButtonDblClick)
         // {
-        //     if(_msgInfo.type == QTalk::Enum::GroupChat)
+        //     if(_msgInfo.type == st::Enum::GroupChat)
         //     {
         //         _isPressEvent = false;
 
         //         StSessionInfo sessionInfo;
         //         sessionInfo.userId = _msgInfo.from;
-        //         sessionInfo.chatType = QTalk::Enum::TwoPersonChat;
+        //         sessionInfo.chatType = st::Enum::TwoPersonChat;
         //         emit g_pMainPanel->sgOpenNewSession(sessionInfo);
         //     }
 
@@ -145,7 +146,7 @@ bool MessageItemBase::eventFilter(QObject *o, QEvent *e)
             // g_pMainPanel->insertAt(_msgInfo.xmpp_id, _msgInfo.from);
             //
             auto showUserCard = [this]() {
-                if (_msgInfo.type == QTalk::Enum::ChatType::ConsultServer) {
+                if (_msgInfo.type == st::Enum::ChatType::ConsultServer) {
                     g_pMainPanel->showUserCard(_msgInfo.real_id);
                 } else {
                     g_pMainPanel->showUserCard(_msgInfo.from.section("/", 0, 0));
@@ -158,7 +159,7 @@ bool MessageItemBase::eventFilter(QObject *o, QEvent *e)
             QAction cardAct(tr("资料卡片"));
             menu.setAttribute(Qt::WA_TranslucentBackground, true);
 
-            if (_msgInfo.type == QTalk::Enum::GroupChat) {
+            if (_msgInfo.type == st::Enum::GroupChat) {
                 menu.addAction(&sendMessageAct);
                 menu.addAction(&atAct);
                 connect(&atAct, &QAction::triggered, [this]() {
@@ -167,7 +168,7 @@ bool MessageItemBase::eventFilter(QObject *o, QEvent *e)
                 connect(&sendMessageAct, &QAction::triggered, [this]() {
                     StSessionInfo sessionInfo;
                     sessionInfo.userId = _msgInfo.from.section("/", 0, 0);
-                    sessionInfo.chatType = QTalk::Enum::TwoPersonChat;
+                    sessionInfo.chatType = st::Enum::TwoPersonChat;
                     emit g_pMainPanel->sgOpenNewSession(sessionInfo);
                 });
             }
@@ -282,7 +283,7 @@ void MessageItemBase::checkShareCheckBtn(bool check)
 
 void MessageItemBase::onDisconnected()
 {
-    if (!PLAT.isMainThread()) {
+    if (!DC.isMainThread()) {
         emit sgDisconnected();
         return;
     }
@@ -301,13 +302,13 @@ void MessageItemBase::onDisconnected()
 
 void MessageItemBase::updateUserMedal()
 {
-    if (QTalk::Enum::ChatType::GroupChat == _msgInfo.type
-        && QTalk::Entity::MessageDirectionReceive == _msgInfo.direction ) {
+    if (st::Enum::ChatType::GroupChat == _msgInfo.type
+        && st::entity::MessageDirectionReceive == _msgInfo.direction ) {
         if (nullptr == _medalWgt) {
             _medalWgt = new MedalWgt(18, this);
         }
 
-        std::set<QTalk::StUserMedal> user_medal;
+        std::set<st::StUserMedal> user_medal;
         g_pMainPanel->getUserMedal(_msgInfo.from.toStdString(), user_medal);
         _medalWgt->addMedals(user_medal, true);
     }
@@ -318,11 +319,11 @@ void MessageItemBase::updateMessageInfo(const StNetMessageResult &messageInfo)
     this->_msgInfo = messageInfo;
 
     switch (messageInfo.msg_type) {
-    case QTalk::Entity::MessageTypeFile:
+    case st::entity::MessageTypeFile:
         break;
 
-    case QTalk::Entity::MessageTypeText:
-    case QTalk::Entity::MessageTypeGroupAt:
+    case st::entity::MessageTypeText:
+    case st::entity::MessageTypeGroupAt:
     default: {
         auto *pItem = qobject_cast<TextMessItem *>(this);
 

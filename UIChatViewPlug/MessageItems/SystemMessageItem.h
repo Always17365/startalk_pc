@@ -2,16 +2,16 @@
 // Created by lihaibin on 2019-06-12.
 //
 
-#ifndef QTALK_V2_SYSTEMMESSAGEITEM_H
-#define QTALK_V2_SYSTEMMESSAGEITEM_H
+#ifndef STALK_V2_SYSTEMMESSAGEITEM_H
+#define STALK_V2_SYSTEMMESSAGEITEM_H
 
 #include <QWebEngineView>
 #include "MessageItemBase.h"
-#include "../QtUtil/nJson/nJson.h"
+#include "Util/nJson/nJson.h"
 
 class SystemMessageItem : public MessageItemBase
 {
-Q_OBJECT
+    Q_OBJECT
 public:
     explicit SystemMessageItem(const StNetMessageResult &msgInfo,
                                QWidget *parent = nullptr);
@@ -25,7 +25,7 @@ public:
 protected:
     void resizeEvent(QResizeEvent *event) override;
 
-    void mousePressEvent(QMouseEvent* e) override;
+    void mousePressEvent(QMouseEvent *e) override;
 
 private:
     QLabel *titleLabel;
@@ -48,7 +48,7 @@ private:
     void initSendLayout();
     void initReceiveLayout();
     void initContentLayout();
-    void loadUrl(const StNetMessageResult& msgInfo);
+    void loadUrl(const StNetMessageResult &msgInfo);
 };
 
-#endif //QTALK_V2_SYSTEMMESSAGEITEM_H
+#endif //STALK_V2_SYSTEMMESSAGEITEM_H

@@ -10,14 +10,14 @@
 #include <QPainterPath>
 #include <QtWidgets/QListView>
 #include "AddressBookPanel.h"
-#include "../UICom/qimage/qimage.h"
-#include "../UICom/StyleDefine.h"
-#include "../Platform/AppSetting.h"
+#include "Util/ui/qimage/qimage.h"
+#include "Util/ui/StyleDefine.h"
+#include "DataCenter/AppSetting.h"
 
 #define HEAD_WIDTH 22
 
 /**/
-using namespace QTalk;
+using namespace st;
 ListItemDelegate::ListItemDelegate(QObject *parent )
     : QStyledItemDelegate(parent)
 {
@@ -44,14 +44,14 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
         painter->fillRect(rect, StyleDefine::instance().getNavNormalColor());
     QString strText = index.data(EM_DATA_TYPE_TEXT).toString();
     painter->setPen(StyleDefine::instance().getAdrNameFontColor());
-    QTalk::setPainterFont(painter, AppSetting::instance().getFontLevel());
+    st::setPainterFont(painter, AppSetting::instance().getFontLevel());
     painter->drawText(QRect(rect.x() + 65, rect.y(), rect.width() - 65, rect.height()), Qt::AlignVCenter, strText);
     QString headPath = index.data(EM_DATA_TYPE_ICON).toString();
     painter->setRenderHints(QPainter::Antialiasing, true);
     if(!QFile(headPath).isOpen())
     {
-        int dpi = QTalk::qimage::dpi();
-        QPixmap pixmap = QTalk::qimage::loadImage(headPath, true, true, HEAD_WIDTH * dpi, HEAD_WIDTH * dpi);
+        int dpi = st::qimage::dpi();
+        QPixmap pixmap = st::qimage::loadImage(headPath, true, true, HEAD_WIDTH * dpi, HEAD_WIDTH * dpi);
         QPainterPath path;
         QRect headRect(rect.x() + 30, rect.y() + 8, HEAD_WIDTH, HEAD_WIDTH);
         path.addEllipse(headRect);

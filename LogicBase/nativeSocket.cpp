@@ -8,11 +8,11 @@
 #include <mutex>
 #include <atomic>
 
-#include "../include/ThreadPool.h"
-#include "../QtUtil/Utils/utils.h"
-#include "../QtUtil/Utils/Log.h"
+#include "Util/ThreadPool.h"
+#include "Util/utils.h"
+#include "Util/Log.h"
 #include "Stream.h"
-#include "../QtUtil/lib/ini/ConfigLoader.h"
+#include "Util/ini/ConfigLoader.h"
 
 #if defined(_WINDOWS)
     #define ssize_t int
@@ -42,168 +42,162 @@
     #include <netinet/tcp.h>
 #endif
 
-namespace QTalk
+namespace st {
+namespace Socket {
+
+struct hostInfo {
+    int ai_family{};
+    unsigned long time{};
+    std::string ip;
+};
+
+bool takeHostInfo(struct hostInfo *info, const char *host)
 {
-    namespace Socket
-    {
+    struct addrinfo *answer, hint {
+    }, *curr;
+    memset(&hint, 0, sizeof(hint));
+    hint.ai_family = AF_UNSPEC;
+    hint.ai_socktype = SOCK_STREAM;
+    char ipstr2[128];
+    struct sockaddr_in *sockaddr_ipv4;
+    struct sockaddr_in6 *sockaddr_ipv6;
+    int ret = getaddrinfo(host, nullptr, &hint, &answer);
 
-        struct hostInfo
-        {
-            int ai_family{};
-            unsigned long time{};
-            std::string ip;
-        };
+    if (ret != 0) {
+        return false;
+    }
 
-        bool takeHostInfo(struct hostInfo *info, const char *host)
-        {
-            struct addrinfo *answer, hint
-            {
-            }, *curr;
-            memset(&hint, 0, sizeof(hint));
-            hint.ai_family = AF_UNSPEC;
-            hint.ai_socktype = SOCK_STREAM;
-            char ipstr2[128];
-            struct sockaddr_in *sockaddr_ipv4;
-            struct sockaddr_in6 *sockaddr_ipv6;
-            int ret = getaddrinfo(host, nullptr, &hint, &answer);
+    for (curr = answer; curr != nullptr; curr = curr->ai_next) {
+        switch (curr->ai_family) {
+        case AF_UNSPEC:
+            //do something here
+            break;
 
-            if (ret != 0)
-                return false;
-
-            for (curr = answer; curr != nullptr; curr = curr->ai_next)
-            {
-                switch (curr->ai_family)
-                {
-                    case AF_UNSPEC:
-                        //do something here
-                        break;
-
-                    case AF_INET:
-                        info->ai_family = curr->ai_family;
-                        sockaddr_ipv4 = reinterpret_cast<struct sockaddr_in *>( curr->ai_addr);
+        case AF_INET:
+            info->ai_family = curr->ai_family;
+            sockaddr_ipv4 = reinterpret_cast<struct sockaddr_in *>( curr->ai_addr);
 #ifdef _WINDOWS
-                        info->ip = inet_ntop(AF_INET, (PVOID)(&sockaddr_ipv4->sin_addr), ipstr2, sizeof(ipstr2));
+            info->ip = inet_ntop(AF_INET, (PVOID)(&sockaddr_ipv4->sin_addr), ipstr2,
+                                 sizeof(ipstr2));
 #else
-                        info->ip = inet_ntop(AF_INET, &sockaddr_ipv4->sin_addr, ipstr2, sizeof(ipstr2));
+            info->ip = inet_ntop(AF_INET, &sockaddr_ipv4->sin_addr, ipstr2, sizeof(ipstr2));
 #endif
-                        break;
+            break;
 
-                    case AF_INET6:
-                        info->ai_family = curr->ai_family;
-                        sockaddr_ipv6 = reinterpret_cast<struct sockaddr_in6 *>( curr->ai_addr);
+        case AF_INET6:
+            info->ai_family = curr->ai_family;
+            sockaddr_ipv6 = reinterpret_cast<struct sockaddr_in6 *>( curr->ai_addr);
 #ifdef _WINDOWS
-                        info->ip = inet_ntop(AF_INET6, (PVOID)(&sockaddr_ipv6->sin6_addr), ipstr2, sizeof(ipstr2));
+            info->ip = inet_ntop(AF_INET6, (PVOID)(&sockaddr_ipv6->sin6_addr), ipstr2,
+                                 sizeof(ipstr2));
 #else
-                        info->ip = inet_ntop(AF_INET6, &sockaddr_ipv6->sin6_addr, ipstr2, sizeof(ipstr2));
+            info->ip = inet_ntop(AF_INET6, &sockaddr_ipv6->sin6_addr, ipstr2,
+                                 sizeof(ipstr2));
 #endif
-                        break;
+            break;
 
-                    default:
-                        break;
-                }
-            }
-
-            freeaddrinfo(answer);
-            return true;
-        }
-
-        SSL_CTX *InitCTX()
-        {
-            SSL_CTX *ctx = nullptr;
-            SSL_load_error_strings();
-            ERR_load_crypto_strings();
-            OpenSSL_add_all_algorithms();
-            SSL_library_init();
-            ctx = SSL_CTX_new(SSLv23_client_method());
-
-            if (ctx == nullptr)
-            {
-                ERR_print_errors_fp(stderr);
-                error_log("SSL_CTX_new error");
-                abort();
-            }
-
-            return ctx;
-        }
-
-        class nativeSocket : public Stream
-        {
-
-        public:
-            ~nativeSocket() override
-            {
-                _bRun = false;
-                delete pool;
-                delete sendPool;
-            }
-
-        public:
-            nativeSocket();
-
-        public:
-            bool asyncConnect(long theTimeout) override;
-            void closeSocket() override;
-            void setHost(const char *host) override;
-            void setPort(int port) override;
-            void startTLS() override;
-            void sendMessage(const std::string &buffer) override;
-            void setDelegate(SocketDelegate *delegate) override;
-
-            void close_socket();
-
-        private:
-            bool connectToServer(long theTimeout);
-
-        private:
-            SocketDelegate  *_delegate{nullptr};
-            ThreadPool      *pool{nullptr};
-            ThreadPool      *sendPool{nullptr};
-            SSL_CTX         *ssl_ctx{nullptr};
-            SSL             *ssl{nullptr};
-
-            std::atomic_bool _bRun{false};
-            std::atomic_bool _bStopByUser{false};
-            std::string      _host;
-            int              _port{0};
-            int              fd{0};
-        };
-
-        Stream *buildNewSocket()
-        {
-            return new nativeSocket();
-        }
-
-        void nativeSocket::setDelegate(SocketDelegate *delegate)
-        {
-            this->_delegate = delegate;
+        default:
+            break;
         }
     }
+
+    freeaddrinfo(answer);
+    return true;
 }
 
-QTalk::Socket::nativeSocket::nativeSocket()
+SSL_CTX *InitCTX()
+{
+    SSL_CTX *ctx = nullptr;
+    SSL_load_error_strings();
+    ERR_load_crypto_strings();
+    OpenSSL_add_all_algorithms();
+    SSL_library_init();
+    ctx = SSL_CTX_new(SSLv23_client_method());
+
+    if (ctx == nullptr) {
+        ERR_print_errors_fp(stderr);
+        error_log("SSL_CTX_new error");
+        abort();
+    }
+
+    return ctx;
+}
+
+class nativeSocket : public Stream
+{
+
+public:
+    ~nativeSocket() override
+    {
+        _bRun = false;
+        delete pool;
+        delete sendPool;
+    }
+
+public:
+    nativeSocket();
+
+public:
+    bool asyncConnect(long theTimeout) override;
+    void closeSocket() override;
+    void setHost(const char *host) override;
+    void setPort(int port) override;
+    void startTLS() override;
+    void sendMessage(const std::string &buffer) override;
+    void setDelegate(SocketDelegate *delegate) override;
+
+    void close_socket();
+
+private:
+    bool connectToServer(long theTimeout);
+
+private:
+    SocketDelegate  *_delegate{nullptr};
+    ThreadPool      *pool{nullptr};
+    ThreadPool      *sendPool{nullptr};
+    SSL_CTX         *ssl_ctx{nullptr};
+    SSL             *ssl{nullptr};
+
+    std::atomic_bool _bRun{false};
+    std::atomic_bool _bStopByUser{false};
+    std::string      _host;
+    int              _port{0};
+    int              fd{0};
+};
+
+Stream *buildNewSocket()
+{
+    return new nativeSocket();
+}
+
+void nativeSocket::setDelegate(SocketDelegate *delegate)
+{
+    this->_delegate = delegate;
+}
+}
+}
+
+st::Socket::nativeSocket::nativeSocket()
 {
 #ifdef _WINDOWS
     WORD wVersionRequested;
     WSADATA wsaData;
     wVersionRequested = MAKEWORD(2, 2);
 
-    if (::WSAStartup(wVersionRequested, &wsaData) != 0)
-    {
+    if (::WSAStartup(wVersionRequested, &wsaData) != 0) {
         // error
     }
 
 #endif
-    pool = new ThreadPool("native socket pool");
-    sendPool = new ThreadPool("native socket send pool");
+    pool = new ThreadPool();
+    sendPool = new ThreadPool();
 }
 
-bool QTalk::Socket::nativeSocket::connectToServer(long theTimeout)
+bool st::Socket::nativeSocket::connectToServer(long theTimeout)
 {
     bool ret = false;
-    pool->enqueue([this, theTimeout, &ret]()
-    {
-        if (fd > 0)
-        {
+    pool->enqueue([this, theTimeout, &ret]() {
+        if (fd > 0) {
             warn_log("base socket: there is a re connect occoured, fd is {0}", fd);
             return;
         }
@@ -214,14 +208,12 @@ bool QTalk::Socket::nativeSocket::connectToServer(long theTimeout)
 
         info_log("get host info {0} -> {1}", succeeded, info.ip);
 
-        if (succeeded)
-        {
+        if (succeeded) {
             sockaddr *addr = nullptr;
             struct sockaddr_in sockaddr_ipv4 {};
             struct sockaddr_in6 sockaddr_ipv6 {};
 
-            if (info.ai_family == AF_INET)
-            {
+            if (info.ai_family == AF_INET) {
                 memset(&sockaddr_ipv4, 0, sizeof(sockaddr_ipv4));
                 sockaddr_ipv4.sin_family = AF_INET;
                 sockaddr_ipv4.sin_port = htons(_port);
@@ -233,9 +225,7 @@ bool QTalk::Socket::nativeSocket::connectToServer(long theTimeout)
 #endif
                 addr = (sockaddr *) &sockaddr_ipv4;
                 info_log("new socket {0}", fd);
-            }
-            else if (info.ai_family == AF_INET6)
-            {
+            } else if (info.ai_family == AF_INET6) {
                 memset(&sockaddr_ipv6, 0, sizeof(sockaddr_ipv6));
                 sockaddr_ipv6.sin6_family = AF_INET6;
                 sockaddr_ipv6.sin6_port = htons(_port);
@@ -252,22 +242,28 @@ bool QTalk::Socket::nativeSocket::connectToServer(long theTimeout)
             //
             int keepalive = 1; // 开启keepalive属性
 #ifndef _MACOS
-            int keepidle = 5; // 如该连接在5秒内没有任何数据往来,则进行探测
+            int keepidle =
+                5; // 如该连接在5秒内没有任何数据往来,则进行探测
 #endif
             int keepinterval = 5; // 探测时发包的时间间隔为5 秒
-            int keepcount = 3; // 探测尝试的次数.如果第1次探测包就收到响应了,则后2次的不再发.
+            int keepcount =
+                3; // 探测尝试的次数.如果第1次探测包就收到响应了,则后2次的不再发.
 #ifdef _WINDOWS
-            int result = setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, (const char *)&keepalive, sizeof(keepalive));
-            result = setsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, (const char *)&keepidle, sizeof(keepidle));
-            result = setsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, (const char *)&keepinterval, sizeof(keepinterval));
-            result = setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, (const char *)&keepcount, sizeof(keepcount));
+            int result = setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, (const char *)&keepalive,
+                                    sizeof(keepalive));
+            result = setsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, (const char *)&keepidle,
+                                sizeof(keepidle));
+            result = setsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, (const char *)&keepinterval,
+                                sizeof(keepinterval));
+            result = setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, (const char *)&keepcount,
+                                sizeof(keepcount));
             int error = -1;
             unsigned long flag = 1;
             ioctlsocket((SOCKET)fd, FIONBIO, &flag); //设置非阻塞
             int len = sizeof(int);
 
-            if (connect(fd, reinterpret_cast<const sockaddr *>(&sockaddr_ipv4), sizeof(struct sockaddr)) != 0)
-            {
+            if (connect(fd, reinterpret_cast<const sockaddr *>(&sockaddr_ipv4),
+                        sizeof(struct sockaddr)) != 0) {
                 timeval tm{};
                 fd_set set;
                 tm.tv_sec  = 3;
@@ -275,19 +271,19 @@ bool QTalk::Socket::nativeSocket::connectToServer(long theTimeout)
                 FD_ZERO(&set);
                 FD_SET(fd, &set);
 
-                if( select(fd + 1, nullptr, &set, nullptr, &tm) > 0)
-                {
+                if ( select(fd + 1, nullptr, &set, nullptr, &tm) > 0) {
                     getsockopt(fd, SOL_SOCKET, SO_ERROR, (char *)&error, /*(socklen_t *)*/&len);
 
-                    if(error == 0)
+                    if (error == 0) {
                         ret = true;
+                    }
                 }
             }
 
 #else
 
-            if (setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, (const char *) &keepalive, sizeof(keepalive)) != 0)
-            {
+            if (setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, (const char *) &keepalive,
+                           sizeof(keepalive)) != 0) {
                 error_log(
                     "base socket: setsockopt SO_KEEPALIVE error. fd is {0}, keepalive is {1}, error is {2}",
                     fd,
@@ -300,10 +296,10 @@ bool QTalk::Socket::nativeSocket::connectToServer(long theTimeout)
 
 #ifndef _MACOS
 
-            if (setsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, (const char *) &keepidle, sizeof(keepidle)) != 0)
-            {
+            if (setsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, (const char *) &keepidle,
+                           sizeof(keepidle)) != 0) {
                 error_log(
-                    QTalk::utils::format(
+                    st::utils::format(
                         "base socket: setsockopt TCP_KEEPIDLE error. fd is %d, error is %s",
                         fd,
                         strerror(errno)));
@@ -314,8 +310,8 @@ bool QTalk::Socket::nativeSocket::connectToServer(long theTimeout)
 
 #endif
 
-            if (setsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, (const char *) &keepinterval, sizeof(keepinterval)) != 0)
-            {
+            if (setsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, (const char *) &keepinterval,
+                           sizeof(keepinterval)) != 0) {
                 error_log(
                     "base socket: setsockopt TCP_KEEPINTVL error. fd is {0}, keepinterval is {1}, error is {2}",
                     fd,
@@ -326,8 +322,8 @@ bool QTalk::Socket::nativeSocket::connectToServer(long theTimeout)
                 return;
             }
 
-            if (setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, (const char *) &keepcount, sizeof(keepcount)) != 0)
-            {
+            if (setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, (const char *) &keepcount,
+                           sizeof(keepcount)) != 0) {
                 error_log(
                     "base socket: setsockopt TCP_KEEPCNT error. fd is {0}, keepcount is {1}, error is {2}",
                     fd,
@@ -346,8 +342,8 @@ bool QTalk::Socket::nativeSocket::connectToServer(long theTimeout)
 
             socklen_t len = sizeof(timeout);
 
-            if (setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (const char *) &timeout, len) != 0)
-            {
+            if (setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (const char *) &timeout,
+                           len) != 0) {
                 error_log(
                     "base socket: setsockopt SO_SNDTIMEO error. fd is {0}, timeout is {1}, error is {2}",
                     fd,
@@ -362,14 +358,13 @@ bool QTalk::Socket::nativeSocket::connectToServer(long theTimeout)
             flag = fcntl(fd, F_GETFL, 0);
             flag |= O_NONBLOCK;
             fcntl(fd, F_SETFL, flag); //设置非阻塞
-            auto connected = connect(fd, reinterpret_cast<const sockaddr *>(addr), sizeof(struct sockaddr));
+            auto connected = connect(fd, reinterpret_cast<const sockaddr *>(addr),
+                                     sizeof(struct sockaddr));
 
-            if (connected != 0)  //if 1
-            {
-                if (errno != EINPROGRESS)
+            if (connected != 0) { //if 1
+                if (errno != EINPROGRESS) {
                     error_log("connect error :%s\n", strerror(errno));
-                else
-                {
+                } else {
                     struct timeval tm;
                     tm.tv_sec = theTimeout;
                     tm.tv_usec = 0;
@@ -381,16 +376,16 @@ bool QTalk::Socket::nativeSocket::connectToServer(long theTimeout)
                     int res;
                     res = select(fd + 1, &rset, &set, NULL, &tm);
 
-                    if (res < 0)
+                    if (res < 0) {
                         error_log("network error in connect\n");
-                    else if (res == 0)
+                    } else if (res == 0) {
                         error_log("connect time out\n");
-                    else if (1 == res)
-                    {
-                        if (FD_ISSET(fd, &set))
+                    } else if (1 == res) {
+                        if (FD_ISSET(fd, &set)) {
                             ret = true;
-                        else
+                        } else {
                             error_log("other error when select:%s\n", strerror(errno));
+                        }
                     }
                 }
             }
@@ -401,57 +396,42 @@ bool QTalk::Socket::nativeSocket::connectToServer(long theTimeout)
 
             int ret = getsockname(fd, &tmpAddr, &tmpLen);
 
-            if(ret == 0)
-            {
+            if (ret == 0) {
                 struct sockaddr_in *sin = (struct sockaddr_in *)(&tmpAddr);
                 auto port = sin->sin_port;
                 char addr_buffer[INET_ADDRSTRLEN];
                 void *tmp = &(sin->sin_addr);
 
-                if (inet_ntop(AF_INET, tmp, addr_buffer, INET_ADDRSTRLEN) == nullptr)
-                {
+                if (inet_ntop(AF_INET, tmp, addr_buffer, INET_ADDRSTRLEN) == nullptr) {
                 }
 
                 info_log("socket: {2}, getsockname {0} -> {1}", port, addr_buffer, fd);
-            }
-            else
+            } else {
                 error_log("getsockname error {0} :", strerror(errno));
+            }
 
-//            if (connect(fd, reinterpret_cast<const sockaddr *>(addr), sizeof(struct sockaddr)) != 0) {
-//
-//                error_log(
-//                        "base socket: connect error. fd is {0}, error is {1}",
-//                        fd,
-//                        strerror(errno));
-//
-//                close_socket();
-//                this->_delegate->onSocketConnectFailed();
-//                return;
-//            }
 #endif // _WINDOWS
         }
     }).get();
     return ret;
 }
 
-void QTalk::Socket::nativeSocket::closeSocket()
+void st::Socket::nativeSocket::closeSocket()
 {
     _bRun = false;
     _bStopByUser = true;
 }
 
-void QTalk::Socket::nativeSocket::close_socket()
+void st::Socket::nativeSocket::close_socket()
 {
-    if(ssl)
-    {
+    if (ssl) {
         SSL_clear(ssl);
         SSL_shutdown(ssl);
         SSL_free(ssl);
         ssl = nullptr;
     }
 
-    if(ssl_ctx)
-    {
+    if (ssl_ctx) {
         SSL_CTX_free(ssl_ctx);
         ssl_ctx = nullptr;
     }
@@ -464,22 +444,21 @@ void QTalk::Socket::nativeSocket::close_socket()
     fd = 0;
 }
 
-bool QTalk::Socket::nativeSocket::asyncConnect(long theTimeout)
+bool st::Socket::nativeSocket::asyncConnect(long theTimeout)
 {
-    if(fd != 0)
+    if (fd != 0) {
         close_socket();
+    }
 
     bool connectRet = connectToServer(theTimeout);
 
-    if(!connectRet)
-    {
+    if (!connectRet) {
         close_socket();
         error_log("connectToServer failed");
         return false;
     }
 
-    pool->enqueue([this]()
-    {
+    pool->enqueue([this]() {
         _bStopByUser = false;
         _bRun = true;
         info_log("connected to socket, start send and recv message");
@@ -489,43 +468,31 @@ bool QTalk::Socket::nativeSocket::asyncConnect(long theTimeout)
         char buffer[len] = {0};
         int ssl_init_retry = 5;
 
-        do
-        {
-            if (this->ssl != nullptr)
-            {
-                if (SSL_is_init_finished(ssl))
-                {
-                    if(!_bRun)
+        do {
+            if (this->ssl != nullptr) {
+                if (SSL_is_init_finished(ssl)) {
+                    if (!_bRun) {
                         break;
+                    }
 
                     memset(buffer, '\0', sizeof(buffer));
 
-                    while (_bRun && ssl)
-                    {
+                    while (_bRun && ssl) {
                         n = static_cast<int>(SSL_read(ssl, buffer, len));
                         int errcode = SSL_get_error(ssl, n);
 
-                        if(errcode == SSL_ERROR_NONE)
-                        {
-                            if(n > 0)
-                            {
+                        if (errcode == SSL_ERROR_NONE) {
+                            if (n > 0) {
                                 this->_delegate->onDataReceived(buffer, n);
                                 break;
                             }
-                        }
-                        else if (errcode == SSL_ERROR_WANT_READ)
-                        {
+                        } else if (errcode == SSL_ERROR_WANT_READ) {
                             const std::chrono::milliseconds ms(100);
                             std::this_thread::sleep_for(ms);
-                        }
-                        else
-                        {
-                            if(errno == 0 || errno == 35)
-                            {
+                        } else {
+                            if (errno == 0 || errno == 35) {
                                 // TODO
-                            }
-                            else
-                            {
+                            } else {
                                 error_log(
                                     "base socket: ssl error, fd is: {0}, error is: {2} -> {1}, error code: {3}",
                                     fd,
@@ -536,28 +503,22 @@ bool QTalk::Socket::nativeSocket::asyncConnect(long theTimeout)
                             break;
                         }
                     }
-                }
-                else
-                {
-                    if(ssl_init_retry > 0)
-                    {
+                } else {
+                    if (ssl_init_retry > 0) {
                         warn_log("ssl not init success. time:{}", ssl_init_retry);
                         const std::chrono::milliseconds ms(500);
                         std::this_thread::sleep_for(ms);
                         ssl_init_retry -= 1;
                         continue;
-                    }
-                    else
-                    {
+                    } else {
                         _bRun = false;
                         break;
                     }
                 }
-            }
-            else
-            {
-                if(!_bRun)
+            } else {
+                if (!_bRun) {
                     break;
+                }
 
                 timeval tm{};
                 fd_set set;
@@ -567,18 +528,14 @@ bool QTalk::Socket::nativeSocket::asyncConnect(long theTimeout)
                 FD_SET(fd, &set);
                 auto res = select(fd + 1, nullptr, &set, nullptr, &tm);
 
-                if (res > 0)
-                {
-                    if (FD_ISSET(fd, &set))
-                    {
+                if (res > 0) {
+                    if (FD_ISSET(fd, &set)) {
                         n = static_cast<ssize_t>(recv(fd, buffer, static_cast<size_t>(len), 0));
 
-                        if (n > 0)
+                        if (n > 0) {
                             this->_delegate->onDataReceived(buffer, n);
-                        else
-                        {
-                            if (errno != 0 && errno != EINTR && errno != EAGAIN)
-                            {
+                        } else {
+                            if (errno != 0 && errno != EINTR && errno != EAGAIN) {
                                 error_log(
                                     "base socket: socket read failed. fd is {0}, error is {1}, length is {2}",
                                     fd,
@@ -588,15 +545,11 @@ bool QTalk::Socket::nativeSocket::asyncConnect(long theTimeout)
                             }
                         }
                     }
-                }
-                else if(res == 0)
-                {
+                } else if (res == 0) {
                     // sleep
                     const std::chrono::milliseconds ms(100);
                     std::this_thread::sleep_for(ms);
-                }
-                else
-                {
+                } else {
                     error_log(
                         "base socket: socket select state error. fd is {0}, error is {1}, length is {2}",
                         fd,
@@ -605,11 +558,11 @@ bool QTalk::Socket::nativeSocket::asyncConnect(long theTimeout)
                     break;
                 }
             }
-        }
-        while (_bRun);
+        } while (_bRun);
 
-        if(!_bStopByUser)
+        if (!_bStopByUser) {
             this->_delegate->onSocketDisConnected();
+        }
 
         close_socket();
         info_log("recv pool out. run:{0}, fd:{1}", _bRun, fd);
@@ -618,20 +571,19 @@ bool QTalk::Socket::nativeSocket::asyncConnect(long theTimeout)
 }
 
 
-void QTalk::Socket::nativeSocket::setHost(const char *host)
+void st::Socket::nativeSocket::setHost(const char *host)
 {
     this->_host = host;
 }
 
-void QTalk::Socket::nativeSocket::setPort(const int port)
+void st::Socket::nativeSocket::setPort(const int port)
 {
     this->_port = port;
 }
 
-void QTalk::Socket::nativeSocket::startTLS()
+void st::Socket::nativeSocket::startTLS()
 {
-    try
-    {
+    try {
         SSL_library_init();
         this->ssl_ctx = InitCTX();
         this->ssl = SSL_new(this->ssl_ctx);      /* create new SSL connection state */
@@ -639,75 +591,60 @@ void QTalk::Socket::nativeSocket::startTLS()
         SSL_set_connect_state(ssl);
         bool flag = true;
 
-        while (flag)
-        {
+        while (flag) {
             flag = false;
 
-            if(SSL_connect(ssl) == -1)
-            {
+            if (SSL_connect(ssl) == -1) {
                 int iret = SSL_get_error(ssl, -1);
 
-                if ((iret == SSL_ERROR_WANT_WRITE) || (iret == SSL_ERROR_WANT_READ))
+                if ((iret == SSL_ERROR_WANT_WRITE) || (iret == SSL_ERROR_WANT_READ)) {
                     flag = true;
-                else
-                {
+                } else {
                     error_log("start tls error: sslError{}", iret);
                     // ssl init error
                     _bRun = false;
                 }
-            }
-            else
-            {
+            } else {
                 _delegate->onTlsStarted();
                 break;
             }
         }
-    }
-    catch ( ...)
-    {
+    } catch ( ...) {
         error_log("--- startTLS error");
         _bRun = false;
     }
 }
 
-void QTalk::Socket::nativeSocket::sendMessage(const std::string &buffer)
+void st::Socket::nativeSocket::sendMessage(const std::string &buffer)
 {
-    sendPool->enqueue([this, buffer]()
-    {
-        if (_bRun && buffer.length() > 0)
-        {
-            if (this->ssl && SSL_is_init_finished(this->ssl))
-            {
-                do
-                {
-                    int size = SSL_write(this->ssl, buffer.c_str(), static_cast<int>(buffer.length()));
+    sendPool->enqueue([this, buffer]() {
+        if (_bRun && buffer.length() > 0) {
+            if (this->ssl && SSL_is_init_finished(this->ssl)) {
+                do {
+                    int size = SSL_write(this->ssl, buffer.c_str(),
+                                         static_cast<int>(buffer.length()));
 
-                    if (size != static_cast<int>(buffer.size()))
-                    {
+                    if (size != static_cast<int>(buffer.size())) {
                         int sslError = SSL_get_error(ssl, size);
 
-                        if(size == -1 && (sslError == SSL_ERROR_WANT_READ || sslError == SSL_ERROR_WANT_WRITE))
+                        if (size == -1 && (sslError == SSL_ERROR_WANT_READ
+                                           || sslError == SSL_ERROR_WANT_WRITE)) {
                             continue;
+                        }
 
                         error_log("base socket: SSL error: size:{0} - buffer.length():{1}. error:{2} -> {3}, sslError->{4}",
                                   size,
                                   buffer.length(), strerror(errno), errno, sslError);
                         _bRun = false;
-                    }
-                    else
-                    {
+                    } else {
                         // success to sent message
                         break;
                     }
-                }
-                while (_bRun);
-            }
-            else
-            {
+                } while (_bRun);
+            } else {
                 ssize_t size = send(fd, buffer.c_str(), buffer.length(), 0);
 
-                if (size != static_cast<int>(buffer.size()))
-                {
+                if (size != static_cast<int>(buffer.size())) {
                     error_log("base socket: TCP: your writen is not complated. size:{0} - buffer.length():{1}",
                               size,
                               buffer.length());

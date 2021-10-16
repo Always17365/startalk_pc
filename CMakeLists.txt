@@ -1,5 +1,5 @@
 ﻿cmake_minimum_required(VERSION 3.12)
-project(qtalk_v2)
+project(startalk)
 
 set(CMAKE_CXX_STANDARD 14)
 
@@ -56,10 +56,12 @@ else ()
 
         link_directories(Depends/qzxing/lib/x86)
         link_directories(Depends/Screenshot/lib/x86)
+        message(win32)
     endif ()
 
     if($ENV{QTDIR})
         set(QT_HOME ${QTDIR})
+        message(${QTDIR})
     else()
         message(please set qt venv)
     endif()
@@ -74,25 +76,26 @@ endif ()
 
 set(CMAKE_PREFIX_PATH ${QT_HOME})
 
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR})
 link_directories(.)
 link_directories(..)
 
 #star talk
 ADD_DEFINITIONS(-D_STARTALK)
 
+
 if (NOT WIN32)
-add_subdirectory(qzxing)
+    add_subdirectory(qzxing)
 endif()
+add_subdirectory(EventBus)
 add_subdirectory(quazip)
-add_subdirectory(QtUtil)
+add_subdirectory(Util)
 add_subdirectory(LogicBase)
 add_subdirectory(Screenshot)
-add_subdirectory(EventBus)
 add_subdirectory(breakpad)
-add_subdirectory(UICom)
 add_subdirectory(LogicManager)
 add_subdirectory(CustomUi)
-add_subdirectory(Platform)
+add_subdirectory(DataCenter)
 add_subdirectory(Emoticon)
 add_subdirectory(UIPictureBrowser)
 add_subdirectory(DataBasePlug)

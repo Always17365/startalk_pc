@@ -2,8 +2,8 @@
 // Created by cc on 2019-04-17.
 //
 
-#ifndef QTALK_V2_TIPBUTTON_H
-#define QTALK_V2_TIPBUTTON_H
+#ifndef STALK_V2_TIPBUTTON_H
+#define STALK_V2_TIPBUTTON_H
 
 #include <QFrame>
 #include <QPainter>
@@ -40,4 +40,4 @@ private:
 };
 
 
-#endif //QTALK_V2_TIPBUTTON_H
+#endif //STALK_V2_TIPBUTTON_H

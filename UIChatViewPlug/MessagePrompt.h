@@ -4,15 +4,15 @@
 #if _MSC_VER >= 1600
 #pragma execution_character_set("utf-8")
 #endif
-#ifndef QTALK_V2_MESSAGEPROMPT_H
-#define QTALK_V2_MESSAGEPROMPT_H
+#ifndef STALK_V2_MESSAGEPROMPT_H
+#define STALK_V2_MESSAGEPROMPT_H
 
-#include "../CustomUi/UShadowWnd.h"
+#include "CustomUi/UShadowWnd.h"
 #include "NativeChatStruct.h"
 #include <QTimer>
 #include <QMutexLocker>
 #include <QFrame>
-#include "../entity/im_message.h"
+#include "entity/im_message.h"
 
 class QLabel;
 class QPropertyAnimation;
@@ -21,7 +21,7 @@ class MessagePrompt : public QFrame
 {
 	Q_OBJECT
 public:
-    explicit MessagePrompt(const QTalk::Entity::ImMessageInfo& msg);
+    explicit MessagePrompt(const st::entity::ImMessageInfo& msg);
     ~MessagePrompt() override;
 
 public:
@@ -49,8 +49,8 @@ private:
     QPropertyAnimation *animation;
 
 private:
-	QTalk::Entity::ImMessageInfo _msg;
+	st::entity::ImMessageInfo _msg;
 };
 
 
-#endif //QTALK_V2_MESSAGEPROMPT_H
+#endif //STALK_V2_MESSAGEPROMPT_H

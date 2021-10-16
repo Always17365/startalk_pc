@@ -1,6 +1,6 @@
 ﻿#include "MessageManager.h"
-#include "../Message/ChatMessage.h"
-#include "../EventBus/EventBus.h"
+#include "Message/ChatMessage.h"
+#include "EventBus/EventBus.h"
 #include "EmoticonMainWgt.h"
 
 EmoMsgManager::EmoMsgManager()

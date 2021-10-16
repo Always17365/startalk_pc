@@ -3,8 +3,8 @@
 //
 
 #include "PkgDownload.h"
-#include "../../Platform/Platform.h"
-#include "../../QtUtil/Utils/utils.h"
+#include "DataCenter/Platform.h"
+#include "Util/utils.h"
 #include <QDebug>
 #include <QtConcurrentRun>
 #include <QApplication>
@@ -45,7 +45,7 @@ void PkgDownload::start()
     if(_pkgPath.isEmpty())
     {
         _pkgPath = QString("%1/updater/SetUp.%2")
-                   .arg(PLAT.getAppdataRoamingPath().data()).arg(QTalk::utils::getFileSuffix(_url.toStdString()).data());
+                   .arg(DC.getAppdataRoamingPath().data()).arg(st::utils::getFileSuffix(_url.toStdString()).data());
     }
 
     QFileInfo setupFileInfo(_pkgPath);
@@ -121,7 +121,7 @@ void PkgDownload::clearPkg()
     if(_pkgPath.isEmpty())
     {
         auto dirPath = QString("%1/updater")
-                       .arg(PLAT.getAppdataRoamingPath().data());
+                       .arg(DC.getAppdataRoamingPath().data());
         QDir dir(dirPath);
 
         for(const auto &it : dir.entryInfoList(QDir::NoDotAndDotDot | QDir::Files))
@@ -143,7 +143,7 @@ QString PkgDownload::getPkgMd5()
     if(_pkgPath.isEmpty())
     {
         _pkgPath = QString("%1/updater/SetUp.%2")
-                   .arg(PLAT.getAppdataRoamingPath().data()).arg(QTalk::utils::getFileSuffix(_url.toStdString()).data());
+                   .arg(DC.getAppdataRoamingPath().data()).arg(st::utils::getFileSuffix(_url.toStdString()).data());
     }
 
     QFile localFile(_pkgPath);

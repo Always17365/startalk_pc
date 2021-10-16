@@ -9,12 +9,12 @@
 #include <QHBoxLayout>
 #include <QLineEdit>
 #include <QToolButton>
-#include "../include/CommonStrcut.h"
+#include "include/CommonStrcut.h"
 #include "SeachEditPanel.h"
 #include "SearchEdit.h"
 #include "SearchResultPanel.h"
-#include "../UICom/UIEntity.h"
-#include "../CustomUi/HeadPhotoLab.h"
+#include "entity/UIEntity.h"
+#include "CustomUi/HeadPhotoLab.h"
 #include "DropMenu.h"
 
 
@@ -66,7 +66,7 @@ public:
 public:
 	void setCtrlWdt(QWidget *wdt);
 	void getSelfCard();
-	void recvUserCard(const std::vector<QTalk::StUserCard>& userCards);
+	void recvUserCard(const std::vector<st::StUserCard>& userCards);
 	void onChangeHeadRet(bool ret, const std::string& locaHead);
     void recvSwitchUserStatus(const std::string&);
 

@@ -2,11 +2,11 @@
 // Created by cc on 18-12-3.
 //
 
-#ifndef QTALK_V2_USERCONFIG_H
-#define QTALK_V2_USERCONFIG_H
+#ifndef STALK_V2_USERCONFIG_H
+#define STALK_V2_USERCONFIG_H
 
 #include <string>
-#include "../include/CommonDefine.h"
+#include "include/CommonDefine.h"
 
 class Communication;
 class UserConfig
@@ -25,4 +25,4 @@ private:
 };
 
 
-#endif //QTALK_V2_USERCONFIG_H
+#endif //STALK_V2_USERCONFIG_H

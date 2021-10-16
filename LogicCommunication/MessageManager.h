@@ -2,21 +2,21 @@
 #define _MESSAGEMANAGER_H
 
 #include <string>
-#include "../EventBus/Object.hpp"
-#include "../EventBus/EventHandler.hpp"
-#include "../EventBus/HandlerRegistration.hpp"
-#include "../Message/LoginMessgae.h"
-#include "../Message/ChatMessage.h"
-#include "../entity/IM_Session.h"
-#include "../Message/UserMessage.h"
-#include "../include/CommonStrcut.h"
-#include "../Message/GroupMessage.h"
-#include "../Message/StatusMessage.h"
-//#include "../entity/im_friend_list.h"
-#include "../entity/im_group.h"
-#include "../Message/UselessMessage.h"
-#include "../Message/LogicBaseMessage.h"
-#include "../entity/im_user_status_medal.h"
+#include "EventBus/Object.hpp"
+#include "EventBus/EventHandler.hpp"
+#include "EventBus/HandlerRegistration.hpp"
+#include "Message/LoginMessgae.h"
+#include "Message/ChatMessage.h"
+#include "entity/IM_Session.h"
+#include "Message/UserMessage.h"
+#include "include/CommonStrcut.h"
+#include "Message/GroupMessage.h"
+#include "Message/StatusMessage.h"
+//#include "entity/im_friend_list.h"
+#include "entity/im_group.h"
+#include "Message/UselessMessage.h"
+#include "Message/LogicBaseMessage.h"
+#include "entity/im_user_status_medal.h"
 
 class CommMsgManager : public Object
 {
@@ -26,7 +26,7 @@ public:
     static void sendGetHistoryError();
     static void sendGotStructure(bool ret);
     static void sendSynOfflineSuccess();
-    static void sendGotUserCard(const std::vector<QTalk::StUserCard> &userCard);
+    static void sendGotUserCard(const std::vector<st::StUserCard> &userCard);
     static void sendGotUsersStatus(const std::string &user,
                                    const std::string &status);
     static void sendDownloadHeadSuccess();
@@ -35,22 +35,22 @@ public:
     static void sendOnlineUpdate();
     static void gotGroupMember(GroupMemberMessage &e);
     static void updateGroupMemberInfo(const std::string &groupId,
-                                      const std::vector<QTalk::StUserCard> &userCards);
+                                      const std::vector<st::StUserCard> &userCards);
     static void gotGroupTopic(const std::string &groupId, const std::string &topic);
     static void updateFileProcess(const std::string &key, double dltotal,
                                   double dlnow, double ultotal, double ulnow, double speed, double leftTime);
     //  static void downloadFileComplete(const std::string& key,const std::string& localPath,bool finish);
-    static void onUpdateGroupInfo(std::shared_ptr<QTalk::StGroupInfo> info);
-    static void onGroupJoinMember(std::shared_ptr<QTalk::StGroupMember> member);
+    static void onUpdateGroupInfo(std::shared_ptr<st::StGroupInfo> info);
+    static void onGroupJoinMember(std::shared_ptr<st::StGroupMember> member);
 
-    static void updateUserConfigs(const std::vector<QTalk::Entity::ImConfig>
+    static void updateUserConfigs(const std::vector<st::entity::ImConfig>
                                   &arConfigs);
     static void incrementConfigs(const std::map<std::string, std::string>
                                  &deleteData,
-                                 const std::vector<QTalk::Entity::ImConfig> &arImConfig);
+                                 const std::vector<st::entity::ImConfig> &arImConfig);
     //
     static void sendLoginProcessMessage(const std::string &message);
-    static void sendGotGroupList(const std::vector<QTalk::Entity::ImGroupInfo>
+    static void sendGotGroupList(const std::vector<st::entity::ImGroupInfo>
                                  &groups);
 
     static void removeSession(const std::string &peerId);
@@ -59,14 +59,18 @@ public:
     static void sendFileWritedMessage(const std::string &localPath);
     static void changeHeadRetMessage(bool ret, const std::string &locaHead);
     static void updateMoodRet(const std::string &userId, const std::string &mood);
-    static void gotIncrementUser(const std::vector<QTalk::Entity::ImUserInfo>
+    static void gotIncrementUser(const std::vector<st::entity::ImUserInfo>
                                  &arUserInfo,
                                  const std::vector<std::string> &arDeletes);
 
     static void onUserMadelChanged(const
-                                   std::vector<QTalk::Entity::ImUserStatusMedal> &userMedals);
+                                   std::vector<st::entity::ImUserStatusMedal> &userMedals);
     //
     static void onCheckUpdate(const std::string &link, bool force);
+
+    static void forbiddenWordGroupState(const std::string &groupId,
+                                        bool status,
+                                        bool isO);
 };
 
 //
@@ -152,7 +156,8 @@ class CommMsgListener :
     public EventHandler<NetHistoryMessage>,
     public EventHandler<ReportLogin>,
     public EventHandler<ExceptCpuEvt>,
-    public EventHandler<UpdateGroupTopicEvt>
+    public EventHandler<UpdateGroupTopicEvt>,
+    public EventHandler<GetForbiddenWordGroupMsg>
 {
 public:
     explicit CommMsgListener(Communication *pComm);
@@ -256,6 +261,7 @@ public:
     //
     void onEvent(ExceptCpuEvt &e) override;
     void onEvent(UpdateGroupTopicEvt &e) override;
+    void onEvent(GetForbiddenWordGroupMsg &) override;
 
 private:
     Communication *_pComm {nullptr};

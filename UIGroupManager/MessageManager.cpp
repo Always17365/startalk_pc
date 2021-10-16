@@ -3,14 +3,14 @@
 //
 
 #include "MessageManager.h"
-#include "../Message/GroupMessage.h"
-#include "../EventBus/EventBus.h"
+#include "Message/GroupMessage.h"
+#include "EventBus/EventBus.h"
 #include "UIGroupManager.h"
-#include "../QtUtil/Utils/Log.h"
-#include "../Message/ChatMessage.h"
-#include "../Message/UserMessage.h"
+#include "Util/Log.h"
+#include "Message/ChatMessage.h"
+#include "Message/UserMessage.h"
 
-void GroupManagerMsgManager::getStructure(std::vector<std::shared_ptr<QTalk::Entity::ImUserInfo>>& structure)
+void GroupManagerMsgManager::getStructure(std::vector<std::shared_ptr<st::entity::ImUserInfo>>& structure)
 {
     StructureMessage e(structure);
     e.structure = structure;
@@ -36,13 +36,13 @@ void GroupManagerMsgManager::getGroupMembers(std::map<std::string, std::set<std:
     EventBus::FireEvent(e);
 }
 
-void GroupManagerMsgManager::getUserInfo(std::shared_ptr<QTalk::Entity::ImUserInfo>& info)
+void GroupManagerMsgManager::getUserInfo(std::shared_ptr<st::entity::ImUserInfo>& info)
 {
     UserCardInfo e(info);
     EventBus::FireEvent(e);
 }
 
-void GroupManagerMsgManager::getRecentSession(std::vector<QTalk::StShareSession> &ss)
+void GroupManagerMsgManager::getRecentSession(std::vector<st::StShareSession> &ss)
 {
     RecentSessionEvt e(ss);
     EventBus::FireEvent(e);

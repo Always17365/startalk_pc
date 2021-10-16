@@ -3,8 +3,8 @@
 
 #include "PlugManager.h"
 #include "StyleManager.h"
-#include "../QtUtil/lib/ini/ConfigLoader.h"
-#include "../Platform/AppSetting.h"
+#include "Util/ini/ConfigLoader.h"
+#include "DataCenter/AppSetting.h"
 
 class GlobalManager : public QObject
 {
@@ -38,7 +38,7 @@ private:
     StyleManager       _pstyleSheetManager;
 
 private:
-    QTalk::ConfigLoader *_pSystemConfig;
+    st::ConfigLoader *_pSystemConfig;
     int _theme = 1;
     std::string _font;
     int _font_level{};

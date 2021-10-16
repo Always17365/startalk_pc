@@ -10,8 +10,8 @@
 #include <QLabel>
 #include "../NativeChatStruct.h"
 #include "../../entity/im_message.h"
-#include "../../Platform/dbPlatForm.h"
-#include "../../CustomUi/MedalWgt.h"
+#include "DataCenter/dbPlatForm.h"
+#include "CustomUi/MedalWgt.h"
 
 #define HEAD_RADIUS 14
 

@@ -2,13 +2,13 @@
 // Created by lihaibin on 2019-07-03.
 //
 
-#ifndef QTALK_V2_IM_QR_CONTENT_H
-#define QTALK_V2_IM_QR_CONTENT_H
+#ifndef STALK_V2_IM_QR_CONTENT_H
+#define STALK_V2_IM_QR_CONTENT_H
 
 #include <string>
 
-namespace QTalk {
-    namespace Entity {
+namespace st {
+    namespace entity {
         struct IMQRContent
         {
             IMQRContent()
@@ -29,4 +29,4 @@ namespace QTalk {
     }
 }
 
-#endif //QTALK_V2_IM_QR_CONTENT_H
+#endif //STALK_V2_IM_QR_CONTENT_H

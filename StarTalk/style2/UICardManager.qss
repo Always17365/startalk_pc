@@ -134,6 +134,14 @@ QPushButton#SendMail:hover
     border-image:url(:/CardManager/image1/SendMail_hover_2.png);
 }
 
+QPushButton#ForbiddenWord {
+    border-image:url(:/CardManager/image1/QuitGroup_normal_2.png);
+}
+
+QPushButton#ForbiddenWord:hover {
+    border-image:url(:/CardManager/image1/QuitGroup_hover_2.png);
+}
+
 QPushButton#QuitGroup
 {
     border-image:url(:/CardManager/image1/QuitGroup_normal_2.png);

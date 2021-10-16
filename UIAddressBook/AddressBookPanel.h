@@ -12,18 +12,18 @@
 #include <memory>
 #include <QTreeView>
 #include <QStandardItemModel>
-#include "../CustomUi/NavigationItem.h"
+#include "CustomUi/NavigationItem.h"
 #include "UserCard.h"
 #include "GroupWnd.h"
 #include "StaffDelegate.h"
 #include "StaffStructure.h"
-#include "../entity/im_config.h"
-//#include "../entity/im_friend_list.h"
-#include "../entity/im_group.h"
-#include "../entity/im_userSupplement.h"
-#include "../UICom/UIEntity.h"
-#include "../entity/im_user.h"
-#include "../include/Spinlock.h"
+#include "entity/im_config.h"
+//#include "entity/im_friend_list.h"
+#include "entity/im_group.h"
+#include "entity/im_userSupplement.h"
+#include "entity/UIEntity.h"
+#include "entity/im_user.h"
+#include "Util/Spinlock.h"
 
 class ListItemView;
 class AddressBookMsgManager;
@@ -38,15 +38,11 @@ public:
     ~AddressBookPanel() override;
 
 public:
-    //	void sysTreeData(void*);
-
-    //
-public:
-    void updateUserConfig(const std::vector<QTalk::Entity::ImConfig> &arConfigs);
+    void updateUserConfig(const std::vector<st::entity::ImConfig> &arConfigs);
     void updateUserConfig(const std::map<std::string, std::string> &deleteData,
-                          const std::vector<QTalk::Entity::ImConfig> &arImConfig);
-    //	void onRecvFriends(const std::vector<QTalk::Entity::IMFriendList>& friends);
-    void onRecvGroups(const std::vector<QTalk::Entity::ImGroupInfo> &groups);
+                          const std::vector<st::entity::ImConfig> &arImConfig);
+    //  void onRecvFriends(const std::vector<st::Entity::IMFriendList>& friends);
+    void onRecvGroups(const std::vector<st::entity::ImGroupInfo> &groups);
 
     void onListItemClicked(const QString &id, const QUInt8 &type);
     void showUserCard(const QString &id);
@@ -57,9 +53,9 @@ public:
     void creatGroup(const QString &structure, const QString &groupName);
     void onCreatGroupRet(const std::string &groupId);
     void onDestroyGroupRet(const std::string &groupId);
-    void gotIncrementUser(const std::vector<QTalk::Entity::ImUserInfo> &arUserInfo,
+    void gotIncrementUser(const std::vector<st::entity::ImUserInfo> &arUserInfo,
                           const std::vector<std::string> &arDeletes);
-    void onRecvGroupMember(const std::string &groupId, const std::map<std::string, QTalk::StUserCard> &userCards,
+    void onRecvGroupMember(const std::string &groupId, const std::map<std::string, st::StUserCard> &userCards,
                            const std::map<std::string, QUInt8> &userRole);
 
 protected:
@@ -94,10 +90,10 @@ Q_SIGNALS:
     void updateUiSignal();
 
 private:
-    QSplitter *_mainSplitter;
+    QSplitter    *_mainSplitter;
     QStackedLayout *_rightLay{};
     QVBoxLayout *_leftLay{};
-    QLabel *_pEmptyLabel;
+    QLabel      *_pEmptyLabel{nullptr};
 
 private: //ui
     QMap<QUInt8, NavigationItem *> _mapNavItems;
@@ -108,13 +104,11 @@ private: //ui
     StaffDelegate *_pStaffDelegate{};
     StaffStructure *_pStaffStructure{};
 
-private:                                           //data
-    QVector<std::string> _arStarContact;           // 星标联系人
-    QVector<std::string> _arBlackList;             // 黑名单
-                                                   //	QVector<std::string>         _arFriends;   // 好友
-    QVector<QTalk::Entity::ImGroupInfo> _arGroups; // 群组列表
+private:                                        //data
+    QVector<std::string> _arStarContact;        // 星标联系人
+    QVector<std::string> _arBlackList;          // 黑名单
+    QVector<st::entity::ImGroupInfo> _arGroups; // 群组列表
     QMap<std::string, std::string> _mapMaskNames;
-    //
     QMap<std::string, std::vector<std::string>> mapGroupMembers;
 
 private:
@@ -125,15 +119,14 @@ private: //mutex
 
 private:
     AddressBookListener *_pMsgListener;
-    std::shared_ptr<QTalk::Entity::ImUserSupplement> _imuserSup;
-    std::shared_ptr<QTalk::Entity::ImUserInfo> _userInfo;
-    std::shared_ptr<QTalk::Entity::ImGroupInfo> _imGroupSup;
+    std::shared_ptr<st::entity::ImUserSupplement> _imuserSup;
+    std::shared_ptr<st::entity::ImUserInfo> _userInfo;
+    std::shared_ptr<st::entity::ImGroupInfo> _imGroupSup;
 
 private:
-    struct StStrcuture
-    {
+    struct StStrcuture {
         QString curStrcutureName;
-        std::vector<std::shared_ptr<QTalk::Entity::ImUserInfo>> oUsers;
+        std::vector<std::shared_ptr<st::entity::ImUserInfo>> oUsers;
         std::map<QString, StStrcuture *> mapChild;
         //
         QStandardItem *item = nullptr;
@@ -141,7 +134,7 @@ private:
 
     QStandardItemModel *_pStaffModel{};
     StStrcuture *_pstStrcuture;
-    QTalk::util::spin_mutex sm;
+    st::util::spin_mutex sm;
 
     std::map<std::string, QStandardItem *> _staffItems;
 

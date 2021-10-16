@@ -11,8 +11,8 @@
 #include <QHBoxLayout>
 #include <QDateTime>
 #include <QLabel>
-#include <ChatViewMainPanel.h>
-#include "../../UICom/StyleDefine.h"
+#include "../ChatViewMainPanel.h"
+#include "Util/ui/StyleDefine.h"
 
 extern ChatViewMainPanel *g_pMainPanel;
 NameTitleLabel::NameTitleLabel(int dir, QString name, QString time, QWidget *parent)
@@ -26,7 +26,7 @@ void NameTitleLabel::paintEvent(QPaintEvent* e)
     QPainter painter(this);
     QRect rect = this->contentsRect();
 
-    if(QTalk::Entity::MessageDirectionSent == _dir)
+    if(st::entity::MessageDirectionSent == _dir)
         painter.setPen(QColor(0,202,190));
     else
         painter.setPen(QColor(155,155,155));

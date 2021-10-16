@@ -13,7 +13,7 @@
 #include <QListView>
 #include <QStandardItemModel>
 #include <QSortFilterProxyModel>
-#include "../include/CommonStrcut.h"
+#include "include/CommonStrcut.h"
 #include "AtMessageView.h"
 
 class ChatMainWgt;
@@ -49,8 +49,8 @@ public:
     //
     void insertQuote(const QString& userName, const QString& source);
     //
-    void updateGroupMember(const std::map<std::string, QTalk::StUserCard>& member);
-    void updateGroupMemberInfo(const std::vector<QTalk::StUserCard>& member);
+    void updateGroupMember(const std::map<std::string, st::StUserCard>& member);
+    void updateGroupMemberInfo(const std::vector<st::StUserCard>& member);
     //
     void onAppDeactivated();
     //

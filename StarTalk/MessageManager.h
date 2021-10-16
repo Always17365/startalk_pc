@@ -2,13 +2,13 @@
 #define _MESSAGEMANAGER_H_
 
 #include <string>
-#include "../EventBus/Object.hpp"
-#include "../Message/LoginMessgae.h"
-#include "../EventBus/EventHandler.hpp"
-#include "../EventBus/HandlerRegistration.hpp"
-#include "../include/CommonStrcut.h"
-#include "../Message/StatusMessage.h"
-#include "../Message/ChatMessage.h"
+#include "EventBus/Object.hpp"
+#include "Message/LoginMessgae.h"
+#include "EventBus/EventHandler.hpp"
+#include "EventBus/HandlerRegistration.hpp"
+#include "include/CommonStrcut.h"
+#include "Message/StatusMessage.h"
+#include "Message/ChatMessage.h"
 
 class QTalkMsgManager : public Object
 {
@@ -18,7 +18,7 @@ public:
 public:
     static void sendHearBeat();
     static void sendOnlineState(const QInt64& login_t, const QInt64& logout_t, const std::string& ip);
-    static void sendOperatorStatistics(const std::string& ip, const std::vector<QTalk::StActLog>& operators);
+    static void sendOperatorStatistics(const std::string& ip, const std::vector<st::StActLog>& operators);
     static void sendLogReport(const std::string& desc, const std::string &logPath);
     static void chanegUserStatus(const std::string &status);
     static void reportDump(const std::string& ip, const std::string& id, const std::string & dump, QInt64 crashTime);

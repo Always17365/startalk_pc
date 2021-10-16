@@ -5,30 +5,30 @@
 #include <utility>
 #include <vector>
 #include <map>
-#include "../EventBus/Event.hpp"
-#include "../EventBus/Object.hpp"
-#include "../include/CommonStrcut.h"
-#include "../entity/im_user.h"
-#include "../entity/im_group.h"
+#include "EventBus/Event.hpp"
+#include "EventBus/Object.hpp"
+#include "include/CommonStrcut.h"
+#include "entity/im_user.h"
+#include "entity/im_group.h"
 #include <set>
 
 //
 class GotUserGroup : public Event {};
 
-// 
+//
 class GetGroupMessage : public Event
 {
 public:
-	std::string groupId;
+    std::string groupId;
 };
 
 //
 class GroupMemberMessage : public Event
 {
 public:
-	std::string                    groupId;
-	std::map<std::string, QUInt8>  userRole;
-    std::map<std::string, QTalk::StUserCard> members;
+    std::string                    groupId;
+    std::map<std::string, QUInt8>  userRole;
+    std::map<std::string, st::StUserCard> members;
 
 };
 
@@ -36,25 +36,26 @@ public:
 class GroupTopicEvt : public Event
 {
 public:
-	std::string groupId;
-	std::string groupTopic;
+    std::string groupId;
+    std::string groupTopic;
 };
 
 class UpdateGroupMember : public Event
 {
 public:
-	std::string groupId;
-	std::vector<QTalk::StUserCard> userCards;
+    std::string groupId;
+    std::vector<st::StUserCard> userCards;
 };
 
 class StructureMessage : public Event
 {
 public:
-    StructureMessage(std::vector<std::shared_ptr<QTalk::Entity::ImUserInfo>>& structure)
-    : structure(structure) { }
+    StructureMessage(std::vector<std::shared_ptr<st::entity::ImUserInfo>>
+                     &structure)
+        : structure(structure) { }
 
 public:
-    std::vector<std::shared_ptr<QTalk::Entity::ImUserInfo>>& structure;
+    std::vector<std::shared_ptr<st::entity::ImUserInfo>> &structure;
 };
 
 //
@@ -62,7 +63,7 @@ class AddGroupMember: public Event
 {
 public:
     AddGroupMember(std::vector<std::string>  members, std::string  groupId)
-    :members(std::move(members)), groupId(std::move(groupId)) { }
+        : members(std::move(members)), groupId(std::move(groupId)) { }
 
 public:
     std::vector<std::string> members;
@@ -74,7 +75,7 @@ class CreatGroup: public Event
 {
 public:
     CreatGroup(std::string groupId)
-    : groupId(std::move(groupId))
+        : groupId(std::move(groupId))
     {
 
     }
@@ -88,7 +89,7 @@ class CreatGroupRet : public Event
 {
 public:
     CreatGroupRet(std::string groupId, bool ret)
-    : ret(ret), groupId(std::move(groupId)) { }
+        : ret(ret), groupId(std::move(groupId)) { }
 
 public:
     bool ret;
@@ -98,7 +99,7 @@ public:
 class UpdateGroupInfoMsg : public Event
 {
 public:
-	std::shared_ptr<QTalk::StGroupInfo> groupinfo;
+    std::shared_ptr<st::StGroupInfo> groupinfo;
 };
 
 class UpdateGroupTopicEvt : public Event
@@ -111,106 +112,137 @@ public:
 class UpdateGroupInfoRet : public Event
 {
 public:
-    std::shared_ptr<QTalk::StGroupInfo> groupinfo;
+    std::shared_ptr<st::StGroupInfo> groupinfo;
 };
 
 class GroupMemberChangeRet : public Event
 {
 public:
-	std::string groupId;
-	std::string memberJid;
-	std::string nick;
-	int affiliation;
-	bool isAdd;
-	bool isRemove;
+    std::string groupId;
+    std::string memberJid;
+    std::string nick;
+    int affiliation;
+    bool isAdd;
+    bool isRemove;
 };
 
 class DestroyGroupRet : public Event
 {
 public:
-	std::string groupId;
-	bool        isDestroy = false;
+    std::string groupId;
+    bool        isDestroy = false;
 };
 
 class AllGroupList : public Event
 {
 public:
-    std::vector<QTalk::Entity::ImGroupInfo> groups;
+    std::vector<st::entity::ImGroupInfo> groups;
 };
 
 class GetStructureCount : public Event
 {
 public:
-	GetStructureCount(int & count): count(count) {}
+    GetStructureCount(int &count): count(count) {}
 
 public:
-	std::string structName; // 组织架构名称
-	int &count; //
+    std::string structName; // 组织架构名称
+    int &count; //
 };
 
 class GetStructureMember : public Event
 {
 public:
-    explicit GetStructureMember(std::vector<std::string>& arMembers)
+    explicit GetStructureMember(std::vector<std::string> &arMembers)
         : arMembers(arMembers) {}
 
 public:
-	std::string structName; // 组织架构名称
-	std::vector<std::string>& arMembers;
+    std::string structName; // 组织架构名称
+    std::vector<std::string> &arMembers;
 };
 
 class GetGroupInfoMessage : public Event
 {
 public:
-    explicit GetGroupInfoMessage(std::shared_ptr<QTalk::Entity::ImGroupInfo>& group)
-		:imGroupInfo(group) {};
+    explicit GetGroupInfoMessage(std::shared_ptr<st::entity::ImGroupInfo> &group)
+        : imGroupInfo(group) {};
 public:
-	std::shared_ptr<QTalk::Entity::ImGroupInfo>& imGroupInfo;
+    std::shared_ptr<st::entity::ImGroupInfo> &imGroupInfo;
 };
 
 class SetGroupAdmin : public Event
 {
 public:
-	std::string groupId;
-	std::string nick;
-	std::string memberJid;
-	bool 		isAdmin;
+    std::string groupId;
+    std::string nick;
+    std::string memberJid;
+    bool        isAdmin;
 };
 
 class RemoveGroupMember : public Event
 {
 public:
-	std::string groupId;
-	std::string nick;
-	std::string memberJid;
+    std::string groupId;
+    std::string nick;
+    std::string memberJid;
 };
 
 class QuitGroupMsg : public Event
 {
 public:
-	std::string groupId;
+    std::string groupId;
 };
 
 class DestroyGroupMsg : public Event
 {
 public:
-	std::string groupId;
+    std::string groupId;
 };
 
-class RemoveGroupMemberRet : public Event {
+class ForbiddenWordGroupMsg : public Event
+{
+public:
+    std::string groupId;
+    bool        status;
+};
+
+class GetForbiddenWordGroupMsg : public Event
+{
+public:
+    std::string groupId;
+};
+
+class ForbiddenWordGroupStateMsg : public Event
+{
+public:
+    std::string groupId;
+    bool        status;
+};
+
+class GetForbiddenWordResult : public Event
+{
+public:
+    std::string groupId;
+    bool        status;
+    bool        isOwnerOr;
+};
+
+class RemoveGroupMemberRet : public Event
+{
 public:
     RemoveGroupMemberRet(std::string groupId, std::string  memberId)
-    : groupId(std::move(groupId)), memberId(std::move(memberId)) {}
+        : groupId(std::move(groupId)), memberId(std::move(memberId)) {}
 
 public:
     std::string groupId;
     std::string memberId;
 };
 
-class AllGroupMemberEvt : public Event {
+class AllGroupMemberEvt : public Event
+{
 public:
-    explicit AllGroupMemberEvt(std::map<std::string, std::set<std::string>> &members)
-        : members(members){}
+    explicit AllGroupMemberEvt(std::map<std::string, std::set<std::string>>
+                               &members)
+        : members(members) {}
 
 public:
     std::map<std::string, std::set<std::string>> &members;

@@ -1,8 +1,7 @@
 ﻿#ifndef _FileHelper_H_
 #define _FileHelper_H_
 
-#include "../QtUtil/lib/Md5/Md5.h"
-#include "../include/CommonDefine.h"
+#include "include/CommonDefine.h"
 
 #include <vector>
 #include <mutex>

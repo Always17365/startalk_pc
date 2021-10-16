@@ -2,10 +2,10 @@
 
 #include <utility>
 #include "MainPanel.h"
-#include "../Message/UserMessage.h"
-#include "../EventBus/EventBus.h"
-#include "../Message/ChatMessage.h"
-#include "../Message/LogicBaseMessage.h"
+#include "Message/UserMessage.h"
+#include "EventBus/EventBus.h"
+#include "Message/ChatMessage.h"
+#include "Message/LogicBaseMessage.h"
 
 
 /**

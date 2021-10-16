@@ -3,12 +3,12 @@
 //
 
 #include "SearchView.h"
-#include "../Platform/Platform.h"
-#include "../Platform/dbPlatForm.h"
+#include "DataCenter/Platform.h"
+#include "DataCenter/dbPlatForm.h"
 #include <QScrollBar>
 #include <QMouseEvent>
 
-using namespace QTalk::Search;
+using namespace st::Search;
 
 SearchView::SearchView(QWidget *parent)
     : QListView(parent)
@@ -71,18 +71,18 @@ void SearchView::selectItem()
                 //
                 int type = index.data(EM_ITEM_ROLE_ITEM_TYPE).toInt();
 
-                if(QTalk::Search::EM_ACTION_USER == type)
+                if(st::Search::EM_ACTION_USER == type)
                 {
-                    int chatType = QTalk::Enum::TwoPersonChat;
+                    int chatType = st::Enum::TwoPersonChat;
                     QString xmppId = index.data(EM_ITEM_ROLE_XMPPID).toString();
                     QString icon = index.data(EM_ITEM_ROLE_ICON).toString();
                     QString name = index.data(EM_ITEM_ROLE_NAME).toString();
                     onOpenNewSession(chatType, xmppId, name, icon);
                 }
-                else if(QTalk::Search::EM_ACTION_MUC == type ||
-                        QTalk::Search::EM_ACTION_COMMON_MUC == type)
+                else if(st::Search::EM_ACTION_MUC == type ||
+                        st::Search::EM_ACTION_COMMON_MUC == type)
                 {
-                    int chatType = QTalk::Enum::GroupChat;
+                    int chatType = st::Enum::GroupChat;
                     QString xmppId = index.data(EM_ITEM_ROLE_XMPPID).toString();
                     QString icon = index.data(EM_ITEM_ROLE_ICON).toString();
                     QString name = index.data(EM_ITEM_ROLE_NAME).toString();
@@ -121,7 +121,7 @@ void addUserItem(QStandardItemModel *model, const std::vector<StUserItem> &users
         auto *pItem = new QStandardItem;
         pItem->setData(EM_ITEM_TYPE_ITEM, EM_TYPE_TYPE);
         pItem->setData(EM_ACTION_USER, EM_ITEM_ROLE_ITEM_TYPE);
-        pItem->setData(QTalk::GetHeadPathByUrl(it.icon).data(), EM_ITEM_ROLE_ICON);
+        pItem->setData(st::GetHeadPathByUrl(it.icon).data(), EM_ITEM_ROLE_ICON);
         pItem->setData(it.name.data(), EM_ITEM_ROLE_NAME);
         pItem->setData(it.structure.data(), EM_ITEM_ROLE_SUB_MESSAGE);
         pItem->setData(it.xmppId.data(), EM_ITEM_ROLE_XMPPID);
@@ -137,7 +137,7 @@ void addGroupItem(QStandardItemModel *model, const std::vector<StGroupItem> &gro
         auto *pItem = new QStandardItem;
         pItem->setData(EM_ITEM_TYPE_ITEM, EM_TYPE_TYPE);
         pItem->setData(it.type, EM_ITEM_ROLE_ITEM_TYPE);
-        pItem->setData(QTalk::GetHeadPathByUrl(it.icon).data(), EM_ITEM_ROLE_ICON);
+        pItem->setData(st::GetHeadPathByUrl(it.icon).data(), EM_ITEM_ROLE_ICON);
         pItem->setData(it.name.data(), EM_ITEM_ROLE_NAME);
 
         if(!it._hits.empty())
@@ -168,18 +168,18 @@ void addHistoryItem(QStandardItemModel *model, const std::vector<StHistory> &his
 //        pItem->setData(it.name.data(), EM_ITEM_ROLE_NAME);
         if(EM_ACTION_HS_SINGLE == it.type)
         {
-            std::string selfXmppId = PLAT.getSelfXmppId();
+            std::string selfXmppId = DC.getSelfXmppId();
             std::string id = selfXmppId == it.from ? it.to : it.from;
-            pItem->setData(QTalk::getUserNameNoMask(id).data(), EM_ITEM_ROLE_NAME);
+            pItem->setData(st::getUserNameNoMask(id).data(), EM_ITEM_ROLE_NAME);
             auto user_info = DB_PLAT.getUserInfo(id);
 
             if(user_info)
-                pItem->setData(QTalk::GetHeadPathByUrl(user_info->HeaderSrc).data(), EM_ITEM_ROLE_ICON);
+                pItem->setData(st::GetHeadPathByUrl(user_info->HeaderSrc).data(), EM_ITEM_ROLE_ICON);
         }
         else
         {
             pItem->setData(it.name.data(), EM_ITEM_ROLE_NAME);
-            pItem->setData(QTalk::GetHeadPathByUrl(it.icon).data(), EM_ITEM_ROLE_ICON);
+            pItem->setData(st::GetHeadPathByUrl(it.icon).data(), EM_ITEM_ROLE_ICON);
         }
 
         pItem->setData(it.key.data(), EM_ITEM_ROLE_KEY);
@@ -208,7 +208,7 @@ void addHistoryFileItem(QStandardItemModel *model, const std::vector<StHistoryFi
         pItem->setData(it.key.data(), EM_ITEM_ROLE_KEY);
         pItem->setData(EM_ITEM_TYPE_ITEM, EM_TYPE_TYPE);
         pItem->setData(EM_ACTION_HS_FILE, EM_ITEM_ROLE_ITEM_TYPE);
-        pItem->setData(QTalk::GetHeadPathByUrl(it.icon).data(), EM_ITEM_ROLE_ICON);
+        pItem->setData(st::GetHeadPathByUrl(it.icon).data(), EM_ITEM_ROLE_ICON);
         pItem->setData(it.file_name.data(), EM_ITEM_ROLE_NAME);
         QString content = QObject::tr("来自：%1").arg(it.source.data());
         pItem->setData(content, EM_ITEM_ROLE_SUB_MESSAGE);
@@ -220,7 +220,7 @@ void addHistoryFileItem(QStandardItemModel *model, const std::vector<StHistoryFi
  *
  * @param ret
  */
-void SearchView::addSearchResult(const QTalk::Search::StSearchResult &ret, int reqType, bool isGetMore)
+void SearchView::addSearchResult(const st::Search::StSearchResult &ret, int reqType, bool isGetMore)
 {
     if(!isGetMore)
     {
@@ -277,7 +277,7 @@ void SearchView::addOpenWithIdItem(const QString &keyId)
     id = id.trimmed().toLower();
 
     if(!id.contains("@"))
-        id += QString("@%1").arg(PLAT.getSelfDomain().data());
+        id += QString("@%1").arg(DC.getSelfDomain().data());
 
     auto *pItem = new QStandardItem;
     pItem->setData(EM_ITEM_TYPE_ITEM, EM_TYPE_TYPE);

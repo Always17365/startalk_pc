@@ -2,10 +2,10 @@
 // Created by cc on 2019-03-01.
 //
 
-#ifndef QTALK_V2_VIDEOPLAYWND_H
-#define QTALK_V2_VIDEOPLAYWND_H
+#ifndef STALK_V2_VIDEOPLAYWND_H
+#define STALK_V2_VIDEOPLAYWND_H
 
-#include "../CustomUi/UShadowWnd.h"
+#include "CustomUi/UShadowWnd.h"
 #include <QFrame>
 #include <QDateTime>
 
@@ -29,4 +29,4 @@ public slots:
 };
 
 
-#endif //QTALK_V2_VIDEOPLAYWND_H
+#endif //STALK_V2_VIDEOPLAYWND_H

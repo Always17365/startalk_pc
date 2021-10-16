@@ -2,12 +2,12 @@
 // Created by cc on 18-11-6.
 //
 
-#ifndef QTALK_V2_UIGROUPMANAGERPLUG_H
-#define QTALK_V2_UIGROUPMANAGERPLUG_H
+#ifndef STALK_V2_UIGROUPMANAGERPLUG_H
+#define STALK_V2_UIGROUPMANAGERPLUG_H
 
 #include "uigroupmanager_global.h"
 #include <QObject>
-#include "../interface/view/IUIGroupManagerPlug.h"
+#include "interface/view/IUIGroupManagerPlug.h"
 
 class UIGroupManager;
 class UIGROUPMANAGER_EXPORT UIGroupManagerPlug : public QObject, public IUIGroupManagerPlug
@@ -33,4 +33,4 @@ private:
 };
 
 
-#endif //QTALK_V2_UIGROUPMANAGERPLUG_H
+#endif //STALK_V2_UIGROUPMANAGERPLUG_H

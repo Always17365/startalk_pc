@@ -4,12 +4,12 @@
 #if _MSC_VER >= 1600
 #pragma execution_character_set("utf-8")
 #endif
-#ifndef QTALK_V2_SYSTEMTRAYPOPWND_H
-#define QTALK_V2_SYSTEMTRAYPOPWND_H
+#ifndef STALK_V2_SYSTEMTRAYPOPWND_H
+#define STALK_V2_SYSTEMTRAYPOPWND_H
 
-#include "../CustomUi/UShadowWnd.h"
-#include "../entity/UID.h"
-#include "../UICom/UIEntity.h"
+#include "CustomUi/UShadowWnd.h"
+#include "entity/UID.h"
+#include "entity/UIEntity.h"
 #include <QListView>
 #include <map>
 #include <QStandardItemModel>
@@ -18,13 +18,13 @@
 
 struct StNewMessageData{
     int                _chatType{};
-    QTalk::Entity::UID uid;
+    st::entity::UID uid;
     QString            name;
     int                unreadCount{};
     qint64             lastUpdateTime{};
 
     StNewMessageData()= default;
-    StNewMessageData(int ct, const QTalk::Entity::UID& u, const QString& n, int unc, qint64 t)
+    StNewMessageData(int ct, const st::entity::UID& u, const QString& n, int unc, qint64 t)
         :_chatType(ct), uid(u), name(n), unreadCount(unc), lastUpdateTime(t) {
     }
 };
@@ -84,7 +84,7 @@ public:
     bool hasNewMessage();
 
 public slots:
-    void onNewMessage(int, const QTalk::Entity::UID&, const QString&, qint64, int);
+    void onNewMessage(int, const st::entity::UID&, const QString&, qint64, int);
 
 protected:
     bool eventFilter(QObject* o, QEvent* e) override ;
@@ -107,11 +107,11 @@ private:
     QStackedWidget      *_pStackedWidget{};
 
     std::vector<StNewMessageData>  _data;
-    std::map<QTalk::Entity::UID, QStandardItem*> _items;
+    std::map<st::entity::UID, QStandardItem*> _items;
 
 private:
     QLabel *cancelAlert{};
 };
 
 
-#endif //QTALK_V2_SYSTEMTRAYPOPWND_H
+#endif //STALK_V2_SYSTEMTRAYPOPWND_H

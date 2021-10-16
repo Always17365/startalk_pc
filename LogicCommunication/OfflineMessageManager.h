@@ -4,18 +4,18 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "../include/CommonDefine.h"
-#include "../include/im_enum.h"
-#include "../entity/IM_Session.h"
-#include "../entity/im_message.h"
-#include "../include/CommonStrcut.h"
+#include "include/CommonDefine.h"
+#include "include/im_enum.h"
+#include "entity/IM_Session.h"
+#include "entity/im_message.h"
+#include "include/CommonStrcut.h"
 
 #define DEM_MESSAGE_MAXTIMESTAMP "MessageMaxTime"
 #define DEM_TWOPERSONCHAT        "TwoPersonChat"
 #define DEM_GROUPCHAT            "GroupChat"
 #define DEM_SYSTEM               "System"
 
-typedef std::vector<QTalk::Entity::ImMessageInfo> VectorMessage;
+typedef std::vector<st::entity::ImMessageInfo> VectorMessage;
 
 class Communication;
 class OfflineMessageManager
@@ -52,24 +52,24 @@ private:
      * @param outSessionList 输出会话列表
      */
     void getOfflineChatMessageJson(long long chatTimestamp, int count, bool &complete, std::string &errMsg,
-                                   std::vector<QTalk::Entity::ImMessageInfo> &outMsgList,
-                                   std::vector<QTalk::Entity::ImSessionInfo> &outSessionList);
+                                   std::vector<st::entity::ImMessageInfo> &outMsgList,
+                                   std::vector<st::entity::ImSessionInfo> &outSessionList);
 
     // 获取离线群的离线消息
     void getOfflineGroupMessageJson(long long groupTimestamp, int count, bool &complete, std::string &errMsg,
-                                    std::vector<QTalk::Entity::ImMessageInfo> &outMsgList,
-                                    std::vector<QTalk::Entity::ImSessionInfo> &outSessionList);
+                                    std::vector<st::entity::ImMessageInfo> &outMsgList,
+                                    std::vector<st::entity::ImSessionInfo> &outSessionList);
 
     // 获取离线系统消息
     void getOfflineNoticeMessageJson(long long noticeTimestamp, int count, bool &complete, std::string &errMsg,
-                                     std::vector<QTalk::Entity::ImMessageInfo> &outMsgList,
-                                     std::vector<QTalk::Entity::ImSessionInfo> &outSessionList);
+                                     std::vector<st::entity::ImMessageInfo> &outMsgList,
+                                     std::vector<st::entity::ImSessionInfo> &outSessionList);
 
     void getGroupReadMark(std::map<std::string, QInt64> &readMarkList);
 
 
 private:
-	QInt64 getTimeStamp(QTalk::Enum::ChatType chatType);
+	QInt64 getTimeStamp(st::Enum::ChatType chatType);
 
 private:
 	Communication *_pComm;

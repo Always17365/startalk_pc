@@ -6,10 +6,10 @@
 #include <utility>
 #include <QFile>
 #include <QPainter>
-#include "../Platform/Platform.h"
+#include "DataCenter/Platform.h"
 #include "ChatViewMainPanel.h"
-#include "../UICom/qimage/qimage.h"
-#include "../UICom/StyleDefine.h"
+#include "Util/ui/qimage/qimage.h"
+#include "Util/ui/StyleDefine.h"
 #include <QPainterPath>
 
 extern ChatViewMainPanel *g_pMainPanel;
@@ -17,7 +17,7 @@ NetImageLabel::NetImageLabel(QString link, QWidget *parent)
     : QFrame(parent), _image_link(std::move(link))
 {
     setFixedSize(30, 30);
-    std::string imgPath = QTalk::GetImagePathByUrl(_image_link.toStdString());
+    std::string imgPath = st::GetImagePathByUrl(_image_link.toStdString());
     connect(this, &NetImageLabel::sgDownloadSuccess, this, [this]()
     {
         this->update();
@@ -42,18 +42,18 @@ void NetImageLabel::paintEvent(QPaintEvent *event)
     QRect rect = this->contentsRect();
     auto load_default_image = [rect, &painter]()
     {
-        auto image = QTalk::qimage::loadImage(":/chatview/image1/default.png", false);
+        auto image = st::qimage::loadImage(":/chatview/image1/default.png", false);
         painter.drawPixmap(rect, image);
     };
     QString imgPath = _local_path;
 
     if(imgPath.isEmpty())
-        imgPath = QTalk::GetImagePathByUrl(_image_link.toStdString()).data();
+        imgPath = st::GetImagePathByUrl(_image_link.toStdString()).data();
 
     if(!imgPath.isEmpty())
     {
-        qreal dpi = QTalk::qimage::dpi();
-        QPixmap image = QTalk::qimage::loadImage(imgPath,
+        qreal dpi = st::qimage::dpi();
+        QPixmap image = st::qimage::loadImage(imgPath,
                         false, true, rect.width() * dpi, rect.height() * dpi);
 
         if(image.isNull())

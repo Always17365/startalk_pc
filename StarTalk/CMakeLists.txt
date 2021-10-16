@@ -1,9 +1,7 @@
 project(StarTalk)
 
-include_directories(.)
 # 打开Qt的Moc功能和ui文件QRC文件处理功能
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 find_package(Qt5 COMPONENTS Core Widgets Gui Qml Quick QuickWidgets Network Concurrent QuickControls2 REQUIRED)
@@ -44,9 +42,9 @@ set(SOURCE_FILES
         MainWindow.h
         MessageManager.cpp
         MessageManager.h
-        QTalk.qrc
-        QTalkApp.cpp
-        QTalkApp.h
+        app.qrc
+        Application.cpp
+        Application.h
         QtStruct.h
         style.qrc
         SystemTray.cpp
@@ -67,8 +65,8 @@ set(SOURCE_FILES
         LocalServer.h 
         SystemTrayPopWnd.cpp 
         SystemTrayPopWnd.h
-        ProcessInfo.h
-        ProcessInfo.cpp
+        HangManagerProcess.h
+        HangManagerProcess.cpp
         qml/qml.qrc
         qml/QmlView.cpp
         qml/QmlView.h
@@ -83,6 +81,7 @@ endif ()
 
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${PLATFORM_SOURCE})
+
 IF (WIN32)
     SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:windows")
     SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:windows")
@@ -90,23 +89,22 @@ IF (WIN32)
     SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES LINK_FLAGS_RELWITHDEBINFO "/SUBSYSTEM:windows")
 ENDIF (WIN32)
 
-    target_link_libraries(${PROJECT_NAME}
-            Qt5::Core
-            Qt5::Widgets
-            Qt5::Network
-            Qt5::Concurrent
-            Qt5::Qml
-            Qt5::Quick
-            Qt5::QuickWidgets
-            Qt5::QuickControls2
-            CustomUi
-            QtUtil
-            EventBus
-            Platform
-            LogicManager
-            SUICom
-            quazip
-            breakpad)
+target_link_libraries(${PROJECT_NAME}
+        Qt5::Core
+        Qt5::Widgets
+        Qt5::Network
+        Qt5::Concurrent
+        Qt5::Qml
+        Qt5::Quick
+        Qt5::QuickWidgets
+        Qt5::QuickControls2
+        CustomUi
+        Util
+        EventBus
+        DataCenter
+        LogicManager
+        quazip
+        breakpad)
 
 #添加链接库
 if (WIN32)

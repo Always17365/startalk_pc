@@ -7,7 +7,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
-#include "../CustomUi/LinkButton.h"
+#include "CustomUi/LinkButton.h"
 #include "../ChatViewMainPanel.h"
 
 extern ChatViewMainPanel *g_pMainPanel;

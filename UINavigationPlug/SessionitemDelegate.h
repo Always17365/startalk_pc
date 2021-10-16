@@ -6,8 +6,8 @@
     #pragma execution_character_set("utf-8")
 #endif
 
-#ifndef QTALK_V2_SESSIONITEMDELEGATE_H
-#define QTALK_V2_SESSIONITEMDELEGATE_H
+#ifndef STALK_V2_SESSIONITEMDELEGATE_H
+#define STALK_V2_SESSIONITEMDELEGATE_H
 
 #include <QStyledItemDelegate>
 #include <QPen>
@@ -63,4 +63,4 @@ private:
 };
 
 
-#endif //QTALK_V2_SESSIONITEMDELEGATE_H
+#endif //STALK_V2_SESSIONITEMDELEGATE_H

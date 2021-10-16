@@ -1,11 +1,11 @@
 ﻿#include "MessageManager.h"
-#include "../EventBus/EventBus.h"
+#include "EventBus/EventBus.h"
 #include "Communication.h"
 #include "OfflineMessageManager.h"
 #include "UserManager.h"
 #include "FileHelper.h"
-#include "../Message/GroupMessage.h"
-#include "../QtUtil/Utils/Log.h"
+#include "Message/GroupMessage.h"
+#include "Util/Log.h"
 #include "OnLineManager.h"
 #include "SearchManager.h"
 #include "UserConfig.h"
@@ -51,7 +51,7 @@ void CommMsgManager::sendSynOfflineSuccess()
   * @author   cc
   * @date     2018/09/29
   */
-void CommMsgManager::sendGotUserCard(const std::vector<QTalk::StUserCard>
+void CommMsgManager::sendGotUserCard(const std::vector<st::StUserCard>
                                      &userCard)
 {
     debug_log("发送服务器查询名片结果Event 个数:{0}", userCard.size());
@@ -142,7 +142,7 @@ void CommMsgManager::gotGroupMember(GroupMemberMessage &e)
   * @date     2018/10/26
   */
 void CommMsgManager::updateGroupMemberInfo(const std::string &groupId,
-                                           const std::vector<QTalk::StUserCard> &userCards)
+                                           const std::vector<st::StUserCard> &userCards)
 {
     UpdateGroupMember e;
     e.groupId = groupId;
@@ -196,14 +196,14 @@ void CommMsgManager::updateFileProcess(const std::string &key, double dltotal,
 //    //EventBus::FireEvent(e);
 //}
 
-void CommMsgManager::onUpdateGroupInfo(std::shared_ptr<QTalk::StGroupInfo> info)
+void CommMsgManager::onUpdateGroupInfo(std::shared_ptr<st::StGroupInfo> info)
 {
     UpdateGroupInfoRet e;
     e.groupinfo = info;
     EventBus::FireEvent(e);
 }
 
-void CommMsgManager::onGroupJoinMember(std::shared_ptr<QTalk::StGroupMember>
+void CommMsgManager::onGroupJoinMember(std::shared_ptr<st::StGroupMember>
                                        member)
 {
     GroupMemberChangeRet e;
@@ -216,7 +216,7 @@ void CommMsgManager::onGroupJoinMember(std::shared_ptr<QTalk::StGroupMember>
 }
 
 void CommMsgManager::updateUserConfigs(const
-                                       std::vector<QTalk::Entity::ImConfig> &arConfigs)
+                                       std::vector<st::entity::ImConfig> &arConfigs)
 {
     UpdateUserConfigMsg e;
     e.arConfigs = arConfigs;
@@ -225,7 +225,7 @@ void CommMsgManager::updateUserConfigs(const
 
 void CommMsgManager::incrementConfigs(const std::map<std::string, std::string>
                                       &deleteData,
-                                      const std::vector<QTalk::Entity::ImConfig> &arImConfig)
+                                      const std::vector<st::entity::ImConfig> &arImConfig)
 {
     IncrementConfig config;
     config.deleteData = deleteData;
@@ -233,14 +233,14 @@ void CommMsgManager::incrementConfigs(const std::map<std::string, std::string>
     EventBus::FireEvent(config);
 }
 
-//void CommMsgManager::sendGotFriends(const std::vector<QTalk::Entity::IMFriendList> &friends) {
+//void CommMsgManager::sendGotFriends(const std::vector<st::Entity::IMFriendList> &friends) {
 //    AllFriends e;
 //    e.friends = friends;
 //    EventBus::FireEvent(e);
 //}
 
 void CommMsgManager::sendGotGroupList(const
-                                      std::vector<QTalk::Entity::ImGroupInfo> &groups)
+                                      std::vector<st::entity::ImGroupInfo> &groups)
 {
     AllGroupList e;
     e.groups = groups;
@@ -286,7 +286,7 @@ void CommMsgManager::sendLoginProcessMessage(const std::string &message)
 }
 
 void CommMsgManager::gotIncrementUser(const
-                                      std::vector<QTalk::Entity::ImUserInfo> &arUserInfo,
+                                      std::vector<st::entity::ImUserInfo> &arUserInfo,
                                       const std::vector<std::string> &arDeletes)
 {
     IncrementUser e;
@@ -302,7 +302,7 @@ void CommMsgManager::sendGetHistoryError()
 }
 
 void CommMsgManager::onUserMadelChanged(const
-                                        std::vector<QTalk::Entity::ImUserStatusMedal> &userMedals)
+                                        std::vector<st::entity::ImUserStatusMedal> &userMedals)
 {
     UserMedalChangedEvt e;
     e.userMedals = userMedals;
@@ -315,6 +315,17 @@ void CommMsgManager::onCheckUpdate(const std::string &link, bool force)
     e.hasUpdate = !link.empty();
     e.forceUpdate = force;
     e.link = link;
+    EventBus::FireEvent(e);
+}
+
+void CommMsgManager::forbiddenWordGroupState(const std::string &groupId,
+                                             bool status,
+                                             bool isO)
+{
+    GetForbiddenWordResult e;
+    e.groupId = groupId;
+    e.status = status;
+    e.isOwnerOr = isO;
     EventBus::FireEvent(e);
 }
 
@@ -406,6 +417,7 @@ CommMsgListener::CommMsgListener(Communication *pComm)
     EventBus::AddHandler<ReportLogin>(*this);
     EventBus::AddHandler<ExceptCpuEvt>(*this);
     EventBus::AddHandler<UpdateGroupTopicEvt>(*this);
+    EventBus::AddHandler<GetForbiddenWordGroupMsg>(*this);
 }
 
 /**
@@ -541,7 +553,7 @@ void CommMsgListener::onEvent(GetUserCardMessage &e)
     }
 
     if (_pComm && _pComm->_pUserManager) {
-        std::vector<QTalk::StUserCard> arUserInfo;
+        std::vector<st::StUserCard> arUserInfo;
         _pComm->_pUserManager->getUserCard(e.mapUserIds, arUserInfo);
         CommMsgManager::sendGotUserCard(arUserInfo);
     }
@@ -825,7 +837,7 @@ void CommMsgListener::onEvent(GetNavAddrInfo &e)
 
     //
     if (_pComm) {
-        QTalk::StNav nav;
+        st::StNav nav;
         e.ret = _pComm->getNavInfo(e.navAddr, nav);
         Communication::setLoginNav(nav);
     }
@@ -838,7 +850,7 @@ void CommMsgListener::onEvent(GetNavDomain &e)
     }
 
     if (_pComm) {
-        QTalk::StNav nav;
+        st::StNav nav;
         _pComm->getNavInfo(e.navAddr, nav);
         e.doamin = nav.domain;
     }
@@ -1065,7 +1077,7 @@ void CommMsgListener::onEvent(UpdateMoodEvt &e)
     }
 }
 
-#include "../LogicManager/LogicManager.h"
+#include "LogicManager/LogicManager.h"
 void CommMsgListener::onEvent(ImageMessageEvt &e)
 {
     if (e.getCanceled()) {
@@ -1259,7 +1271,7 @@ void CommMsgListener::onEvent(DestroyGroupRet &e)
         // 移除置顶
         _pComm->_pUserConfig->updateUserSetting(UserSettingMsg::EM_OPERATOR_CANCEL,
                                                 "kStickJidDic",
-                                                QTalk::Entity::UID(e.groupId).toStdString(),
+                                                st::entity::UID(e.groupId).toStdString(),
                                                 "{\"topType\":0,\"chatType\":1}");
     }
 }
@@ -1358,4 +1370,11 @@ void CommMsgListener::onEvent(ReportLogin &e)
 void CommMsgListener::onEvent(ExceptCpuEvt &e)
 {
     LogicManager::instance()->getDatabase()->addExceptCpu(e.cpu, e.time, e.stack);
+}
+
+void CommMsgListener::onEvent(GetForbiddenWordGroupMsg &e)
+{
+    if (_pComm) {
+        _pComm->getForbiddenWordGroup(e.groupId);
+    }
 }

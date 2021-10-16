@@ -6,46 +6,54 @@
 #include <QtConcurrent>
 #include <QApplication>
 #include "MsgManager.h"
-#include "../UICom/uicom.h"
-#include "../Platform/Platform.h"
+#include "Util/ui/uicom.h"
+#include "DataCenter/Platform.h"
 
 CardManager::CardManager()
 {
-//    _pMsgManager = new UserCardMsgManager;
+    //    _pMsgManager = new UserCardMsgManager;
     _pMsgListener = new UserCardMessageListener(this);
-    connect(this, &CardManager::showUserCardSignal, this, &CardManager::showUserCardSlot);
-    connect(this, &CardManager::showGroupCardSignal, this, &CardManager::showGroupCardSlot);
-    qRegisterMetaType<std::map<std::string, QTalk::StUserCard> >("std::map<std::string, QTalk::StUserCard>");
+    connect(this, &CardManager::showUserCardSignal, this,
+            &CardManager::showUserCardSlot);
+    connect(this, &CardManager::showGroupCardSignal, this,
+            &CardManager::showGroupCardSlot);
+    connect(this, &CardManager::forbiddenWordSignal, this,
+            &CardManager::forbiddenWordSlot);
+    qRegisterMetaType<std::map<std::string, st::StUserCard> >("std::map<std::string, st::StUserCard>");
     qRegisterMetaType<std::map<std::string, QUInt8> >("std::map<std::string, QUInt8>");
-    connect(this, &CardManager::sgUpdateGroupMember, this, &CardManager::updateGroupMember);
+    connect(this, &CardManager::sgUpdateGroupMember, this,
+            &CardManager::updateGroupMember);
 }
 
 CardManager::~CardManager()
 {
-    if(_pMsgListener)
+    if (_pMsgListener) {
         delete _pMsgListener;
+    }
 }
 
 void CardManager::shwoUserCard(const QString &userId)
 {
     static bool flag = false;
 
-    if(flag) return;
-    else flag = true;
+    if (flag) {
+        return;
+    } else {
+        flag = true;
+    }
 
     _pUserCard = new user_card(this);
-    connect(_pUserCard, &user_card::sgJumpToStructre, this, [this](const QString & structreName)
-    {
+    connect(_pUserCard, &user_card::sgJumpToStructre,
+    this, [this](const QString & structreName) {
         emit sgSwitchCurFun(1);
         emit sgJumpToStructre(structreName);
         _pUserCard->close();
     });
-    auto ret = QtConcurrent::run([this, userId]()
-    {
+    auto ret = QtConcurrent::run([this, userId]() {
         {
-            std::lock_guard<QTalk::util::spin_mutex> lock(sm);
-            _imuserSup = std::make_shared<QTalk::Entity::ImUserSupplement>();
-            _userInfo = std::make_shared<QTalk::Entity::ImUserInfo>();
+            std::lock_guard<st::util::spin_mutex> lock(sm);
+            _imuserSup = std::make_shared<st::entity::ImUserSupplement>();
+            _userInfo = std::make_shared<st::entity::ImUserInfo>();
             _userInfo->XmppId = userId.toStdString();
             _imuserSup->XmppId = userId.toStdString();
             UserCardMsgManager::getUserCard(_imuserSup, _userInfo);
@@ -53,17 +61,18 @@ void CardManager::shwoUserCard(const QString &userId)
             _user_medal.clear();
             UserCardMsgManager::getUserMedal(userId.toStdString(), _user_medal);
         }
-//        if (nullptr != _imuserSup && _pMsgManager) {
-//            emit showUserCardSignal();
-//        }
+        //        if (nullptr != _imuserSup && _pMsgManager) {
+        //            emit showUserCardSignal();
+        //        }
     });
     _pUserCard->showCenter(false, nullptr);
     _pUserCard->raise();
 
     // wait data
-//    ret.waitForFinished();
-    while (!ret.isFinished())
+    //    ret.waitForFinished();
+    while (!ret.isFinished()) {
         QApplication::processEvents(QEventLoop::AllEvents, 100);
+    }
 
     // show user card
     showUserCardSlot();
@@ -79,25 +88,28 @@ void CardManager::showGroupCard(const QString &groupId)
 {
     static bool flag = false;
 
-    if(flag) return;
-    else flag = true;
+    if (flag) {
+        return;
+    } else {
+        flag = true;
+    }
 
     _groupCard = new GroupCard(this);
-    auto ret = QtConcurrent::run([this, groupId]()
-    {
-        //
-        _imGroupSup = std::make_shared<QTalk::Entity::ImGroupInfo>();
+    auto ret = QtConcurrent::run([this, groupId]() {
+        _imGroupSup = std::make_shared<st::entity::ImGroupInfo>();
         _imGroupSup->GroupId = groupId.toStdString();
         UserCardMsgManager::getGroupMembers(groupId.toStdString());
         UserCardMsgManager::getGroupCard(_imGroupSup);
+        UserCardMsgManager::getforbiddenWordState(groupId.toStdString());
     });
     // wait data
-//    ret.waitForFinished();
+    _groupCard->setGroupId(groupId);
     _groupCard->showCenter(false, nullptr);
     _groupCard->raise();
 
-    while (!ret.isFinished())
+    while (!ret.isFinished()) {
         QApplication::processEvents(QEventLoop::AllEvents, 100);
+    }
 
     // show group card
     showGroupCardSlot();
@@ -109,38 +121,38 @@ void CardManager::showGroupCard(const QString &groupId)
  */
 void CardManager::showUserCardSlot()
 {
-    if (nullptr != _pUserCard)
-    {
+    if (nullptr != _pUserCard) {
         std::string usrId = _imuserSup->XmppId;
-//        std::lock_guard<QTalk::util::spin_mutex> lock(sm);
+        //        std::lock_guard<st::util::spin_mutex> lock(sm);
         int flags = _arStarContact.contains(usrId);
         flags |= _arBlackList.contains(usrId) << 1;
-//        flags |= _arFriends.contains(usrId) << 2;
+        //        flags |= _arFriends.contains(usrId) << 2;
         _pUserCard->setFlags(flags);
         _pUserCard->showUserCard(_imuserSup, _userInfo);
 
-        if (_mapMaskNames.contains(usrId))
+        if (_mapMaskNames.contains(usrId)) {
             _pUserCard->setMaskName(QString::fromStdString(_mapMaskNames[usrId]));
+        }
 
         //
         _pUserCard->showMedal(_user_medal);
         //
-//        _pUserCard->adjustSize();
-//		_pUserCard->resize(_pUserCard->width() + 10, _pUserCard->height());
+        //        _pUserCard->adjustSize();
+        //      _pUserCard->resize(_pUserCard->width() + 10, _pUserCard->height());
         QApplication::setActiveWindow(_pUserCard);
     }
 }
 
 void CardManager::getPhoneNo(const std::string &userId)
 {
-    QtConcurrent::run([this, userId]()
-    {
+    QtConcurrent::run([this, userId]() {
         std::string phoneNo;
-        std::lock_guard<QTalk::util::spin_mutex> lock(sm);
+        std::lock_guard<st::util::spin_mutex> lock(sm);
         UserCardMsgManager::getUserPhoneNo(userId, phoneNo);
 
-        if (!phoneNo.empty())
+        if (!phoneNo.empty()) {
             emit gotPhoneNo(userId, phoneNo);
+        }
     });
 }
 
@@ -151,9 +163,10 @@ void CardManager::getPhoneNo(const std::string &userId)
   * @author   cc
   * @date     2018/12/16
   */
-void CardManager::updateUserConfig(const std::vector<QTalk::Entity::ImConfig> &arConfigs)
+void CardManager::updateUserConfig(const std::vector<st::entity::ImConfig>
+                                   &arConfigs)
 {
-    std::lock_guard<QTalk::util::spin_mutex> lock(sm);
+    std::lock_guard<st::util::spin_mutex> lock(sm);
     QVector<std::string> oldStarContact = _arStarContact;
     QVector<std::string> oldBlackList = _arBlackList;
     _arStarContact.clear();
@@ -161,69 +174,63 @@ void CardManager::updateUserConfig(const std::vector<QTalk::Entity::ImConfig> &a
     _mapMaskNames.clear();
     auto it = arConfigs.begin();
 
-    for (; it != arConfigs.end(); it++)
-    {
+    for (; it != arConfigs.end(); it++) {
         std::string subKey = it->ConfigSubKey;
 
-        if (it->ConfigKey == "kStarContact")
-        {
-            if (oldStarContact.contains(subKey))
+        if (it->ConfigKey == "kStarContact") {
+            if (oldStarContact.contains(subKey)) {
                 oldStarContact.removeOne(subKey);
+            }
 
             //
             _arStarContact.push_back(subKey);
-        }
-        else if (it->ConfigKey == "kBlackList")
-        {
-            if (oldBlackList.contains(subKey))
+        } else if (it->ConfigKey == "kBlackList") {
+            if (oldBlackList.contains(subKey)) {
                 oldBlackList.removeOne(subKey);
+            }
 
             //
             _arBlackList.push_back(subKey);
-        }
-        else if (it->ConfigKey == "kMarkupNames")
+        } else if (it->ConfigKey == "kMarkupNames") {
             _mapMaskNames[subKey] = it->ConfigValue;
+        }
     }
 }
 
-void CardManager::updateUserConfig(const std::map<std::string, std::string> &deleteData,
-                                   const std::vector<QTalk::Entity::ImConfig> &arImConfig)
+void CardManager::updateUserConfig(const std::map<std::string, std::string>
+                                   &deleteData,
+                                   const std::vector<st::entity::ImConfig> &arImConfig)
 {
-    std::lock_guard<QTalk::util::spin_mutex> lock(sm);
+    std::lock_guard<st::util::spin_mutex> lock(sm);
 
-    for(const auto &it : deleteData)
-    {
-        if (it.second == "kStarContact")
-        {
-            if (_arStarContact.contains(it.first))
+    for (const auto &it : deleteData) {
+        if (it.second == "kStarContact") {
+            if (_arStarContact.contains(it.first)) {
                 _arStarContact.removeOne(it.first);
-        }
-        else if (it.second == "kBlackList")
-        {
-            if (_arBlackList.contains(it.first))
+            }
+        } else if (it.second == "kBlackList") {
+            if (_arBlackList.contains(it.first)) {
                 _arBlackList.removeOne(it.first);
-        }
-        else if (it.second == "kMarkupNames")
-        {
-            if (_mapMaskNames.contains(it.first))
+            }
+        } else if (it.second == "kMarkupNames") {
+            if (_mapMaskNames.contains(it.first)) {
                 _mapMaskNames.remove(it.first);
+            }
         }
     }
 
-    for(const auto &it : arImConfig)
-    {
-        if (it.ConfigKey == "kStarContact")
-        {
-            if (!_arStarContact.contains(it.ConfigSubKey))
+    for (const auto &it : arImConfig) {
+        if (it.ConfigKey == "kStarContact") {
+            if (!_arStarContact.contains(it.ConfigSubKey)) {
                 _arStarContact.push_back(it.ConfigSubKey);
-        }
-        else if (it.ConfigKey == "kBlackList")
-        {
-            if (!_arBlackList.contains(it.ConfigSubKey))
+            }
+        } else if (it.ConfigKey == "kBlackList") {
+            if (!_arBlackList.contains(it.ConfigSubKey)) {
                 _arBlackList.push_back(it.ConfigSubKey);
-        }
-        else if (it.ConfigKey == "kMarkupNames")
+            }
+        } else if (it.ConfigKey == "kMarkupNames") {
             _mapMaskNames[it.ConfigSubKey] = it.ConfigValue;
+        }
     }
 }
 
@@ -231,10 +238,10 @@ void CardManager::updateUserConfig(const std::map<std::string, std::string> &del
 // *
 // * @param friends
 // */
-//void CardManager::onRecvFriends(const std::vector<QTalk::Entity::IMFriendList> &friends) {
+//void CardManager::onRecvFriends(const std::vector<st::Entity::IMFriendList> &friends) {
 //    _arFriends.clear();
 //
-//    for (const QTalk::Entity::IMFriendList& imfriend : friends) {
+//    for (const st::Entity::IMFriendList& imfriend : friends) {
 //        _arFriends.push_back(imfriend.XmppId);
 //    }
 //}
@@ -245,12 +252,12 @@ void CardManager::updateUserConfig(const std::map<std::string, std::string> &del
  */
 void CardManager::starUser(const std::string &userId)
 {
-    std::lock_guard<QTalk::util::spin_mutex> lock(sm);
+    std::lock_guard<st::util::spin_mutex> lock(sm);
     bool isStar = _arStarContact.contains(userId);
-    QtConcurrent::run([ userId, isStar]()
-    {
+    QtConcurrent::run([ userId, isStar]() {
         QString val = QString::number(isStar ? 0 : 1);
-        UserCardMsgManager::setUserSetting(isStar, "kStarContact", userId, val.toStdString());
+        UserCardMsgManager::setUserSetting(isStar, "kStarContact", userId,
+                                           val.toStdString());
     });
 }
 
@@ -259,12 +266,12 @@ void CardManager::starUser(const std::string &userId)
  */
 void CardManager::addBlackList(const std::string &userId)
 {
-    std::lock_guard<QTalk::util::spin_mutex> lock(sm);
+    std::lock_guard<st::util::spin_mutex> lock(sm);
     bool isBlack = _arBlackList.contains(userId);
-    QtConcurrent::run([ isBlack, userId]()
-    {
+    QtConcurrent::run([ isBlack, userId]() {
         QString val = QString::number(isBlack ? 0 : 1);
-        UserCardMsgManager::setUserSetting(isBlack, "kBlackList", userId, val.toStdString());
+        UserCardMsgManager::setUserSetting(isBlack, "kBlackList", userId,
+                                           val.toStdString());
     });
 }
 
@@ -273,8 +280,7 @@ void CardManager::addBlackList(const std::string &userId)
  */
 void CardManager::showGroupCardSlot()
 {
-    if (nullptr != _groupCard && nullptr != _imGroupSup)
-    {
+    if (nullptr != _groupCard && nullptr != _imGroupSup) {
         _groupCard->setData(_imGroupSup);
         QApplication::setActiveWindow(_groupCard);
     }
@@ -286,28 +292,32 @@ void CardManager::showGroupCardSlot()
  * @param userCards
  */
 void CardManager::onRecvGroupMember(const std::string &groupId,
-                                    const std::map<std::string, QTalk::StUserCard> &userCards,
+                                    const std::map<std::string, st::StUserCard> &userCards,
                                     const std::map<std::string, QUInt8> &userRole)
 {
-    if (nullptr != _imGroupSup && _imGroupSup->GroupId == groupId)
+    if (nullptr != _imGroupSup && _imGroupSup->GroupId == groupId) {
         emit sgUpdateGroupMember(userCards, userRole);
+    }
 }
 
 /**
  *
  */
-void CardManager::updateGroupMember(std::map<std::string, QTalk::StUserCard> userCards, std::map<std::string, QUInt8> userRole)
+void CardManager::updateGroupMember(std::map<std::string, st::StUserCard>
+                                    userCards,
+                                    std::map<std::string, QUInt8> userRole)
 {
-    if (_groupCard)
+    if (_groupCard) {
         _groupCard->showGroupMember(userCards, userRole);
+    }
 }
 
-void CardManager::updateGroupInfo(const QString &groupId, const QString &groupName, const QString &topic,
+void CardManager::updateGroupInfo(const QString &groupId,
+                                  const QString &groupName, const QString &topic,
                                   const QString &desc)
 {
-    QtConcurrent::run([ = ]()
-    {
-        std::shared_ptr<QTalk::StGroupInfo> groupinfo(new QTalk::StGroupInfo);
+    QtConcurrent::run([ = ]() {
+        std::shared_ptr<st::StGroupInfo> groupinfo(new st::StGroupInfo);
         groupinfo->groupId = groupId.toStdString();
         groupinfo->name = groupName.toStdString();
         groupinfo->desc = desc.toStdString();
@@ -322,8 +332,7 @@ void CardManager::updateGroupInfo(const QString &groupId, const QString &groupNa
  */
 void CardManager::quitGroup(const QString &groupId)
 {
-    QtConcurrent::run([groupId]()
-    {
+    QtConcurrent::run([groupId]() {
         UserCardMsgManager::quitGroup(groupId.toStdString());
     });
 }
@@ -334,24 +343,19 @@ void CardManager::quitGroup(const QString &groupId)
  */
 void CardManager::destroyGroup(const QString &groupId)
 {
-    QtConcurrent::run([groupId]()
-    {
-        UserCardMsgManager::destroyGroupMsg(groupId.toStdString());
-    });
 }
 
-void CardManager::setUserMaskName(const std::string &userId, const std::string &maskName)
+void CardManager::setUserMaskName(const std::string &userId,
+                                  const std::string &maskName)
 {
-    QtConcurrent::run([ userId, maskName]()
-    {
+    QtConcurrent::run([ userId, maskName]() {
         UserCardMsgManager::setUserSetting(false, "kMarkupNames", userId, maskName);
     });
 }
 
 void CardManager::setUserMood(const std::string &mood)
 {
-    QtConcurrent::run([ = ]()
-    {
+    QtConcurrent::run([mood]() {
         UserCardMsgManager::updateMood(mood);
     });
 }
@@ -359,4 +363,17 @@ void CardManager::setUserMood(const std::string &mood)
 std::string CardManager::getSourceHead(const std::string &headLink)
 {
     return UserCardMsgManager::getSourceImage(headLink);
+}
+
+void CardManager::onForbiddenWordGroupState(const std::string &groupId,
+                                            bool status)
+{
+    emit forbiddenWordSignal(groupId.data(), status);
+}
+
+void CardManager::forbiddenWordSlot(const QString &groupId, bool status)
+{
+    if (_groupCard) {
+        _groupCard->setForbiddenWordState(groupId, status);
+    }
 }

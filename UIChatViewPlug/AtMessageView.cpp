@@ -13,12 +13,12 @@
 #include <set>
 #include <QPainterPath>
 #include "InputWgt.h"
-#include "../CustomUi/HeadPhotoLab.h"
-#include "../Platform/Platform.h"
-#include "../QtUtil/Entity/JID.h"
-#include "../UICom/qimage/qimage.h"
+#include "CustomUi/HeadPhotoLab.h"
+#include "DataCenter/Platform.h"
+#include "Util/Entity/JID.h"
+#include "Util/ui/qimage/qimage.h"
 
-#include "../UICom/StyleDefine.h"
+#include "Util/ui/StyleDefine.h"
 
 enum
 {
@@ -74,13 +74,13 @@ void AtItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option
     QRect rect = option.rect;
 
     if (option.state & QStyle::State_Selected)
-        painter->fillRect(rect, QTalk::StyleDefine::instance().getNavSelectColor());
+        painter->fillRect(rect, st::StyleDefine::instance().getNavSelectColor());
     else
-        painter->fillRect(rect, QTalk::StyleDefine::instance().getNavNormalColor());
+        painter->fillRect(rect, st::StyleDefine::instance().getNavNormalColor());
 
     auto headPath = index.data(ITEM_DATA_ICON).toString();
-    painter->setPen(QTalk::StyleDefine::instance().getNavNameFontColor());
-    QTalk::setPainterFont(painter, AppSetting::instance().getFontLevel());
+    painter->setPen(st::StyleDefine::instance().getNavNameFontColor());
+    st::setPainterFont(painter, AppSetting::instance().getFontLevel());
     auto name = index.data(ITEM_DATE_NAME).toString();
     painter->drawText(QRect(rect.x() + 35, rect.y(), rect.width() - 35, rect.height()), Qt::AlignLeft | Qt::AlignVCenter,
                       DEM_ALL_STR == name ? tr("全体成员") : name);
@@ -91,8 +91,8 @@ void AtItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option
 
     if (!QFile(headPath).isOpen())
     {
-        int dpi = QTalk::qimage::dpi();
-        QPixmap pixmap = QTalk::qimage::loadImage(headPath, true, true, 24 * dpi);
+        int dpi = st::qimage::dpi();
+        QPixmap pixmap = st::qimage::loadImage(headPath, true, true, 24 * dpi);
         QPainterPath path;
         QRect headRect(rect.x() + 5, rect.y() + 3, 24, 24);
         path.addEllipse(headRect);
@@ -172,10 +172,10 @@ void AtMessageView::addItem(const QString &icon, const QString &xmppId, const QS
     {
         auto *item = _items[xmppId];
         item->setData(name, ITEM_DATE_NAME);
-        item->setData(QString::fromStdString(QTalk::Entity::JID(xmppId.toStdString()).username()), ITEM_DATA_USERID);
+        item->setData(QString::fromStdString(st::entity::JID(xmppId.toStdString()).username()), ITEM_DATA_USERID);
         item->setData(xmppId, ITEM_DATA_XMPPID);
         item->setData(searchIndex, ITEM_DATA_SEARCHINDEX);
-        QString headSrc = QString::fromStdString(QTalk::GetHeadPathByUrl(icon.toStdString()));
+        QString headSrc = QString::fromStdString(st::GetHeadPathByUrl(icon.toStdString()));
         item->setData(headSrc, ITEM_DATA_ICON);
         return;
     }
@@ -191,7 +191,7 @@ void AtMessageView::addItem(const QString &icon, const QString &xmppId, const QS
             item->setData(icon, ITEM_DATA_ICON);
         else
         {
-            QString headSrc = QString::fromStdString(QTalk::GetHeadPathByUrl(icon.toStdString()));
+            QString headSrc = QString::fromStdString(st::GetHeadPathByUrl(icon.toStdString()));
             item->setData(headSrc, ITEM_DATA_ICON);
         }
 
@@ -310,7 +310,7 @@ void AtMessageView::deleteItem(const QString &memberId)
  *
  * @param member
  */
-void AtMessageView::updateGroupMemberInfo(const std::vector<QTalk::StUserCard> &members)
+void AtMessageView::updateGroupMemberInfo(const std::vector<st::StUserCard> &members)
 {
     for(const auto &it : members)
     {
@@ -321,13 +321,13 @@ void AtMessageView::updateGroupMemberInfo(const std::vector<QTalk::StUserCard> &
             name = it.userName;
 
         if(name.empty())
-            name = QTalk::Entity::JID(it.xmppId).username();
+            name = st::entity::JID(it.xmppId).username();
 
         if(_items.contains(xmppid))
         {
             auto *item = _items[xmppid];
             item->setData(QString::fromStdString(name), ITEM_DATE_NAME);
-            QString headSrc = QString::fromStdString(QTalk::GetHeadPathByUrl(it.headerSrc));
+            QString headSrc = QString::fromStdString(st::GetHeadPathByUrl(it.headerSrc));
             item->setData(headSrc, ITEM_DATA_ICON);
         }
     }

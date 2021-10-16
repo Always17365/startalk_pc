@@ -4,13 +4,13 @@
 #if _MSC_VER >= 1600
 #pragma execution_character_set("utf-8")
 #endif
-#ifndef QTALK_V2_SEARCHVIEW_H
-#define QTALK_V2_SEARCHVIEW_H
+#ifndef STALK_V2_SEARCHVIEW_H
+#define STALK_V2_SEARCHVIEW_H
 
 #include <QFrame>
 #include <QListView>
 #include <QStandardItemModel>
-#include "../UICom/UIEntity.h"
+#include "entity/UIEntity.h"
 #include "SearchItemDelegate.h"
 
 
@@ -40,7 +40,7 @@ public:
     void addOpenWithIdItem(const QString& keyId);
 
 public:
-    void addSearchResult(const QTalk::Search::StSearchResult& ret, int reqType, bool isGetMore);
+    void addSearchResult(const st::Search::StSearchResult& ret, int reqType, bool isGetMore);
     void onHoverIndexChanged(const QModelIndex&);
 
 public:
@@ -55,4 +55,4 @@ private:
 };
 
 
-#endif //QTALK_V2_SEARCHVIEW_H
+#endif //STALK_V2_SEARCHVIEW_H

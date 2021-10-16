@@ -14,19 +14,19 @@
 #include <QJsonDocument>
 #include <QApplication>
 #include <QtConcurrent>
-#include "../CustomUi/QtMessageBox.h"
+#include "CustomUi/QtMessageBox.h"
 
-#include "../UICom/uicom.h"
-#include "../Platform/Platform.h"
-#include "../QtUtil/Utils/utils.h"
+#include "Util/ui/uicom.h"
+#include "DataCenter/Platform.h"
+#include "Util/utils.h"
 #include "SearchWgt.h"
 #include "ChoseMemberWgt.h"
 #include "TreeItemDelegate.h"
-#include "../CustomUi/HeadPhotoLab.h"
-#include "../Platform/dbPlatForm.h"
+#include "CustomUi/HeadPhotoLab.h"
+#include "DataCenter/dbPlatForm.h"
 #include "BatchAddMemberWnd.h"
-#include "../include/Line.h"
-#include "../QtUtil/Entity/JID.h"
+#include "CustomUi/Line.h"
+#include "Util/Entity/JID.h"
 
 UIGroupManager::UIGroupManager()
     : UShadowDialog(nullptr, true)
@@ -58,11 +58,11 @@ void UIGroupManager::onCreatGroup(const QString &memberId)
     _pTreeWgt->setVisible(true);
     _batchAddMemberBtn->setVisible(true);
     //
-    std::shared_ptr<QTalk::Entity::ImUserInfo> info = DB_PLAT.getUserInfo(memberId.toStdString());
+    std::shared_ptr<st::entity::ImUserInfo> info = DB_PLAT.getUserInfo(memberId.toStdString());
 
     if (info)
     {
-        QString headrSrc = QString(QTalk::GetHeadPathByUrl(info->HeaderSrc).c_str());
+        QString headrSrc = QString(st::GetHeadPathByUrl(info->HeaderSrc).c_str());
 
         if (QFileInfo(headrSrc).isDir() || !QFile::exists(headrSrc))
             headrSrc = ":/QTalk/image1/StarTalk_defaultHead.png";
@@ -334,7 +334,7 @@ void UIGroupManager::initUi()
             _pTreeWgt->setExpanded(index, extend);
         }
     });
-    qRegisterMetaType<std::vector<QTalk::StShareSession>>("std::vector<QTalk::StShareSession>");
+    qRegisterMetaType<std::vector<st::StShareSession>>("std::vector<st::StShareSession>");
     connect(this, &UIGroupManager::sgUpdateSession, this, &UIGroupManager::onUpdateSession);
 }
 
@@ -436,7 +436,7 @@ void UIGroupManager::resetUi(const QString &memberId)
     {
         auto info = _structure[id];
         addGroupMember(memberId,
-                       QTalk::GetHeadPathByUrl(info->HeaderSrc).data());
+                       st::GetHeadPathByUrl(info->HeaderSrc).data());
     }
 
     //
@@ -478,14 +478,14 @@ void UIGroupManager::creatGroup()
             return;
     }
 
-    QString groupId = QString("%1@conference.%2").arg(QTalk::utils::getMessageId().data()).arg(PLAT.getSelfDomain().c_str());
+    QString groupId = QString("%1@conference.%2").arg(st::utils::uuid().data()).arg(DC.getSelfDomain().c_str());
     _mapGroupMembers[groupId] = _mapLstWgtItem.keys();
     QString groupName = _pGroupNameEdit->text();
 
     if(groupName.isEmpty())
     {
         auto members = _mapGroupMembers[groupId];
-        QString selfId = PLAT.getSelfXmppId().data();
+        QString selfId = DC.getSelfXmppId().data();
 
         if(!members.contains(selfId))
             members.push_front(selfId);
@@ -531,7 +531,7 @@ void UIGroupManager::onBatchAddMember(const QString &ids)
     tmpIds.replace("\n", "");
     tmpIds.replace(" ", "");
     QStringList lstItems = tmpIds.split(";");
-    QString domain = QString::fromStdString(PLAT.getSelfDomain());
+    QString domain = QString::fromStdString(DC.getSelfDomain());
     std::vector<std::string> arMembers;
 
     for(const auto &item : lstItems)
@@ -553,7 +553,7 @@ void UIGroupManager::onBatchAddMember(const QString &ids)
         QString icon = QString::fromStdString(info.headerSrc);
 
         if(!icon.isEmpty())
-            icon = QString::fromStdString(QTalk::GetHeadPathByUrl(info.headerSrc));
+            icon = QString::fromStdString(st::GetHeadPathByUrl(info.headerSrc));
 
         if(icon.isEmpty() || !QFile::exists(icon) || QFileInfo(icon).isDir())
             icon = ":/QTalk/image1/StarTalk_defaultHead.png";
@@ -572,10 +572,10 @@ QStandardItem *UIGroupManager::creatGroupItem(QStandardItem *item, const std::st
 
     if(_groupInfos.find(groupId) != _groupInfos.end())
     {
-        const QTalk::Entity::ImGroupInfo &info = _groupInfos[groupId];
+        const st::entity::ImGroupInfo &info = _groupInfos[groupId];
         QString defaultGroupHead = ":/QTalk/image1/StarTalk_defaultGroup.png";
         QString iconPath = info.HeaderSrc.empty() ? defaultGroupHead :
-                           QString::fromStdString(QTalk::GetHeadPathByUrl(info.HeaderSrc));
+                           QString::fromStdString(st::GetHeadPathByUrl(info.HeaderSrc));
 
         if (!QFile::exists(iconPath) || QFileInfo(iconPath).isDir())
             iconPath = defaultGroupHead;
@@ -596,18 +596,18 @@ QStandardItem *UIGroupManager::creatItem(QStandardItem *item, const std::string 
     mainItem->setData(QString(xmppId.data()).section("@", 0, 0), EM_STAFF_DATATYPE_TEXT);
     mainItem->setData(xmppId.data(), EM_STAFF_DATATYPE_XMPPID);
     mainItem->setData(false, EM_DATATYPE_CHECKSTATE);
-    std::shared_ptr<QTalk::Entity::ImUserInfo> userinfo;
+    std::shared_ptr<st::entity::ImUserInfo> userinfo;
 
     if(_structure.find(xmppId) == _structure.end() || nullptr == _structure[xmppId])
     {
-//        userinfo = std::make_shared<QTalk::Entity::ImUserInfo>();
+//        userinfo = std::make_shared<st::Entity::ImUserInfo>();
 //        userinfo->XmppId = xmppId;
 //        if(_pMsgManager)
 //            GroupManagerMsgManager::getUserInfo(userinfo);
 //
 //        if(userinfo)
 //        {
-//            _mapUserName[xmppId.data()] = QTalk::getUserName(userinfo).data();
+//            _mapUserName[xmppId.data()] = st::getUserName(userinfo).data();
 //            _structure[xmppId] = userinfo;
 //        }
     }
@@ -621,7 +621,7 @@ QStandardItem *UIGroupManager::creatItem(QStandardItem *item, const std::string 
     if(nullptr != userinfo)
     {
         iconPath = userinfo->HeaderSrc.empty() ? defaultPath :
-                   QString::fromStdString(QTalk::GetHeadPathByUrl(userinfo->HeaderSrc));
+                   QString::fromStdString(st::GetHeadPathByUrl(userinfo->HeaderSrc));
 
         if (!QFile::exists(iconPath) || QFileInfo(iconPath).isDir())
             iconPath = defaultPath;
@@ -662,9 +662,9 @@ void UIGroupManager::initGroupMembers()
     }
 }
 
-//void UIGroupManager::onRecvFriends(const std::vector<QTalk::Entity::IMFriendList> &friends)
+//void UIGroupManager::onRecvFriends(const std::vector<st::Entity::IMFriendList> &friends)
 //{
-//    std::lock_guard<QTalk::util::spin_mutex> lock(sm);
+//    std::lock_guard<st::util::spin_mutex> lock(sm);
 //    _friends = friends;
 //    flags = (flags << 1);
 //    if(EM_ALL == flags)
@@ -677,16 +677,16 @@ void UIGroupManager::initData()
     auto func = [this]()
     {
         {
-            std::lock_guard<QTalk::util::spin_mutex> lock(sm);
+            std::lock_guard<st::util::spin_mutex> lock(sm);
             // 组织架构
-            std::vector<std::shared_ptr<QTalk::Entity::ImUserInfo>> structure;
+            std::vector<std::shared_ptr<st::entity::ImUserInfo>> structure;
             GroupManagerMsgManager::getStructure(structure);
-            std::for_each(structure.begin(), structure.end(), [this](std::shared_ptr<QTalk::Entity::ImUserInfo> info)
+            std::for_each(structure.begin(), structure.end(), [this](std::shared_ptr<st::entity::ImUserInfo> info)
             {
                 if(info)
                 {
                     _structure[info->XmppId] = info;
-                    std::string name = QTalk::getUserNameNoMask(info);
+                    std::string name = st::getUserNameNoMask(info);
                     _mapUserName[info->XmppId.data()] = name.data();
                 }
             });
@@ -711,9 +711,9 @@ void UIGroupManager::initData()
  *
  * @param friends
  */
-void UIGroupManager::onRecvGroupList(const std::vector<QTalk::Entity::ImGroupInfo> &groupInfos)
+void UIGroupManager::onRecvGroupList(const std::vector<st::entity::ImGroupInfo> &groupInfos)
 {
-    std::lock_guard<QTalk::util::spin_mutex> lock(sm);
+    std::lock_guard<st::util::spin_mutex> lock(sm);
 
     for(const auto &info : groupInfos)
         _groupInfos[info.GroupId] = info;
@@ -741,13 +741,13 @@ void UIGroupManager::updateUi()
     initStructure();
 }
 
-void UIGroupManager::onUpdateSession(const std::vector<QTalk::StShareSession> &ss)
+void UIGroupManager::onUpdateSession(const std::vector<st::StShareSession> &ss)
 {
     std::set<std::string> recent = _arTopUsers;
 
     for(const auto &s : ss)
     {
-        if(s.chatType == QTalk::Enum::TwoPersonChat && recent.find(s.xmppId) == recent.end())
+        if(s.chatType == st::Enum::TwoPersonChat && recent.find(s.xmppId) == recent.end())
             recent.insert(s.xmppId);
     }
 
@@ -766,9 +766,9 @@ void UIGroupManager::onUpdateSession(const std::vector<QTalk::StShareSession> &s
   * @author   cc
   * @date     2018/12/16
   */
-void UIGroupManager::updateUserConfig(const std::vector<QTalk::Entity::ImConfig> &arConfigs)
+void UIGroupManager::updateUserConfig(const std::vector<st::entity::ImConfig> &arConfigs)
 {
-    std::lock_guard<QTalk::util::spin_mutex> lock(sm);
+    std::lock_guard<st::util::spin_mutex> lock(sm);
     _arStarContact.clear();
     _arTopUsers.clear();
     auto it = arConfigs.begin();
@@ -810,9 +810,9 @@ void UIGroupManager::updateUserConfig(const std::vector<QTalk::Entity::ImConfig>
 
 
 void UIGroupManager::updateUserConfig(const std::map<std::string, std::string> &deleteData,
-                                      const std::vector<QTalk::Entity::ImConfig> &)
+                                      const std::vector<st::entity::ImConfig> &)
 {
-    std::lock_guard<QTalk::util::spin_mutex> lock(sm);
+    std::lock_guard<st::util::spin_mutex> lock(sm);
 
     for(const auto &it : deleteData)
     {
@@ -880,7 +880,7 @@ void UIGroupManager::initRecentSessionData()
         {
             auto result = QtConcurrent::run([this]()
             {
-                std::vector<QTalk::StShareSession> ss;
+                std::vector<st::StShareSession> ss;
                 GroupManagerMsgManager::getRecentSession(ss);
                 emit sgUpdateSession(ss);
             });
@@ -904,14 +904,14 @@ void UIGroupManager::initStructure()
             std::string xmppId = info->XmppId;
             auto *mainItem = new QStandardItem;
             mainItem->setData(xmppId.data(), EM_SEARCH_DATATYPE_XMPPID);
-            mainItem->setData(QTalk::Entity::JID(xmppId).username().data(),
+            mainItem->setData(st::entity::JID(xmppId).username().data(),
                               EM_SEARCH_DATATYPE_USERID);
             mainItem->setData(false, EM_SEARCH_DATATYPE_CHECKSTATE);
             mainItem->setData(info->SearchIndex.data(), EM_SEARCH_DATATYPE_INDEX);
             QString defaultPath;
             defaultPath = ":/QTalk/image1/StarTalk_defaultHead.png";
             QString iconPath = info->HeaderSrc.empty() ? defaultPath :
-                               QString::fromStdString(QTalk::GetHeadPathByUrl(info->HeaderSrc));
+                               QString::fromStdString(st::GetHeadPathByUrl(info->HeaderSrc));
 
             if (!QFile::exists(iconPath) || QFileInfo(iconPath).isDir())
                 iconPath = defaultPath;
@@ -946,10 +946,10 @@ void UIGroupManager::onItemDoubleClick(const QString &memberId, const QString &n
 }
 
 
-void UIGroupManager::gotIncrementUser(const std::vector<QTalk::Entity::ImUserInfo> &arUserInfo,
+void UIGroupManager::gotIncrementUser(const std::vector<st::entity::ImUserInfo> &arUserInfo,
                                       const std::vector<std::string> &arDeletes)
 {
-    std::lock_guard<QTalk::util::spin_mutex> lock(sm);
+    std::lock_guard<st::util::spin_mutex> lock(sm);
 
     // delete
     for(const auto &id : arDeletes)
@@ -995,19 +995,19 @@ void UIGroupManager::gotIncrementUser(const std::vector<QTalk::Entity::ImUserInf
     for(const auto &it : arUserInfo)
     {
         std::string xmppId = it.XmppId;
-        _structure[xmppId] = std::make_shared<QTalk::Entity::ImUserInfo>(it);
-        std::string name = QTalk::getUserNameNoMask(_structure[xmppId]);
+        _structure[xmppId] = std::make_shared<st::entity::ImUserInfo>(it);
+        std::string name = st::getUserNameNoMask(_structure[xmppId]);
         _mapUserName[xmppId.data()] = name.data();
         auto *mainItem = new QStandardItem;
         mainItem->setData(xmppId.data(), EM_SEARCH_DATATYPE_XMPPID);
-        mainItem->setData(QTalk::Entity::JID(xmppId).username().data(),
+        mainItem->setData(st::entity::JID(xmppId).username().data(),
                           EM_SEARCH_DATATYPE_USERID);
         mainItem->setData(false, EM_SEARCH_DATATYPE_CHECKSTATE);
         mainItem->setData(it.SearchIndex.data(), EM_SEARCH_DATATYPE_INDEX);
         QString defaultPath;
         defaultPath = ":/QTalk/image1/StarTalk_defaultHead.png";
         QString iconPath = it.HeaderSrc.empty() ? defaultPath :
-                           QString::fromStdString(QTalk::GetHeadPathByUrl(it.HeaderSrc));
+                           QString::fromStdString(st::GetHeadPathByUrl(it.HeaderSrc));
 
         if (!QFile::exists(iconPath) || QFileInfo(iconPath).isDir())
             iconPath = defaultPath;

@@ -5,7 +5,7 @@
 #include <QMouseEvent>
 #include "LocalEmoticon.h"
 #include "NetEmoticon.h"
-#include "../CustomUi/TitleBar.h"
+#include "CustomUi/TitleBar.h"
 
 #define DEM_FIXED_WIDTH 630
 #define DEM_FIXED_HEIGHT 560

@@ -2,8 +2,8 @@
 // Created by cc on 2019/08/29.
 //
 
-#ifndef QTALK_V2_HOTLINEANSWERITEM_H
-#define QTALK_V2_HOTLINEANSWERITEM_H
+#ifndef STALK_V2_HOTLINEANSWERITEM_H
+#define STALK_V2_HOTLINEANSWERITEM_H
 
 
 #include "MessageItemBase.h"
@@ -15,7 +15,7 @@
 #include <QListView>
 #include <QStandardItemModel>
 #include <QToolButton>
-#include "../../CustomUi/HeadPhotoLab.h"
+#include "CustomUi/HeadPhotoLab.h"
 
 /**
 * @description: HotLineAnswer
@@ -23,54 +23,56 @@
 * @create: 2019-08-29 18:52
 **/
 
-class ReqButton : public QFrame {
-Q_OBJECT
+class ReqButton : public QFrame
+{
+    Q_OBJECT
 public:
-    explicit ReqButton(int id, const QString& text, QString url, QWidget* parent)
-            : QFrame(parent), _url(std::move(url)), _id(id)
+    explicit ReqButton(int id, const QString &text, QString url, QWidget *parent)
+        : QFrame(parent), _id(id), _url(std::move(url))
     {
         _iconBtn = new QToolButton(this);
         _iconBtn->setFixedSize(30, 30);
         _iconBtn->setCheckable(true);
+
         if(0 == id)
             _iconBtn->setObjectName("NoBtn");
         else if(1 == id)
             _iconBtn->setObjectName("YesBtn");
         else {}
 
-        auto* ansLabel = new QLabel(text, this);
+        auto *ansLabel = new QLabel(text, this);
         ansLabel->setObjectName("hotLineAnswerLabel");
         ansLabel->setFixedHeight(30);
         ansLabel->setWordWrap(true);
-
-        auto* itemLay = new QHBoxLayout(this);
+        auto *itemLay = new QHBoxLayout(this);
         itemLay->setMargin(0);
         itemLay->setSpacing(5);
         itemLay->addWidget(_iconBtn);
         itemLay->addWidget(ansLabel);
-
-        connect(this, &ReqButton::sgSendReq, [this, ansLabel, text](int, const QString&){
+        connect(this, &ReqButton::sgSendReq, this, [this, ansLabel, text](int, const QString &)
+        {
             _iconBtn->setChecked(true);
             ansLabel->setText(QString("<font color=#00CABE>%1</font>").arg(text));
         });
-
-        connect(_iconBtn, &QToolButton::clicked, [this](){
+        connect(_iconBtn, &QToolButton::clicked, this, [this]()
+        {
             if(!_url.isEmpty() && _reqEnable)
                 emit sgSendReq(_id, _url);
         });
     }
 
 public:
-    void setReqEnable(bool enable) {
+    void setReqEnable(bool enable)
+    {
         _reqEnable = enable;
         _iconBtn->setEnabled(enable);
     }
 
 Q_SIGNALS:
-    void sgSendReq(int, const QString& );
+    void sgSendReq(int, const QString & );
 
 protected:
-    void mousePressEvent(QMouseEvent* e) override
+    void mousePressEvent(QMouseEvent *e) override
     {
         if(!_url.isEmpty() && _reqEnable)
             emit sgSendReq(_id, _url);
@@ -83,11 +85,12 @@ private:
     QString _url;
     bool _reqEnable = true;
 
-    QToolButton* _iconBtn;
+    QToolButton *_iconBtn;
 };
 
 /** **/
-enum {
+enum
+{
     EM_ITEM_DATA_TYPE_TEXT = Qt::UserRole + 1,
     EM_ITEM_DATA_TYPE_ACTION_TYPE,
     EM_ITEM_DATA_TYPE_ACTION_UID,
@@ -96,7 +99,8 @@ enum {
 
 };
 
-class HotLineTipDelegate : public QStyledItemDelegate{
+class HotLineTipDelegate : public QStyledItemDelegate
+{
     Q_OBJECT
 public:
     explicit HotLineTipDelegate(QWidget *parent);
@@ -115,16 +119,17 @@ public:
 /** **/
 class TextBrowser;
 class ChatMainWgt;
-class HotLineAnswerItem : public MessageItemBase {
+class HotLineAnswerItem : public MessageItemBase
+{
 
-Q_OBJECT
+    Q_OBJECT
 public:
     explicit HotLineAnswerItem(const StNetMessageResult &msgInfo, ChatMainWgt *parent = nullptr);
     ~HotLineAnswerItem() override;
 
 public:
     QSize itemWdtSize() override;
-    void onImageDownloaded(const QString& link);
+    void onImageDownloaded(const QString &link);
 
 private:
     void init();
@@ -138,7 +143,7 @@ private:
 
 private slots:
     void onAnchorClicked(const QUrl &url);
-    void onImageClicked(const QString& path, const QString& link);
+    void onImageClicked(const QString &path, const QString &link);
 
 private:
     QSize _headPixSize;
@@ -153,10 +158,10 @@ private:
     int _nameLabHeight;
 
 private:
-    TextBrowser * _textBrowser{};
-    ChatMainWgt*  _pMainWgt{};
-    QListView*    _pTipListView{};
-    QStandardItemModel* _pTipListModel{};
+    TextBrowser *_textBrowser{};
+    ChatMainWgt  *_pMainWgt{};
+    QListView    *_pTipListView{};
+    QStandardItemModel *_pTipListModel{};
 
 private:
     QVector<StTextMessage> msgs;
@@ -164,4 +169,4 @@ private:
 
 };
 
-#endif //QTALK_V2_HOTLINEANSWERITEM_H
+#endif //STALK_V2_HOTLINEANSWERITEM_H

@@ -4,10 +4,10 @@
 
 #include "PictureBrowser.h"
 #include "TitleFrm.h"
-#include "../Platform/Platform.h"
-#include "../CustomUi/QtMessageBox.h"
-#include "../UICom/uicom.h"
-#include "../Platform/NavigationManager.h"
+#include "DataCenter/Platform.h"
+#include "CustomUi/QtMessageBox.h"
+#include "Util/ui/uicom.h"
+#include "DataCenter/NavigationManager.h"
 #include <QHBoxLayout>
 #include <QWindow>
 #include <QKeyEvent>
@@ -64,7 +64,7 @@ void PictureBrowser::onShowChatPicture(const QString &messageId, const QString &
         analyseMessage(messageId.toStdString() ,messageContent, true);
         if(_images.empty())
         {
-            QtMessageBox::warning(this, tr("警告"), tr("无法加载该图片!"));
+            QtMessageBox::warning(this, QObject::tr("警告"), tr("无法加载该图片!"));
             return;
         }
         loadImage(true);
@@ -236,7 +236,7 @@ void PictureBrowser::turnBefore()
         }
     }
     //
-    QtMessageBox::warning(this, tr("警告"), tr("无法加载更早的图片了!"));
+    QtMessageBox::warning(this, QObject::tr("警告"), tr("无法加载更早的图片了!"));
 }
 
 void PictureBrowser::turnNext()
@@ -259,7 +259,7 @@ void PictureBrowser::turnNext()
         }
     }
     //
-    QtMessageBox::warning(this, tr("警告"), tr("已看完最后一张图片!"));
+    QtMessageBox::warning(this, QObject::tr("警告"), tr("已看完最后一张图片!"));
 }
 
 /**
@@ -275,11 +275,11 @@ void PictureBrowser::loadImage(bool isFirst)
     }
     auto item = _images[_curIndex];
     _curLink = item.second;
-    auto imgPath = QString::fromStdString(QTalk::GetSrcImagePathByUrl(_curLink));
+    auto imgPath = QString::fromStdString(st::GetSrcImagePathByUrl(_curLink));
     QFileInfo info(imgPath);
     if(!info.exists() || info.isDir())
     {
-        imgPath = QString::fromStdString(QTalk::GetImagePathByUrl(_curLink));
+        imgPath = QString::fromStdString(st::GetImagePathByUrl(_curLink));
         _pPicFrm->setEnabled(false);
         QtConcurrent::run([isFirst, this](){
             std::string srcImg =PictureMsgManager::getSourceImage(_curLink);

@@ -2,8 +2,8 @@
 // Created by cc on 2019/12/27.
 //
 
-#ifndef QTALK_V2_CHATMAINDELEGATE_H
-#define QTALK_V2_CHATMAINDELEGATE_H
+#ifndef STALK_V2_CHATMAINDELEGATE_H
+#define STALK_V2_CHATMAINDELEGATE_H
 
 #include <QStyledItemDelegate>
 #include <QListView>
@@ -44,4 +44,4 @@ private:
     QMap<QString, MessageItemBase*> &_mapItems;
 };
 
-#endif //QTALK_V2_CHATMAINDELEGATE_H
+#endif //STALK_V2_CHATMAINDELEGATE_H

@@ -2,15 +2,15 @@
 // Created by cc on 2019-03-13.
 //
 
-#ifndef QTALK_V2_UID_H
-#define QTALK_V2_UID_H
+#ifndef STALK_V2_UID_H
+#define STALK_V2_UID_H
 
 #include <sstream>
 #include <string>
 
 
-namespace QTalk {
-    namespace Entity {
+namespace st {
+    namespace entity {
 
         class UID {
 
@@ -130,4 +130,4 @@ namespace QTalk {
     }
 }
 
-#endif //QTALK_V2_UID_H
+#endif //STALK_V2_UID_H

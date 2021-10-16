@@ -4,7 +4,7 @@
 #include <QDialog>
 #include <QFrame>
 #include <QMenu>
-#include "../../CustomUi/UShadowWnd.h"
+#include "CustomUi/UShadowWnd.h"
 
 
 class CustomMenu : public UShadowDialog

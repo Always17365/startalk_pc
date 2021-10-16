@@ -4,8 +4,8 @@
 #if _MSC_VER >= 1600
 #pragma execution_character_set("utf-8")
 #endif
-#ifndef QTALK_V2_SKRECORDER_H
-#define QTALK_V2_SKRECORDER_H
+#ifndef STALK_V2_SKRECORDER_H
+#define STALK_V2_SKRECORDER_H
 
 #include <QFrame>
 #include <QLabel>
@@ -22,7 +22,7 @@ public:
     }SKRecorderState;
 
 public:
-    explicit SKRecorder(QWidget* parent = Q_NULLPTR, int fixedWidth = 120, int fixedHeight = 32);
+    explicit SKRecorder(QWidget* parent = nullptr, int fixedWidth = 120, int fixedHeight = 32);
     ~SKRecorder() override;
     void setKeyChangeEvent(std::function<void(const QKeySequence& keys)> callback);
     void setShorCut(const QKeySequence& keys);
@@ -51,4 +51,4 @@ private:
 };
 
 
-#endif //QTALK_V2_SKRECORDER_H
+#endif //STALK_V2_SKRECORDER_H

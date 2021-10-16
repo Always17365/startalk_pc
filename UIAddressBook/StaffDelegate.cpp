@@ -6,13 +6,13 @@
 #include <QPainter>
 #include <QEvent>
 #include <QFileInfo>
-#include "../CustomUi/HeadPhotoLab.h"
-#include "../UICom/qimage/qimage.h"
+#include "CustomUi/HeadPhotoLab.h"
+#include "Util/ui/qimage/qimage.h"
 
-#include "../UICom/StyleDefine.h"
-#include "../Platform/AppSetting.h"
+#include "Util/ui/StyleDefine.h"
+#include "DataCenter/AppSetting.h"
 
-using namespace QTalk;
+using namespace st;
 StaffDelegate::StaffDelegate(QWidget *parent)
         : QStyledItemDelegate(parent)
 {
@@ -44,11 +44,11 @@ void StaffDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
     QString strText = index.data(EM_STAFF_DATATYPE_TEXT).toString();
     QString iconPath = index.data(EM_STAFF_DATATYPE_ICONPATH).toString();
     bool hasChild = index.data(EM_STAFF_DATATYPE_HASCHILD).toBool();
-    QPixmap icon = QTalk::qimage::loadCirclePixmap(iconPath, 12);
+    QPixmap icon = st::qimage::loadCirclePixmap(iconPath, 12);
 
     painter->drawPixmap(QRect(rect.x(), rect.y() + 8, 24, 24), icon);
     painter->setPen(QPen(StyleDefine::instance().getAdrNameFontColor()));
-    QTalk::setPainterFont(painter, AppSetting::instance().getFontLevel());
+    st::setPainterFont(painter, AppSetting::instance().getFontLevel());
     painter->drawText(QRect(rect.x() + 25, rect.y(), rect.width() - 25, rect.height()), Qt::AlignVCenter, strText);
 
     painter->restore();

@@ -9,16 +9,15 @@
 #include "ScanQRcode.h"
 #include "MakeQRcode.h"
 
-QRcode::QRcode(QWidget* parent)
-    :UShadowDialog(parent, true, false)
+QRcode::QRcode(QWidget *parent)
+    : UShadowDialog(parent, true, false)
 {
 //    Qt::WindowFlags flags = Qt::X11BypassWindowManagerHint | Qt::WindowStaysOnTopHint;
     //setWindowFlags(windowFlags() | flags);
-
     //
-    auto * closeBtn = new QPushButton(this);
+    auto *closeBtn = new QPushButton(this);
     closeBtn->setToolTip(tr("关闭"));
-    auto* titleLay = new QHBoxLayout;
+    auto *titleLay = new QHBoxLayout;
 #ifdef _MACOS
     closeBtn->setFixedSize(12, 12);
     closeBtn->setObjectName("gmCloseBtn");
@@ -33,19 +32,18 @@ QRcode::QRcode(QWidget* parent)
     titleLay->addWidget(closeBtn);
 #endif
     //
-    scanBtn = new TipButton(tr("扫一扫"), em_wnd_scan,this);
-    makeBtn = new TipButton(tr("生成二维码"), em_wnd_make,this);
-    auto* btnLay = new QHBoxLayout;
+    scanBtn = new TipButton(tr("扫一扫"), em_wnd_scan, this);
+    makeBtn = new TipButton(tr("生成二维码"), em_wnd_make, this);
+    auto *btnLay = new QHBoxLayout;
     btnLay->setSpacing(30);
     btnLay->addItem(new QSpacerItem(10, 10, QSizePolicy::Expanding));
     btnLay->addWidget(scanBtn);
     btnLay->addWidget(makeBtn);
     btnLay->addItem(new QSpacerItem(10, 10, QSizePolicy::Expanding));
-
     //
-    QFrame* topFrm = new QFrame(this);
+    QFrame *topFrm = new QFrame(this);
     topFrm->setFixedHeight(90);
-    auto* topLay = new QVBoxLayout(topFrm);
+    auto *topLay = new QVBoxLayout(topFrm);
     topLay->setMargin(0);
     topLay->addLayout(titleLay, 0);
     topLay->addLayout(btnLay, 1);
@@ -53,24 +51,22 @@ QRcode::QRcode(QWidget* parent)
     //
     _pScanQRcode = new ScanQRcode(this);
     _pMakeQRcode = new MakeQRcode(this);
-
-    QFrame* mainFrm = new QFrame(this);
+    QFrame *mainFrm = new QFrame(this);
     mainFrm->setObjectName("QRcode");
-    auto* mainLay = new QVBoxLayout(mainFrm);
+    auto *mainLay = new QVBoxLayout(mainFrm);
     mainLay->addWidget(topFrm);
     mainLay->addWidget(_pScanQRcode);
     mainLay->addWidget(_pMakeQRcode);
     //
-    auto* layout = new QHBoxLayout(_pCenternWgt);
+    auto *layout = new QHBoxLayout(_pCenternWgt);
     layout->addWidget(mainFrm);
     //
     layout->setMargin(0);
     layout->setSpacing(0);
     setMoverAble(true);
-
     onChangeWnd(em_wnd_scan);
-
-    connect(closeBtn, &QPushButton::clicked, [this](){
+    connect(closeBtn, &QPushButton::clicked, this,  [this]()
+    {
         this->setVisible(false);
     });
     connect(makeBtn, &TipButton::clicked, this, &QRcode::onChangeWnd, Qt::QueuedConnection);
@@ -80,8 +76,8 @@ QRcode::QRcode(QWidget* parent)
 #endif
 }
 
-QRcode::~QRcode() {
-
+QRcode::~QRcode()
+{
 }
 
 void QRcode::onChangeWnd(int id)
@@ -95,5 +91,5 @@ void QRcode::onChangeWnd(int id)
         resize(380, 450);
     else if(em_wnd_make == id)
         resize(380, 480);
-    else{}
+    else {}
 }

@@ -2,13 +2,13 @@
 // Created by cc on 18-12-3.
 //
 
-#ifndef QTALK_V2_IM_CONFIG_H
-#define QTALK_V2_IM_CONFIG_H
+#ifndef STALK_V2_IM_CONFIG_H
+#define STALK_V2_IM_CONFIG_H
 
 #include <string>
 
-namespace QTalk {
-    namespace Entity {
+namespace st {
+    namespace entity {
         struct ImConfig
         {
             ImConfig()
@@ -29,4 +29,4 @@ namespace QTalk {
     }
 }
 
-#endif //QTALK_V2_IM_CONFIG_H
+#endif //STALK_V2_IM_CONFIG_H

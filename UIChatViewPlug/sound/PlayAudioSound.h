@@ -2,11 +2,11 @@
 // Created by may on 2019-03-18.
 //
 
-#ifndef QTALK_V2_PLAYAUDIOSOUND_H
-#define QTALK_V2_PLAYAUDIOSOUND_H
+#ifndef STALK_V2_PLAYAUDIOSOUND_H
+#define STALK_V2_PLAYAUDIOSOUND_H
 
 
-namespace QTalk {
+namespace st {
     namespace mac {
         namespace util {
             class PlayAudioSound {
@@ -19,4 +19,4 @@ namespace QTalk {
 }
 
 
-#endif //QTALK_V2_PLAYAUDIOSOUND_H
+#endif //STALK_V2_PLAYAUDIOSOUND_H

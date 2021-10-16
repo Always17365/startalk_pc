@@ -2,21 +2,20 @@
 // Created by cc on 18-12-14.
 //
 
-#ifndef QTALK_V2_SEARCHTHREAD_H
-#define QTALK_V2_SEARCHTHREAD_H
+#ifndef STALK_V2_SEARCHTHREAD_H
+#define STALK_V2_SEARCHTHREAD_H
 
 #include <QThread>
 #include <QMutexLocker>
-#include "../include/STLazyQueue.h"
+#include "Util/lazy/lazyq.h"
 
 class SearchResultPanel;
 
-class SearchThread : public QObject {
-Q_OBJECT
+class SearchThread : public QObject
+{
+    Q_OBJECT
 public:
-    SearchThread(SearchResultPanel *searchPanel);
-
-    ~SearchThread();
+    SearchThread();
 
 public:
     void addSearchReq(const QString &req);
@@ -29,19 +28,10 @@ protected:
     void run();
 
 private:
-    SearchResultPanel *_pSearchPanel;
-
-
-    STLazyQueue<std::string> *_searchQueue;
-
+    lazyq<bool> *_searchQueue;
 
     QString _lastReq;
-    long long _lastTime;
-
-    bool _isRun;
-    bool _searchSts;
-    QMutex _mutex;
 };
 
 
-#endif //QTALK_V2_SEARCHTHREAD_H
+#endif //STALK_V2_SEARCHTHREAD_H

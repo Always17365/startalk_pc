@@ -15,15 +15,14 @@
 #include <QStackedWidget>
 #include "MessageManager.h"
 #include "TcpDisconnect.h"
-#include "../include/im_enum.h"
-#include "../entity/im_message.h"
-#include "../entity/im_config.h"
-#include "../entity/UID.h"
-#include "../Message/ChatMessage.h"
-#include "../Message/LoginMessgae.h"
-#include "../entity/im_config.h"
-#include "../QtUtil/Entity/JID.h"
-#include "../include/STLazyQueue.h"
+#include "include/im_enum.h"
+#include "entity/im_message.h"
+#include "entity/im_config.h"
+#include "entity/UID.h"
+#include "Message/ChatMessage.h"
+#include "Message/LoginMessgae.h"
+#include "entity/im_config.h"
+#include "Util/Entity/JID.h"
 #include "MessageManager.h"
 #include <set>
 #include <string>
@@ -34,7 +33,7 @@ public:
     ReceiveSession()
         : messageRecvTime(0), messtype(-1) {};
 
-    QTalk::Enum::ChatType chatType;
+    st::Enum::ChatType chatType;
     QString messageId;
     QString messageContent;
     QString xmppId;
@@ -69,16 +68,16 @@ public slots:
     void onDownLoadGroupHeadPhotosFinish();
     void onUpdateOnline();
     void onUpdateOnlineUsers(const QString &user);
-    void onUpdateGroupInfo(const QTalk::StGroupInfo &gInfo);
-    void onUpdateReadedCount(const QTalk::Entity::UID &uid, const int &count);
-    void recvRevikeMessage(const QTalk::Entity::UID &uid, const QString &fromId);
+    void onUpdateGroupInfo(const st::StGroupInfo &gInfo);
+    void onUpdateReadedCount(const st::entity::UID &uid, const int &count);
+    void recvRevikeMessage(const st::entity::UID &uid, const QString &fromId);
     void onToTopAct(bool);
     void onUnNoticeAct(bool);
     void updateUserConfig();
     void onDestroyGroup(const QString &groupId);
-    void onUserConfigChanged(const QTalk::Entity::UID &);
-    void onShowDraft(const QTalk::Entity::UID &, const QString &draft);
-    void onGotMState(const QTalk::Entity::UID &, const QString &messageId,
+    void onUserConfigChanged(const st::entity::UID &);
+    void onShowDraft(const st::entity::UID &, const QString &draft);
+    void onGotMState(const st::entity::UID &, const QString &messageId,
                      const long long &time);
 
 private:
@@ -99,7 +98,7 @@ private:
     QString
     GenerateContent(const QString &content, const QUInt8 &chatType,
                     const int &msgType, const QString &userName);
-    void setUserStatus(const QTalk::Entity::UID &, bool check = false);
+    void setUserStatus(const st::entity::UID &, bool check = false);
     QString getUserName(const std::string &xmppId, bool isGroup);
     void sortAndFilterView(int index = -1);
 
@@ -114,20 +113,20 @@ Q_SIGNALS:
     void sgUpdateOnline();
     void sgUpdateOnlineUsers(const QString &);
     void loadSession();
-    void sgUserConfigChanged(const QTalk::Entity::UID &);
+    void sgUserConfigChanged(const st::entity::UID &);
     void destoryGroupSignal(const QString &);
-    void sgGotMState(const QTalk::Entity::UID &, const QString &,
+    void sgGotMState(const st::entity::UID &, const QString &,
                      const long long &);
     void sgShortCutSwitchSession(int);
     void sgUpdateUserInfo(const QVector<QString> &);
-    void updateGroupInfoSignal(const QTalk::StGroupInfo &);
-    void updateReadedCountSignal(const QTalk::Entity::UID &, const int &);
-    void recvRevokeMessageSignal(const QTalk::Entity::UID &, const QString &);
+    void updateGroupInfoSignal(const st::StGroupInfo &);
+    void updateReadedCountSignal(const st::entity::UID &, const int &);
+    void recvRevokeMessageSignal(const st::entity::UID &, const QString &);
     void setDisconnectWgtVisible(bool);
     void showUserCardSignal(const QString &);
     void showGroupCardSignal(const QString &);
     void updateTotalUnreadCount(int);
-    void sgShowUnreadMessage(int, const QTalk::Entity::UID &, const QString &,
+    void sgShowUnreadMessage(int, const st::entity::UID &, const QString &,
                              qint64, int);
 
 public: // listener ack messages
@@ -135,10 +134,10 @@ public: // listener ack messages
     void sendSession(S_Message mess);
     void onTcpDisconnect();
     void onLoginSuccess();
-    void onUpdateUserConfig(const std::vector<QTalk::Entity::ImConfig> &arConfigs);
+    void onUpdateUserConfig(const std::vector<st::entity::ImConfig> &arConfigs);
     void onUpdateUserConfig(const std::map<std::string, std::string> &deleteData,
-                            const std::vector<QTalk::Entity::ImConfig> &arImConfig);
-    void onGotUserCards(const std::vector<QTalk::StUserCard> &cards);
+                            const std::vector<st::entity::ImConfig> &arImConfig);
+    void onGotUserCards(const std::vector<st::StUserCard> &cards);
     void onGotUserCard(const QString &xmppid);
     void updateTatalReadCount();
 
@@ -184,8 +183,8 @@ public:
     std::map<std::string, std::string> _mapNotice;
     std::vector<std::string>           _arSatr;
     std::vector<std::string>           _arBlackList;
-    QTalk::Entity::UID                 _curUserId;
-    QMap<QTalk::Entity::UID, QStandardItem *> _sessionMap;
+    st::entity::UID                 _curUserId;
+    QMap<st::entity::UID, QStandardItem *> _sessionMap;
 
 private:
     TcpDisconnect         *_pTcpDisconnect{};

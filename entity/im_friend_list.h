@@ -2,10 +2,10 @@
 // Created by cc on 18-12-18.
 //
 
-#ifndef QTALK_V2_IM_FRIEND_LIST_H
-#define QTALK_V2_IM_FRIEND_LIST_H
+#ifndef STALK_V2_IM_FRIEND_LIST_H
+#define STALK_V2_IM_FRIEND_LIST_H
 
-namespace QTalk {
+namespace st {
     namespace Entity {
 
         struct IMFriendList
@@ -25,4 +25,4 @@ namespace QTalk {
     }
 }
 
-#endif //QTALK_V2_IM_FRIEND_LIST_H
+#endif //STALK_V2_IM_FRIEND_LIST_H

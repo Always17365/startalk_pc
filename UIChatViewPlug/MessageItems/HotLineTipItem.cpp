@@ -7,24 +7,27 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
-#include "../CustomUi/LinkButton.h"
+#include "CustomUi/LinkButton.h"
 #include "../ChatViewMainPanel.h"
 
 extern ChatViewMainPanel *g_pMainPanel;
-HotLineTipItem::HotLineTipItem(const StNetMessageResult& info, QWidget* parent)
-    :QFrame(parent)
+HotLineTipItem::HotLineTipItem(const StNetMessageResult &info, QWidget *parent)
+    : QFrame(parent)
 {
-    auto* mainFrm = new QFrame(this);
+    auto *mainFrm = new QFrame(this);
     mainFrm->setObjectName("messReceiveContentFrm");
-    auto* mainLay = new QHBoxLayout(mainFrm);
+    auto *mainLay = new QHBoxLayout(mainFrm);
     mainLay->setMargin(3);
     mainLay->setSpacing(1);
     //
     QJsonDocument jsonDocument = QJsonDocument::fromJson(info.extend_info.toUtf8());
-    if (!jsonDocument.isNull()) {
+
+    if (!jsonDocument.isNull())
+    {
         QJsonObject jsonObject = jsonDocument.object();
         QJsonArray hints = jsonObject.value("hints").toArray();
         auto it = hints.begin();
+
         while (it != hints.end())
         {
             auto hint = it->toObject();
@@ -32,25 +35,26 @@ HotLineTipItem::HotLineTipItem(const StNetMessageResult& info, QWidget* parent)
             //
             QString text = hint.value("text").toString();
             QString type = event.value("type").toString();
-            //
-            if( "postInterface" == type) {
 
+            //
+            if( "postInterface" == type)
+            {
                 QString url = event.value("url").toString();
                 auto params = event.value("params").toObject();
                 QJsonDocument paramDoc;
                 paramDoc.setObject(params);
                 QByteArray strParams = paramDoc.toJson(QJsonDocument::Compact);
-
-                auto* link = new LinkButton(text, this);
+                auto *link = new LinkButton(text, this);
                 mainLay->addWidget(link);
-
-                connect(link, &LinkButton::clicked, [url, strParams](){
+                connect(link, &LinkButton::clicked, this, [url, strParams]()
+                {
                     if(g_pMainPanel)
                         ChatViewMainPanel::postInterface(url.toStdString(), strParams.data());
                 });
-
-            }  else if("text" == type) {
-                auto* label = new QLabel(text, this);
+            }
+            else if("text" == type)
+            {
+                auto *label = new QLabel(text, this);
                 mainLay->addWidget(label);
             }
 
@@ -59,16 +63,16 @@ HotLineTipItem::HotLineTipItem(const StNetMessageResult& info, QWidget* parent)
     }
     else
     {
-        auto* label = new QLabel(_msgInfo.body, this);
+        auto *label = new QLabel(_msgInfo.body, this);
         mainLay->addWidget(label);
     }
+
     //
-    auto* lay = new QHBoxLayout(this);
+    auto *lay = new QHBoxLayout(this);
     lay->setMargin(2);
     lay->addItem(new QSpacerItem(10, 10, QSizePolicy::Expanding));
     lay->addWidget(mainFrm);
     lay->addItem(new QSpacerItem(10, 10, QSizePolicy::Expanding));
-
     mainFrm->setFixedHeight(30);
 }
 

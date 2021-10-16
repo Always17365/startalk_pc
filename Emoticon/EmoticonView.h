@@ -2,8 +2,8 @@
 // Created by cc on 2019-05-22.
 //
 
-#ifndef QTALK_V2_EMOTICONVIEW_H
-#define QTALK_V2_EMOTICONVIEW_H
+#ifndef STALK_V2_EMOTICONVIEW_H
+#define STALK_V2_EMOTICONVIEW_H
 
 #include <QFrame>
 #include <QMovie>
@@ -33,4 +33,4 @@ private:
 };
 
 
-#endif //QTALK_V2_EMOTICONVIEW_H
+#endif //STALK_V2_EMOTICONVIEW_H

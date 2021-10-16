@@ -6,18 +6,16 @@
 #include <QHBoxLayout>
 #include <QLabel>
 
-TitleBar::TitleBar(const QString& title, QWidget* controlWgt, QWidget* parent)
-    :QFrame(parent)
+TitleBar::TitleBar(const QString &title, QWidget *controlWgt, QWidget *parent)
+    : QFrame(parent)
 {
     this->setObjectName("TitleBar");
-
-    auto * titleLay = new QHBoxLayout(this);
+    auto *titleLay = new QHBoxLayout(this);
     titleLay->setMargin(10);
     _pCloseBtn = new QToolButton(this);
     _pTitleLbl = new QLabel(title, this);
     _pTitleLbl->setObjectName("TitleBarLabel");
     _pTitleLbl->setAlignment(Qt::AlignmentFlag::AlignCenter);
-
 #ifdef _MACOS
     _pCloseBtn->setFixedSize(10, 10);
     titleLay->addWidget(_pCloseBtn);
@@ -31,12 +29,17 @@ TitleBar::TitleBar(const QString& title, QWidget* controlWgt, QWidget* parent)
     _pCloseBtn->setObjectName("gwCloseBtn");
     titleLay->addWidget(_pCloseBtn);
 #endif
+
     //
     if(nullptr != controlWgt)
-        connect(_pCloseBtn, &QToolButton::clicked, [controlWgt](){controlWgt->setVisible(false);});
+        connect(_pCloseBtn, &QToolButton::clicked, this, [controlWgt]()
+    {
+        controlWgt->setVisible(false);
+    });
 }
 
-void TitleBar::setLabelText(const QString &text) {
+void TitleBar::setLabelText(const QString &text)
+{
     if(nullptr != _pTitleLbl)
         _pTitleLbl->setText(text);
 }

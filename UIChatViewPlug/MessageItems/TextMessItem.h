@@ -13,7 +13,7 @@ class TextMessItem : public MessageItemBase
 {
     Q_OBJECT
 public:
-    explicit TextMessItem(const StNetMessageResult &msgInfo, QWidget *parent = Q_NULLPTR);
+    explicit TextMessItem(const StNetMessageResult &msgInfo, QWidget *parent = nullptr);
 
 public:
     QSize textWdtSize();

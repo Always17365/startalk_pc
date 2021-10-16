@@ -2,13 +2,13 @@
 // Created by cc on 2019-04-16.
 //
 #if _MSC_VER >= 1600
-#pragma execution_character_set("utf-8")
+    #pragma execution_character_set("utf-8")
 #endif
-#ifndef QTALK_V2_QRCODE_H
-#define QTALK_V2_QRCODE_H
+#ifndef STALK_V2_QRCODE_H
+#define STALK_V2_QRCODE_H
 
 #include <QStackedLayout>
-#include "../../CustomUi/UShadowWnd.h"
+#include "CustomUi/UShadowWnd.h"
 #include "TipButton.h"
 
 /**
@@ -24,21 +24,22 @@ enum {
 
 class ScanQRcode;
 class MakeQRcode;
-class QRcode : public UShadowDialog {
+class QRcode : public UShadowDialog
+{
     Q_OBJECT
 public:
-    explicit QRcode(QWidget* parent = nullptr);
+    explicit QRcode(QWidget *parent = nullptr);
     ~QRcode() override;
 
 public:
     void onChangeWnd(int id);
 
 public:
-    ScanQRcode* _pScanQRcode;
-    MakeQRcode* _pMakeQRcode;
-    TipButton* scanBtn;
-    TipButton* makeBtn;
+    ScanQRcode *_pScanQRcode;
+    MakeQRcode *_pMakeQRcode;
+    TipButton *scanBtn;
+    TipButton *makeBtn;
 };
 
 
-#endif //QTALK_V2_QRCODE_H
+#endif //STALK_V2_QRCODE_H

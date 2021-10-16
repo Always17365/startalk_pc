@@ -3,7 +3,7 @@
 //
 #include "TriggerConfig.h"
 
-TriggerConfig::TriggerConfig(qtalk::sqlite::database *sqlDb) :
+TriggerConfig::TriggerConfig(st::sqlite::database *sqlDb) :
         _sqlDb(sqlDb) {
 
 }
@@ -26,7 +26,7 @@ bool TriggerConfig::createUnreadUpdateTrigger() {
                       "else UnreadCount "
                       "end "
                       "where XmppId = new.XmppId and RealJid = new.realjid and new.'from' <> (select value from IM_Cache_Data where key ='USER_ID' and type = 6); end";
-    qtalk::sqlite::statement query(*_sqlDb, sql);
+    st::sqlite::statement query(*_sqlDb, sql);
     return query.executeStep();
 }
 
@@ -46,7 +46,7 @@ bool TriggerConfig::createUnreadInserttrigger() {
                       "else UnreadCount "
                       "end "
                       "where XmppId = new.XmppId and RealJid = new.realjid and new.'from' <> (select value from IM_Cache_Data where key ='USER_ID' and type = 6); end";
-    qtalk::sqlite::statement query(*_sqlDb, sql);
+    st::sqlite::statement query(*_sqlDb, sql);
     return query.executeStep();
 }
 
@@ -60,9 +60,9 @@ void TriggerConfig::modifyUnreadCountTrigger() {
         std::string updateSql = "DROP TRIGGER sessionlist_unread_update";
         std::string insertSql = "DROP TRIGGER sessionlist_unread_insert";
 
-        qtalk::sqlite::statement query_update(*_sqlDb, updateSql);
+        st::sqlite::statement query_update(*_sqlDb, updateSql);
         bool ret = query_update.executeStep();
-        qtalk::sqlite::statement query_insert(*_sqlDb, insertSql);
+        st::sqlite::statement query_insert(*_sqlDb, insertSql);
         ret = query_insert.executeStep();
     }
     // new update
@@ -78,7 +78,7 @@ void TriggerConfig::modifyUnreadCountTrigger() {
                           "end "
                           "where XmppId = new.XmppId and RealJid = new.realjid "
                           "and new.`Direction` = 0; end";
-        qtalk::sqlite::statement query(*_sqlDb, sql);
+        st::sqlite::statement query(*_sqlDb, sql);
         query.executeStep();
     }
 
@@ -93,7 +93,7 @@ void TriggerConfig::modifyUnreadCountTrigger() {
                           "end "
                           "where XmppId = new.XmppId and RealJid = new.realjid "
                           "and new.`Direction` = 0; end";
-        qtalk::sqlite::statement query(*_sqlDb, sql);
+        st::sqlite::statement query(*_sqlDb, sql);
         query.executeStep();
     }
 }

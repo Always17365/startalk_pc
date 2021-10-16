@@ -7,7 +7,7 @@
 
 #include <QFrame>
 #include <QLabel>
-#include "../include/CommonDefine.h"
+#include "include/CommonDefine.h"
 
 enum itemType
 {

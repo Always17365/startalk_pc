@@ -2,8 +2,8 @@
 // Created by cc on 2019-07-10.
 //
 
-#ifndef QTALK_V2_UCBUTTON_H
-#define QTALK_V2_UCBUTTON_H
+#ifndef STALK_V2_UCBUTTON_H
+#define STALK_V2_UCBUTTON_H
 
 #include <QFrame>
 #include "customui_global.h"
@@ -57,4 +57,4 @@ private:
 private:
     std::map<UCButton *, int> _mapBtns;
 };
-#endif //QTALK_V2_UCBUTTON_H
+#endif //STALK_V2_UCBUTTON_H

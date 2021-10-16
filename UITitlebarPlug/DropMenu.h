@@ -6,22 +6,22 @@
 #if _MSC_VER >= 1600
 #pragma execution_character_set("utf-8")
 #endif
-#ifndef QTALK_V2_DROPMENU_H
-#define QTALK_V2_DROPMENU_H
+#ifndef STALK_V2_DROPMENU_H
+#define STALK_V2_DROPMENU_H
 
-#include "../CustomUi/UShadowWnd.h"
+#include "CustomUi/UShadowWnd.h"
 #include <QLabel>
 #include <iostream>
 #include <QPainter>
 #include <QLabel>
-#include "../CustomUi/HeadPhotoLab.h"
+#include "CustomUi/HeadPhotoLab.h"
 #include "AboutWnd.h"
 #include "SystemSettingWnd.h"
 #include <QHBoxLayout>
 #include <QMenu>
-#include "../UICom/StyleDefine.h"
+#include "Util/ui/StyleDefine.h"
 
-using  namespace QTalk;
+using  namespace st;
 typedef unsigned int Item_Index;
 class ComboBox : public QFrame
 {
@@ -248,4 +248,4 @@ private:
 };
 
 
-#endif //QTALK_V2_DROPMENU_H
+#endif //STALK_V2_DROPMENU_H

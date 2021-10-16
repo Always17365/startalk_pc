@@ -2,8 +2,8 @@
 // Created by cc on 2018/11/17.
 //
 
-#ifndef QTALK_V2_PICITEM_H
-#define QTALK_V2_PICITEM_H
+#ifndef STALK_V2_PICITEM_H
+#define STALK_V2_PICITEM_H
 
 #include <QGraphicsItem>
 #include <QPixmap>
@@ -16,7 +16,8 @@
 #include <QMutexLocker>
 
 
-class PicItem : public QGraphicsItem {
+class PicItem : public QGraphicsItem
+{
 public:
     explicit PicItem(int &scaleVal);
 
@@ -34,8 +35,8 @@ public:
 
 protected:
     QPixmap _pixmap;
-    QMovie *_pMovie;
-    qreal _proportion;
+    QMovie *_pMovie { nullptr };
+    qreal _proportion {1};
 
 private:
     QMutex _mutex;
@@ -44,4 +45,4 @@ private:
 };
 
 
-#endif //QTALK_V2_PICITEM_H
+#endif //STALK_V2_PICITEM_H

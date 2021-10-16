@@ -2,10 +2,10 @@
 // Created by cc on 2019/10/21.
 //
 
-#ifndef QTALK_V2_USERMEDALWND_H
-#define QTALK_V2_USERMEDALWND_H
+#ifndef STALK_V2_USERMEDALWND_H
+#define STALK_V2_USERMEDALWND_H
 
-#include "../../CustomUi/UShadowWnd.h"
+#include "CustomUi/UShadowWnd.h"
 #include <vector>
 #include <set>
 #include <QTableWidget>
@@ -19,7 +19,7 @@
 **/
 
 struct StMedalInfo {
-    QTalk::Entity::ImMedalList im_medal;
+    st::entity::ImMedalList im_medal;
     int medal_status = 0;
 
     bool operator<(const StMedalInfo& other) const
@@ -52,7 +52,7 @@ class UserMedalWnd : public QFrame {
 public:
     explicit UserMedalWnd(const QString& userName,
             const QString& headPath,
-            const std::set<QTalk::StUserMedal>& user_medals,
+            const std::set<st::StUserMedal>& user_medals,
             QWidget* parent);
     ~UserMedalWnd() override;
 
@@ -60,7 +60,7 @@ public:
     inline QWidget* getMoveWgt() { return _topFrm;};
 
 public:
-    void init_medals(const std::set<QTalk::StUserMedal>& user_medals);
+    void init_medals(const std::set<st::StUserMedal>& user_medals);
 
 Q_SIGNALS:
     void sgShowMedalDetail(int);
@@ -71,4 +71,4 @@ private:
 };
 
 
-#endif //QTALK_V2_USERMEDALWND_H
+#endif //STALK_V2_USERMEDALWND_H

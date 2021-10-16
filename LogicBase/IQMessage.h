@@ -2,7 +2,7 @@
 #define _IQMESSAGE_H_
 
 #include "MessageStruct.h"
-#include "../EventBus/Event.hpp"
+#include "EventBus/Event.hpp"
 
 class IQMessageEvt : public Event
 {

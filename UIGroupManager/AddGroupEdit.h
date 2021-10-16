@@ -5,8 +5,8 @@
 #pragma execution_character_set("utf-8")
 #endif
 
-#ifndef QTALK_V2_ADDGROUPEDIT_H
-#define QTALK_V2_ADDGROUPEDIT_H
+#ifndef STALK_V2_ADDGROUPEDIT_H
+#define STALK_V2_ADDGROUPEDIT_H
 
 #include <QTextEdit>
 
@@ -26,4 +26,4 @@ public:
 };
 
 
-#endif //QTALK_V2_ADDGROUPEDIT_H
+#endif //STALK_V2_ADDGROUPEDIT_H

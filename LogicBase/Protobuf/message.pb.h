@@ -85,11 +85,12 @@ enum SignalType {
   SignalTypeConsult = 132,
   SignalTypeEncryption = 136,
   SignalTypeCollection = 140,
-  SignalTypeTrans = 141
+  SignalTypeTrans = 141,
+  SignalTypeCustomize = 142
 };
 bool SignalType_IsValid(int value);
 const SignalType SignalType_MIN = SignalTypePresence;
-const SignalType SignalType_MAX = SignalTypeTrans;
+const SignalType SignalType_MAX = SignalTypeCustomize;
 const int SignalType_ARRAYSIZE = SignalType_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* SignalType_descriptor();
@@ -132,7 +133,7 @@ enum MessageType {
   MessageTypeText = 1,
   MessageTypeVoice = 2,
   MessageTypePhoto = 3,
-  MessageTypeSogouIcon = 4,
+  MessageTypePhotoBigIm = 4,
   MessageTypeFile = 5,
   MessageTypeTopic = 6,
   MessageTypeRichText = 7,
@@ -179,6 +180,7 @@ enum MessageType {
   WebRTC_MsgType_VideoMeeting = 5001,
   MessageTypeShareLocation = 8192,
   MessageTypeTransNormal = 10081,
+  MessageTypeCustomize = 10082,
   WebRTC_MsgType_Live = 65501,
   WebRTC_MsgType_VideoCall = 65505,
   WebRTC_MsgType_AudioCall = 65506,
@@ -245,11 +247,12 @@ enum StringHeaderType {
   StringHeaderTypeMaskedUuser = 68,
   StringHeaderTypeKey = 70,
   StringHeaderTypeCarbon = 72,
-  StringHeaderTypeMode = 76
+  StringHeaderTypeMode = 76,
+  StringForbiddenWords = 78
 };
 bool StringHeaderType_IsValid(int value);
 const StringHeaderType StringHeaderType_MIN = StringHeaderTypeChatId;
-const StringHeaderType StringHeaderType_MAX = StringHeaderTypeMode;
+const StringHeaderType StringHeaderType_MAX = StringForbiddenWords;
 const int StringHeaderType_ARRAYSIZE = StringHeaderType_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* StringHeaderType_descriptor();
@@ -298,11 +301,13 @@ enum IQMessageKeyType {
   IQKeyGetVUserRole = 94,
   IQKeyStartSession = 96,
   IQKeyEndSession = 98,
-  IQKeySessionEvent = 99
+  IQKeySessionEvent = 99,
+  IQKeyGetForbiddenWords = 100,
+  IQKeySetForbiddenWords = 101
 };
 bool IQMessageKeyType_IsValid(int value);
 const IQMessageKeyType IQMessageKeyType_MIN = IQKeyBind;
-const IQMessageKeyType IQMessageKeyType_MAX = IQKeySessionEvent;
+const IQMessageKeyType IQMessageKeyType_MAX = IQKeySetForbiddenWords;
 const int IQMessageKeyType_ARRAYSIZE = IQMessageKeyType_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* IQMessageKeyType_descriptor();
@@ -318,6 +323,7 @@ inline bool IQMessageKeyType_Parse(
 enum StreamEndCode {
   StreamEndCodeReloginBase = 100,
   StreamEndCodeReloginFromNav = 101,
+  StreamEndCodeSystemShutdown = 111,
   StreamEndCodeNoReloginBase = 200
 };
 bool StreamEndCode_IsValid(int value);
@@ -352,7 +358,8 @@ enum CategoryType {
   CategoryWorkWorldNotice = 12,
   CategoryHotLineSync = 13,
   CategoryMedalListSync = 14,
-  CategoryMedalUserStatusListSync = 15
+  CategoryMedalUserStatusListSync = 15,
+  CategoryDiscoverUnread = 16
 };
 bool CategoryType_IsValid(int value);
 const CategoryType CategoryType_MIN = CategoryOrganizational;

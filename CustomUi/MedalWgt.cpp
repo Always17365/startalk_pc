@@ -3,9 +3,9 @@
 //
 
 #include "MedalWgt.h"
-#include "../Platform/Platform.h"
-#include "../Platform/dbPlatForm.h"
-#include "../UICom/qimage/qimage.h"
+#include "DataCenter/Platform.h"
+#include "DataCenter/dbPlatForm.h"
+#include "Util/ui/qimage/qimage.h"
 #include <QFileInfo>
 #include <QFile>
 #include <QDebug>
@@ -48,7 +48,7 @@ void MedalWgt::setHeight() {
     this->setFixedHeight(qMax(h, _icon_width));
 }
 
-void MedalWgt::addMedals(const std::set<QTalk::StUserMedal> &user_medal, bool showValid) {
+void MedalWgt::addMedals(const std::set<st::StUserMedal> &user_medal, bool showValid) {
 
     _medals.clear();
     for(const auto& item : user_medal)
@@ -88,7 +88,7 @@ void MedalWgt::paintEvent(QPaintEvent *e) {
         auto info = medal.second;
 
         auto imgLink = info.smallIcon;
-        QString imgPath = QTalk::getMedalPath(imgLink).data();
+        QString imgPath = st::getMedalPath(imgLink).data();
         QFileInfo fileInfo(imgPath);
         if(fileInfo.isDir() || !fileInfo.exists())
             imgPath = ":/QTalk/image1/medal_default.png";
@@ -99,8 +99,8 @@ void MedalWgt::paintEvent(QPaintEvent *e) {
         QPainter painter(this);
         painter.setRenderHints(QPainter::Antialiasing, true);
         painter.setRenderHints(QPainter::SmoothPixmapTransform, true);
-        auto dpi = QTalk::qimage::dpi();
-        QPixmap image = QTalk::qimage::loadImage(imgPath, false, true, dpi * _icon_width);
+        auto dpi = st::qimage::dpi();
+        QPixmap image = st::qimage::loadImage(imgPath, false, true, dpi * _icon_width);
         painter.drawPixmap(x, y, _icon_width, _icon_width, image);
 
         if(++col >= DEM_MAX_COL)

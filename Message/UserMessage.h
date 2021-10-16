@@ -6,53 +6,53 @@
 #include <map>
 #include <string>
 #include <set>
-#include "../include/CommonStrcut.h"
-#include "../EventBus/Event.hpp"
-#include "../entity/im_user.h"
-#include "../entity/im_userSupplement.h"
-#include "../entity/im_config.h"
-//#include "../entity/im_friend_list.h"
-#include "../entity/im_transfer.h"
-#include "../entity/UID.h"
-#include "../entity/im_qr_group.h"
-#include "../entity/im_qr_content.h"
-#include "../entity/im_user_status_medal.h"
+#include "include/CommonStrcut.h"
+#include "EventBus/Event.hpp"
+#include "entity/im_user.h"
+#include "entity/im_userSupplement.h"
+#include "entity/im_config.h"
+//#include "entity/im_friend_list.h"
+#include "entity/im_transfer.h"
+#include "entity/UID.h"
+#include "entity/im_qr_group.h"
+#include "entity/im_qr_content.h"
+#include "entity/im_user_status_medal.h"
 
 // 获取用户列表
 class GetUserCardMessage : public Event
 {
 public:
-	std::map<std::string, std::map<std::string, int> > mapUserIds; //
+    std::map<std::string, std::map<std::string, int> > mapUserIds; //
 };
 
 // 用户列表结果
 class UserCardMessgae : public Event
 {
 public:
-	std::vector<QTalk::StUserCard> userCards;
+    std::vector<st::StUserCard> userCards;
 };
 
 // 用户列表结果
 class UserCardSupple: public Event
 {
 public:
-	UserCardSupple(std::shared_ptr<QTalk::Entity::ImUserSupplement>& imUserSup,
-                   std::shared_ptr<QTalk::Entity::ImUserInfo>& userInfo)
-	    : imUserSup(imUserSup), userInfo(userInfo)
-	{
-	}
+    UserCardSupple(std::shared_ptr<st::entity::ImUserSupplement> &imUserSup,
+                   std::shared_ptr<st::entity::ImUserInfo> &userInfo)
+        : imUserSup(imUserSup), userInfo(userInfo)
+    {
+    }
 
 public:
-    std::shared_ptr<QTalk::Entity::ImUserSupplement>& imUserSup;
-    std::shared_ptr<QTalk::Entity::ImUserInfo>& userInfo;
+    std::shared_ptr<st::entity::ImUserSupplement> &imUserSup;
+    std::shared_ptr<st::entity::ImUserInfo> &userInfo;
 };
 
 //
 class UserPhoneNo : public Event
 {
 public:
-	std::string userId;
-	std::string phoneNo;
+    std::string userId;
+    std::string phoneNo;
 };
 
 // user setting
@@ -71,7 +71,7 @@ public:
 class UpdateUserConfigMsg : public Event
 {
 public:
-    std::vector<QTalk::Entity::ImConfig> arConfigs;
+    std::vector<st::entity::ImConfig> arConfigs;
 };
 
 // 增量配置修改
@@ -79,28 +79,29 @@ class IncrementConfig : public Event
 {
 public:
     std::map<std::string, std::string> deleteData;
-    std::vector<QTalk::Entity::ImConfig> arImConfig;
+    std::vector<st::entity::ImConfig> arImConfig;
 };
 
 //class AllFriends : public Event
 //{
 //public:
-//    std::vector<QTalk::Entity::IMFriendList> friends;
+//    std::vector<st::Entity::IMFriendList> friends;
 //};
 
 class UserCardInfo : public Event
 {
 public:
-    explicit UserCardInfo(std::shared_ptr<QTalk::Entity::ImUserInfo>& info) : info(info) {};
+    explicit UserCardInfo(std::shared_ptr<st::entity::ImUserInfo> &info) : info(
+            info) {};
 
 public:
-    std::shared_ptr<QTalk::Entity::ImUserInfo>& info;
+    std::shared_ptr<st::entity::ImUserInfo> &info;
 };
 
 class UpdateMoodEvt : public Event
 {
 public:
-    explicit UpdateMoodEvt(std::string mood) :mood(std::move(mood)) {}
+    explicit UpdateMoodEvt(std::string mood) : mood(std::move(mood)) {}
 
 public:
     std::string mood;
@@ -110,7 +111,7 @@ class UpdateMoodRet : public Event
 {
 public:
     explicit UpdateMoodRet(std::string userId, std::string mood)
-            :mood(std::move(mood)), userId(std::move(userId)){}
+        : mood(std::move(mood)), userId(std::move(userId)) {}
 
 public:
     std::string mood;
@@ -120,7 +121,8 @@ public:
 class SwitchUserStatusEvt : public Event
 {
 public:
-    explicit SwitchUserStatusEvt(std::string status) : user_status(std::move(status)){};
+    explicit SwitchUserStatusEvt(std::string status) : user_status(std::move(
+                    status)) {};
 
 public:
     std::string user_status;
@@ -129,143 +131,57 @@ public:
 class SwitchUserStatusRet : public Event
 {
 public:
-    explicit SwitchUserStatusRet(std::string status) : user_status(std::move(status)){};
+    explicit SwitchUserStatusRet(std::string status) : user_status(std::move(
+                    status)) {};
 
 public:
     std::string user_status;
 };
 
-class SetUserSeatEvt : public Event
-{
-public:
-    explicit SetUserSeatEvt(int sid, int seat) :sid(sid), seat(seat) {}
-
-public:
-	int sid; int seat;
-};
-
-class ServerCloseSessionEvt : public Event
-{
-public:
-    ServerCloseSessionEvt(std::string username, std::string virtualname)
-			:username(std::move(username)),virtualname(std::move(virtualname)) {}
-
-public:
-	std::string username;
-	std::string virtualname;
-};
-
-class GetSeatListEvt : public Event
-{
-public:
-	explicit GetSeatListEvt(QTalk::Entity::UID _uid) :uid(std::move(_uid)) {}
-
-public:
-	QTalk::Entity::UID uid;
-};
-
-class SessionTransferEvt : public Event
-{
-
-public:
-	SessionTransferEvt(QTalk::Entity::UID _uid, std::string _newCsrName, std::string _reason)
-			: uid(std::move(_uid)), newCsrName(std::move(_newCsrName)), reason(std::move(_reason)) {}
-
-public:
-    QTalk::Entity::UID uid;
-    std::string newCsrName;
-    std::string reason;
-};
-
-class SendWechatEvt : public Event
-{
-public:
-	explicit SendWechatEvt(QTalk::Entity::UID _uid) :uid(std::move(_uid)) {}
-
-public:
-	QTalk::Entity::UID uid;
-};
-
-class SendProductEvt : public Event
-{
-public:
-	SendProductEvt(std::string userQName,std::string virtualname, std::string product,std::string type)
-			:userQName(std::move(userQName)),
-			virtualName(std::move(virtualname)),
-			product(std::move(product)),
-			type(std::move(type)) {}
-
-public:
-	std::string userQName;
-	std::string virtualName;
-    std::string product;
-    std::string type;
-};
-
 class FeedBackLogEvt : public Event
 {
 public:
-	explicit FeedBackLogEvt(std::string text) : text(std::move(text)){};
+    explicit FeedBackLogEvt(std::string text) : text(std::move(text)) {};
 
 public:
-	std::string text;
+    std::string text;
 };
 
-class QuickGroupEvt : public Event {
-
+class IncrementUser : public Event
+{
 public:
-	explicit QuickGroupEvt(std::vector<QTalk::Entity::ImQRgroup> &groups) : groups(groups) { }
-
-public:
-	std::vector<QTalk::Entity::ImQRgroup> &groups;
-};
-
-class QuickContentByGroupEvt : public Event {
-
-public:
-	QuickContentByGroupEvt(std::vector<QTalk::Entity::IMQRContent>& contents, int id)
-		:groupId(id), contents(contents) {}
-
-public:
-	int groupId;
-	std::vector<QTalk::Entity::IMQRContent>& contents;
-};
-
-class IncrementUser : public Event {
-public:
-    std::vector<QTalk::Entity::ImUserInfo> arUserInfo;
+    std::vector<st::entity::ImUserInfo> arUserInfo;
     std::vector<std::string> arDeletes;
 };
 
-class GetHotLines : public Event {
-
-};
-
-class UserMedalEvt: public Event {
+class UserMedalEvt: public Event
+{
 public:
-    UserMedalEvt(std::string xmppId, std::set<QTalk::StUserMedal>& medal)
-        : medal(medal), xmppId(std::move(xmppId)) {
+    UserMedalEvt(std::string xmppId, std::set<st::StUserMedal> &medal)
+        : medal(medal), xmppId(std::move(xmppId))
+    {
     }
 
 public:
-    std::set<QTalk::StUserMedal>& medal;
+    std::set<st::StUserMedal> &medal;
     std::string xmppId;
 };
 
 class UserMedalChangedEvt : public Event
 {
 public:
-    std::vector<QTalk::Entity::ImUserStatusMedal> userMedals;
+    std::vector<st::entity::ImUserStatusMedal> userMedals;
 };
 
 class GetMedalUserEvt : public Event
 {
 public:
     int medalId;
-    std::vector<QTalk::StMedalUser> metalUsers;
+    std::vector<st::StMedalUser> metalUsers;
 };
 
-class ModifyUserMedalStatusEvt : public Event {
+class ModifyUserMedalStatusEvt : public Event
+{
 public:
     int medalId = -1;
     bool isWear = false;

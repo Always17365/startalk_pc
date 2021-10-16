@@ -2,16 +2,16 @@
 // Created by cc on 2020/4/3.
 //
 
-#ifndef QTALK_V2_PB2JSON_H
-#define QTALK_V2_PB2JSON_H
+#ifndef STALK_V2_PB2JSON_H
+#define STALK_V2_PB2JSON_H
 
 #include <string>
 #include "Protobuf/message.pb.h"
 
-namespace QTalk
+namespace st
 {
     std::string toJson(const ProtoMessage* message);
 }
 
 
-#endif //QTALK_V2_PB2JSON_H
+#endif //STALK_V2_PB2JSON_H

@@ -3,10 +3,10 @@
 
 #include <QFrame>
 #include <QLabel>
-#include "../include/CommonDefine.h"
-#include "../entity/UID.h"
-#include "../CustomUi/HeadPhotoLab.h"
-#include "../CustomUi/MedalWgt.h"
+#include "include/CommonDefine.h"
+#include "entity/UID.h"
+#include "CustomUi/HeadPhotoLab.h"
+#include "CustomUi/MedalWgt.h"
 
 
 enum Status
@@ -43,7 +43,7 @@ public:
 	~StatusWgt() override;
 	
 public:
-	void switchUser(QUInt8 t, const QTalk::Entity::UID &uid, const QString& userName);
+	void switchUser(QUInt8 t, const st::entity::UID &uid, const QString& userName);
 	void updateUserSts(const QString& sts);
 	void showResource(const std::string& resource);
     void onUpdateMedal();
@@ -72,7 +72,7 @@ private:
 private:
     bool         _isGroupChat{};
     bool         _isConsultServer{};
-    QTalk::Entity::UID  _uid;
+    st::entity::UID  _uid;
 };
 
 #endif//_STATUSWGT_H_

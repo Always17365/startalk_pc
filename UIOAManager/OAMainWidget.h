@@ -2,8 +2,8 @@
 // Created by cc on 18-12-17.
 //
 
-#ifndef QTALK_V2_OAMAINWIDGET_H
-#define QTALK_V2_OAMAINWIDGET_H
+#ifndef STALK_V2_OAMAINWIDGET_H
+#define STALK_V2_OAMAINWIDGET_H
 
 #include <QFrame>
 
@@ -22,4 +22,4 @@ private:
 };
 
 
-#endif //QTALK_V2_OAMAINWIDGET_H
+#endif //STALK_V2_OAMAINWIDGET_H

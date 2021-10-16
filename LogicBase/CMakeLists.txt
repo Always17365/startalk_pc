@@ -1,5 +1,6 @@
 project(LogicBase)
 
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR})
 include_directories(.)
 
 if (APPLE)
@@ -60,8 +61,8 @@ if (WIN32)
             libprotobuf
             LogicManager
             DataBasePlug
-            QtUtil
-            Platform
+            Util
+            DataCenter
             EventBus)
 else ()
     target_link_libraries(${PROJECT_NAME}
@@ -70,7 +71,7 @@ else ()
             protobuf
             LogicManager
             DataBasePlug
-            QtUtil
-            Platform
+            Util
+            DataCenter
             EventBus)
 endif ()

@@ -3,16 +3,17 @@
 //
 
 #include "UserMedalDao.h"
-#include "../QtUtil/Utils/Log.h"
-#include "../QtUtil/Entity/JID.h"
+#include "Util/Log.h"
+#include "Util/Entity/JID.h"
 
-UserMedalDao::UserMedalDao(qtalk::sqlite::database *sqlDb)
-    :DaoInterface(sqlDb, "IM_User_Status_Medal")
+UserMedalDao::UserMedalDao(st::sqlite::database *sqlDb)
+    : DaoInterface(sqlDb, "IM_User_Status_Medal")
 {
 
 }
 
-bool UserMedalDao::creatTable() {
+bool UserMedalDao::creatTable()
+{
     if (!_pSqlDb) {
         return false;
     }
@@ -27,16 +28,17 @@ bool UserMedalDao::creatTable() {
                       " primary key  (medalId, userId));";
 
     try {
-        qtalk::sqlite::statement query(*_pSqlDb, sql);
+        st::sqlite::statement query(*_pSqlDb, sql);
         return query.executeStep();
-    }
-    catch (const std::exception &e) {
+    } catch (const std::exception &e) {
         error_log("CREATE TABLE IM_User_Status_Medal error {0}", e.what());
     }
+
     return false;
 }
 
-void UserMedalDao::insertMedals(const std::vector<QTalk::Entity::ImUserStatusMedal> &medals) {
+void UserMedalDao::insertMedals(const std::vector<st::entity::ImUserStatusMedal> &medals)
+{
     if (!_pSqlDb) {
         return;
     }
@@ -46,12 +48,12 @@ void UserMedalDao::insertMedals(const std::vector<QTalk::Entity::ImUserStatusMed
                       "ON CONFLICT(medalId, userId) DO "
                       "update set host = ?, medalStatus = ?, `mappingVersion` = ?, `updateTime` = ? "
                       " where medalId = ? and userId = ? ";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
 
     try {
         _pSqlDb->exec("begin immediate;");
-        for(const auto & m : medals)
-        {
+
+        for (const auto &m : medals) {
             query.bind(1, m.medalId);
             query.bind(2, m.userId);
             query.bind(3, m.host);
@@ -68,31 +70,30 @@ void UserMedalDao::insertMedals(const std::vector<QTalk::Entity::ImUserStatusMed
             query.executeStep();
             query.resetBindings();
         }
+
         query.clearBindings();
         _pSqlDb->exec("commit transaction;");
-    }
-    catch (const std::exception& e)
-    {
+    } catch (const std::exception &e) {
         _pSqlDb->exec("rollback transaction;");
         error_log("exception {0}", e.what());
     }
 }
 
-void UserMedalDao::getUserMedal(const std::string &xmppId, std::set<QTalk::StUserMedal>& stMedals) {
+void UserMedalDao::getUserMedal(const std::string &xmppId, std::set<st::StUserMedal> &stMedals)
+{
 
-    QTalk::Entity::JID jid(xmppId);
+    st::entity::JID jid(xmppId);
     std::string sql =
         "select u.medalId, u.medalStatus from IM_User_Status_Medal u "
         "left join IM_Medal_List l on u.medalId = l.medalId "
         "where l.status <> 0 and u.medalStatus <> 0 and u.userId = ? and u.host = ? ";
 
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     query.bind(1, jid.username());
     query.bind(2, jid.domainname());
 
-    while (query.executeNext())
-    {
-        QTalk::StUserMedal stMedal;
+    while (query.executeNext()) {
+        st::StUserMedal stMedal;
         stMedal.medalId = query.getColumn(0).getInt();
         stMedal.medalStatus = query.getColumn(1).getInt();
 
@@ -100,19 +101,18 @@ void UserMedalDao::getUserMedal(const std::string &xmppId, std::set<QTalk::StUse
     }
 }
 
-void UserMedalDao::getMedalUsers(int medalId, std::vector<QTalk::StMedalUser> &metalUsers)
+void UserMedalDao::getMedalUsers(int medalId, std::vector<st::StMedalUser> &metalUsers)
 {
     std::string sql =
-            "select u.xmppId, u.Name, u.HeaderSrc from IM_User_Status_Medal m "
-            "left join IM_User u on m.UserId = u.UserId "
-            "where m.medalId = ? and m.medalStatus <> 0 and u.XmppId <> '' order by m.updatetime ";
+        "select u.xmppId, u.Name, u.HeaderSrc from IM_User_Status_Medal m "
+        "left join IM_User u on m.UserId = u.UserId "
+        "where m.medalId = ? and m.medalStatus <> 0 and u.XmppId <> '' order by m.updatetime ";
 
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     query.bind(1, medalId);
 
-    while (query.executeNext())
-    {
-        QTalk::StMedalUser stMedal;
+    while (query.executeNext()) {
+        st::StMedalUser stMedal;
         stMedal.xmppId = query.getColumn(0).getString();
         stMedal.userName = query.getColumn(1).getString();
         stMedal.userHead = query.getColumn(2).getString();
@@ -121,13 +121,14 @@ void UserMedalDao::getMedalUsers(int medalId, std::vector<QTalk::StMedalUser> &m
     }
 }
 
-void UserMedalDao::modifyUserMedalStatus(const std::string& userId, int medalId, int status) {
-    QTalk::Entity::JID jid(userId);
+void UserMedalDao::modifyUserMedalStatus(const std::string &userId, int medalId, int status)
+{
+    st::entity::JID jid(userId);
 
     std::string sql =
-            "update IM_User_Status_Medal set `medalStatus` = ? where medalId = ? and userId = ? and `host` = ?";
+        "update IM_User_Status_Medal set `medalStatus` = ? where medalId = ? and userId = ? and `host` = ?";
 
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     query.bind(1, status);
     query.bind(2, medalId);
     query.bind(3, jid.username());

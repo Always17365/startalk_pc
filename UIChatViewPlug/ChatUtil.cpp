@@ -2,14 +2,14 @@
 // Created by cc on 2019-07-15.
 //
 #include "ChatUtil.h"
-#include "../UICom/qimage/qimage.h"
+#include "Util/ui/qimage/qimage.h"
 #include "ChatViewMainPanel.h"
 #include <QFile>
 #include <QFileInfo>
 #include <QtConcurrent>
 
 extern ChatViewMainPanel *g_pMainPanel;
-namespace QTalk
+namespace st
 {
     namespace Image {
 

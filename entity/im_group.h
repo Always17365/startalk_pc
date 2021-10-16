@@ -1,14 +1,14 @@
 ﻿#ifndef IM_GROUP_H
 #define IM_GROUP_H
 #include <string>
-#include "../include/CommonDefine.h"
+#include "include/CommonDefine.h"
 /**
  * @brief The ImUserInfo struct 群组信息结构体
  * @author cyz
  * @date 2018.9.29
  */
-namespace QTalk {
-    namespace Entity {
+namespace st {
+    namespace entity {
         struct ImGroupInfo
         {
             ImGroupInfo()

@@ -7,20 +7,15 @@
 
 #define defaultLineHeight 2
 
-TextEdit::TextEdit(QWidget* parent)
-    :QTextEdit(parent)
-    ,_lineHeight(0)
-    ,_maxRowCount(999)
-    ,_autoAdjustHeight(false)
+TextEdit::TextEdit(QWidget *parent)
+    : QTextEdit(parent)
 {
     setAcceptRichText(false);
     setLineHeight(defaultLineHeight);
     setAlignment(Qt::AlignTop);
 }
 
-TextEdit::~TextEdit() {
-
-}
+TextEdit::~TextEdit() = default;
 
 /**
  *
@@ -39,10 +34,13 @@ void TextEdit::setFlag(int flags)
 {
     _flags = flags;
     setReadOnly(flags & EM_NO_EDIT);
+
     if(flags & EM_NO_BORDER)
         setFrameShape(QFrame::NoFrame);
+
     if(flags & EM_NO_H_SCROLLBAR)
         setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
     if(flags & EM_NO_V_SCROLLBAR)
         setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
@@ -53,20 +51,21 @@ void TextEdit::setFlag(int flags)
  *
  * @param text
  */
-void TextEdit::setText(const QString& text)
+void TextEdit::setText(const QString &text)
 {
     this->setReadOnly(false);
     QTextEdit::setText(text);
+
     if(_autoAdjustHeight)
-    {
         adjustHeight();
-    }
+
     this->setReadOnly(_flags & EM_NO_EDIT);
 }
 
 void TextEdit::adjustHeight()
 {
     int lineCount = getLineCount();
+
     if(lineCount > _maxRowCount)
         lineCount = _maxRowCount;
 
@@ -99,6 +98,7 @@ int TextEdit::getLineCount()
     double w = f.width(text);
     int row = w / width;
     int tmp = (int)w % width;
+
     if(tmp > 0)
         row ++;
 

@@ -1,14 +1,14 @@
 ﻿#ifndef IM_SESSION_H
 #define IM_SESSION_H
 #include <string>
-#include "../include/CommonDefine.h"
+#include "include/CommonDefine.h"
 /**
  * @brief The ImSessionInfo struct 会话信息结构体
  * @author cyz
  * @date 2018.9.21
  */
-namespace QTalk {
-    namespace Entity {
+namespace st {
+    namespace entity {
         struct ImSessionInfo
         {
             ImSessionInfo()

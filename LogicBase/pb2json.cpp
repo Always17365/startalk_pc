@@ -3,7 +3,7 @@
 //
 
 #include "pb2json.h"
-#include "../QtUtil/nJson/nJson.h"
+#include "Util/nJson/nJson.h"
 
 
 void dealMessageKeyValue(const MessageKeyValue* keyValue, nJson& obj)
@@ -290,7 +290,7 @@ void dealWelcomeMsg(const WelcomeMessage* msg, nJson& obj)
     obj["message"] = welcome;
 }
 
-std::string QTalk::toJson(const ProtoMessage *message) {
+std::string st::toJson(const ProtoMessage *message) {
 
     nJson objMessage;
     if(message->has_options())

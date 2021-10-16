@@ -11,15 +11,16 @@
 #include <QApplication>
 #include <QEvent>
 #include <QDesktopServices>
+
 #include "QRcode.h"
 #include "ScanMainFrm.h"
 #include "TipButton.h"
 #include "../ChatViewMainPanel.h"
-#include "../../WebService/WebService.h"
-#include "../../include/Line.h"
-#include "../../UICom/uicom.h"
-#include "../../CustomUi/QtMessageBox.h"
-#include "../../Platform/AppSetting.h"
+#include "WebService/WebService.h"
+#include "CustomUi/Line.h"
+#include "CustomUi/QtMessageBox.h"
+#include "Util/ui/uicom.h"
+#include "DataCenter/AppSetting.h"
 
 extern ChatViewMainPanel *g_pMainPanel;
 ScanQRcode::ScanQRcode(QRcode *parent )

@@ -7,11 +7,11 @@
 #include <QLabel>
 #include <QTimer>
 #include <QDebug>
-#include "../UICom/uicom.h"
-#include "../UICom/qimage/qimage.h"
+#include "Util/ui/uicom.h"
+#include "Util/ui/qimage/qimage.h"
 
 
-LiteMessageBox::LiteMessageBox(int type, const QString& message, QWidget* base)
+LiteMessageBox::LiteMessageBox(int type, const QString &message, QWidget *base)
 {
     Q_INIT_RESOURCE(ushadowdialog);
     Qt::WindowFlags flags = Qt::Dialog | Qt::WindowContextHelpButtonHint | Qt::FramelessWindowHint
@@ -20,33 +20,35 @@ LiteMessageBox::LiteMessageBox(int type, const QString& message, QWidget* base)
     this->setAttribute(Qt::WA_ShowWithoutActivating, true);
     setAttribute(Qt::WA_TranslucentBackground, true);
     //
-    auto* iconLab = new QLabel(this);
-    auto* textLab = new QLabel(this);
+    auto *iconLab = new QLabel(this);
+    auto *textLab = new QLabel(this);
     textLab->setObjectName("LiteMessageBoxText");
     //
     //iconLab->setFixedSize(14, 14);
-    auto* mainFrm = new QFrame(this);
+    auto *mainFrm = new QFrame(this);
     mainFrm->setObjectName("LiteMessageBoxMainFrm");
 
-    switch(type)
-    {
-        case EM_TYPE_SUCCESS:
+    switch (type) {
+    case EM_TYPE_SUCCESS:
 
-            mainFrm->setObjectName("LiteMessageBoxSuccess");
-            iconLab->setPixmap(QTalk::qimage::loadImage(":/success", true, true, 15, 15));
-            break;
-        case EM_TYPE_FAILED:
-            mainFrm->setObjectName("LiteMessageBoxFailed");
-            iconLab->setPixmap(QTalk::qimage::loadImage(":/error", true, true, 15, 15));
-            break;
-        case EM_TYPE_INVALID:
-        default:
-            break;
+        mainFrm->setObjectName("LiteMessageBoxSuccess");
+        iconLab->setPixmap(st::qimage::loadImage(":/success", true, true, 15, 15));
+        break;
+
+    case EM_TYPE_FAILED:
+        mainFrm->setObjectName("LiteMessageBoxFailed");
+        iconLab->setPixmap(st::qimage::loadImage(":/error", true, true, 15, 15));
+        break;
+
+    case EM_TYPE_INVALID:
+    default:
+        break;
     }
+
     textLab->setText(message);
     //
 
-    auto * mainLay = new QHBoxLayout(mainFrm);
+    auto *mainLay = new QHBoxLayout(mainFrm);
     mainLay->setMargin(10);
     mainLay->setSpacing(8);
     mainLay->addWidget(iconLab);
@@ -57,14 +59,16 @@ LiteMessageBox::LiteMessageBox(int type, const QString& message, QWidget* base)
     lay->addWidget(mainFrm);
 
     //
-    QWidget* wgt = nullptr;
-    if(nullptr != base)
+    QWidget *wgt = nullptr;
+
+    if (nullptr != base) {
         wgt = base;
-    else
+    } else {
         wgt = UICom::getInstance()->getAcltiveMainWnd();
+    }
+
     //setParent(wgt);
-    if(nullptr != wgt)
-    {
+    if (nullptr != wgt) {
         adjustSize();
         QPoint pos = wgt->mapToGlobal(QPoint((wgt->width() - this->width()) / 2, 50));
         this->move(pos);
@@ -72,42 +76,53 @@ LiteMessageBox::LiteMessageBox(int type, const QString& message, QWidget* base)
 
 }
 
-LiteMessageBox::~LiteMessageBox() {
+LiteMessageBox::~LiteMessageBox()
+{
     qInfo() << "LiteMessageBox" << "deleted";
 }
 
-void LiteMessageBox::success(const QString& message, int duration, QWidget* base)
+void LiteMessageBox::success(const QString &message, int duration, QWidget *base)
 {
-    static std::set<LiteMessageBox*> _arBox;
-    for(auto* box : _arBox)
-        box->setVisible(false);
+    static std::set<LiteMessageBox *> _arBox;
 
-    auto * box = new LiteMessageBox(EM_TYPE_SUCCESS, message, base);
+    for (auto *box : _arBox) {
+        box->setVisible(false);
+    }
+
+    auto *box = new LiteMessageBox(EM_TYPE_SUCCESS, message, base);
     _arBox.insert(box);
     box->setAttribute(Qt::WA_QuitOnClose, false);
     box->setVisible(true);
-    if(duration <= 1000)
+
+    if (duration <= 1000) {
         duration = 1000;
-    QTimer::singleShot(duration, [box](){
+    }
+
+    QTimer::singleShot(duration, [box]() {
         box->setVisible(false);
         _arBox.erase(box);
         box->deleteLater();
     });
 }
 
-void LiteMessageBox::failed(const QString &message, int duration, QWidget* base) {
-    static std::set<LiteMessageBox*> _arBox;
+void LiteMessageBox::failed(const QString &message, int duration, QWidget *base)
+{
+    static std::set<LiteMessageBox *> _arBox;
 
-    for(auto* box : _arBox)
+    for (auto *box : _arBox) {
         box->setVisible(false);
+    }
 
-    auto * box = new LiteMessageBox(EM_TYPE_FAILED, message, base);
+    auto *box = new LiteMessageBox(EM_TYPE_FAILED, message, base);
     _arBox.insert(box);
     box->setAttribute(Qt::WA_QuitOnClose, false);
     box->setVisible(true);
-    if(duration <= 1000)
+
+    if (duration <= 1000) {
         duration = 1000;
-    QTimer::singleShot(duration, [box](){
+    }
+
+    QTimer::singleShot(duration, [box]() {
         box->setVisible(false);
         _arBox.erase(box);
         box->deleteLater();

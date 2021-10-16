@@ -4,24 +4,23 @@
 
 #include "ScanMainFrm.h"
 
-ScanMainFrm::ScanMainFrm(QWidget* parnet)
+ScanMainFrm::ScanMainFrm(QWidget *parnet)
     : QFrame(parnet), animation(nullptr)
 {
     _pTimer = new QTimer(this);
     _pTimer->setInterval(2000);
-
     label = new PixmapLabel(this);
     label->setFixedSize(260, 4);
     label->setVisible(false);
-
-    connect(_pTimer, &QTimer::timeout, [this](){
+    connect(_pTimer, &QTimer::timeout, this, [this]()
+    {
         animation->start();
     });
 }
 
 ScanMainFrm::~ScanMainFrm() = default;
 
-void ScanMainFrm::paintEvent(QPaintEvent* e)
+void ScanMainFrm::paintEvent(QPaintEvent *e)
 {
     QPainter p(this);
     //
@@ -31,21 +30,16 @@ void ScanMainFrm::paintEvent(QPaintEvent* e)
     int ch = h - 100;
     p.setCompositionMode( QPainter::CompositionMode_Clear );
     p.fillRect(50, 50, cw, ch, Qt::SolidPattern );
-
     p.setCompositionMode( QPainter::CompositionMode_SourceOver );
     QBrush b1(QColor(0, 202, 190));
     p.fillRect(47, 47, 25, 5, b1);
     p.fillRect(47, 47, 5, 25, b1);
-
     p.fillRect(w - 73, 47, 25, 5, b1);
     p.fillRect(w - 52, 47, 5, 25, b1);
-
     p.fillRect(47, h - 52, 25, 5, b1);
     p.fillRect(47, h - 73, 5, 25, b1);
-
     p.fillRect(w - 73, h - 52, 25, 5, b1);
     p.fillRect(w - 52, h - 73, 5, 25, b1);
-
     //
 //    QRect rect = contentsRect();
 //    static short index = 0;
@@ -77,12 +71,14 @@ void ScanMainFrm::start()
     animation->start();
 }
 
-void ScanMainFrm::stop() {
+void ScanMainFrm::stop()
+{
     if(_pTimer && _pTimer->isActive())
         _pTimer->stop();
 
     if(label)
         label->setVisible(false);
+
     if(animation)
         animation->stop();
 }

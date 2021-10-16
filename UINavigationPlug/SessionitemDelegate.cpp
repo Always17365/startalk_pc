@@ -3,8 +3,8 @@
 //
 
 #include "SessionitemDelegate.h"
-#include "../QtUtil/Utils/Log.h"
-#include "../CustomUi/HeadPhotoLab.h"
+#include "Util/Log.h"
+#include "CustomUi/HeadPhotoLab.h"
 #include <QPainter>
 #include <QDateTime>
 #include <iostream>
@@ -13,10 +13,10 @@
 #include <QStandardItemModel>
 #include <QPen>
 #include <QPainterPath>
-#include "../Platform/Platform.h"
-#include "../UICom/qimage/qimage.h"
-#include "../Platform/dbPlatForm.h"
-#include "../UICom/StyleDefine.h"
+#include "DataCenter/Platform.h"
+#include "Util/ui/qimage/qimage.h"
+#include "DataCenter/dbPlatForm.h"
+#include "Util/ui/StyleDefine.h"
 
 #define HEAD_WIDTH 42
 #define ISTOP_TEXT "[置顶] "
@@ -24,7 +24,7 @@
 #define AT_TEXT_ALL "[@all]"
 #define DRAFT_TIP "[草稿]:"
 
-using namespace QTalk;
+using namespace st;
 
 /**
   * @函数名
@@ -139,7 +139,7 @@ void SessionitemDelegate::paint(QPainter *painter,
     strName.replace("\n", " ");
     strName = strName.trimmed().replace(QRegExp("\\s{1,}"), " ");
     bool isOnline = index.data(ITEM_DATATYPE_ISONLINE).toBool();
-    int dpi = QTalk::qimage::dpi();
+    int dpi = st::qimage::dpi();
     int unreadCount = index.data(ITEM_DATATYPE_UNREADCOUNT).toInt();;
     QString strUnreadCount = QString::number(unreadCount);
 
@@ -150,7 +150,7 @@ void SessionitemDelegate::paint(QPainter *painter,
     int atCount = index.data(ITEM_DATATYPE_ATCOUNT).toInt();
     int fontLevel = AppSetting::instance().getFontLevel();
     //
-    QTalk::setPainterFont(painter, fontLevel, 14);
+    st::setPainterFont(painter, fontLevel, 14);
     QFontMetricsF nameF(painter->font());
     double maxNameWidth = rect.width() - 80 - nameF.width(strTime);
     strName = nameF.elidedText(strName, Qt::ElideRight, maxNameWidth);
@@ -169,7 +169,7 @@ void SessionitemDelegate::paint(QPainter *painter,
     {
         painter->setRenderHints(QPainter::Antialiasing, true);
         QPixmap pixmap =
-            QTalk::qimage::loadImage(":/UINavigationPlug/image1/noNotice.png", true, true,
+            st::qimage::loadImage(":/UINavigationPlug/image1/noNotice.png", true, true,
                                      HEAD_WIDTH * dpi);
         QRect unNoticeRect(rect.right() - 35, rect.y() + rect.height() / 2 + 6, 16, 16);
         painter->drawPixmap(unNoticeRect, pixmap);
@@ -178,7 +178,7 @@ void SessionitemDelegate::paint(QPainter *painter,
             content = QString("[%1条] %2").arg(unreadCount).arg(content);
     }
 
-    QTalk::setPainterFont(painter, fontLevel, 12);
+    st::setPainterFont(painter, fontLevel, 12);
     QFontMetricsF contentF(painter->font());
 
     if (!draft.isEmpty())
@@ -228,7 +228,7 @@ void SessionitemDelegate::paint(QPainter *painter,
     painter->setPen(QPen(select ?
                          StyleDefine::instance().getNavTimeSelectFontColor() :
                          StyleDefine::instance().getNavTimeFontColor()));
-    QTalk::setPainterFont(painter, fontLevel, 11);
+    st::setPainterFont(painter, fontLevel, 11);
     painter->drawText(QRect(rect.x() + 65, rect.y() + 20, rect.width() - 70,
                             rect.height())
                       , Qt::AlignRight, strTime);
@@ -239,24 +239,24 @@ void SessionitemDelegate::paint(QPainter *painter,
 
     if (headFileInfo.exists() && headFileInfo.suffix().toLower() == "gif")
     {
-        headPath = QTalk::qimage::getGifImagePathNoMark(headPath);
-        pixmap = QTalk::qimage::loadImage(headPath, true, true, HEAD_WIDTH * dpi);
+        headPath = st::qimage::getGifImagePathNoMark(headPath);
+        pixmap = st::qimage::loadImage(headPath, true, true, HEAD_WIDTH * dpi);
     }
     else
-        pixmap = QTalk::qimage::loadImage(headPath, true, true, HEAD_WIDTH * dpi);
+        pixmap = st::qimage::loadImage(headPath, true, true, HEAD_WIDTH * dpi);
 
     if (pixmap.isNull())
     {
-        if (chattype == QTalk::Enum::GroupChat)
+        if (chattype == st::Enum::GroupChat)
             headPath = ":/QTalk/image1/StarTalk_defaultGroup.png";
         else
             headPath = ":/QTalk/image1/StarTalk_defaultHead.png";
 
-        pixmap = QTalk::qimage::loadImage(headPath, true, true, HEAD_WIDTH * dpi);
+        pixmap = st::qimage::loadImage(headPath, true, true, HEAD_WIDTH * dpi);
     }
 
     if (!isOnline)
-        pixmap = QTalk::qimage::generateGreyPixmap(pixmap);
+        pixmap = st::qimage::generateGreyPixmap(pixmap);
 
     {
         QPainterPath path;
@@ -271,7 +271,7 @@ void SessionitemDelegate::paint(QPainter *painter,
         painter->drawPixmap((HEAD_WIDTH - w) / 2 + headRect.x(),
                             (HEAD_WIDTH - h) / 2 + headRect.y(), w, h, pixmap);
         //
-        painter->fillPath(path, QTalk::StyleDefine::instance().getHeadPhotoMaskColor());
+        painter->fillPath(path, st::StyleDefine::instance().getHeadPhotoMaskColor());
     }
     painter->restore();
     painter->save();
@@ -293,7 +293,7 @@ void SessionitemDelegate::paint(QPainter *painter,
             QRect unreadRect(rect.right() - 32, rect.y() + rect.height() / 2 + 6, 20, 13);
             painter->drawRoundRect(unreadRect, 80, 90);
             painter->setPen(QPen(StyleDefine::instance().getNavUnReadFontColor()));
-            QTalk::setPainterFont(painter, fontLevel, 10);
+            st::setPainterFont(painter, fontLevel, 10);
             painter->drawText(unreadRect,  Qt::AlignCenter, strUnreadCount);
         }
     }

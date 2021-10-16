@@ -6,7 +6,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QWebEngineProfile>
-#include "../QtUtil/Utils/Log.h"
+#include "Util/Log.h"
 
 WebEnginePage::WebEnginePage(QObject *parent)
         : QWebEnginePage(parent) {

@@ -2,13 +2,13 @@
 // Created by cc on 18-12-9.
 //
 
-#ifndef QTALK_V2_QUOTEBLOCK_H
-#define QTALK_V2_QUOTEBLOCK_H
+#ifndef STALK_V2_QUOTEBLOCK_H
+#define STALK_V2_QUOTEBLOCK_H
 
 #include <QObject>
 #include <QTextObjectInterface>
 #include <QPainter>
-#include "../../UICom/StyleDefine.h"
+#include "Util/ui/StyleDefine.h"
 
 enum {
     quotePropertySource = QTextFormat::UserProperty + 1,
@@ -49,9 +49,9 @@ public:
         QString text = format.property(quotePropertyText).toString();
         text = name + ": \n" + text;
         painter->save();
-        painter->fillRect(rect, QBrush(QTalk::StyleDefine::instance().getQuoteBlockBackgroundColor()));
-        painter->fillRect(QRect(rect.x(), rect.y(), 8, rect.height()), QBrush(QTalk::StyleDefine::instance().getQuoteBlockTipColor()));
-        painter->setPen(QTalk::StyleDefine::instance().getQuoteBlockFontColor());
+        painter->fillRect(rect, QBrush(st::StyleDefine::instance().getQuoteBlockBackgroundColor()));
+        painter->fillRect(QRect(rect.x(), rect.y(), 8, rect.height()), QBrush(st::StyleDefine::instance().getQuoteBlockTipColor()));
+        painter->setPen(st::StyleDefine::instance().getQuoteBlockFontColor());
         painter->drawText(QRect(rect.x() + 14, rect.y(), rect.width(), rect.height()), Qt::AlignVCenter, text);
         painter->restore();
     }
@@ -60,4 +60,4 @@ private:
 
 };
 
-#endif //QTALK_V2_QUOTEBLOCK_H
+#endif //STALK_V2_QUOTEBLOCK_H

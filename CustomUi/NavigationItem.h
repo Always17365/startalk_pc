@@ -6,7 +6,7 @@
 
 #include <QFrame>
 #include <QLabel>
-#include "../include/CommonDefine.h"
+#include "include/CommonDefine.h"
 #include "customui_global.h"
 #include "HeadPhotoLab.h"
 

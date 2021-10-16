@@ -1,14 +1,14 @@
-﻿#include "../EventBus/Object.hpp"
+﻿#include "EventBus/Object.hpp"
 #ifndef _MESSAGEMANAGER_H_
 #define _MESSAGEMANAGER_H_
 
 #include <string>
 #include <vector>
-#include "../include/CommonStrcut.h"
-#include "../Message/ChatMessage.h"
-#include "../EventBus/EventHandler.hpp"
-#include "../EventBus/HandlerRegistration.hpp"
-#include "../Message/UserMessage.h"
+#include "include/CommonStrcut.h"
+#include "Message/ChatMessage.h"
+#include "EventBus/EventHandler.hpp"
+#include "EventBus/HandlerRegistration.hpp"
+#include "Message/UserMessage.h"
 
 class EmoMsgManager : public Object
 {

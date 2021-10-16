@@ -2,8 +2,8 @@
 // Created by cc on 2020/9/10.
 //
 
-#ifndef QTALK_V2_DROPWND_H
-#define QTALK_V2_DROPWND_H
+#ifndef STALK_V2_DROPWND_H
+#define STALK_V2_DROPWND_H
 
 #include <QFrame>
 
@@ -24,4 +24,4 @@ private:
 };
 
 
-#endif //QTALK_V2_DROPWND_H
+#endif //STALK_V2_DROPWND_H

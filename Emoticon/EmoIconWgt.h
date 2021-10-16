@@ -9,70 +9,76 @@
 class QHBoxLayout;
 class EmoIcon : public QFrame
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	EmoIcon(const QString& iconPath);
-	~EmoIcon();
+    EmoIcon(const QString &iconPath);
+    ~EmoIcon();
 
 Q_SIGNALS:
-	void clicked();
+    void clicked();
 
 public:
-	QString getIconPath();
-	void    setCheckState(bool check);
+    QString getIconPath();
+    void    setCheckState(bool check);
 
 private:
-	virtual void paintEvent(QPaintEvent *e);
-	virtual void mousePressEvent(QMouseEvent *e);
+    virtual void paintEvent(QPaintEvent *e);
+    virtual void mousePressEvent(QMouseEvent *e);
 
 private:
-	QString _pgkId;
-	QString _icon;
+    QString _pgkId;
+    QString _icon;
 
 private:
-	bool _isChecked;
+    bool _isChecked;
 };
 
 class EmoIconRow : public QFrame
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	EmoIconRow(QWidget* parent);
-	~EmoIconRow();
+    EmoIconRow(QWidget *parent);
+    ~EmoIconRow();
 
 public:
-	void addEmoIcon(EmoIcon* icon, const QString& id);
-	int  getCount();
+    void addEmoIcon(EmoIcon *icon, const QString &id);
+    int  getCount();
 
 public:
-	bool hasEmoIcon(const QString& pkgId) { return _mapEmoId.contains(pkgId); };
-	EmoIcon* getEmoIcon(const QString& pkgId) { return _mapEmoId[pkgId]; }
-	void removeIcon(const QString& pkgId);
-	void resetState();
+    bool hasEmoIcon(const QString &pkgId)
+    {
+        return _mapEmoId.contains(pkgId);
+    };
+    EmoIcon *getEmoIcon(const QString &pkgId)
+    {
+        return _mapEmoId[pkgId];
+    }
+    void removeIcon(const QString &pkgId);
+    void resetState();
 
 private:
-	QMap<QString, EmoIcon*> _mapEmoId;
-	EmoIcon*               _pFirstEmo;
-	int          _iconCount;
-	QHBoxLayout* _pLayout;
+    QMap<QString, EmoIcon *> _mapEmoId;
+    EmoIcon               *_pFirstEmo { nullptr };
+    int          _iconCount { 0 } ;
+    QHBoxLayout *_pLayout;
 };
 
 
 class EmoIconWgt : public QStackedWidget
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	EmoIconWgt(QWidget *parent = nullptr);
-	~EmoIconWgt();
+    EmoIconWgt(QWidget *parent = nullptr);
+    ~EmoIconWgt();
 
 public:
-	EmoIcon* addEmoIcon(const QString& iconPath, const QString& id, const QString& name);
-	void deleteEmoIcon(const QString& pkgId);
+    EmoIcon *addEmoIcon(const QString &iconPath, const QString &id, const QString &name);
+    void deleteEmoIcon(const QString &pkgId);
 
 private:
-	QVector<EmoIconRow*> _arEmoIconRow;
+    QVector<EmoIconRow *> _arEmoIconRow;
 };
 
 #endif//_EMOICONWGT_H_

@@ -1,7 +1,7 @@
 #include "MessageManager.h"
-#include "../Message/UserMessage.h"
-#include "../EventBus/EventBus.h"
-#include "../Message/ChatMessage.h"
+#include "Message/UserMessage.h"
+#include "EventBus/EventBus.h"
+#include "Message/ChatMessage.h"
 
 std::string PictureMsgManager::getSourceImage(const std::string& netPath)
 {

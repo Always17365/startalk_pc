@@ -4,7 +4,7 @@
 
 #include "VideoPlayWnd.h"
 #include "../WebService/WebService.h"
-#include "../QtUtil/Utils/Log.h"
+#include "Util/Log.h"
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QWebEnginePage>

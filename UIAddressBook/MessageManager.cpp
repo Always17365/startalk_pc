@@ -1,14 +1,14 @@
 ﻿#include "MessageManager.h"
-#include "../EventBus/EventBus.h"
+#include "EventBus/EventBus.h"
 #include "AddressBookPanel.h"
-#include "../QtUtil/Utils/Log.h"
+#include "Util/Log.h"
 
 /**
  *
  * @param imUserSup
  */
-void AddressBookMsgManager::getUserCard(std::shared_ptr<QTalk::Entity::ImUserSupplement> &imUserSup,
-                                        std::shared_ptr<QTalk::Entity::ImUserInfo> &userInfo)
+void AddressBookMsgManager::getUserCard(std::shared_ptr<st::entity::ImUserSupplement> &imUserSup,
+                                        std::shared_ptr<st::entity::ImUserInfo> &userInfo)
 {
     UserCardSupple e(imUserSup, userInfo);
     EventBus::FireEvent(e);
@@ -52,7 +52,7 @@ void AddressBookMsgManager::setUserSetting(bool isSetting, const std::string &ke
  * 获取本地组织架构
  * @param structure
  */
-void AddressBookMsgManager::getStructure(std::vector<std::shared_ptr<QTalk::Entity::ImUserInfo>> &structure)
+void AddressBookMsgManager::getStructure(std::vector<std::shared_ptr<st::entity::ImUserInfo>> &structure)
 {
     StructureMessage e(structure);
     e.structure = structure;
@@ -91,7 +91,7 @@ void AddressBookMsgManager::creatGroup(const std::string &groupId, const std::st
     EventBus::FireEvent(e);
 }
 
-void AddressBookMsgManager::getGroupCard(std::shared_ptr<QTalk::Entity::ImGroupInfo> &ginfo)
+void AddressBookMsgManager::getGroupCard(std::shared_ptr<st::entity::ImGroupInfo> &ginfo)
 {
     GetGroupInfoMessage e(ginfo);
     EventBus::FireEvent(e);
@@ -120,7 +120,7 @@ void AddressBookMsgManager::addGroupMember(const std::vector<std::string> &membe
     EventBus::FireEvent(e);
 }
 
-void AddressBookMsgManager::getUserInfo(std::shared_ptr<QTalk::Entity::ImUserInfo> &info)
+void AddressBookMsgManager::getUserInfo(std::shared_ptr<st::entity::ImUserInfo> &info)
 {
     UserCardInfo e(info);
     EventBus::FireEvent(e);

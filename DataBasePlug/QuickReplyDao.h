@@ -2,19 +2,19 @@
 // Created by lihaibin on 2019-06-26.
 //
 
-#ifndef QTALK_V2_QUICKREPLYDAO_H
-#define QTALK_V2_QUICKREPLYDAO_H
+#ifndef STALK_V2_QUICKREPLYDAO_H
+#define STALK_V2_QUICKREPLYDAO_H
 
 #include "DaoInterface.h"
-#include "../include/CommonDefine.h"
-#include "../entity/im_qr_group.h"
-#include "../entity/im_qr_content.h"
+#include "include/CommonDefine.h"
+#include "entity/im_qr_group.h"
+#include "entity/im_qr_content.h"
 #include <vector>
 
 class QuickReplyDao : public DaoInterface{
 
 public:
-    explicit QuickReplyDao(qtalk::sqlite::database *sqlDb);
+    explicit QuickReplyDao(st::sqlite::database *sqlDb);
     bool creatTable() override;
 
 public:
@@ -22,9 +22,9 @@ public:
     void getQuickReplyVersion(QInt64 version[]);
 
 public:
-    void getQuickGroups(std::vector<QTalk::Entity::ImQRgroup>& groups);
-    void getQuickContentByGroup(std::vector<QTalk::Entity::IMQRContent>& contents,int id);
+    void getQuickGroups(std::vector<st::entity::ImQRgroup>& groups);
+    void getQuickContentByGroup(std::vector<st::entity::IMQRContent>& contents,int id);
 
 
 };
-#endif //QTALK_V2_QUICKREPLYDAO_H
+#endif //STALK_V2_QUICKREPLYDAO_H

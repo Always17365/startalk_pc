@@ -1,10 +1,7 @@
 ﻿project(UIChatViewPlug)
 
-include_directories(.)
-
 # 打开Qt的Moc功能和ui文件QRC文件处理功能
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 if (APPLE)
     ADD_DEFINITIONS(-D_MACOS)
@@ -16,6 +13,7 @@ else ()
     ADD_DEFINITIONS(-DUICHATVIEW_LIBRARY)
     #    find_package(OPENCORE-AMRWB opencore-amrwb)
 endif ()
+ADD_DEFINITIONS(-DENABLE_ENCODER_GENERIC -DENABLE_ENCODER_QR_CODE)
 
 find_package(Qt5Widgets)
 find_package(Qt5WebEngineWidgets)
@@ -196,12 +194,11 @@ if (APPLE)
             Qt5::MultimediaWidgets
             Qt5::Network
             Qt5::Concurrent
-            Platform
-            QtUtil
+            DataCenter
+            Util
             EventBus
             CustomUi
             Screenshot
-            SUICom
             Emoticon
             quazip
             WebService
@@ -239,12 +236,11 @@ elseif (WIN32)
             Qt5::Multimedia
             libssl
             libcrypto
-            Platform
-            QtUtil
+            DataCenter
+            Util
             EventBus
             CustomUi
             Screenshot
-            SUICom
             Emoticon
             quazip
             WebService
@@ -264,12 +260,11 @@ else ()
             Qt5::MultimediaWidgets
             Qt5::Network
             Qt5::Concurrent
-            Platform
-            QtUtil
+            DataCenter
+            Util
             EventBus
             CustomUi
             Screenshot
-            SUICom
             Emoticon
             quazip
             WebService

@@ -2,10 +2,10 @@
 // Created by cc on 2018/11/16.
 //
 
-#ifndef QTALK_V2_PICTUREBROWSER_H
-#define QTALK_V2_PICTUREBROWSER_H
+#ifndef STALK_V2_PICTUREBROWSER_H
+#define STALK_V2_PICTUREBROWSER_H
 
-#include "../CustomUi/UShadowWnd.h"
+#include "CustomUi/UShadowWnd.h"
 #include "PictureFrm.h"
 #include "TitleFrm.h"
 #include "MessageManager.h"
@@ -66,4 +66,4 @@ private:
 };
 
 
-#endif //QTALK_V2_PICTUREBROWSER_H
+#endif //STALK_V2_PICTUREBROWSER_H

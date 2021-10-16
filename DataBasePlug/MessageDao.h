@@ -6,42 +6,42 @@
 #endif
 
 #include "DaoInterface.h"
-#include "../include/im_enum.h"
-#include "../entity/IM_Session.h"
+#include "include/im_enum.h"
+#include "entity/IM_Session.h"
 #include <vector>
 #include <string>
-#include "../include/CommonStrcut.h"
-#include "../entity/UID.h"
+#include "include/CommonStrcut.h"
+#include "entity/UID.h"
 
-namespace QTalk {
-    namespace Entity {
+namespace st {
+    namespace entity {
         struct ImMessageInfo;
     }
 }
 class MessageDao : public DaoInterface{
 public:
-    explicit MessageDao(qtalk::sqlite::database *sqlDb = nullptr);
+    explicit MessageDao(st::sqlite::database *sqlDb = nullptr);
     bool creatTable();
 
 public:
     bool creatIndex();
 
 public:
-//    bool insertMessageInfo(const QTalk::Entity::ImMessageInfo &imMessageInfo);
+//    bool insertMessageInfo(const st::Entity::ImMessageInfo &imMessageInfo);
 
-    bool bulkInsertMessageInfo(const std::vector<QTalk::Entity::ImMessageInfo> &msgList,
-                               std::map<QTalk::Entity::UID, QTalk::Entity::ImSessionInfo> *sessionMap);
+    bool bulkInsertMessageInfo(const std::vector<st::entity::ImMessageInfo> &msgList,
+                               std::map<st::entity::UID, st::entity::ImSessionInfo> *sessionMap);
 
-    bool bulkUpdateSessionList(std::map<QTalk::Entity::UID, QTalk::Entity::ImSessionInfo> *sessionMap);
+    bool bulkUpdateSessionList(std::map<st::entity::UID, st::entity::ImSessionInfo> *sessionMap);
 
     bool bulkDeleteMessage(const std::vector<std::string> &groupIds);
 
     bool deleteMessageByMessageId(const std::string &meesageId);
 
     bool getUserMessage(const long long &time, const std::string &userName,const std::string &realJid,
-                        std::vector<QTalk::Entity::ImMessageInfo> &msgList);
+                        std::vector<st::entity::ImMessageInfo> &msgList);
 
-    long long getMaxTimeStampByChatType(QTalk::Enum::ChatType chatType);
+    long long getMaxTimeStampByChatType(st::Enum::ChatType chatType);
     long long getMaxTimeStamp();
 
     bool updateMState(const std::string &messageId, const QInt64 &time);
@@ -57,7 +57,7 @@ public:
     bool
     getGroupUnreadedCount(const std::map<std::string, QInt64> &readMasks, std::map<std::string, int> &unreadedCount);
 
-    bool getMessageByMessageId(const std::string &messageId, QTalk::Entity::ImMessageInfo &imMessageInfo);
+    bool getMessageByMessageId(const std::string &messageId, st::entity::ImMessageInfo &imMessageInfo);
 
     // 撤销消息处理
     bool updateRevokeMessage(const std::string &messageId);
@@ -82,22 +82,22 @@ public:
 
     // local message
     void getLocalMessage(const long long &time, const std::string &userId, const std::string &realJid,
-                         std::vector<QTalk::Entity::ImMessageInfo> &msgList);
+                         std::vector<st::entity::ImMessageInfo> &msgList);
 
     void getFileMessage(const long long &time, const std::string &userId, const std::string &realJid,
-                        std::vector<QTalk::Entity::ImMessageInfo> &msgList);
+                        std::vector<st::entity::ImMessageInfo> &msgList);
 
     void getImageMessage(const long long &time, const std::string &userId, const std::string &realJid,
-                         std::vector<QTalk::Entity::ImMessageInfo> &msgList);
+                         std::vector<st::entity::ImMessageInfo> &msgList);
 
     void getLinkMessage(const long long &time, const std::string &userId, const std::string &realJid,
-                         std::vector<QTalk::Entity::ImMessageInfo> &msgList);
+                         std::vector<st::entity::ImMessageInfo> &msgList);
 
     void getSearchMessage(const long long &time, const std::string &userId, const std::string &realJid,
-                          const std::string& searchKey, std::vector<QTalk::Entity::ImMessageInfo> &msgList);
+                          const std::string& searchKey, std::vector<st::entity::ImMessageInfo> &msgList);
 
     void getAfterMessage(const long long &time, const std::string &userId, const std::string &realJid,
-                         std::vector<QTalk::Entity::ImMessageInfo>& msgList);
+                         std::vector<st::entity::ImMessageInfo>& msgList);
 
     //
     void updateMessageExtendInfo(const std::string& msgId, const std::string& info);

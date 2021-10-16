@@ -5,10 +5,10 @@
 #pragma execution_character_set("utf-8")
 #endif
 
-#ifndef QTALK_V2_CREATGROUPPOUPWND_H
-#define QTALK_V2_CREATGROUPPOUPWND_H
+#ifndef STALK_V2_CREATGROUPPOUPWND_H
+#define STALK_V2_CREATGROUPPOUPWND_H
 
-#include "../CustomUi/UShadowWnd.h"
+#include "CustomUi/UShadowWnd.h"
 #include <QLineEdit>
 #include <QLabel>
 
@@ -42,4 +42,4 @@ private:
 };
 
 
-#endif //QTALK_V2_CREATGROUPPOUPWND_H
+#endif //STALK_V2_CREATGROUPPOUPWND_H

@@ -2,11 +2,11 @@
 // Created by cc on 2019-03-02.
 //
 
-#ifndef QTALK_V2_CHANGEHEADWND_H
-#define QTALK_V2_CHANGEHEADWND_H
+#ifndef STALK_V2_CHANGEHEADWND_H
+#define STALK_V2_CHANGEHEADWND_H
 
-#include "../CustomUi/UShadowWnd.h"
-#include "../CustomUi/HeadPhotoLab.h"
+#include "CustomUi/UShadowWnd.h"
+#include "CustomUi/HeadPhotoLab.h"
 #include <QMenu>
 
 /**
@@ -46,4 +46,4 @@ private:
 };
 
 
-#endif //QTALK_V2_CHANGEHEADWND_H
+#endif //STALK_V2_CHANGEHEADWND_H

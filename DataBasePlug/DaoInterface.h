@@ -2,8 +2,8 @@
 // Created by cc on 2019/10/15.
 //
 
-#ifndef QTALK_V2_DAOINTERFACE_H
-#define QTALK_V2_DAOINTERFACE_H
+#ifndef STALK_V2_DAOINTERFACE_H
+#define STALK_V2_DAOINTERFACE_H
 
 #include <utility>
 
@@ -12,7 +12,7 @@
 class DaoInterface
 {
 public:
-    explicit DaoInterface(qtalk::sqlite::database *sqlDb, std::string dbName)
+    explicit DaoInterface(st::sqlite::database *sqlDb, std::string dbName)
         : _pSqlDb(sqlDb), _dbName(std::move(dbName)) {
     }
 
@@ -23,13 +23,13 @@ public:
         if(!_pSqlDb) return false;
 
         std::string sql = "DELETE FROM " + _dbName;
-        qtalk::sqlite::statement query(*_pSqlDb, sql);
+        st::sqlite::statement query(*_pSqlDb, sql);
         return query.executeStep();
     }
 
 protected:
-    qtalk::sqlite::database *_pSqlDb = nullptr;
+    st::sqlite::database *_pSqlDb = nullptr;
     std::string _dbName;
 };
 
-#endif //QTALK_V2_DAOINTERFACE_H
+#endif //STALK_V2_DAOINTERFACE_H

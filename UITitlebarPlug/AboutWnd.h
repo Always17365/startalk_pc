@@ -2,10 +2,10 @@
 // Created by cc on 2019-02-13.
 //
 
-#ifndef QTALK_V2_ABOUTWND_H
-#define QTALK_V2_ABOUTWND_H
+#ifndef STALK_V2_ABOUTWND_H
+#define STALK_V2_ABOUTWND_H
 
-#include "../CustomUi/UShadowWnd.h"
+#include "CustomUi/UShadowWnd.h"
 #include <QLabel>
 
 /**
@@ -30,4 +30,4 @@ private:
 };
 
 
-#endif //QTALK_V2_ABOUTWND_H
+#endif //STALK_V2_ABOUTWND_H

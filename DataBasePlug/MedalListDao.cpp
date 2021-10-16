@@ -3,9 +3,9 @@
 //
 
 #include "MedalListDao.h"
-#include "../QtUtil/Utils/Log.h"
+#include "Util/Log.h"
 
-MedalListDao::MedalListDao(qtalk::sqlite::database *sqlDb)
+MedalListDao::MedalListDao(st::sqlite::database *sqlDb)
     :DaoInterface(sqlDb, "IM_Medal_List")
 {
 }
@@ -27,7 +27,7 @@ bool MedalListDao::creatTable() {
                       " );";
 
     try {
-        qtalk::sqlite::statement query(*_pSqlDb, sql);
+        st::sqlite::statement query(*_pSqlDb, sql);
         return query.executeStep();
     }
     catch (const std::exception &e) {
@@ -37,7 +37,7 @@ bool MedalListDao::creatTable() {
 }
 
 
-void MedalListDao::insertMedalList(const std::vector<QTalk::Entity::ImMedalList> &medals) {
+void MedalListDao::insertMedalList(const std::vector<st::entity::ImMedalList> &medals) {
     if (!_pSqlDb) {
         return;
     }
@@ -47,7 +47,7 @@ void MedalListDao::insertMedalList(const std::vector<QTalk::Entity::ImMedalList>
         "ON CONFLICT(medalId) DO "
         "update set medalName = ?, obtainCondition = ?, `smallIcon` = ?, `bigLightIcon` = ? "
         ", `bigGrayIcon` = ?, `bigLockIcon` = ?, `status` = ? where medalId = ? ";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
 
     try {
         _pSqlDb->exec("begin immediate;");
@@ -84,16 +84,16 @@ void MedalListDao::insertMedalList(const std::vector<QTalk::Entity::ImMedalList>
 }
 
 //
-void MedalListDao::getMedalList(std::vector<QTalk::Entity::ImMedalList> &medals) {
+void MedalListDao::getMedalList(std::vector<st::entity::ImMedalList> &medals) {
     std::string sql =
             "select medalId, medalName, obtainCondition, smallIcon, bigLightIcon, bigLockIcon, status "
             "from IM_Medal_List where status <> 0";
 
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
 
     while (query.executeNext())
     {
-        QTalk::Entity::ImMedalList medal;
+        st::entity::ImMedalList medal;
         medal.medalId = query.getColumn(0).getInt();
         medal.medalName = query.getColumn(1).getString();
         medal.obtainCondition = query.getColumn(2).getString();

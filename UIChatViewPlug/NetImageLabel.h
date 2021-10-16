@@ -2,8 +2,8 @@
 // Created by cc on 2019/11/13.
 //
 
-#ifndef QTALK_V2_NETIMAGELABEL_H
-#define QTALK_V2_NETIMAGELABEL_H
+#ifndef STALK_V2_NETIMAGELABEL_H
+#define STALK_V2_NETIMAGELABEL_H
 
 #include <QFrame>
 
@@ -37,4 +37,4 @@ protected:
 };
 
 
-#endif //QTALK_V2_NETIMAGELABEL_H
+#endif //STALK_V2_NETIMAGELABEL_H

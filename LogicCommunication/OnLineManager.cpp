@@ -1,14 +1,14 @@
 ﻿#include "OnLineManager.h"
 #include <iostream>
 #include <sstream>
-#include "../Platform/NavigationManager.h"
-#include "../Platform/Platform.h"
-#include "../QtUtil/nJson/nJson.h"
+#include "DataCenter/NavigationManager.h"
+#include "DataCenter/Platform.h"
+#include "Util/nJson/nJson.h"
 #include "Communication.h"
-#include "../QtUtil/Utils/Log.h"
-//#include "../QtUtil/Enum/im_enum.h"
+#include "Util/Log.h"
+//#include "Util/Enum/im_enum.h"
 
-using namespace QTalk;
+using namespace st;
 
 OnLineManager::OnLineManager(Communication *pComm) : _pComm(pComm)
 {
@@ -26,11 +26,11 @@ bool OnLineManager::getOnLineUser(const std::set<std::string> &users, bool sendR
     std::ostringstream url;
     url << NavigationManager::instance().getHttpHost()
         << "/domain/get_user_status.qunar"
-        << "?v=" << PLAT.getClientVersion()
-        << "&p=" << PLAT.getPlatformStr()
-        << "&u=" << PLAT.getSelfUserId()
-        << "&k=" << PLAT.getServerAuthKey()
-        << "&d=" << PLAT.getSelfDomain();
+        << "?v=" << DC.getClientVersion()
+        << "&p=" << DC.getPlatformStr()
+        << "&u=" << DC.getSelfUserId()
+        << "&k=" << DC.getServerAuthKey()
+        << "&d=" << DC.getSelfDomain();
 
     std::string postData;
     {
@@ -84,7 +84,7 @@ bool OnLineManager::getOnLineUser(const std::set<std::string> &users, bool sendR
 
     if (_pComm)
     {
-        QTalk::HttpRequest req(url.str(), RequestMethod::POST);
+        st::HttpRequest req(url.str(), RequestMethod::POST);
         req.body = postData;
         req.header["Content-Type"] = "application/json;";
         req.timeout = 10L;
@@ -98,7 +98,7 @@ bool OnLineManager::getOnLineUser(const std::set<std::string> &users, bool sendR
                                                    userStatus.cbegin()->second);
             }
 
-            PLAT.loadOnlineData(userStatus);
+            DC.loadOnlineData(userStatus);
         }
     }
 

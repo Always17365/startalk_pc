@@ -74,4 +74,4 @@ ADD_LIBRARY(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${PLAT_FILES})
 
 #添加链接库
 target_link_libraries(${PROJECT_NAME}
-        Qt5::Widgets QtUtil)
+        Qt5::Widgets Util)

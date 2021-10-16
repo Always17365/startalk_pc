@@ -2,8 +2,8 @@
 // Created by cc on 2019-06-26.
 //
 
-#ifndef QTALK_V2_ITEMWGT_H
-#define QTALK_V2_ITEMWGT_H
+#ifndef STALK_V2_ITEMWGT_H
+#define STALK_V2_ITEMWGT_H
 
 #include <QFrame>
 #include <QMenu>
@@ -57,4 +57,4 @@ private:
     QString _time;
 };
 
-#endif //QTALK_V2_ITEMWGT_H
+#endif //STALK_V2_ITEMWGT_H

@@ -2,10 +2,10 @@
 // Created by cc on 2020/12/9.
 //
 
-#ifndef QTALK_V2_GROUPTOPICEDITOR_H
-#define QTALK_V2_GROUPTOPICEDITOR_H
+#ifndef STALK_V2_GROUPTOPICEDITOR_H
+#define STALK_V2_GROUPTOPICEDITOR_H
 
-#include "../CustomUi/UShadowWnd.h"
+#include "CustomUi/UShadowWnd.h"
 #include <QTextEdit>
 #include <QToolButton>
 
@@ -39,4 +39,4 @@ private:
 
 
 
-#endif //QTALK_V2_GROUPTOPICEDITOR_H
+#endif //STALK_V2_GROUPTOPICEDITOR_H

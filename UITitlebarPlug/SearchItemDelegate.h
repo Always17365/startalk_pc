@@ -5,12 +5,12 @@
 #define SEARCHITEMDELEGATE_H
 
 #include <QStyledItemDelegate>
-#include "../include/CommonStrcut.h"
+#include "include/CommonStrcut.h"
 
 enum SearchItemRoles
 {
     EM_TYPE_TYPE        = Qt::UserRole + 1, //item类型 对应存 SearchItemType
-    EM_ITEM_ROLE_ITEM_TYPE, // QTalk::Search::Action
+    EM_ITEM_ROLE_ITEM_TYPE, // st::Search::Action
     EM_ITEM_ROLE_ICON,
     EM_ITEM_ROLE_NAME,
     EM_ITEM_ROLE_SUB_MESSAGE,

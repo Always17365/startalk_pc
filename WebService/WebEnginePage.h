@@ -2,8 +2,8 @@
 // Created by cc on 2019-02-18.
 //
 
-#ifndef QTALK_V2_WEBENGINEPAGE_H
-#define QTALK_V2_WEBENGINEPAGE_H
+#ifndef STALK_V2_WEBENGINEPAGE_H
+#define STALK_V2_WEBENGINEPAGE_H
 
 #include <QWebEnginePage>
 #include <QWebEngineFullScreenRequest>
@@ -46,4 +46,4 @@ protected:
 };
 
 
-#endif //QTALK_V2_WEBENGINEPAGE_H
+#endif //STALK_V2_WEBENGINEPAGE_H

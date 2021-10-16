@@ -2,16 +2,16 @@
 // Created by cc on 2018/11/26.
 //
 
-#ifndef QTALK_V2_ATMESSAGEVIEW_H
-#define QTALK_V2_ATMESSAGEVIEW_H
+#ifndef STALK_V2_ATMESSAGEVIEW_H
+#define STALK_V2_ATMESSAGEVIEW_H
 
 #include <QListView>
 #include <QStandardItemModel>
 #include <QStyledItemDelegate>
 #include <QSortFilterProxyModel>
 #include <QList>
-#include "../CustomUi/UShadowWnd.h"
-#include "../include/CommonStrcut.h"
+#include "CustomUi/UShadowWnd.h"
+#include "include/CommonStrcut.h"
 #include <QMutexLocker>
 
 class AtSortModel : public QSortFilterProxyModel
@@ -57,7 +57,7 @@ public:
 
 public:
     void addItem(const QString& icon, const QString& xmppId, const QString& name, const QString& searchIndex);
-    void updateGroupMemberInfo(const std::vector<QTalk::StUserCard>& member);
+    void updateGroupMemberInfo(const std::vector<st::StUserCard>& member);
     void deleteItem(const QString& memberId);
     void updateFilter();
     bool match(const QString& str);
@@ -85,4 +85,4 @@ private:
 };
 
 
-#endif //QTALK_V2_ATMESSAGEVIEW_H
+#endif //STALK_V2_ATMESSAGEVIEW_H

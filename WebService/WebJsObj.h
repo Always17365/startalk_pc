@@ -2,8 +2,8 @@
 // Created by cc on 2019-03-29.
 //
 
-#ifndef QTALK_V2_WEBJSOBJ_H
-#define QTALK_V2_WEBJSOBJ_H
+#ifndef STALK_V2_WEBJSOBJ_H
+#define STALK_V2_WEBJSOBJ_H
 
 #include <QObject>
 
@@ -66,4 +66,4 @@ public:
 };
 
 
-#endif //QTALK_V2_WEBJSOBJ_H
+#endif //STALK_V2_WEBJSOBJ_H

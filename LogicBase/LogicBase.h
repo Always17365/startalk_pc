@@ -4,14 +4,13 @@
 #if _MSC_VER >= 1600
     #pragma execution_character_set("utf-8")
 #endif
-#ifndef QTALK_V2_LOGICBASE_H
-#define QTALK_V2_LOGICBASE_H
+#ifndef STALK_V2_LOGICBASE_H
+#define STALK_V2_LOGICBASE_H
 
-#include "../interface/logic/ILogicBase.h"
+#include "interface/logic/ILogicBase.h"
 #include "ProtobufStack.h"
-#include "../Platform/Platform.h"
-#include "../include/STLazyQueue.h"
-#include "../entity/UID.h"
+#include "DataCenter/Platform.h"
+#include "entity/UID.h"
 
 /**
 * @description: LogicBase
@@ -27,7 +26,8 @@ public:
     ~LogicBase() override;
 
 public:
-    bool tryConnectToServer(const std::string &userName, const std::string &password, const std::string &host, int port, bool isNewLogin) override ;
+    bool tryConnectToServer(const std::string &userName, const std::string &password, const std::string &host, int port,
+                            bool isNewLogin) override ;
     std::string chatRsaEncrypt(const std::string &value) override ;
     std::string normalRsaEncrypt(const std::string &value) override ;
     // 销毁群
@@ -42,7 +42,7 @@ public:
     void setGroupAdmin(const std::string &groupId, const std::string &nickName,
                        const std::string &memberJid, bool isAdmin) override ;
     // 获取好友列表
-//    void getFriendList() override ;
+    //    void getFriendList() override ;
     //
     void getGroupMemberById(const std::string &groupId) override;
     //
@@ -90,15 +90,18 @@ public:
     void forwardMessage(const std::string &messageId, const std::map<std::string, int> &users);
 
     // 发送撤销消息
-    void sendRovokeMessage(const QTalk::Entity::UID &peerId, const std::string &msgFrom, const std::string &messageId, const QInt8 &chatType);
+    void sendRovokeMessage(const st::entity::UID &peerId, const std::string &msgFrom, const std::string &messageId,
+                           const QInt8 &chatType);
     //
-    void sendMessage(const QTalk::Entity::ImMessageInfo &message);
+    void sendMessage(const st::entity::ImMessageInfo &message);
 
-    void parseSendMessageIntoDb(const QTalk::Entity::ImMessageInfo &message, const int messageType);
+    void parseSendMessageIntoDb(const st::entity::ImMessageInfo &message, const int messageType);
 
     //
     void recvWebRtc(const std::string &peerId, const XmppMessage &extendInfo);
     void sendWebRtcCommand(int msgType, const std::string &peerId, const std::string &cmd);
+    void forbiddenWord(const std::string &groupId, bool status);
+    void getForbiddenWordState(const std::string& groupId);
 
 private:
     void parseReceiveMessageIntoDb(const ProtoMessage &protoMsg, const XmppMessage &xmppMsg);
@@ -116,25 +119,25 @@ public:
     bool _isConnected;
 
 private:
-    QTalk::util::spin_mutex sm;
+    st::util::spin_mutex sm;
 
 private:
-    QTalk::Protocol::ProtobufStack *_pStack{};
+    st::Protocol::ProtobufStack *_pStack{};
 
     LogicBaseMsgListener *_pMsgListener;
 
 private:
-    QTalk::util::spin_mutex _iq_sm;
+    st::util::spin_mutex _iq_sm;
     std::map<std::string, std::string> _mapIQMessageId; // <id, val>
 
 private:
-//    STLazyQueue<QTalk::Entity::ImSessionInfo> *sessionInfoProcedure;
-//    STLazyQueue<QTalk::Entity::ImMessageInfo> *msgInfoProcedure;
+    //    STLazyQueue<st::Entity::ImSessionInfo> *sessionInfoProcedure;
+    //    STLazyQueue<st::Entity::ImMessageInfo> *msgInfoProcedure;
 
 private:
-    DelayTask         *_task = nullptr;
+    DelayTask         *_delayTask {nullptr};
     bool              _autoReconnectToServer {};
     std::string       _host{};
 };
 
-#endif //QTALK_V2_LOGICBASE_H
+#endif //STALK_V2_LOGICBASE_H

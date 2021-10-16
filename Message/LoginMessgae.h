@@ -6,35 +6,11 @@
 #include <utility>
 #include <vector>
 #include <memory>
-#include "../EventBus/Event.hpp"
-#include "../entity/IM_Session.h"
+#include "EventBus/Event.hpp"
+#include "entity/IM_Session.h"
 
-typedef std::shared_ptr<std::vector<std::shared_ptr<QTalk::Entity::ImSessionInfo>>> ImSessions;
-
-class SaveQchatQVTToDB : public Event
-{
-public:
-    SaveQchatQVTToDB(std::string qvt) : strQVT(std::move(qvt)){};
-
-public:
-    std::string strQVT;
-};
-
-class GetQchatQVTFromDB : public Event
-{
-public:
-    std::string strQVT;
-};
-
-class GetQchatToken : public Event
-{
-public:
-    GetQchatToken(const std::string &qvt) : strQVT(qvt){};
-
-public:
-    std::string strQVT;
-    std::map<std::string, std::string> userMap;
-};
+typedef std::shared_ptr<std::vector<std::shared_ptr<st::entity::ImSessionInfo>>>
+ImSessions;
 
 //
 class LoginMessage : public Event

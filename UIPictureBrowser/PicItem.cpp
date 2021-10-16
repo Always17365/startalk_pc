@@ -11,32 +11,35 @@
 #include <QGraphicsSceneMouseEvent>
 
 PicItem::PicItem(int &scaleVal)
-        : _proportion(1), _pMovie(nullptr), _scaleVal(scaleVal) {
-
+    : _scaleVal(scaleVal)
+{
 }
 
-PicItem::~PicItem() {
+PicItem::~PicItem()
+{
     _pixmap = QPixmap();
     _pMovie->deleteLater();
 }
 
-QRectF PicItem::boundingRect() const {
-    if (!_pixmap.isNull()) {
-
+QRectF PicItem::boundingRect() const
+{
+    if (!_pixmap.isNull())
+    {
         qreal width = _pixmap.width() * _proportion;
         qreal height = _pixmap.height() * _proportion;
         return {-width / 2, -height / 2, width, height};
-
     }
 
     return {};
 }
 
-void PicItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
+void PicItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
     Q_UNUSED(option)
     Q_UNUSED(widget)
 
-    if (!_pixmap.isNull() && nullptr != _pMovie) {
+    if (!_pixmap.isNull() && nullptr != _pMovie)
+    {
         QMutexLocker locker(&_mutex);
         painter->setRenderHint(QPainter::SmoothPixmapTransform, true);
         qreal width = _pixmap.width() * _proportion;
@@ -46,26 +49,31 @@ void PicItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
         {
             painter->drawPixmap(static_cast<int>(-width / 2), static_cast<int>(-height / 2), static_cast<int>(width),
                                 static_cast<int>(height), _pMovie->currentPixmap());
-        } else {
+        }
+        else
+        {
             painter->drawPixmap(static_cast<int>(-width / 2), static_cast<int>(-height / 2), static_cast<int>(width),
                                 static_cast<int>(height), _pixmap
-                                );
+                               );
         }
-
-
     }
 }
 
 // 设置新图片
-void PicItem::setPixmap(QPixmap &pixmap, const QString &path, qreal proportion) {
+void PicItem::setPixmap(QPixmap &pixmap, const QString &path, qreal proportion)
+{
     QMutexLocker locker(&_mutex);
-    if (nullptr != _pMovie) {
+
+    if (nullptr != _pMovie)
+    {
         _pMovie->stop();
         delete _pMovie;
     }
+
     _pMovie = new QMovie(path);
     _pMovie->start();
-    QMovie::connect(_pMovie, &QMovie::frameChanged, [this](int) {
+    QObject::connect(_pMovie, &QMovie::frameChanged, [this](int)
+    {
         this->update();
     });
     _pixmap = pixmap;
@@ -73,13 +81,16 @@ void PicItem::setPixmap(QPixmap &pixmap, const QString &path, qreal proportion) 
 }
 
 // 图片缩放
-void PicItem::onScaleChange(int scaleVal, const QPoint &p) {
-
-    if (scaleVal > maxScale) {
+void PicItem::onScaleChange(int scaleVal, const QPoint &p)
+{
+    if (scaleVal > maxScale)
+    {
         _scaleVal = maxScale;
         return;
     }
-    if (scaleVal < -maxScale) {
+
+    if (scaleVal < -maxScale)
+    {
         _scaleVal = -maxScale;
         return;
     }
@@ -90,6 +101,7 @@ void PicItem::onScaleChange(int scaleVal, const QPoint &p) {
 #else
     static const qreal sca = 1.1;
 #endif
+
     if (scaleVal > 0)
         multiple = pow(sca, scaleVal);
     else

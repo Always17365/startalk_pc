@@ -2,8 +2,8 @@
 // Created by cc on 2019-02-13.
 //
 
-#ifndef QTALK_V2_WEBVIEW_H
-#define QTALK_V2_WEBVIEW_H
+#ifndef STALK_V2_WEBVIEW_H
+#define STALK_V2_WEBVIEW_H
 
 #if _MSC_VER >= 1600
 #pragma execution_character_set("utf-8")
@@ -19,7 +19,7 @@
 #include <QVBoxLayout>
 #include <QFileInfo>
 #include <QDesktopServices>
-#include "../include/Line.h"
+#include "CustomUi/Line.h"
 
 class DownLoadWgt : public QWidget
 {
@@ -223,4 +223,4 @@ private:
 };
 
 
-#endif //QTALK_V2_WEBVIEW_H
+#endif //STALK_V2_WEBVIEW_H

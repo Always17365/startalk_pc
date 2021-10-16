@@ -2,20 +2,21 @@
 // Created by cc on 2019/12/25.
 //
 
-#ifndef QTALK_V2_CHATVIEWITEM_H
-#define QTALK_V2_CHATVIEWITEM_H
+#ifndef STALK_V2_CHATVIEWITEM_H
+#define STALK_V2_CHATVIEWITEM_H
 
 #include <QFrame>
 #include <QPushButton>
 #include <QHBoxLayout>
 #include <set>
 #include <QLabel>
-#include "../entity/UID.h"
-#include "../entity/im_message.h"
-#include "../entity/im_transfer.h"
-#include "../include/CommonDefine.h"
-#include "../include/im_enum.h"
+#include "entity/UID.h"
+#include "entity/im_message.h"
+#include "entity/im_transfer.h"
+#include "include/CommonDefine.h"
+#include "include/im_enum.h"
 #include "NativeChatStruct.h"
+#include "include/CommonStrcut.h"
 
 #define SYSTEM_XMPPID "SystemMessage"
 #define RBT_SYSTEM "rbt-system"
@@ -45,50 +46,53 @@ public:
     ~ChatViewItem() override;
 
 Q_SIGNALS:
-    void sgRemoveGroupMember(const std::string&);
-    void sgUpdateUserStatus(const QString& sts);
+    void sgRemoveGroupMember(const std::string &);
+    void sgUpdateUserStatus(const QString &sts);
     void sgDeleteLater();
     //
     void sgShowMessage(StNetMessageResult, int);
     void sgLoadingMovie(bool show);
 
+    void setForbiddenWordState(bool status, bool showMessage);
+
 public:
-    QTalk::Entity::UID getPeerId() const;
+    st::entity::UID getPeerId() const;
     QString conversionId();
-    void onRecvAddGroupMember(const std::string& memberId, const std::string& nick, int affiliation);
-    void onRecvRemoveGroupMember(const std::string& memberId);
+    void onRecvAddGroupMember(const std::string &memberId, const std::string &nick, int affiliation);
+    void onRecvRemoveGroupMember(const std::string &memberId);
     void onShowSearchWnd();
 
 public:
-    void switchSession(const QUInt8& chatType, const QString& userName, const QTalk::Entity::UID& uid);
-    void showMessage(const QTalk::Entity::ImMessageInfo& message, int jumType);
+    void switchSession(const QUInt8 &chatType, const QString &userName, const st::entity::UID &uid);
+    void showMessage(const st::entity::ImMessageInfo &message, int jumType);
 
 public:
     void setShareMessageState(bool flag);
-
+    void onForbiddenWordState(bool status, bool showMessage);
+    void updateGroupMember(const std::vector<st::StUserCard> &members);
 
 public:
     void freeView();
 
 private:
-    void keyPressEvent(QKeyEvent* e) override;
+    void keyPressEvent(QKeyEvent *e) override;
     void onShowLoading(bool show);
 
 private:
     void initUi();
 
 public:
-    QTalk::Entity::UID     _uid;
-    QTalk::Enum::ChatType  _chatType{}; // 是否为群组聊天
-    ChatMainWgt*      _pChatMainWgt = nullptr;
-    GroupChatSidebar* _pGroupSidebar = nullptr;
-    InputWgt*         _pInputWgt = nullptr;
-    ToolWgt*          _pToolWgt = nullptr;
-    StatusWgt*        _pStatusWgt = nullptr;
-    QSplitter*        splitter = nullptr;
+    st::entity::UID     _uid;
+    st::Enum::ChatType  _chatType{}; // 是否为群组聊天
+    ChatMainWgt      *_pChatMainWgt = nullptr;
+    GroupChatSidebar *_pGroupSidebar = nullptr;
+    InputWgt         *_pInputWgt = nullptr;
+    ToolWgt          *_pToolWgt = nullptr;
+    StatusWgt        *_pStatusWgt = nullptr;
+    QSplitter        *splitter = nullptr;
 
-    LocalSearchMainWgt*    _pSearchMainWgt = nullptr;
-    ShareMessageFrm*   _pShareMessageFrm = nullptr;
+    LocalSearchMainWgt    *_pSearchMainWgt = nullptr;
+    ShareMessageFrm   *_pShareMessageFrm = nullptr;
 
     QFrame *sendBtnFrm{};
 
@@ -97,17 +101,17 @@ public:
 
 private:
     QString            _strConversionId;
-    QVBoxLayout*       _leftLay  = nullptr;
-    QHBoxLayout*       _sendBtnLay = nullptr;
-    QPushButton*       _sendBtn = nullptr;
+    QVBoxLayout       *_leftLay  = nullptr;
+    QHBoxLayout       *_sendBtnLay = nullptr;
+    QPushButton       *_sendBtn = nullptr;
     QFrame             *_pInputFrm = nullptr;
 
 private:
     QHBoxLayout *pMidLayout{};
 
-    QLabel* _pLoading{};
+    QLabel *_pLoading{};
 };
 
 
 
-#endif //QTALK_V2_CHATVIEWITEM_H
+#endif //STALK_V2_CHATVIEWITEM_H

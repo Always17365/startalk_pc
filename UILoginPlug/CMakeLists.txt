@@ -20,6 +20,10 @@ find_package(Qt5Core)
 find_package(Qt5Widgets)
 find_package(Qt5Concurrent)
 find_package(Qt5Network)
+
+set(QZXING_USE_ENCODER 1)
+ADD_DEFINITIONS(-DENABLE_ENCODER_GENERIC -DENABLE_ENCODER_QR_CODE)
+
 #
 set(SOURCE_FILES
         image1.qrc
@@ -55,8 +59,8 @@ target_link_libraries(${PROJECT_NAME}
         Qt5::Network
         EventBus
         CustomUi
-        SUICom
-        QtUtil
-        Platform
+        Util
+        DataCenter
+        quazip
         qzxing
         )

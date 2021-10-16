@@ -2,8 +2,8 @@
 #define UICHATVIEW_H
 
 #include "uichatviewplug_global.h"
-//#include "../interface/view/IUIChatViewPLug.h"
-#include "../interface/view/IUIChatViewPlug.h"
+//#include "interface/view/IUIChatViewPLug.h"
+#include "interface/view/IUIChatViewPlug.h"
 #include "ChatViewMainPanel.h"
 
 class UICHATVIEWSHARED_EXPORT UIChatViewPlug : public QObject, public IUIChatViewPlug
@@ -20,15 +20,15 @@ public:
 
     // UIPluginInterface interface
 public:
-    QWidget *widget();
+    QWidget *widget() override;
 
-    void setStyleSheet(const QString& sheet) override;
-
-private:
-    void init();
+    void setStyleSheet(const QString &sheet) override;
 
 private:
-    ChatViewMainPanel * _mainPanel;
+    void init() override;
+
+private:
+    ChatViewMainPanel *_mainPanel;
 };
 
 #endif // UICHATVIEW_H

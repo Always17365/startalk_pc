@@ -2,8 +2,8 @@
 // Created by admin on 2019-03-01.
 //
 
-#ifndef QTALK_V2_VIDEOMESSAGEITEM_H
-#define QTALK_V2_VIDEOMESSAGEITEM_H
+#ifndef STALK_V2_VIDEOMESSAGEITEM_H
+#define STALK_V2_VIDEOMESSAGEITEM_H
 
 #include "MessageItemBase.h"
 #include <QLabel>
@@ -12,7 +12,7 @@ class VideoMaskFrame;
 class VideoMessageItem : public MessageItemBase {
 	Q_OBJECT
 public:
-    explicit VideoMessageItem(const StNetMessageResult &msgInfo, QWidget *parent = Q_NULLPTR);
+    explicit VideoMessageItem(const StNetMessageResult &msgInfo, QWidget *parent = nullptr);
     ~VideoMessageItem() override = default;;
 
 public:
@@ -63,4 +63,4 @@ private:
 };
 
 
-#endif //QTALK_V2_VIDEOMESSAGEITEM_H
+#endif //STALK_V2_VIDEOMESSAGEITEM_H

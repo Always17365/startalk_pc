@@ -69,3 +69,4 @@ Makefile*
 .idea
 
 cmake-build*
+build_startalk/*

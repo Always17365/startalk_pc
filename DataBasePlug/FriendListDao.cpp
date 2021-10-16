@@ -3,9 +3,9 @@
 //
 
 #include "FriendListDao.h"
-#include "../QtUtil/Utils/Log.h"
+#include "Util/Log.h"
 
-FriendListDao::FriendListDao(qtalk::sqlite::database *sqlDb)
+FriendListDao::FriendListDao(st::sqlite::database *sqlDb)
         : DaoInterface(sqlDb, "IM_Friend_List") {
 
 }
@@ -24,7 +24,7 @@ bool FriendListDao::creatTable() {
                       "PRIMARY KEY(`XmppId`))";
 
     try {
-        qtalk::sqlite::statement query(*_pSqlDb, sql);
+        st::sqlite::statement query(*_pSqlDb, sql);
         return query.executeStep();
     }
     catch (const std::exception &e) {
@@ -34,17 +34,17 @@ bool FriendListDao::creatTable() {
 }
 
 
-bool FriendListDao::bulkInsertFriends(const std::vector<QTalk::Entity::IMFriendList> &friends) {
+bool FriendListDao::bulkInsertFriends(const std::vector<st::entity::IMFriendList> &friends) {
     if (!_pSqlDb) {
         return false;
     }
 
     std::string sql = "INSERT OR REPLACE INTO IM_Friend_List ('UserId', 'XmppId', 'Version') VALUES (?, ?, ?);";
 
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     try {
         //_pSqlDb->exec("BEGIN;");
-        for (const QTalk::Entity::IMFriendList &friendinfo : friends) {
+        for (const st::entity::IMFriendList &friendinfo : friends) {
             query.bind(1, friendinfo.UserId);
             query.bind(2, friendinfo.XmppId);
             query.bind(3, friendinfo.Version);
@@ -67,7 +67,7 @@ bool FriendListDao::bulkInsertFriends(const std::vector<QTalk::Entity::IMFriendL
     }
 }
 
-bool FriendListDao::insertFriend(QTalk::Entity::IMFriendList imfriend) {
+bool FriendListDao::insertFriend(st::entity::IMFriendList imfriend) {
 
     if (!_pSqlDb) {
         return false;
@@ -75,7 +75,7 @@ bool FriendListDao::insertFriend(QTalk::Entity::IMFriendList imfriend) {
 
     std::string sql = "INSERT OR REPLACE INTO IM_Friend_List (`UserId`, `XmppId`, `Version`) VALUES (?, ?, ?);";
 
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     try {
         query.bind(1, imfriend.UserId);
         query.bind(2, imfriend.XmppId);
@@ -94,7 +94,7 @@ bool FriendListDao::deleteAllFriends() {
 
     std::string sql = "DELETE FROM IM_Friend_List;";
 
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     try {
         return query.executeStep();
     } catch (std::exception &e) {
@@ -110,7 +110,7 @@ bool FriendListDao::deleteFriendByXmppId(const std::string &xmppId) {
 
     std::string sql = "DELETE FROM IM_Friend_List WHERE `XmppId` = ?;";
 
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     try {
         query.bind(1, xmppId);
         return query.executeStep();
@@ -119,17 +119,17 @@ bool FriendListDao::deleteFriendByXmppId(const std::string &xmppId) {
     }
 }
 
-bool FriendListDao::getAllFriends(std::vector<QTalk::Entity::IMFriendList> &friends) {
+bool FriendListDao::getAllFriends(std::vector<st::entity::IMFriendList> &friends) {
     if (!_pSqlDb) {
         return false;
     }
 
     std::string sql = "SELECT `UserId`, `XmppId`, `Version` FROM `IM_Friend_List`;";
 
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     try {
         while (query.executeNext()) {
-            QTalk::Entity::IMFriendList imfriend;
+            st::entity::IMFriendList imfriend;
             imfriend.UserId = query.getColumn(0).getString();
             imfriend.XmppId = query.getColumn(1).getString();
             imfriend.Version = query.getColumn(2).getInt();

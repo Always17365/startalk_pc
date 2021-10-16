@@ -1,30 +1,15 @@
 ﻿#include "MessageManager.h"
-#include "../EventBus/EventBus.h"
+#include "EventBus/EventBus.h"
 #include "Communication.h"
 #include "OfflineMessageManager.h"
 #include "UserManager.h"
 #include "FileHelper.h"
-#include "../Message/GroupMessage.h"
-#include "../QtUtil/Utils/Log.h"
+#include "Message/GroupMessage.h"
+#include "Util/Log.h"
 #include "OnLineManager.h"
 #include "SearchManager.h"
 #include "UserConfig.h"
 #include "GroupManager.h"
-#include "HotLinesConfig.h"
-
-/**
- *
- */
-
-//
-//void CommMsgManager::sendReconnectResult() {
-//    RetryConnectRet e;
-//    EventBus::FireEvent(e);
-//}
-
-//void CommMsgManager::OnRecvIQMessage(IQMessageEvt &e) {
-//    EventBus::FireEvent(e);
-//}
 
 void CommMsgManager::sendLoginErrMessage(const std::string &message)
 {
@@ -66,7 +51,8 @@ void CommMsgManager::sendSynOfflineSuccess()
   * @author   cc
   * @date     2018/09/29
   */
-void CommMsgManager::sendGotUserCard(const std::vector<QTalk::StUserCard> &userCard)
+void CommMsgManager::sendGotUserCard(const std::vector<st::StUserCard>
+                                     &userCard)
 {
     debug_log("发送服务器查询名片结果Event 个数:{0}", userCard.size());
     UserCardMessgae e;
@@ -74,7 +60,8 @@ void CommMsgManager::sendGotUserCard(const std::vector<QTalk::StUserCard> &userC
     EventBus::FireEvent(e);
 }
 
-void CommMsgManager::sendGotUsersStatus(const std::string &user, const std::string &status)
+void CommMsgManager::sendGotUsersStatus(const std::string &user,
+                                        const std::string &status)
 {
     GetUsersOnlineSucessEvent event;
     event._user = user;
@@ -142,7 +129,8 @@ void CommMsgManager::sendOnlineUpdate()
   */
 void CommMsgManager::gotGroupMember(GroupMemberMessage &e)
 {
-    debug_log("发送获取到群成员列表Event 个数:{0} 群id:{1}", e.members.size(), e.groupId);
+    debug_log("发送获取到群成员列表Event 个数:{0} 群id:{1}",
+              e.members.size(), e.groupId);
     EventBus::FireEvent(e);
 }
 
@@ -153,7 +141,8 @@ void CommMsgManager::gotGroupMember(GroupMemberMessage &e)
   * @author   cc
   * @date     2018/10/26
   */
-void CommMsgManager::updateGroupMemberInfo(const std::string &groupId, const std::vector<QTalk::StUserCard> &userCards)
+void CommMsgManager::updateGroupMemberInfo(const std::string &groupId,
+                                           const std::vector<st::StUserCard> &userCards)
 {
     UpdateGroupMember e;
     e.groupId = groupId;
@@ -168,7 +157,8 @@ void CommMsgManager::updateGroupMemberInfo(const std::string &groupId, const std
   * @author   cc
   * @date     2018/10/12
   */
-void CommMsgManager::gotGroupTopic(const std::string &groupId, const std::string &topic)
+void CommMsgManager::gotGroupTopic(const std::string &groupId,
+                                   const std::string &topic)
 {
     GroupTopicEvt e;
     e.groupId = groupId;
@@ -183,7 +173,8 @@ void CommMsgManager::gotGroupTopic(const std::string &groupId, const std::string
   * @author   cc
   * @date     2018/10/16
   */
-void CommMsgManager::updateFileProcess(const std::string &key, double dltotal, double dlnow, double ultotal, double ulnow,
+void CommMsgManager::updateFileProcess(const std::string &key, double dltotal,
+                                       double dlnow, double ultotal, double ulnow,
                                        double speed, double leftTime)
 {
     FileProcessMessage e;
@@ -205,14 +196,15 @@ void CommMsgManager::updateFileProcess(const std::string &key, double dltotal, d
 //    //EventBus::FireEvent(e);
 //}
 
-void CommMsgManager::onUpdateGroupInfo(std::shared_ptr<QTalk::StGroupInfo> info)
+void CommMsgManager::onUpdateGroupInfo(std::shared_ptr<st::StGroupInfo> info)
 {
     UpdateGroupInfoRet e;
     e.groupinfo = info;
     EventBus::FireEvent(e);
 }
 
-void CommMsgManager::onGroupJoinMember(std::shared_ptr<QTalk::StGroupMember> member)
+void CommMsgManager::onGroupJoinMember(std::shared_ptr<st::StGroupMember>
+                                       member)
 {
     GroupMemberChangeRet e;
     e.groupId = member->groupId;
@@ -223,15 +215,17 @@ void CommMsgManager::onGroupJoinMember(std::shared_ptr<QTalk::StGroupMember> mem
     EventBus::FireEvent(e);
 }
 
-void CommMsgManager::updateUserConfigs(const std::vector<QTalk::Entity::ImConfig> &arConfigs)
+void CommMsgManager::updateUserConfigs(const
+                                       std::vector<st::entity::ImConfig> &arConfigs)
 {
     UpdateUserConfigMsg e;
     e.arConfigs = arConfigs;
     EventBus::FireEvent(e);
 }
 
-void CommMsgManager::incrementConfigs(const std::map<std::string, std::string> &deleteData,
-                                      const std::vector<QTalk::Entity::ImConfig> &arImConfig)
+void CommMsgManager::incrementConfigs(const std::map<std::string, std::string>
+                                      &deleteData,
+                                      const std::vector<st::entity::ImConfig> &arImConfig)
 {
     IncrementConfig config;
     config.deleteData = deleteData;
@@ -239,13 +233,14 @@ void CommMsgManager::incrementConfigs(const std::map<std::string, std::string> &
     EventBus::FireEvent(config);
 }
 
-//void CommMsgManager::sendGotFriends(const std::vector<QTalk::Entity::IMFriendList> &friends) {
+//void CommMsgManager::sendGotFriends(const std::vector<st::Entity::IMFriendList> &friends) {
 //    AllFriends e;
 //    e.friends = friends;
 //    EventBus::FireEvent(e);
 //}
 
-void CommMsgManager::sendGotGroupList(const std::vector<QTalk::Entity::ImGroupInfo> &groups)
+void CommMsgManager::sendGotGroupList(const
+                                      std::vector<st::entity::ImGroupInfo> &groups)
 {
     AllGroupList e;
     e.groups = groups;
@@ -269,13 +264,15 @@ void CommMsgManager::sendFileWritedMessage(const std::string &localPath)
     EventBus::FireEvent(e);
 }
 
-void CommMsgManager::changeHeadRetMessage(bool ret, const std::string &localHead)
+void CommMsgManager::changeHeadRetMessage(bool ret,
+                                          const std::string &localHead)
 {
     ChangeHeadRetMessage e(ret, localHead);
     EventBus::FireEvent(e);
 }
 
-void CommMsgManager::updateMoodRet(const std::string &userId, const std::string &mood)
+void CommMsgManager::updateMoodRet(const std::string &userId,
+                                   const std::string &mood)
 {
     UpdateMoodRet e(userId, mood);
     EventBus::FireEvent(e);
@@ -288,7 +285,8 @@ void CommMsgManager::sendLoginProcessMessage(const std::string &message)
     EventBus::FireEvent(e);
 }
 
-void CommMsgManager::gotIncrementUser(const std::vector<QTalk::Entity::ImUserInfo> &arUserInfo,
+void CommMsgManager::gotIncrementUser(const
+                                      std::vector<st::entity::ImUserInfo> &arUserInfo,
                                       const std::vector<std::string> &arDeletes)
 {
     IncrementUser e;
@@ -303,7 +301,8 @@ void CommMsgManager::sendGetHistoryError()
     EventBus::FireEvent(e);
 }
 
-void CommMsgManager::onUserMadelChanged(const std::vector<QTalk::Entity::ImUserStatusMedal> &userMedals)
+void CommMsgManager::onUserMadelChanged(const
+                                        std::vector<st::entity::ImUserStatusMedal> &userMedals)
 {
     UserMedalChangedEvt e;
     e.userMedals = userMedals;
@@ -316,6 +315,17 @@ void CommMsgManager::onCheckUpdate(const std::string &link, bool force)
     e.hasUpdate = !link.empty();
     e.forceUpdate = force;
     e.link = link;
+    EventBus::FireEvent(e);
+}
+
+void CommMsgManager::forbiddenWordGroupState(const std::string &groupId,
+                                             bool status,
+                                             bool isO)
+{
+    GetForbiddenWordResult e;
+    e.groupId = groupId;
+    e.status = status;
+    e.isOwnerOr = isO;
     EventBus::FireEvent(e);
 }
 
@@ -372,32 +382,21 @@ CommMsgListener::CommMsgListener(Communication *pComm)
     EventBus::AddHandler<RecentSessionEvt>(*this);
     EventBus::AddHandler<ContactsSessionEvt>(*this);
     EventBus::AddHandler<UpdateMoodEvt>(*this);
-    EventBus::AddHandler<GetQchatToken>(*this);
     EventBus::AddHandler<ImageMessageEvt>(*this);
     EventBus::AddHandler<StartUpdaterEvt>(*this);
     EventBus::AddHandler<EmptyMessageEvt>(*this);
-    EventBus::AddHandler<SetUserSeatEvt>(*this);
-    EventBus::AddHandler<ServerCloseSessionEvt>(*this);
     EventBus::AddHandler<AllGroupMemberEvt>(*this);
-    EventBus::AddHandler<SendProductEvt>(*this);
     EventBus::AddHandler<LocalHistoryMessage>(*this);
     EventBus::AddHandler<FileHistoryMessage>(*this);
     EventBus::AddHandler<ImageHistoryMessage>(*this);
     EventBus::AddHandler<SearchHistoryMessage>(*this);
     EventBus::AddHandler<AfterMessage>(*this);
-    EventBus::AddHandler<GetSeatListEvt>(*this);
-    EventBus::AddHandler<SessionTransferEvt>(*this);
-    EventBus::AddHandler<QuickGroupEvt>(*this);
-    EventBus::AddHandler<QuickContentByGroupEvt>(*this);
-    EventBus::AddHandler<GetQchatQVTFromDB>(*this);
-    EventBus::AddHandler<SaveQchatQVTToDB>(*this);
-    EventBus::AddHandler<SendWechatEvt>(*this);
     EventBus::AddHandler<ReportDump>(*this);
     EventBus::AddHandler<LoginMessage>(*this);
     EventBus::AddHandler<S_RecvGroupMemberEvt>(*this);
     EventBus::AddHandler<CreatGroupRet>(*this);
     EventBus::AddHandler<S_InviteGroupMemberEvt>(*this);
-    //	EventBus::AddHandler<S_AllFriendsEvt>(*this);
+    //  EventBus::AddHandler<S_AllFriendsEvt>(*this);
     EventBus::AddHandler<S_DealBind>(*this);
     EventBus::AddHandler<S_UpdateTimeStamp>(*this);
     EventBus::AddHandler<S_UserConfigChanged>(*this);
@@ -406,9 +405,7 @@ CommMsgListener::CommMsgListener(Communication *pComm)
     EventBus::AddHandler<DestroyGroupRet>(*this);
     EventBus::AddHandler<RetryConnectToServerEvt>(*this);
     EventBus::AddHandler<S_AddHttpQeq>(*this);
-    EventBus::AddHandler<HotLineMessageListEvt>(*this);
     EventBus::AddHandler<UpdateMsgExtendInfo>(*this);
-    EventBus::AddHandler<GetHotLines>(*this);
     EventBus::AddHandler<CheckUpdaterEvt>(*this);
     EventBus::AddHandler<UserMedalEvt>(*this);
     EventBus::AddHandler<SgMedalListChanged>(*this);
@@ -420,6 +417,7 @@ CommMsgListener::CommMsgListener(Communication *pComm)
     EventBus::AddHandler<ReportLogin>(*this);
     EventBus::AddHandler<ExceptCpuEvt>(*this);
     EventBus::AddHandler<UpdateGroupTopicEvt>(*this);
+    EventBus::AddHandler<GetForbiddenWordGroupMsg>(*this);
 }
 
 /**
@@ -429,11 +427,13 @@ CommMsgListener::CommMsgListener(Communication *pComm)
  */
 void CommMsgListener::onEvent(SynSeverDataEvt &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (nullptr != _pComm)
+    if (nullptr != _pComm) {
         _pComm->synSeverData();
+    }
 }
 
 /**
@@ -446,11 +446,13 @@ void CommMsgListener::onEvent(SynSeverDataEvt &e)
   */
 void CommMsgListener::onEvent(LocalImgEvt &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (nullptr != _pComm && _pComm->_pFileHelper)
+    if (nullptr != _pComm && _pComm->_pFileHelper) {
         e.netFilePath = _pComm->_pFileHelper->getNetImgFilePath(e.localFilePath);
+    }
 }
 
 /**
@@ -462,26 +464,33 @@ void CommMsgListener::onEvent(LocalImgEvt &e)
   */
 void CommMsgListener::onEvent(NetImgEvt &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (nullptr != _pComm && _pComm->_pFileHelper)
-        e.localFilePath = _pComm->_pFileHelper->getLocalImgFilePath(e.netFilePath, "/image/temp/", true);
+    if (nullptr != _pComm && _pComm->_pFileHelper) {
+        e.localFilePath = _pComm->_pFileHelper->getLocalImgFilePath(e.netFilePath,
+                                                                    "/image/temp/", true);
+    }
 }
 
 void CommMsgListener::onEvent(SourceNetImage &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (nullptr != _pComm && _pComm->_pFileHelper)
-        e.localFilePath = _pComm->_pFileHelper->getLocalImgFilePath(e.netFilePath, "/image/source/", false);
+    if (nullptr != _pComm && _pComm->_pFileHelper) {
+        e.localFilePath = _pComm->_pFileHelper->getLocalImgFilePath(e.netFilePath,
+                                                                    "/image/source/", false);
+    }
 }
 
 void CommMsgListener::onEvent(SetGroupAdmin &e)
 {
-    if (_pComm)
+    if (_pComm) {
         _pComm->setGroupAdmin(e.groupId, e.nick, e.memberJid, e.isAdmin);
+    }
 }
 
 void CommMsgListener::onEvent(RemoveGroupMember &e)
@@ -491,20 +500,24 @@ void CommMsgListener::onEvent(RemoveGroupMember &e)
 
 void CommMsgListener::onEvent(SaveConfigEvt &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (nullptr != _pComm)
+    if (nullptr != _pComm) {
         _pComm->saveUserConfig();
+    }
 }
 
 void CommMsgListener::onEvent(ClearSystemCacheEvt &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (nullptr != _pComm)
+    if (nullptr != _pComm) {
         _pComm->clearSystemCache();
+    }
 }
 
 /**
@@ -517,11 +530,13 @@ void CommMsgListener::onEvent(ClearSystemCacheEvt &e)
   */
 void CommMsgListener::onEvent(HistoryMessage &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm)
+    if (_pComm) {
         _pComm->getUserHistoryMessage(e.time, e.chatType, e.uid, e.msgList);
+    }
 }
 
 /**
@@ -533,12 +548,12 @@ void CommMsgListener::onEvent(HistoryMessage &e)
   */
 void CommMsgListener::onEvent(GetUserCardMessage &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm && _pComm->_pUserManager)
-    {
-        std::vector<QTalk::StUserCard> arUserInfo;
+    if (_pComm && _pComm->_pUserManager) {
+        std::vector<st::StUserCard> arUserInfo;
         _pComm->_pUserManager->getUserCard(e.mapUserIds, arUserInfo);
         CommMsgManager::sendGotUserCard(arUserInfo);
     }
@@ -553,37 +568,37 @@ void CommMsgListener::onEvent(GetUserCardMessage &e)
   */
 void CommMsgListener::onEvent(DownLoadHeadPhotoEvent &e)
 {
-    if (_pComm)
+    if (_pComm) {
         _pComm->batchUpdateHead(e._withoutHeadPhotos);
+    }
 }
 
 //void MessageListener::onEvent(UserCardMessgae &e)
 //{
-//	if (e.getCanceled()) return;
+//  if (e.getCanceled()) return;
 //
-//	log_info("收到服务器查询名片结果Event 个数:" << e.userCards.size();
+//  log_info("收到服务器查询名片结果Event 个数:" << e.userCards.size();
 //
-//	if (_pComm && _pComm->_pFileHelper )
-//	{
-//		std::vector<std::string> urls;
+//  if (_pComm && _pComm->_pFileHelper )
+//  {
+//      std::vector<std::string> urls;
 //
-//		for (auto it = e.userCards.begin(); it != e.userCards.end(); it++)
-//		{
-//			urls.push_back(it->headerSrc);
-//		}
+//      for (auto it = e.userCards.begin(); it != e.userCards.end(); it++)
+//      {
+//          urls.push_back(it->headerSrc);
+//      }
 //
-//		auto fun = [this]()
-//		{
-//			CommMsgManager::sendDownloadHeadSuccess();
-//		};
-//		_pComm->_pFileHelper->batchDownloadHead(urls, fun);
-//	}
+//      auto fun = [this]()
+//      {
+//          CommMsgManager::sendDownloadHeadSuccess();
+//      };
+//      _pComm->_pFileHelper->batchDownloadHead(urls, fun);
+//  }
 //}
 
 void CommMsgListener::onEvent(DownLoadGroupHeadPhotoEvent &e)
 {
-    if (_pComm && _pComm->_pFileHelper)
-    {
+    if (_pComm && _pComm->_pFileHelper) {
         _pComm->_pFileHelper->batchDownloadHead(e._withoutHeadPhotos);
         CommMsgManager::sendDownloadGroupHeadSuccess();
     }
@@ -598,27 +613,33 @@ void CommMsgListener::onEvent(DownLoadGroupHeadPhotoEvent &e)
   */
 void CommMsgListener::onEvent(NetHeadImgEvt &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (nullptr != _pComm && _pComm->_pFileHelper)
-        e.localFilePath = _pComm->_pFileHelper->getLocalImgFilePath(e.netFilePath, "/image/headphoto/", false);
+    if (nullptr != _pComm && _pComm->_pFileHelper) {
+        e.localFilePath = _pComm->_pFileHelper->getLocalImgFilePath(e.netFilePath,
+                                                                    "/image/headphoto/", false);
+    }
 }
 
 //
 void CommMsgListener::onEvent(GetGroupMessage &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (nullptr != _pComm)
+    if (nullptr != _pComm) {
         _pComm->getGroupMemberById(e.groupId);
+    }
 }
 
 void CommMsgListener::onEvent(GetUsersOnlineEvent &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
     if (_pComm && _pComm->_pOnLineManager)
         _pComm->_pOnLineManager->getOnLineUser({e._user}, true);
@@ -633,11 +654,14 @@ void CommMsgListener::onEvent(GetUsersOnlineEvent &e)
   */
 void CommMsgListener::onEvent(GetEmoticonFileMessage &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm && _pComm->_pFileHelper)
-        e.realFilePath = _pComm->_pFileHelper->getEmotionPath(e.pkgid, e.emoShortcut, e.fileName);
+    if (_pComm && _pComm->_pFileHelper) {
+        e.realFilePath = _pComm->_pFileHelper->getEmotionPath(e.pkgid, e.emoShortcut,
+                                                              e.fileName);
+    }
 }
 
 /**
@@ -649,11 +673,13 @@ void CommMsgListener::onEvent(GetEmoticonFileMessage &e)
   */
 void CommMsgListener::onEvent(GetNetEmoticon &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm)
+    if (_pComm) {
         _pComm->getNetEmoticon(e);
+    }
 }
 
 /**
@@ -665,139 +691,138 @@ void CommMsgListener::onEvent(GetNetEmoticon &e)
   */
 void CommMsgListener::onEvent(DownloadFileWithProcess &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm && _pComm->_pFileHelper)
-        _pComm->_pFileHelper->downloadFile(e.strUri, e.strLocalPath, true, e.processKey);
+    if (_pComm && _pComm->_pFileHelper) {
+        _pComm->_pFileHelper->downloadFile(e.strUri, e.strLocalPath, true,
+                                           e.processKey);
+    }
 }
 
 void CommMsgListener::onEvent(UserCardSupple &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm && _pComm->_pUserManager)
+    if (_pComm && _pComm->_pUserManager) {
         _pComm->_pUserManager->getUserFullInfo(e.imUserSup, e.userInfo);
+    }
 }
 
 void CommMsgListener::onEvent(UserPhoneNo &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm && _pComm->_pUserManager)
+    if (_pComm && _pComm->_pUserManager) {
         _pComm->_pUserManager->getPhoneNo(e.userId, e.phoneNo);
+    }
 }
 
 void CommMsgListener::onEvent(SearchInfoEvent &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm && _pComm->_pSearchManager)
+    if (_pComm && _pComm->_pSearchManager) {
         _pComm->_pSearchManager->GetSearchResult(e);
+    }
 }
 
 void CommMsgListener::onEvent(StructureMessage &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm)
+    if (_pComm) {
         _pComm->getStructure(e.structure);
+    }
 }
 
 void CommMsgListener::onEvent(AddGroupMember &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm)
+    if (_pComm) {
         _pComm->inviteGroupMembers(e.members, e.groupId);
+    }
 }
 
 void CommMsgListener::onEvent(CreatGroup &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm)
+    if (_pComm) {
         _pComm->createGroup(e.groupId, e.groupName);
-}
-
-void CommMsgListener::onEvent(GetQchatToken &e)
-{
-    if (e.getCanceled())
-        return;
-
-    if (_pComm)
-        _pComm->getQchatTokenByQVT(e.strQVT, e.userMap);
-}
-
-void CommMsgListener::onEvent(SaveQchatQVTToDB &e)
-{
-    if (e.getCanceled())
-        return;
-
-    if (_pComm && _pComm->_pFileHelper)
-        _pComm->_pFileHelper->writeQvtToFile(e.strQVT);
-}
-
-void CommMsgListener::onEvent(GetQchatQVTFromDB &e)
-{
-    if (e.getCanceled())
-        return;
-
-    if (_pComm && _pComm->_pFileHelper)
-        e.strQVT = _pComm->_pFileHelper->getQvtFromFile();
+    }
 }
 
 void CommMsgListener::onEvent(RemoveSessionData &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm)
+    if (_pComm) {
         _pComm->removeSession(e._peerId);
+    }
 }
 
 void CommMsgListener::onEvent(GetSessionData &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm)
+    if (_pComm) {
         _pComm->getSessionData();
+    }
 }
 
 void CommMsgListener::onEvent(UserSettingMsg &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm)
-        _pComm->_pUserConfig->updateUserSetting(e.operatorType, e.key, e.subKey, e.value);
+    if (_pComm) {
+        _pComm->_pUserConfig->updateUserSetting(e.operatorType, e.key, e.subKey,
+                                                e.value);
+    }
 }
 
 void CommMsgListener::onEvent(GetStructureCount &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
     //
-    if (_pComm)
+    if (_pComm) {
         _pComm->getStructureCount(e.structName, e.count);
+    }
 }
 
 void CommMsgListener::onEvent(GetStructureMember &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
     //
-    if (_pComm)
+    if (_pComm) {
         _pComm->getStructureMember(e.structName, e.arMembers);
+    }
 }
 
 /**
@@ -806,13 +831,13 @@ void CommMsgListener::onEvent(GetStructureMember &e)
  */
 void CommMsgListener::onEvent(GetNavAddrInfo &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
     //
-    if (_pComm)
-    {
-        QTalk::StNav nav;
+    if (_pComm) {
+        st::StNav nav;
         e.ret = _pComm->getNavInfo(e.navAddr, nav);
         Communication::setLoginNav(nav);
     }
@@ -820,12 +845,12 @@ void CommMsgListener::onEvent(GetNavAddrInfo &e)
 
 void CommMsgListener::onEvent(GetNavDomain &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm)
-    {
-        QTalk::StNav nav;
+    if (_pComm) {
+        st::StNav nav;
         _pComm->getNavInfo(e.navAddr, nav);
         e.doamin = nav.domain;
     }
@@ -837,11 +862,13 @@ void CommMsgListener::onEvent(GetNavDomain &e)
  */
 void CommMsgListener::onEvent(DownloadCollection &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm)
+    if (_pComm) {
         _pComm->downloadCollection(e.arDownloads);
+    }
 }
 
 /**
@@ -850,11 +877,13 @@ void CommMsgListener::onEvent(DownloadCollection &e)
  */
 void CommMsgListener::onEvent(OAUiDataMessage &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm)
+    if (_pComm) {
         e.ret = _pComm->geiOaUiData(e.stOAUIData);
+    }
 }
 
 /**
@@ -863,11 +892,13 @@ void CommMsgListener::onEvent(OAUiDataMessage &e)
  */
 void CommMsgListener::onEvent(GetGroupInfoMessage &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm)
+    if (_pComm) {
         _pComm->getGroupCardInfo(e.imGroupInfo);
+    }
 }
 
 /**
@@ -876,38 +907,46 @@ void CommMsgListener::onEvent(GetGroupInfoMessage &e)
  */
 void CommMsgListener::onEvent(UpdateGroupInfoMsg &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm && _pComm->_pUserGroupManager)
+    if (_pComm && _pComm->_pUserGroupManager) {
         _pComm->_pUserGroupManager->upateGroupInfo(*e.groupinfo);
+    }
 }
 
 void CommMsgListener::onEvent(UpdateGroupTopicEvt &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm && _pComm->_pUserGroupManager)
+    if (_pComm && _pComm->_pUserGroupManager) {
         _pComm->_pUserGroupManager->updateTopic(e.groupId, e.groupTopic);
+    }
 }
 
 void CommMsgListener::onEvent(QuitGroupMsg &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm)
+    if (_pComm) {
         _pComm->quitGroup(e.groupId);
+    }
 }
 
 void CommMsgListener::onEvent(DestroyGroupMsg &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm)
+    if (_pComm) {
         _pComm->destroyGroup(e.groupId);
+    }
 }
 
 /**
@@ -916,11 +955,11 @@ void CommMsgListener::onEvent(DestroyGroupMsg &e)
  */
 void CommMsgListener::onEvent(HeartBeat &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm)
-    {
+    if (_pComm) {
         //        _pComm->sendHeartbeat();
         _pComm->synUsersUserStatus();
     }
@@ -932,131 +971,139 @@ void CommMsgListener::onEvent(HeartBeat &e)
  */
 void CommMsgListener::onEvent(LogReportMessage &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm)
+    if (_pComm) {
         _pComm->reportLog(e._desc, e._strLogPath);
+    }
 }
 
 //
 void CommMsgListener::onEvent(ReportDump &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm)
+    if (_pComm) {
         _pComm->reportDump(e.ipAddr, e.id, e.dumpFile, e.crashTime);
+    }
 }
 
 void CommMsgListener::onEvent(ChangeHeadMessage &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (nullptr != _pComm && nullptr != _pComm->_pUserManager)
+    if (nullptr != _pComm && nullptr != _pComm->_pUserManager) {
         _pComm->changeUserHead(e.userHead);
+    }
 }
 
-void CommMsgListener::onEvent(UserOnlineState &e)
+void CommMsgListener::onEvent(UserOnlineState &)
 {
-    if (e.getCanceled())
-        return;
-
-    if (nullptr != _pComm)
-        _pComm->sendUserOnlineState(e.login_t, e.logout_t, e.ip);
 }
 
-/**
- *
- * @param e
- */
 void CommMsgListener::onEvent(OperatorStatistics &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (nullptr != _pComm)
+    if (nullptr != _pComm) {
         _pComm->sendOperatorStatistics(e.ip, e.operators);
+    }
 }
 
 void CommMsgListener::onEvent(UserCardInfo &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (nullptr != _pComm)
+    if (nullptr != _pComm) {
         _pComm->getUserCard(e.info);
+    }
 }
 
 void CommMsgListener::onEvent(UploadFileEvt &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (nullptr != _pComm)
-        e.fileUrl = _pComm->_pFileHelper->uploadFile(e.localPath, e.withProcess, e.process_key);
+    if (nullptr != _pComm) {
+        e.fileUrl = _pComm->_pFileHelper->uploadFile(e.localPath, e.withProcess,
+                                                     e.process_key);
+    }
 }
 
 void CommMsgListener::onEvent(RecentSessionEvt &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (nullptr != _pComm)
+    if (nullptr != _pComm) {
         _pComm->getRecntSession(e.sessions);
+    }
 }
 
 void CommMsgListener::onEvent(ContactsSessionEvt &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (nullptr != _pComm)
+    if (nullptr != _pComm) {
         _pComm->geContactsSession(e.sessions);
+    }
 }
 
 void CommMsgListener::onEvent(UpdateMoodEvt &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (nullptr != _pComm && nullptr != _pComm->_pUserManager)
-    {
+    if (nullptr != _pComm && nullptr != _pComm->_pUserManager) {
         std::string mood = e.mood;
-        std::thread([this, mood]()
-        {
+        std::thread([this, mood]() {
             _pComm->_pUserManager->UpdateMood(mood);
         }).detach();
     }
 }
 
-#include "../LogicManager/LogicManager.h"
+#include "LogicManager/LogicManager.h"
 void CommMsgListener::onEvent(ImageMessageEvt &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
-
-    try
-    {
-        if (nullptr != _pComm)
-        {
-            if (e.isNext)
-                LogicManager::instance()->getDatabase()->getNextImageMessage(e.messageId, e.msgs);
-            else
-                LogicManager::instance()->getDatabase()->getBeforeImageMessage(e.messageId, e.msgs);
-        }
     }
-    catch (const std::exception &e)
-    {
+
+    try {
+        if (nullptr != _pComm) {
+            if (e.isNext) {
+                LogicManager::instance()->getDatabase()->getNextImageMessage(e.messageId,
+                        e.msgs);
+            } else {
+                LogicManager::instance()->getDatabase()->getBeforeImageMessage(e.messageId,
+                        e.msgs);
+            }
+        }
+    } catch (const std::exception &e) {
         error_log("getNextImageMessage exception: {0}", e.what());
     }
 }
 
 void CommMsgListener::onEvent(StartUpdaterEvt &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
     //    if(_pComm && _pComm->_pUpdaterManager)
     //    {
@@ -1066,87 +1113,20 @@ void CommMsgListener::onEvent(StartUpdaterEvt &e)
 
 void CommMsgListener::onEvent(EmptyMessageEvt &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
     LogicManager::instance()->getDatabase()->insertMessageInfo(e.msgInfo);
 }
 
 void CommMsgListener::onEvent(AllGroupMemberEvt &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
     LogicManager::instance()->getDatabase()->getAllGroupMembers(e.members);
-}
-
-void CommMsgListener::onEvent(SetUserSeatEvt &e)
-{
-    if (e.getCanceled())
-        return;
-
-    if (_pComm)
-    {
-        int sid = e.sid;
-        int seat = e.seat;
-        _pComm->setServiceSeat(sid, seat);
-    }
-}
-
-void CommMsgListener::onEvent(ServerCloseSessionEvt &e)
-{
-    if (e.getCanceled())
-        return;
-
-    if (_pComm)
-    {
-        std::string userName = e.username;
-        std::string virtualname = e.virtualname;
-        _pComm->serverCloseSession(userName, virtualname);
-    }
-}
-
-void CommMsgListener::onEvent(GetSeatListEvt &e)
-{
-    if (_pComm)
-        _pComm->getSeatList(e.uid);
-}
-
-void CommMsgListener::onEvent(SessionTransferEvt &e)
-{
-    if (_pComm)
-        _pComm->sessionTransfer(e.uid, e.newCsrName, e.reason);
-}
-
-void CommMsgListener::onEvent(SendWechatEvt &e)
-{
-    if (_pComm)
-        _pComm->sendWechat(e.uid);
-}
-
-void CommMsgListener::onEvent(QuickGroupEvt &e)
-{
-    LogicManager::instance()->getDatabase()->getQuickGroups(e.groups);
-}
-
-void CommMsgListener::onEvent(QuickContentByGroupEvt &e)
-{
-    LogicManager::instance()->getDatabase()->getQuickContentByGroup(e.contents, e.groupId);
-}
-
-void CommMsgListener::onEvent(SendProductEvt &e)
-{
-    if (e.getCanceled())
-        return;
-
-    if (_pComm)
-    {
-        std::string userName = e.userQName;
-        std::string virtualName = e.virtualName;
-        std::string product = e.product;
-        std::string type = e.type;
-        _pComm->sendProduct(userName, virtualName, product, type);
-    }
 }
 
 /**
@@ -1155,74 +1135,94 @@ void CommMsgListener::onEvent(SendProductEvt &e)
  */
 void CommMsgListener::onEvent(LocalHistoryMessage &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm)
-        LogicManager::instance()->getDatabase()->getLocalMessage(e.time, e.userid, e.realJid, e.msgList);
+    if (_pComm) {
+        LogicManager::instance()->getDatabase()->getLocalMessage(e.time, e.userid,
+                                                                 e.realJid, e.msgList);
+    }
 }
 
 void CommMsgListener::onEvent(FileHistoryMessage &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm)
-        LogicManager::instance()->getDatabase()->getFileMessage(e.time, e.userid, e.realJid, e.msgList);
+    if (_pComm) {
+        LogicManager::instance()->getDatabase()->getFileMessage(e.time, e.userid,
+                                                                e.realJid, e.msgList);
+    }
 }
 
 void CommMsgListener::onEvent(ImageHistoryMessage &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm)
-        LogicManager::instance()->getDatabase()->getImageMessage(e.time, e.userid, e.realJid, e.msgList);
+    if (_pComm) {
+        LogicManager::instance()->getDatabase()->getImageMessage(e.time, e.userid,
+                                                                 e.realJid, e.msgList);
+    }
 }
 
 void CommMsgListener::onEvent(SearchHistoryMessage &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm)
-        LogicManager::instance()->getDatabase()->getSearchMessage(e.time, e.userid, e.realJid, e.searchKey, e.msgList);
+    if (_pComm) {
+        LogicManager::instance()->getDatabase()->getSearchMessage(e.time, e.userid,
+                                                                  e.realJid, e.searchKey, e.msgList);
+    }
 }
 
 void CommMsgListener::onEvent(AfterMessage &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (_pComm)
-        LogicManager::instance()->getDatabase()->getAfterMessage(e.time, e.userid, e.realJid, e.msgList);
+    if (_pComm) {
+        LogicManager::instance()->getDatabase()->getAfterMessage(e.time, e.userid,
+                                                                 e.realJid, e.msgList);
+    }
 }
 
 void CommMsgListener::onEvent(LoginMessage &e)
 {
-    if (e.getCanceled())
+    if (e.getCanceled()) {
         return;
+    }
 
-    if (nullptr != _pComm)
+    if (nullptr != _pComm) {
         e.ret = _pComm->OnLogin(e.strUserName, e.strPassword);
+    }
 }
 
 void CommMsgListener::onEvent(S_RecvGroupMemberEvt &e)
 {
-    if (nullptr != _pComm)
+    if (nullptr != _pComm) {
         _pComm->onRecvGroupMembers(e.groupId, e.mapUserRole);
+    }
 }
 
 void CommMsgListener::onEvent(CreatGroupRet &e)
 {
-    if (nullptr != _pComm)
+    if (nullptr != _pComm) {
         _pComm->onCreateGroupComplete(e.groupId, e.ret);
+    }
 }
 
 void CommMsgListener::onEvent(S_InviteGroupMemberEvt &e)
 {
-    if (nullptr != _pComm)
+    if (nullptr != _pComm) {
         _pComm->onInviteGroupMembers(e.groupId);
+    }
 }
 
 //void CommMsgListener::onEvent(S_AllFriendsEvt &e) {
@@ -1232,144 +1232,149 @@ void CommMsgListener::onEvent(S_InviteGroupMemberEvt &e)
 
 void CommMsgListener::onEvent(S_DealBind &e)
 {
-    if (nullptr != _pComm)
+    if (nullptr != _pComm) {
         _pComm->dealBindMsg();
+    }
 }
 
 void CommMsgListener::onEvent(S_UpdateTimeStamp &e)
 {
-    if (nullptr != _pComm)
+    if (nullptr != _pComm) {
         _pComm->updateTimeStamp();
+    }
 }
 
 void CommMsgListener::onEvent(S_UserConfigChanged &e)
 {
-    if (nullptr != _pComm && _pComm->_pUserConfig)
+    if (nullptr != _pComm && _pComm->_pUserConfig) {
         _pComm->_pUserConfig->getUserConfigFromServer(true);
+    }
 }
 
 void CommMsgListener::onEvent(S_UserJoinGroup &e)
 {
-    if (nullptr != _pComm)
+    if (nullptr != _pComm) {
         _pComm->onUserJoinGroup(e.groupId, e.memberJid, e.affiliation);
+    }
 }
 
 void CommMsgListener::onEvent(S_StaffChanged &e)
 {
-    if (nullptr != _pComm)
+    if (nullptr != _pComm) {
         _pComm->onStaffChanged();
+    }
 }
 
 void CommMsgListener::onEvent(DestroyGroupRet &e)
 {
-    if (nullptr != _pComm && _pComm->_pUserConfig)
-    {
+    if (nullptr != _pComm && _pComm->_pUserConfig) {
         // 移除置顶
         _pComm->_pUserConfig->updateUserSetting(UserSettingMsg::EM_OPERATOR_CANCEL,
                                                 "kStickJidDic",
-                                                QTalk::Entity::UID(e.groupId).toStdString(),
+                                                st::entity::UID(e.groupId).toStdString(),
                                                 "{\"topType\":0,\"chatType\":1}");
     }
 }
 
 void CommMsgListener::onEvent(RetryConnectToServerEvt &e)
 {
-    if (nullptr != _pComm)
+    if (nullptr != _pComm) {
         e.result = _pComm->tryConnectToServer();
+    }
 }
 
 // send http request
 void CommMsgListener::onEvent(S_AddHttpQeq &e)
 {
-    if (nullptr != _pComm)
+    if (nullptr != _pComm) {
         _pComm->addHttpRequest(e.request, e.callback);
-}
-
-void CommMsgListener::onEvent(HotLineMessageListEvt &e)
-{
-    if (nullptr != _pComm && _pComm->_pHotLinesConfig)
-        _pComm->_pHotLinesConfig->getHotLineMessageList(e.xmppId);
+    }
 }
 
 void CommMsgListener::onEvent(UpdateMsgExtendInfo &e)
 {
-    try
-    {
-        LogicManager::instance()->getDatabase()->updateMessageExtendInfo(e.msgId, e.extendInfo);
-    }
-    catch (const std::exception &e)
-    {
+    try {
+        LogicManager::instance()->getDatabase()->updateMessageExtendInfo(e.msgId,
+                e.extendInfo);
+    } catch (const std::exception &e) {
         error_log(e.what());
     }
 }
 
-void CommMsgListener::onEvent(GetHotLines &e)
-{
-    if (nullptr != _pComm && _pComm->_pHotLinesConfig)
-        _pComm->_pHotLinesConfig->getVirtualUserRole();
-}
-
 void CommMsgListener::onEvent(CheckUpdaterEvt &e)
 {
-    if (nullptr != _pComm)
+    if (nullptr != _pComm) {
         _pComm->checkUpdater(e.version);
+    }
 }
 
 void CommMsgListener::onEvent(UserMedalEvt &e)
 {
-    try
-    {
+    try {
         LogicManager::instance()->getDatabase()->getUserMedal(e.xmppId, e.medal);
-    }
-    catch (const std::exception &e)
-    {
+    } catch (const std::exception &e) {
         error_log(e.what());
     }
 }
 
 void CommMsgListener::onEvent(SgMedalListChanged &e)
 {
-    if (nullptr != _pComm)
+    if (nullptr != _pComm) {
         _pComm->getMedalList();
+    }
 }
 
 void CommMsgListener::onEvent(SgUserMedalChanged &e)
 {
-    if (nullptr != _pComm)
+    if (nullptr != _pComm) {
         _pComm->getUserMedal(true);
+    }
 }
 
 void CommMsgListener::onEvent(GetMedalUserEvt &e)
 {
-    if (nullptr != _pComm)
+    if (nullptr != _pComm) {
         _pComm->getMedalUser(e.medalId, e.metalUsers);
+    }
 }
 
 void CommMsgListener::onEvent(ModifyUserMedalStatusEvt &e)
 {
-    if (nullptr != _pComm)
+    if (nullptr != _pComm) {
         e.result = _pComm->modifyUserMedalStatus(e.medalId, e.isWear);
+    }
 }
 
 void CommMsgListener::onEvent(NetHistoryMessage &e)
 {
-    if (nullptr != _pComm)
-        _pComm->getNetHistoryMessage(e.time, e.chatType, e.uid, e.direction, e.msgList);
+    if (nullptr != _pComm) {
+        _pComm->getNetHistoryMessage(e.time, e.chatType, e.uid, e.direction,
+                                     e.msgList);
+    }
 }
 
 void CommMsgListener::onEvent(LinkHistoryMessage &e)
 {
-    LogicManager::instance()->getDatabase()->getLinkMessage(e.time, e.userid, e.realJid, e.msgList);
+    LogicManager::instance()->getDatabase()->getLinkMessage(e.time, e.userid,
+                                                            e.realJid, e.msgList);
 }
 
 //
 void CommMsgListener::onEvent(ReportLogin &e)
 {
-    if (_pComm)
+    if (_pComm) {
         _pComm->reportLogin();
+    }
 }
 
 void CommMsgListener::onEvent(ExceptCpuEvt &e)
 {
     LogicManager::instance()->getDatabase()->addExceptCpu(e.cpu, e.time, e.stack);
+}
+
+void CommMsgListener::onEvent(GetForbiddenWordGroupMsg &e)
+{
+    if (_pComm) {
+        _pComm->getForbiddenWordGroup(e.groupId);
+    }
 }

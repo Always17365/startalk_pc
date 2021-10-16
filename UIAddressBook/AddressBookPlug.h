@@ -2,7 +2,7 @@
 #define ADDRESSBOOKPLUG_H
 
 #include <QObject>
-#include "../interface/view/IUIAddressBookPlug.h"
+#include "interface/view/IUIAddressBookPlug.h"
 #include "AddressBookPanel.h"
 
 class AddressBookPlug : public QObject, public IUIAddressBookPlug

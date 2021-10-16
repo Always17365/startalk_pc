@@ -6,7 +6,7 @@
 
 #include <QWidget>
 #include "EmoticonStruct.h"
-#include "../include/CommonDefine.h"
+#include "include/CommonDefine.h"
 
 class QListWidget;
 class EmoLstItemWgt;

@@ -2,8 +2,8 @@
 // Created by cc on 18-12-17.
 //
 
-#ifndef QTALK_V2_OADEFINE_H
-#define QTALK_V2_OADEFINE_H
+#ifndef STALK_V2_OADEFINE_H
+#define STALK_V2_OADEFINE_H
 
 namespace OA
 {
@@ -24,4 +24,4 @@ namespace OA
 }
 
 
-#endif //QTALK_V2_OADEFINE_H
+#endif //STALK_V2_OADEFINE_H

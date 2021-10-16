@@ -9,10 +9,10 @@
 #include <QStackedWidget>
 #include <QPushButton>
 #include <QLabel>
-#include "../CustomUi/UCButton.h"
-#include "../CustomUi/UShadowWnd.h"
+#include "CustomUi/UCButton.h"
+#include "CustomUi/UShadowWnd.h"
 #include "MessageManager.h"
-#include "../UICom/UIEntity.h"
+#include "entity/UIEntity.h"
 #include "SearchView.h"
 
 class SearchThread;

@@ -2,24 +2,24 @@
 // Created by cc on 18-11-9.
 //
 
-#ifndef QTALK_V2_TIPMESSAGEITEM_H
-#define QTALK_V2_TIPMESSAGEITEM_H
+#ifndef STALK_V2_TIPMESSAGEITEM_H
+#define STALK_V2_TIPMESSAGEITEM_H
 
 
 #include "MessageItemBase.h"
 #include <QLabel>
-#include "../QtUtil/nJson/nJson.h"
+#include "Util/nJson/nJson.h"
 
 class QLabel;
 class TipMessageItem : public QFrame
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-    explicit TipMessageItem(QWidget *parent = Q_NULLPTR);
+    explicit TipMessageItem(QWidget *parent = nullptr);
     ~TipMessageItem() override;
 
 public:
-    void setText(const QString& text);
+    void setText(const QString &text);
     QString getText();
 
 protected:
@@ -30,8 +30,8 @@ protected slots:
 
 private:
     QString _strText;
-    QLabel* _pLabel;
+    QLabel *_pLabel;
 };
 
 
-#endif //QTALK_V2_TIPMESSAGEITEM_H
+#endif //STALK_V2_TIPMESSAGEITEM_H

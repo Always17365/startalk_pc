@@ -2,7 +2,7 @@
 #define _TOOLWGT_H_
 
 #include <QFrame>
-#include "../entity/im_transfer.h"
+#include "entity/im_transfer.h"
 #include <QPointer>
 
 class QPushButton;
@@ -14,20 +14,18 @@ class QComboBox;
 class EmoticonMainWgt;
 class ToolWgt : public QFrame
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	ToolWgt(InputWgt* pInputWgt, ChatViewItem* chatItem);
-	~ToolWgt() override;
+    ToolWgt(InputWgt *pInputWgt, ChatViewItem *chatItem);
+    ~ToolWgt() override;
 
 private:
     void initUi();
     void onFileBtnClicked();
     void onBtnScreenshot();
-	void onpBtnEmoticon();
-	void sendJsonPrud(const QString &products);
-	void sendQuickReply(const std::string& text);
-	void sessionTransfer(const std::string& newJid,const std::string& reason);
+    void onpBtnEmoticon();
+    void onVideoClicked();
 
 public:
     void switchSession(const int &i);
@@ -38,20 +36,19 @@ Q_SIGNALS:
 private:
     QPointer<InputWgt>     _pInputWgt{};
     QPointer<ChatViewItem> _pChatItem{};
-	QPushButton* _pBtnEmoticon{};
-	QPushButton* _pBtnScreenshot{};
-	QPushButton* _pBtnScreenshotSet{};
-    QPushButton* _pBtnCode{};
-	QPushButton* _pBtnShock{};
-	QPushButton* _pBtnFile{};
-	QPushButton* _pBtnVideo{};
-	QPushButton* _pBtnHistory{};
-//	QPushButton* _pBtnShare{};
-	QPushButton* _pBtnMultifunction{};
-	QMenu*       _pMenu{};
-	QAction*     _pScreenShotHideWnd{};
+    QPushButton *_pBtnEmoticon{};
+    QPushButton *_pBtnScreenshot{};
+    QPushButton *_pBtnScreenshotSet{};
+    QPushButton *_pBtnCode{};
+    QPushButton *_pBtnShock{};
+    QPushButton *_pBtnFile{};
+    QPushButton *_pBtnVideo{};
+    QPushButton *_pBtnHistory{};
+    QPushButton *_pBtnMultifunction{};
+    QMenu       *_pMenu{};
+    QAction     *_pScreenShotHideWnd{};
 
-	QMenu* _pMultiMenu{};
+    QMenu *_pMultiMenu{};
 };
 
 #endif//_TOOLWGT_H_

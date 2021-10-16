@@ -3,7 +3,7 @@
 #include <QHeaderView>
 #include <QLabel>
 #include <QFileInfo>
-#include "../Platform/Platform.h"
+#include "DataCenter/Platform.h"
 #include "EmoCellWidget.h"
 
 EmoPreviewWgt::EmoPreviewWgt(int col, QWidget *parent)
@@ -37,7 +37,7 @@ QTableWidget*  EmoPreviewWgt::addEmoticon(const QMap<UnorderMapKey, StEmoticonIt
 	wgt->setWindowFlags(Qt::FramelessWindowHint);
 	wgt->setColumnCount(_colCount);
 	wgt->setFocusPolicy(Qt::NoFocus);
-	std::string dirPath = PLAT.getLocalEmoticonPath(id.toStdString());
+	std::string dirPath = DC.getLocalEmoticonPath(id.toStdString());
 
 	int row = 0, col = 0;
 	auto it = arEmos.begin();

@@ -1,13 +1,13 @@
 ﻿#include "SearchManager.h"
 #include <iostream>
 #include <sstream>
-#include "../Platform/NavigationManager.h"
-#include "../Platform/Platform.h"
-#include "../QtUtil/nJson/nJson.h"
+#include "DataCenter/NavigationManager.h"
+#include "DataCenter/Platform.h"
+#include "Util/nJson/nJson.h"
 #include "Communication.h"
-#include "../QtUtil/Utils/Log.h"
+#include "Util/Log.h"
 
-using namespace QTalk;
+using namespace st;
 
 SearchManager::SearchManager(Communication *pComm) :
         _pComm(pComm) {
@@ -23,7 +23,7 @@ SearchManager::SearchManager(Communication *pComm) :
 void SearchManager::GetSearchResult(SearchInfoEvent &e) {
 
     std::string searchUrl = NavigationManager::instance().getSearchUrl();
-    std::string userId = PLAT.getSelfXmppId();
+    std::string userId = DC.getSelfXmppId();
 
     nJson obj;
     obj["start"] = e.start;
@@ -160,7 +160,7 @@ void SearchManager::GetSearchResult(SearchInfoEvent &e) {
     };
 
     if (_pComm) {
-        QTalk::HttpRequest req(searchUrl, RequestMethod::POST);
+        st::HttpRequest req(searchUrl, RequestMethod::POST);
         req.header["Content-Type"] = "application/json;";
         req.body = postData;
         _pComm->addHttpRequest(req, callback);

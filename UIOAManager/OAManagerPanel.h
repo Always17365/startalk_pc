@@ -40,5 +40,5 @@ private:
 	QMap<int, OaMainWgt*>        _mapMainWgt;
 
 private:
-	std::vector<QTalk::StOAUIData> _uidata;
+	std::vector<st::StOAUIData> _uidata;
 };

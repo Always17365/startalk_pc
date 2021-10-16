@@ -5,14 +5,14 @@
     #pragma execution_character_set("utf-8")
 #endif
 
-#include "../EventBus/EventHandler.hpp"
-#include "../EventBus/Object.hpp"
-#include "../EventBus/HandlerRegistration.hpp"
-#include "../Message/StatusMessage.h"
-#include "../Message/LoginMessgae.h"
-#include "../Message/GroupMessage.h"
-#include "../Message/UserMessage.h"
-#include "../Message/ChatMessage.h"
+#include "EventBus/EventHandler.hpp"
+#include "EventBus/Object.hpp"
+#include "EventBus/HandlerRegistration.hpp"
+#include "Message/StatusMessage.h"
+#include "Message/LoginMessgae.h"
+#include "Message/GroupMessage.h"
+#include "Message/UserMessage.h"
+#include "Message/ChatMessage.h"
 
 class SynOfflineSuccees;
 
@@ -26,7 +26,7 @@ public:
     static void sendGetUserStatus(const std::string &users);
     static void sendReadedMessage(const std::string &messageId, const std::string &userId, QUInt8 chatType);
     static void setUserSetting(bool isSetting, const std::string &key, const std::string &subKey, const std::string &value);
-    static void addEmptyMessage(const QTalk::Entity::ImMessageInfo &info);
+    static void addEmptyMessage(const st::entity::ImMessageInfo &info);
     static void quitGroupById(const std::string &groupId);
 };
 

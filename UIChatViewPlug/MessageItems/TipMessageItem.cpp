@@ -5,8 +5,8 @@
 #include "TipMessageItem.h"
 #include <QLabel>
 #include <QHBoxLayout>
-#include "../../WebService/WebService.h"
-#include "../../Platform/Platform.h"
+#include "WebService/WebService.h"
+#include "DataCenter/Platform.h"
 
 TipMessageItem::TipMessageItem(QWidget *parent)
     //:MessageItemBase(msgInfo, parent)
@@ -32,7 +32,7 @@ TipMessageItem::~TipMessageItem()
 
 void TipMessageItem::openURL(QString url) {
     MapCookie cookies;
-    cookies["ckey"] = QString::fromStdString(PLAT.getClientAuthKey());
+    cookies["ckey"] = QString::fromStdString(DC.getClientAuthKey());
     WebService::loadUrl(QUrl(url), false, cookies);
 }
 

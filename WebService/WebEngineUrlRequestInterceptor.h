@@ -2,8 +2,8 @@
 // Created by cc on 2020/3/31.
 //
 
-#ifndef QTALK_V2_WEBENGINEURLREQUESTINTERCEPTOR_H
-#define QTALK_V2_WEBENGINEURLREQUESTINTERCEPTOR_H
+#ifndef STALK_V2_WEBENGINEURLREQUESTINTERCEPTOR_H
+#define STALK_V2_WEBENGINEURLREQUESTINTERCEPTOR_H
 
 #include <QWebEngineUrlRequestInterceptor>
 #include <QObject>
@@ -12,7 +12,7 @@ class WebView;
 class WebEngineUrlRequestInterceptor : public QWebEngineUrlRequestInterceptor{
     Q_OBJECT
 public:
-    explicit WebEngineUrlRequestInterceptor(WebView* webView, QObject *parent = Q_NULLPTR);
+    explicit WebEngineUrlRequestInterceptor(WebView* webView, QObject *parent = nullptr);
     void interceptRequest(QWebEngineUrlRequestInfo &info);
 
 private:
@@ -20,4 +20,4 @@ private:
 };
 
 
-#endif //QTALK_V2_WEBENGINEURLREQUESTINTERCEPTOR_H
+#endif //STALK_V2_WEBENGINEURLREQUESTINTERCEPTOR_H

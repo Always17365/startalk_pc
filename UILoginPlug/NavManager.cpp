@@ -7,9 +7,10 @@
 #include <QDir>
 #include <QUrl>
 #include <QUrlQuery>
-#include "../CustomUi/QtMessageBox.h"
+#include "CustomUi/QtMessageBox.h"
 #include "LoginPanel.h"
-#include "../Platform/Platform.h"
+#include "DataCenter/Platform.h"
+#include "Util/ui/qconfig/qconfig.h"
 
 #define DEM_NAV_KEYS "navKeys"
 #define DEM_DEFAULT_KEY "defaultKey"
@@ -29,85 +30,26 @@ NavManager::NavManager(LoginPanel *loginPanel)
 
 void NavManager::initConfig()
 {
-    std::string configDirPath = PLAT.getConfigPath();
-//    std::string oldConfig = configDirPath + "/NavConf";
+    std::string configDirPath = DC.getConfigPath();
     std::string newConfig = configDirPath + "/NavConf.data";
-//    QFileInfo oldConfigInfo(oldConfig.data());
-//    bool initoldconfig = false;
-//    if (oldConfigInfo.exists() && (oldConfigInfo.size() > 0) && !QFile::exists(newConfig.data()))
-//    {
-//        auto* _pConfigloader = new QTalk::ConfigLoader(oldConfig.c_str());
-//        if(_pConfigloader->reload())
-//        {
-//            initoldconfig = true;
-//            // 读取配置文件
-//            QString keys = QString::fromStdString(_pConfigloader->getString(DEM_NAV_KEYS));
-//            // 读取配置
-//            _defaultKey = QString::fromStdString(_pConfigloader->getString(DEM_DEFAULT_KEY));
-//            QStringList keyList = keys.split(",");
-//
-//            for(const QString& key : keyList)
-//            {
-//                if(!_pConfigloader->hasKey(key.toStdString()))
-//                {
-//                    continue;
-//                }
-//
-//                std::string val = _pConfigloader->getString(key.toStdString());
-//                QUrl url(val.data());
-//
-//                QUrlQuery query(url);
-//
-//                StNav stNav;
-//                stNav.name = query.queryItemValue("n");
-//                stNav.domain = query.queryItemValue("d");
-//                stNav.debug = query.queryItemValue("debug") == "true";
-//                query.removeQueryItem("n");
-//                query.removeQueryItem("d");
-//                query.removeQueryItem("debug");
-//
-//                QString str = query.toString();
-//                stNav.url = url.toString().section("?", 0, 0);
-//                if (!str.isEmpty())
-//                    stNav.url += "?" + str;
-//
-//                _mapNav[stNav.name] = stNav;
-//            }
-//            // 保存旧配置
-//            saveConfig();
-//            // 删除旧配置文件
-//            QFile::remove(oldConfig.data());
-//        }
-//        else
-//        {
-////            if(_pConfigloader)
-////                delete _pConfigloader;
-//        }
-//    }
-    //
-//    if(!initoldconfig)
     {
-        auto *navConfig = new QTalk::StConfig;
+        auto *navConfig = new st::StConfig;
 
-        if(!QFile::exists(configDirPath.data()))
-        {
+        if (!QFile::exists(configDirPath.data())) {
             QDir dir;
             dir.mkpath(configDirPath.data());
         }
 
         //
-        if(QFile::exists(newConfig.data()))
-        {
-            QTalk::qConfig::loadConfig(newConfig.data(), false, navConfig);
+        if (QFile::exists(newConfig.data())) {
+            st::qConfig::loadConfig(newConfig.data(), false, navConfig);
 
-            if(navConfig->tagName == DEM_ROOT_TAG &&
-                    navConfig->hasAttribute(DEM_DEFAULT_KEY) &&
-                    !navConfig->children.empty())
-            {
+            if (navConfig->tagName == DEM_ROOT_TAG &&
+                navConfig->hasAttribute(DEM_DEFAULT_KEY) &&
+                !navConfig->children.empty()) {
                 _defaultKey = navConfig->attribute(DEM_DEFAULT_KEY);
 
-                for(const auto &item : navConfig->children)
-                {
+                for (const auto &item : navConfig->children) {
                     StNav stNav;
                     stNav.name = item->attribute("name");
                     stNav.domain = item->attribute("domain");
@@ -119,9 +61,7 @@ void NavManager::initConfig()
                 // delete
                 delete navConfig;
                 return;
-            }
-            else
-            {
+            } else {
                 qWarning() << "invalid nav config, --> delete it";
                 QFile::remove(configDirPath.data());
             }
@@ -168,8 +108,9 @@ void NavManager::initUi()
     _pNavView = new NavView(_mapNav, _defaultKey, this);
     mainLay->addWidget(_pNavView);
 
-    for (const StNav &nav  : _mapNav.values())
+    for (const StNav &nav  : _mapNav.values()) {
         emit _pNavView->addItemSignal(nav);
+    }
 
     // main
     auto *layout = new QVBoxLayout(_pCenternWgt);
@@ -179,15 +120,14 @@ void NavManager::initUi()
     layout->setSpacing(0);
     layout->setStretch(1, 1);
     // 关闭按钮
-    connect(_pCloseBtn, &QPushButton::clicked, [this](bool)
-    {
+    connect(_pCloseBtn, &QPushButton::clicked, this, [this](bool) {
         this->setVisible(false);
     });
     connect(_pNavView, &NavView::saveConfSignal, this, &NavManager::onSaveConf);
     connect(_pNavView, &NavView::addNavSinal, this, &NavManager::onAddNav);
-    connect(_pNavView, &NavView::sgNavChanged, this, &NavManager::onNavChanged, Qt::QueuedConnection);
-    connect(_pNavView, &NavView::sgClose, [this]()
-    {
+    connect(_pNavView, &NavView::sgNavChanged, this, &NavManager::onNavChanged,
+            Qt::QueuedConnection);
+    connect(_pNavView, &NavView::sgClose, this, [this]() {
         this->setVisible(false);
     });
     //
@@ -199,15 +139,15 @@ void NavManager::initUi()
  */
 void NavManager::saveConfig()
 {
-    std::string newConfig = PLAT.getConfigPath() + "/NavConf.data";
-    auto *navConfig = new QTalk::StConfig(DEM_ROOT_TAG);
+    std::string newConfig = DC.getConfigPath() + "/NavConf.data";
+    auto *navConfig = new st::StConfig(DEM_ROOT_TAG);
 
-    for(const StNav &nav : _mapNav.values())
-    {
-        if(nav.url.isEmpty() || nav.name.isEmpty() || nav.domain.isEmpty())
+    for (const StNav &nav : _mapNav.values()) {
+        if (nav.url.isEmpty() || nav.name.isEmpty() || nav.domain.isEmpty()) {
             continue;
+        }
 
-        auto *item = new QTalk::StConfig("item");
+        auto *item = new st::StConfig("item");
         item->setAttribute("name", nav.name);
         item->setAttribute("domain", nav.domain);
         item->setAttribute("url", nav.url);
@@ -216,13 +156,13 @@ void NavManager::saveConfig()
         navConfig->addChild(item);
     }
 
-    if(!navConfig->children.empty())
-    {
+    if (!navConfig->children.empty()) {
         navConfig->setAttribute(DEM_DEFAULT_KEY,
-                                _defaultKey.isEmpty() ?  navConfig->children[0]->attribute("name") : _defaultKey);
+                                _defaultKey.isEmpty() ?  navConfig->children[0]->attribute("name") :
+                                _defaultKey);
         navConfig->setAttribute(DEM_CONFIG_VERSION, 1);
         //
-        QTalk::qConfig::saveConfig(newConfig.data(), false, navConfig);
+        st::qConfig::saveConfig(newConfig.data(), false, navConfig);
     }
 
     delete navConfig;
@@ -234,8 +174,7 @@ void NavManager::saveConfig()
  */
 QString NavManager::getDefaultNavUrl()
 {
-    if(_mapNav.contains(_defaultKey))
-    {
+    if (_mapNav.contains(_defaultKey)) {
         StNav nav = _mapNav.value(_defaultKey);
         return nav.url;
     }
@@ -260,8 +199,9 @@ QString NavManager::getNavName()
     bool debug = _mapNav[_defaultKey].debug;
     QString ret = _mapNav[_defaultKey].domain;
 
-    if(debug)
+    if (debug) {
         ret += "_debug";
+    }
 
     return ret;
 }
@@ -272,15 +212,15 @@ QString NavManager::getNavName()
  * @param navAddr
  * @param isDebug
  */
-void NavManager::onAddNav(const QString &name, const QString &navAddr, const bool &isDebug)
+void NavManager::onAddNav(const QString &name, const QString &navAddr,
+                          const bool &isDebug)
 {
     const QString &addr = navAddr;
     QString domain = _pLoginPanel->getDomainByNav(addr);
 
-    if(domain.isEmpty())
-        QtMessageBox::warning(this, tr("警告"), tr("无效的导航地址"));
-    else
-    {
+    if (domain.isEmpty()) {
+        QtMessageBox::warning(this, QObject::tr("警告"), tr("无效的导航地址"));
+    } else {
         StNav nav;
         nav.name = name;
         nav.url = navAddr;
@@ -296,12 +236,12 @@ void NavManager::onAddNav(const QString &name, const QString &navAddr, const boo
 
 QString NavManager::getDefaultDomain()
 {
-    if(!_defaultKey.isEmpty() && _mapNav.contains(_defaultKey))
-    {
+    if (!_defaultKey.isEmpty() && _mapNav.contains(_defaultKey)) {
         QString tmp = _mapNav[_defaultKey].domain;
 
-        if(!tmp.isEmpty() && _mapNav[_defaultKey].debug)
+        if (!tmp.isEmpty() && _mapNav[_defaultKey].debug) {
             tmp += "_debug";
+        }
 
         return tmp;
     }
@@ -313,6 +253,7 @@ QString NavManager::getDefaultDomain()
 void NavManager::onNavChanged()
 {
     //
-    if(_pLoginPanel)
+    if (_pLoginPanel) {
         _pLoginPanel->loadConf();
+    }
 }

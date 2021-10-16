@@ -6,18 +6,17 @@
 #include <QFileInfo>
 #include <QPainter>
 #include <QPainterPath>
-#include "../UICom/qimage/qimage.h"
-#include "../UICom/StyleDefine.h"
+#include "Util/ui/qimage/qimage.h"
+#include "Util/ui/StyleDefine.h"
 
-EmoticonView::EmoticonView(QWidget* parent)
-    :QFrame(parent), _mov(nullptr), _width(0)
+EmoticonView::EmoticonView(QWidget *parent)
+    : QFrame(parent), _mov(nullptr), _width(0)
 {
     setFixedSize(120, 120);
     setFrameShape(QFrame::NoFrame);
     Qt::WindowFlags flags =  Qt::WindowDoesNotAcceptFocus | Qt::WindowContextHelpButtonHint | Qt::FramelessWindowHint
                              | Qt::WindowFullscreenButtonHint | Qt::WindowCloseButtonHint | Qt::WindowTitleHint |
                              Qt::X11BypassWindowManagerHint | Qt::WindowStaysOnTopHint;
-
 #if defined(_LINUX)
     flags |= Qt::Window;
 #else
@@ -31,7 +30,8 @@ EmoticonView::EmoticonView(QWidget* parent)
     setParent(nullptr);
 }
 
-EmoticonView::~EmoticonView() {
+EmoticonView::~EmoticonView()
+{
     if(_mov)
     {
         _mov->stop();
@@ -41,42 +41,43 @@ EmoticonView::~EmoticonView() {
 
 void EmoticonView::paintEvent(QPaintEvent *e)
 {
-    const int dpi = QTalk::qimage::dpi();
-
+    const int dpi = st::qimage::dpi();
     QPixmap pix;
+
     if(nullptr != _mov)
     {
         pix = _mov->currentPixmap();
+
         if(!pix.isNull())
-            pix = QTalk::qimage::scaledPixmap(pix, _width * dpi, _width * dpi);
+            pix = st::qimage::scaledPixmap(pix, _width * dpi, _width * dpi);
     }
+
     if(pix.isNull())
-        pix = QTalk::qimage::loadImage(_imagePath, false, true, _width * dpi, _width * dpi);
+        pix = st::qimage::loadImage(_imagePath, false, true, _width * dpi, _width * dpi);
 
     int w = pix.width() / dpi;
     int h = pix.height() / dpi;
-
     QPainter painter(this);
     QPainterPath path;
     QRect rect(0, 0, this->width(), this->height());
     path.addRoundedRect(rect, 6, 6);
-    painter.fillPath(path, QTalk::StyleDefine::instance().getNavNormalColor());
-	QPen pen;
-	pen.setColor(QColor(181, 181, 181));
-	pen.setWidthF(1.5);
+    painter.fillPath(path, st::StyleDefine::instance().getNavNormalColor());
+    QPen pen;
+    pen.setColor(QColor(181, 181, 181));
+    pen.setWidthF(1.5);
     painter.setPen(pen);
     painter.drawRoundedRect(rect, 6, 6);
     painter.setRenderHints(QPainter::Antialiasing, true);
     painter.setRenderHints(QPainter::SmoothPixmapTransform, true);
     painter.drawPixmap((width() - w) / 2, (height() - h) / 2, w, h, pix);
-
     QFrame::paintEvent(e);
 }
 
 void EmoticonView::setImagePath(const QString &imgPath)
 {
     _imagePath = imgPath;
-    QString suffix = QTalk::qimage::getRealImageSuffix(_imagePath);
+    QString suffix = st::qimage::getRealImageSuffix(_imagePath);
+
     if(suffix.toUpper() == "GIF")
     {
         if(nullptr == _mov)
@@ -87,8 +88,8 @@ void EmoticonView::setImagePath(const QString &imgPath)
         _mov->setFileName(imgPath);
         _mov->setSpeed(80);
         _mov->start();
-
-        connect(_mov, &QMovie::frameChanged, [this](int){
+        connect(_mov, &QMovie::frameChanged, this, [this](int)
+        {
             update();
         });
     }
@@ -102,15 +103,15 @@ void EmoticonView::setImagePath(const QString &imgPath)
         }
     }
 
-    QPixmap img = QTalk::qimage::loadImage(_imagePath, false);
+    QPixmap img = st::qimage::loadImage(_imagePath, false);
     _width = qMin((int)img.height(), (int)img.width());
     _width = qMin(100, _width);
-
     update();
 }
 
 
-void EmoticonView::releaseView() {
+void EmoticonView::releaseView()
+{
     if(nullptr != _mov)
     {
         _mov->stop();

@@ -3,9 +3,9 @@
 //
 
 #include "SearchItemDelegate.h"
-#include "../../UICom/qimage/qimage.h"
-#include "../../UICom/StyleDefine.h"
-#include "../../Platform/AppSetting.h"
+#include "Util/ui/qimage/qimage.h"
+#include "Util/ui/StyleDefine.h"
+#include "DataCenter/AppSetting.h"
 #include <QPainter>
 #include <QListView>
 
@@ -44,9 +44,9 @@ void MessageALlDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 
     QRect rect = option.rect;
     if (option.state & QStyle::State_Selected)
-        painter->fillRect(rect, QTalk::StyleDefine::instance().getSearchSelectColor());
+        painter->fillRect(rect, st::StyleDefine::instance().getSearchSelectColor());
     else
-        painter->fillRect(rect, QTalk::StyleDefine::instance().getSearchNormalColor());
+        painter->fillRect(rect, st::StyleDefine::instance().getSearchNormalColor());
 
     QString content = index.data(EM_DATA_TYPE_CONTENT).toString();
     if(EM_ITEM_TYPE_TIME == itemType)
@@ -61,7 +61,7 @@ void MessageALlDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         nameTime += index.data(EM_DATA_TYPE_STR_TIME).toString();
 
         int dir = index.data(EM_DATA_TYPE_DIRECTION).toInt();
-        QTalk::setPainterFont(painter, AppSetting::instance().getFontLevel(), 14);
+        st::setPainterFont(painter, AppSetting::instance().getFontLevel(), 14);
         painter->setPen(dir ? QColor(0,202,190) : QColor(155,155,155));
         painter->drawText(QRect(rect.x() + 20, rect.y() + 5, rect.width() - 40, 18), nameTime);
 
@@ -72,7 +72,7 @@ void MessageALlDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         {
             case EM_ITEM_TYPE_TEXT:
             {
-                QTalk::setPainterFont(painter, AppSetting::instance().getFontLevel(), 14);
+                st::setPainterFont(painter, AppSetting::instance().getFontLevel(), 14);
                 painter->setPen(QColor(51, 51, 51));
                 painter->drawText(conRect, content);
                 break;
@@ -87,8 +87,8 @@ void MessageALlDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
                 painter->setPen(QColor(237,238,237));
                 painter->drawRoundedRect(fileContentRect, 2, 2);
                 //
-                int dpi = QTalk::qimage::dpi();
-                QPixmap pixmap = QTalk::qimage::loadImage(fileIcon, false, true, 40 * dpi);
+                int dpi = st::qimage::dpi();
+                QPixmap pixmap = st::qimage::loadImage(fileIcon, false, true, 40 * dpi);
                 int w = pixmap.width() / dpi;
                 int h = pixmap.height() / dpi;
                 painter->drawPixmap((40 - w) / 2 + conRect.x() + 10,
@@ -160,15 +160,15 @@ void FileMessageDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
                 if(isHover)
                     painter->fillRect(conRect, QColor(242,242,242));
                 //
-                int dpi = QTalk::qimage::dpi();
-                QPixmap pixmap = QTalk::qimage::loadImage(fileIcon, false, true, 40 * dpi);
+                int dpi = st::qimage::dpi();
+                QPixmap pixmap = st::qimage::loadImage(fileIcon, false, true, 40 * dpi);
                 int w = pixmap.width() / dpi;
                 int h = pixmap.height() / dpi;
                 painter->drawPixmap((40 - w) / 2 + conRect.x() + 10,
                                     (40 - h) / 2 + conRect.y() + 10, w, h, pixmap);
                 //
                 painter->setPen(QColor(153,153,153));
-                QTalk::setPainterFont(painter, AppSetting::instance().getFontLevel());
+                st::setPainterFont(painter, AppSetting::instance().getFontLevel());
                 painter->drawText(conRect.x() + 10 + 40 + 10, conRect.bottom() - 10, fileSize);
                 //
                 painter->setPen(QColor(51, 51, 51));

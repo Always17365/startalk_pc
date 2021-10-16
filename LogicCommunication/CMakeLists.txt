@@ -1,10 +1,5 @@
 project(LogicCommunication)
 
-include_directories(.)
-include_directories(../include)
-include_directories(../QtUtils)
-include_directories(../QtUtil/Utils)
-
 if (APPLE)
     ADD_DEFINITIONS(-D_MACOS)
 elseif (UNIX)
@@ -39,8 +34,10 @@ set(SOURCE_FILES
         SearchManager.h
         UserConfig.cpp
         UserConfig.h
-        HotLinesConfig.h
-        HotLinesConfig.cpp)
+        http/HttpRequest.h
+        http/QtHttpRequest.cpp
+        http/QtHttpRequest.h
+        )
 
 set(LIBRARY_OUTPUT_PATH ../bin)
 set(CMAKE_DEBUG_POSTFIX "d")
@@ -48,22 +45,19 @@ set(CMAKE_DEBUG_POSTFIX "d")
 ADD_LIBRARY(${PROJECT_NAME} SHARED ${SOURCE_FILES})
 
 #添加链接库
+target_link_libraries(${PROJECT_NAME}
+        EventBus
+        Util
+        LogicManager
+        DataCenter)
 
 if (WIN32)
     target_link_libraries(${PROJECT_NAME}
-            EventBus
-            QtUtil
-            LogicManager
-            Platform
             libssl
             libcrypto
             libprotobuf)
 else ()
     target_link_libraries(${PROJECT_NAME}
-            EventBus
-            QtUtil
-            LogicManager
-            Platform
             ssl
             crypto
             protobuf)

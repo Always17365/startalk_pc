@@ -7,7 +7,6 @@
 #import <Foundation/Foundation.h>
 #include "ChatViewMainPanel.h"
 #include <QTimer>
-#import "../UICom/uicom.h"
 
 extern ChatViewMainPanel *g_pMainPanel;
 
@@ -20,20 +19,20 @@ void sendTextMessage(const std::string &text,
     if (g_pMainPanel && loginUser == g_pMainPanel->getSelfUserId()) {
         // 发送消息
         long long sendtime;
-        sendtime = QDateTime::currentDateTime().toMSecsSinceEpoch() - PLAT.getServerDiffTime() * 1000;
-        std::string msgId = QTalk::utils::getMessageId();
+        sendtime = QDateTime::currentDateTime().toMSecsSinceEpoch() - DC.getServerDiffTime() * 1000;
+        std::string msgId = st::utils::uuid();
 
-        QTalk::Entity::ImMessageInfo message;
+        st::entity::ImMessageInfo message;
         message.ChatType = chatType;
         message.MsgId = msgId;
         message.To = userId;
         message.RealJid = realJid;
         message.From = g_pMainPanel->getSelfUserId();
         message.LastUpdateTime = sendtime;
-        message.Type = QTalk::Entity::MessageTypeText;
+        message.Type = st::entity::MessageTypeText;
         message.Content = text;
-        message.Direction = QTalk::Entity::MessageDirectionSent;
-        message.UserName = PLAT.getSelfName();
+        message.Direction = st::entity::MessageDirectionSent;
+        message.UserName = DC.getSelfName();
 
         S_Message e;
         e.message = message;
@@ -59,7 +58,7 @@ void sendTextMessage(const std::string &text,
 
 @implementation MacNotification
 
-- (void)showNotification :(QTalk::StNotificationParam*)param {
+- (void)showNotification :(st::StNotificationParam*)param {
 
     NSString *title = [NSString stringWithUTF8String:param->title.data()];
 //    NSString *subTitle = [NSString stringWithUTF8String:param->subTitle];
@@ -173,7 +172,7 @@ void sendTextMessage(const std::string &text,
 
 @end
 
-namespace QTalk
+namespace st
 {
     namespace mac {
         void Notification::showNotification(StNotificationParam* param) {

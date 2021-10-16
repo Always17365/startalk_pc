@@ -4,38 +4,38 @@
 #include "DaoInterface.h"
 #include <vector>
 #include <memory>
-#include "../include/CommonStrcut.h"
+#include "include/CommonStrcut.h"
 
-namespace QTalk {
-    namespace Entity {
+namespace st {
+    namespace entity {
         struct ImUserInfo;
     }
 }
 
 class UserDao : public DaoInterface{
 public:
-    explicit UserDao(qtalk::sqlite::database *sqlDb = nullptr);
+    explicit UserDao(st::sqlite::database *sqlDb = nullptr);
     bool creatTable() override;
 
 public:
     bool getUserVersion(int &version);
 
-    bool insertUserInfo(const QTalk::Entity::ImUserInfo &userInfo);
+    bool insertUserInfo(const st::entity::ImUserInfo &userInfo);
 
-    bool bulkInsertUserInfo(const std::vector<QTalk::Entity::ImUserInfo> &userInfos);
+    bool bulkInsertUserInfo(const std::vector<st::entity::ImUserInfo> &userInfos);
 
     bool bulkDeleteUserInfo(const std::vector<std::string> &userIds);
 
-    std::shared_ptr<QTalk::Entity::ImUserInfo> getUserInfoByXmppId(const std::string &xmppid);
+    std::shared_ptr<st::entity::ImUserInfo> getUserInfoByXmppId(const std::string &xmppid);
 
-    bool setUserCardInfo(const std::vector<QTalk::StUserCard> &userInfos);
-
-    //
-    bool getUserCardInfos(const std::vector<std::string>& arUserIds, std::vector<QTalk::StUserCard> &userInfos);
-    bool getUserCardInfos(std::map<std::string, QTalk::StUserCard> &userInfos);
+    bool setUserCardInfo(const std::vector<st::StUserCard> &userInfos);
 
     //
-    bool getStructure(std::vector<std::shared_ptr<QTalk::Entity::ImUserInfo>> &structure);
+    bool getUserCardInfos(const std::vector<std::string>& arUserIds, std::vector<st::StUserCard> &userInfos);
+    bool getUserCardInfos(std::map<std::string, st::StUserCard> &userInfos);
+
+    //
+    bool getStructure(std::vector<std::shared_ptr<st::entity::ImUserInfo>> &structure);
 
     //
     bool getStructureCount(const std::string &strName, int &count);
@@ -44,7 +44,7 @@ public:
     bool getStructureMember(const std::string &strName, std::vector<std::string> &arMember);
 
 
-    void geContactsSession(std::vector<QTalk::StShareSession> &sessions);
+    void geContactsSession(std::vector<st::StShareSession> &sessions);
 
 public:
     bool addColumn_03();

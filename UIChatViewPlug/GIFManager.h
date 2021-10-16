@@ -2,14 +2,14 @@
 // Created by cc on 2019-07-12.
 //
 
-#ifndef QTALK_V2_GIFMANAGER_H
-#define QTALK_V2_GIFMANAGER_H
+#ifndef STALK_V2_GIFMANAGER_H
+#define STALK_V2_GIFMANAGER_H
 
 #include <QMap>
 #include <QObject>
 #include <QMovie>
 #include <QString>
-#include "../include/Spinlock.h"
+#include "Util/Spinlock.h"
 
 /**
 * @description: GIFManager
@@ -27,8 +27,8 @@ public:
 private:
 //    QMap<QString, QMovie*>      _mapMovie;
 //    QMap<QMovie*, int>          _movieCount;
-    QTalk::util::spin_mutex     sm;
+    st::util::spin_mutex     sm;
 };
 
 
-#endif //QTALK_V2_GIFMANAGER_H
+#endif //STALK_V2_GIFMANAGER_H

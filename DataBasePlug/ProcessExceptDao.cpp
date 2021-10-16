@@ -4,7 +4,7 @@
 
 #include "ProcessExceptDao.h"
 
-ProcessExceptDao::ProcessExceptDao(qtalk::sqlite::database *sqlDb)
+ProcessExceptDao::ProcessExceptDao(st::sqlite::database *sqlDb)
     : DaoInterface(sqlDb, "IM_PROCESS_EXCEPT") {
 }
 
@@ -17,7 +17,7 @@ bool ProcessExceptDao::creatTable() {
                       "`EXCEPT_TIME` INTEGER, "
                       "`EXCEPT_STACK` TEXT) ";
 
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
 
     return query.executeStep();
 }
@@ -27,7 +27,7 @@ void ProcessExceptDao::addExceptCpu(double cpu, long long time, const std::strin
 
     std::string sql = "INSERT INTO IM_PROCESS_EXCEPT (EXCEPT_TYPE, EXCEPT_NUM, EXCEPT_TIME, EXCEPT_STACK) VALUES "
                       "(\"CPU\", ?, ?, ?)";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     query.bind(1, (long)cpu);
     query.bind(2, time);
     query.bind(3, stack);

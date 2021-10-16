@@ -2,11 +2,11 @@
 // Created by lihaibin on 2019-06-26.
 //
 #include "QuickReplyDao.h"
-#include "../QtUtil/Utils/utils.h"
-#include "../QtUtil/Utils/Log.h"
-#include "../QtUtil/nJson/nJson.h"
+#include "Util/utils.h"
+#include "Util/Log.h"
+#include "Util/nJson/nJson.h"
 
-QuickReplyDao::QuickReplyDao(qtalk::sqlite::database *sqlDb) :
+QuickReplyDao::QuickReplyDao(st::sqlite::database *sqlDb) :
         DaoInterface(sqlDb, "IM_QUICK_REPLY_GROUP"){
 
 }
@@ -21,7 +21,7 @@ bool QuickReplyDao::creatTable() {
                       "`groupseq`	            INTEGER, "
                       "`version`	        INTEGER default 1, "
                       "PRIMARY KEY(`sid`) ) ";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
 
     std::string sql1 = "CREATE TABLE IF NOT EXISTS `IM_QUICK_REPLY_CONTENT` ( "
                        "`sid`	        Long, "
@@ -30,12 +30,12 @@ bool QuickReplyDao::creatTable() {
                        "`contentseq`	            INTEGER, "
                        "`version`	        INTEGER default 1, "
                        "PRIMARY KEY(`sid`,'gid') ) ";
-    qtalk::sqlite::statement query1(*_pSqlDb, sql1);
+    st::sqlite::statement query1(*_pSqlDb, sql1);
 
     bool result = query.executeStep() && query1.executeStep();
     if(result){
         std::string sql2 = "CREATE INDEX IF NOT EXISTS IX_IM_QUICK_REPLY_CONTENT_GID ON IM_QUICK_REPLY_CONTENT(gid);";
-        qtalk::sqlite::statement query2(*_pSqlDb, sql2);
+        st::sqlite::statement query2(*_pSqlDb, sql2);
         return result && query2.executeStep();
     } else{
         return result;
@@ -54,16 +54,16 @@ void QuickReplyDao::batchInsertQuickReply(const std::string & pData) {
         std::string sql = "insert or REPLACE into IM_QUICK_REPLY_GROUP(sid, groupname, groupseq, version) values(?, ?, ?, ?);";
         std::string deleteSql = "delete from IM_QUICK_REPLY_GROUP where sid = ?";
 
-        qtalk::sqlite::statement insertStatement(*_pSqlDb, sql);
+        st::sqlite::statement insertStatement(*_pSqlDb, sql);
 
-        qtalk::sqlite::statement deleteStatement(*_pSqlDb, deleteSql);
+        st::sqlite::statement deleteStatement(*_pSqlDb, deleteSql);
 
         std::string sql1 = "insert or REPLACE into IM_QUICK_REPLY_CONTENT(sid, gid, content, contentseq,version) values(?, ?, ?, ?,?);";
         std::string deleteSql1 = "delete from IM_QUICK_REPLY_CONTENT where sid = ?";
 
-        qtalk::sqlite::statement insertStatement1(*_pSqlDb, sql1);
+        st::sqlite::statement insertStatement1(*_pSqlDb, sql1);
 
-        qtalk::sqlite::statement deleteStatement1(*_pSqlDb, deleteSql1);
+        st::sqlite::statement deleteStatement1(*_pSqlDb, deleteSql1);
 
         nJson data = Json::get<nJson >(jsonObj, "data");
         nJson groupInfo = Json::get<nJson >(data, "groupInfo");
@@ -132,10 +132,10 @@ void QuickReplyDao::getQuickReplyVersion(QInt64 version[]) {
     QInt64 groupVersion = 0;
     QInt64 contentVersion = 0;
     std::string sql = "select max(version) from IM_QUICK_REPLY_GROUP;";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
 
     std::string sql1 = "select max(version) from IM_QUICK_REPLY_CONTENT;";
-    qtalk::sqlite::statement query1(*_pSqlDb, sql1);
+    st::sqlite::statement query1(*_pSqlDb, sql1);
     try {
         if (query.executeNext()) {
             groupVersion = query.getColumn(0).getInt64();
@@ -153,17 +153,17 @@ void QuickReplyDao::getQuickReplyVersion(QInt64 version[]) {
     version[1] = contentVersion;
 }
 
-void QuickReplyDao::getQuickGroups(std::vector<QTalk::Entity::ImQRgroup> &groups) {
+void QuickReplyDao::getQuickGroups(std::vector<st::entity::ImQRgroup> &groups) {
     if (!_pSqlDb) {
         return;
     }
 
     // 获取所有用户
     std::string sql = "SELECT `sid`,`groupname`,`groupseq`,`version` FROM IM_QUICK_REPLY_GROUP order by groupseq asc;";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     try {
         while (query.executeNext()) {
-            QTalk::Entity::ImQRgroup group;
+            st::entity::ImQRgroup group;
             group.sid = query.getColumn(0).getInt();
             group.groupname = query.getColumn(1).getString();
             group.groupseq = query.getColumn(2).getInt();
@@ -176,18 +176,18 @@ void QuickReplyDao::getQuickGroups(std::vector<QTalk::Entity::ImQRgroup> &groups
     }
 }
 
-void QuickReplyDao::getQuickContentByGroup(std::vector<QTalk::Entity::IMQRContent> &contents, int id) {
+void QuickReplyDao::getQuickContentByGroup(std::vector<st::entity::IMQRContent> &contents, int id) {
     if (!_pSqlDb) {
         return;
     }
 
     // 获取所有用户
     std::string sql = "SELECT `sid`,`gid`,`content`,`contentseq`,`version` FROM IM_QUICK_REPLY_CONTENT where gid = ? order by contentseq asc;";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     query.bind(1,id);
     try {
         while (query.executeNext()) {
-            QTalk::Entity::IMQRContent content;
+            st::entity::IMQRContent content;
             content.sid = query.getColumn(0).getInt();
             content.gid = query.getColumn(1).getInt();
             content.content = query.getColumn(2).getString();

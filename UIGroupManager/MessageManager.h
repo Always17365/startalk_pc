@@ -2,30 +2,30 @@
 // Created by cc on 18-11-11.
 //
 
-#ifndef QTALK_V2_MESSAGEMANAGER_H
-#define QTALK_V2_MESSAGEMANAGER_H
+#ifndef STALK_V2_MESSAGEMANAGER_H
+#define STALK_V2_MESSAGEMANAGER_H
 
 
-#include "../EventBus/Event.hpp"
+#include "EventBus/Event.hpp"
 #include <memory>
 #include <vector>
 #include <set>
-#include "../EventBus/EventHandler.hpp"
-#include "../entity/im_user.h"
-#include "../EventBus/HandlerRegistration.hpp"
-#include "../Message/LoginMessgae.h"
-#include "../Message/GroupMessage.h"
-#include "../Message/UserMessage.h"
+#include "EventBus/EventHandler.hpp"
+#include "entity/im_user.h"
+#include "EventBus/HandlerRegistration.hpp"
+#include "Message/LoginMessgae.h"
+#include "Message/GroupMessage.h"
+#include "Message/UserMessage.h"
 
 class GroupManagerMsgManager : public Object
  {
 public:
-    static void getStructure(std::vector<std::shared_ptr<QTalk::Entity::ImUserInfo>>& structure);
+    static void getStructure(std::vector<std::shared_ptr<st::entity::ImUserInfo>>& structure);
     static void getGroupMembers(std::map<std::string, std::set<std::string>>& structure);
     static void addGroupMember(const std::vector<std::string>& members, const std::string& groupId);
     static void creatGroup(const std::string& groupId, const std::string& groupName);
-    static void getUserInfo(std::shared_ptr<QTalk::Entity::ImUserInfo>& info);
-    static void getRecentSession(std::vector<QTalk::StShareSession> &ss);
+    static void getUserInfo(std::shared_ptr<st::entity::ImUserInfo>& info);
+    static void getRecentSession(std::vector<st::StShareSession> &ss);
 
 };
 
@@ -55,4 +55,4 @@ private:
 };
 
 
-#endif //QTALK_V2_MESSAGEMANAGER_H
+#endif //STALK_V2_MESSAGEMANAGER_H

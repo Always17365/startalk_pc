@@ -3,10 +3,10 @@
 
 #include <map>
 #include <vector>
-#include "../include/CommonStrcut.h"
-#include "../entity/im_user.h"
-#include "../entity/im_userSupplement.h"
-#include "../QtUtil/Entity/JID.h"
+#include "include/CommonStrcut.h"
+#include "entity/im_user.h"
+#include "entity/im_userSupplement.h"
+#include "Util/Entity/JID.h"
 
 typedef std::map<std::string, std::map<std::string, int>> UserCardParam; //<domain<userid, version>>
 
@@ -22,10 +22,10 @@ public:
 	bool getNewStructure(bool = false);
 //	bool getOldStructure();
 	//
-	bool getUserCard(const UserCardParam &param, std::vector<QTalk::StUserCard>& arUserInfo);
+	bool getUserCard(const UserCardParam &param, std::vector<st::StUserCard>& arUserInfo);
 
-	void getUserFullInfo(std::shared_ptr<QTalk::Entity::ImUserSupplement>& imUserSup,
-                         std::shared_ptr<QTalk::Entity::ImUserInfo>& userInfo);
+	void getUserFullInfo(std::shared_ptr<st::entity::ImUserSupplement>& imUserSup,
+                         std::shared_ptr<st::entity::ImUserInfo>& userInfo);
 
 	bool getPhoneNo(const std::string& userId, std::string& phoneNo);
 
@@ -33,8 +33,8 @@ public:
     void UpdateMood(const std::string& mood);
 
 private:
-//	bool getUserMood(QTalk::Entity::JID* jid, std::string& mood, int& version);
-	bool getUserSupplement(QTalk::Entity::JID *jid, std::shared_ptr<QTalk::Entity::ImUserSupplement>& imUserSup);
+//	bool getUserMood(st::Entity::JID* jid, std::string& mood, int& version);
+	bool getUserSupplement(st::entity::JID *jid, std::shared_ptr<st::entity::ImUserSupplement>& imUserSup);
 
 private:
 	Communication* _pComm;

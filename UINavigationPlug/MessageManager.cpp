@@ -1,12 +1,12 @@
 ﻿#include "MessageManager.h"
-#include "../Message/ChatMessage.h"
-#include "../EventBus/EventBus.h"
-#include "../Message/LoginMessgae.h"
+#include "Message/ChatMessage.h"
+#include "EventBus/EventBus.h"
+#include "Message/LoginMessgae.h"
 #include <QDebug>
-#include "../Message/StatusMessage.h"
-#include "../Message/UserMessage.h"
-#include "../QtUtil/Utils/Log.h"
-#include "../Platform/Platform.h"
+#include "Message/StatusMessage.h"
+#include "Message/UserMessage.h"
+#include "Util/Log.h"
+#include "DataCenter/Platform.h"
 #include "SessionFrm.h"
 
 
@@ -82,7 +82,7 @@ void NavigationMsgManager::setUserSetting(bool isSetting, const std::string &key
     EventBus::FireEvent(e);
 }
 
-void NavigationMsgManager::addEmptyMessage(const QTalk::Entity::ImMessageInfo &info)
+void NavigationMsgManager::addEmptyMessage(const st::entity::ImMessageInfo &info)
 {
     //
     EmptyMessageEvt evt(info);
@@ -234,7 +234,7 @@ void NavigationMsgListener::onEvent(UpdateGroupInfoRet &e)
 void NavigationMsgListener::onEvent(SignalReadState &e)
 {
     if (nullptr != _pMainPanel)
-        _pMainPanel->onUpdateReadedCount(QTalk::Entity::UID(e.userId, e.realJid), e.mapReadState.size());
+        _pMainPanel->onUpdateReadedCount(st::entity::UID(e.userId, e.realJid), e.mapReadState.size());
 }
 
 void NavigationMsgListener::onEvent(GroupReadState &e)
@@ -244,7 +244,7 @@ void NavigationMsgListener::onEvent(GroupReadState &e)
         auto it = e.mapReadCount.begin();
 
         for (; it != e.mapReadCount.end(); it++)
-            _pMainPanel->onUpdateReadedCount(QTalk::Entity::UID(it->first, it->first), it->second);
+            _pMainPanel->onUpdateReadedCount(st::entity::UID(it->first, it->first), it->second);
     }
 }
 
@@ -288,7 +288,7 @@ void NavigationMsgListener::onEvent(DestroyGroupRet &e)
 void NavigationMsgListener::onEvent(ChangeHeadRetMessage &e)
 {
     if (_pMainPanel && e.ret)
-        _pMainPanel->onGotUserCard(PLAT.getSelfXmppId().data());
+        _pMainPanel->onGotUserCard(DC.getSelfXmppId().data());
 }
 
 void NavigationMsgListener::onEvent(UserCardMessgae &e)
@@ -306,5 +306,5 @@ void NavigationMsgListener::onEvent(IncrementConfig &e)
 void NavigationMsgListener::onEvent(MStateEvt &e)
 {
     if (nullptr != _pMainPanel)
-        _pMainPanel->onGotMState(QTalk::Entity::UID(e.userId, e.realJid), e.messageId.data(), e.time);
+        _pMainPanel->onGotMState(st::entity::UID(e.userId, e.realJid), e.messageId.data(), e.time);
 }

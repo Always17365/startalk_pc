@@ -2,8 +2,8 @@
 // Created by cc on 19-1-9.
 //
 
-#ifndef QTALK_V2_ATMESSAGETIP_H
-#define QTALK_V2_ATMESSAGETIP_H
+#ifndef STALK_V2_ATMESSAGETIP_H
+#define STALK_V2_ATMESSAGETIP_H
 
 #include <QFrame>
 #include <QListWidget>
@@ -53,4 +53,4 @@ private:
 };
 
 
-#endif //QTALK_V2_ATMESSAGETIP_H
+#endif //STALK_V2_ATMESSAGETIP_H

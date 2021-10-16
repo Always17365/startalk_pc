@@ -1,5 +1,5 @@
 ﻿#include "SearchEdit.h"
-#include "../QtUtil/Utils/Log.h"
+#include "Util/Log.h"
 
 #include <QMouseEvent>
 #include <QDebug>
@@ -12,13 +12,10 @@ SearchEdit::SearchEdit(QWidget *parent) :
     _isEditing(false)
 {
     setObjectName("SearchEdit_");
-
     setFocusPolicy(Qt::ClickFocus);
 }
 
-SearchEdit::~SearchEdit()
-{
-}
+SearchEdit::~SearchEdit() = default;
 
 /**
   * @函数名
@@ -28,14 +25,14 @@ SearchEdit::~SearchEdit()
   */
 void SearchEdit::mousePressEvent(QMouseEvent *event)
 {
-
     if (!_isEditing)
     {
         _isEditing = true;
         emit sgIsOpenSearch(_isEditing);
     }
 
-    QTimer::singleShot(50, [this](){
+    QTimer::singleShot(50, [this]()
+    {
         QApplication::setActiveWindow(this);
         this->setFocus();
     });
@@ -45,7 +42,7 @@ void SearchEdit::mousePressEvent(QMouseEvent *event)
 /**
  *
  */
-void SearchEdit::keyPressEvent(QKeyEvent * e)
+void SearchEdit::keyPressEvent(QKeyEvent *e)
 {
     if(e->key() == Qt::Key_Up)
     {
@@ -58,9 +55,7 @@ void SearchEdit::keyPressEvent(QKeyEvent * e)
         e->accept();
     }
     else if(e->key() == Qt::Key_Enter || e->key() == Qt::Key_Return)
-    {
         emit sgSelectItem();
-    }
     else if(e->key() == Qt::Key_Escape)
     {
         emit sgKeyEsc();

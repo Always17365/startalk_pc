@@ -1,7 +1,5 @@
 project(LogicManager)
 
-include_directories(../QtUtil)
-
 #
 set(SOURCE_FILES
         LogicManager.cpp

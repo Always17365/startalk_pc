@@ -2,8 +2,8 @@
 // Created by cc on 19-1-6.
 //
 
-#ifndef QTALK_V2_GROUPMEMBERPOPWND_HPP
-#define QTALK_V2_GROUPMEMBERPOPWND_HPP
+#ifndef STALK_V2_GROUPMEMBERPOPWND_HPP
+#define STALK_V2_GROUPMEMBERPOPWND_HPP
 #if _MSC_VER >= 1600
     #pragma execution_character_set("utf-8")
 #endif
@@ -20,16 +20,15 @@
 #include <QHeaderView>
 #include <QPainterPath>
 #include "SearchEdit.hpp"
-#include "../include/Line.h"
+#include "CustomUi/Line.h"
 #include "customui_global.h"
 #include "UShadowWnd.h"
-#include "../QtUtil/Utils/Log.h"
-#include "../UICom/qimage/qimage.h"
-#include "../UICom/StyleDefine.h"
-#include "../Platform/AppSetting.h"
+#include "Util/Log.h"
+#include "Util/ui/qimage/qimage.h"
+#include "Util/ui/StyleDefine.h"
+#include "DataCenter/AppSetting.h"
 
-enum
-{
+enum {
     EM_DATA_XMPPID = Qt::UserRole + 1,
     EM_DATA_USERNAME,
     EM_DATA_USERHEAD,
@@ -38,8 +37,7 @@ enum
     EM_DATA_SEARCHKEY
 };
 
-enum
-{
+enum {
     EM_COLUMN_NAME,
     EM_COLUMN_ROLE
 };
@@ -47,25 +45,29 @@ enum
 class GroupItemPopSortModel : public QSortFilterProxyModel
 {
 public:
-    explicit GroupItemPopSortModel(QObject *parent = Q_NULLPTR)
+    explicit GroupItemPopSortModel(QObject *parent = nullptr)
         : QSortFilterProxyModel(parent)
     {
     }
 
 protected:
-    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override
+    bool lessThan(const QModelIndex &source_left,
+                  const QModelIndex &source_right) const override
     {
-        if (!source_left.isValid() || !source_right.isValid())
+        if (!source_left.isValid() || !source_right.isValid()) {
             return false;
+        }
 
         int leftRole = source_left.data(EM_DATA_USERROLE).toInt();
         int rightRole = source_right.data(EM_DATA_USERROLE).toInt();
         return leftRole < rightRole;
     }
     //
-    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override
+    bool filterAcceptsRow(int source_row,
+                          const QModelIndex &source_parent) const override
     {
-        QModelIndex index = sourceModel()->index(source_row, EM_COLUMN_NAME, source_parent);
+        QModelIndex index = sourceModel()->index(source_row, EM_COLUMN_NAME,
+                                                 source_parent);
         QString userId = index.data(EM_DATA_XMPPID).toString();
         userId = userId.section("@", 0, 0);
         bool ret = index.data(EM_DATA_USERNAME).toString().contains(filterRegExp()) ||
@@ -79,69 +81,68 @@ class GroupItemPopDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 public:
-    explicit GroupItemPopDelegate(QObject *parent = Q_NULLPTR)
+    explicit GroupItemPopDelegate(QObject *parent = nullptr)
         : QStyledItemDelegate(parent)
     {
     }
 
 protected:
     void paint(QPainter *painter,
-               const QStyleOptionViewItem &option, const QModelIndex &index) const Q_DECL_OVERRIDE
+               const QStyleOptionViewItem &option,
+               const QModelIndex &index) const Q_DECL_OVERRIDE
     {
         QStyledItemDelegate::paint(painter, option, index);
         painter->save();
         painter->setRenderHint(QPainter::TextAntialiasing);
-        painter->fillRect(option.rect, QTalk::StyleDefine::instance().getGroupCardGroupMemberNormalColor());
+        painter->fillRect(option.rect,
+                          st::StyleDefine::instance().getGroupCardGroupMemberNormalColor());
         QRect rect = option.rect;
 
-        if (index.column() == EM_COLUMN_NAME)
-        {
+        if (index.column() == EM_COLUMN_NAME) {
             QString strText = index.data(EM_DATA_USERNAME).toString();
-            painter->setPen(QTalk::StyleDefine::instance().getNavNameFontColor());
-            QTalk::setPainterFont(painter, AppSetting::instance().getFontLevel());
-            painter->drawText(QRect(rect.x() + 30, rect.y(), rect.width() - 30, rect.height()),
+            painter->setPen(st::StyleDefine::instance().getNavNameFontColor());
+            st::setPainterFont(painter, AppSetting::instance().getFontLevel());
+            painter->drawText(QRect(rect.x() + 30, rect.y(), rect.width() - 30,
+                                    rect.height()),
                               Qt::AlignVCenter, strText);
             QString headPath = index.data(EM_DATA_USERHEAD).toString();
-//            bool isOnline = index.data(EM_DATA_ISONLINE).toBool();
+            //            bool isOnline = index.data(EM_DATA_ISONLINE).toBool();
             painter->setRenderHints(QPainter::Antialiasing, true);
             QFileInfo headInfo(headPath);
 
-            if(!headInfo.exists() || headInfo.isDir())
+            if (!headInfo.exists() || headInfo.isDir()) {
                 headPath = ":/QTalk/image1/StarTalk_defaultHead.png";
+            }
 
-            if (!QFile(headPath).isOpen())
-            {
-                int dpi = QTalk::qimage::dpi();
-                QPixmap pixmap = QTalk::qimage::loadImage(headPath, true, true, 22 * dpi);
+            if (!QFile(headPath).isOpen()) {
+                int dpi = st::qimage::dpi();
+                QPixmap pixmap = st::qimage::loadImage(headPath, true, true, 22 * dpi);
                 QPainterPath path;
                 QRect headRect(rect.x(), rect.y() + 8, 22, 22);
                 path.addEllipse(headRect);
                 painter->setClipPath(path);
                 painter->drawPixmap(headRect, pixmap);
-                painter->fillPath(path, QTalk::StyleDefine::instance().getHeadPhotoMaskColor());
+                painter->fillPath(path, st::StyleDefine::instance().getHeadPhotoMaskColor());
             }
-        }
-        else if (index.column() == EM_COLUMN_ROLE)
-        {
+        } else if (index.column() == EM_COLUMN_ROLE) {
             int role = index.data(EM_DATA_USERROLE).toString().toInt();
             QString strRole = tr("");
 
-            switch (role)
-            {
-                case 1:
-                    strRole = tr("群主");
-                    break;
+            switch (role) {
+            case 1:
+                strRole = tr("群主");
+                break;
 
-                case 2:
-                    strRole = tr("管理员");
-                    break;
+            case 2:
+                strRole = tr("管理员");
+                break;
 
-                case 0:
-                default:
-                    break;
+            case 0:
+            default:
+                break;
             }
 
-            painter->setPen(QTalk::StyleDefine::instance().getNavNameFontColor());
+            painter->setPen(st::StyleDefine::instance().getNavNameFontColor());
             painter->drawText(rect, Qt::AlignVCenter, strRole);
         }
 
@@ -219,8 +220,10 @@ public:
         Lay->addWidget(topFrm);
         Lay->addWidget(searchFrm);
         this->setMoverAble(true, topFrm);
-        connect(_pCloseBtn, &QPushButton::clicked, this, &GroupMemberPopWnd::setVisible);
-        connect(_pSearchEdit, &Search_Edit::textChanged, this, &GroupMemberPopWnd::onSearch);
+        connect(_pCloseBtn, &QPushButton::clicked, this,
+                &GroupMemberPopWnd::setVisible);
+        connect(_pSearchEdit, &Search_Edit::textChanged, this,
+                &GroupMemberPopWnd::onSearch);
     }
     ~GroupMemberPopWnd() override
         = default;
@@ -232,12 +235,14 @@ public:
         arMembers.clear();
     }
 
-    void addItem(const QString &xmppId, const QString &name, const QString &headSrc, const int &userRole, const bool &isOnline, const QString &searchKey)
+    void addItem(const QString &xmppId, const QString &name, const QString &headSrc,
+                 const int &userRole, const bool &isOnline, const QString &searchKey)
     {
-        if(arMembers.contains(xmppId))
+        if (arMembers.contains(xmppId)) {
             return;
-        else
+        } else {
             arMembers.push_back(xmppId);
+        }
 
         QStandardItem *item = new QStandardItem;
         item->setData(xmppId, EM_DATA_XMPPID);
@@ -279,4 +284,4 @@ private:
 };
 
 
-#endif //QTALK_V2_GROUPMEMBERPOPWND_HPP
+#endif //STALK_V2_GROUPMEMBERPOPWND_HPP

@@ -4,17 +4,17 @@
 #include <vector>
 #include <set>
 #include "DaoInterface.h"
-#include "../include/CommonDefine.h"
-#include "../include/CommonStrcut.h"
+#include "include/CommonDefine.h"
+#include "include/CommonStrcut.h"
 
 class GroupMemberDao : public DaoInterface
 {
 public:
-	explicit GroupMemberDao(qtalk::sqlite::database *sqlDb);
+	explicit GroupMemberDao(st::sqlite::database *sqlDb);
 	bool creatTable() override;
 
 public:
-	bool getGroupMemberById(const std::string& groupId, std::map<std::string, QTalk::StUserCard>& member, std::map<std::string, QUInt8>& userRole);
+	bool getGroupMemberById(const std::string& groupId, std::map<std::string, st::StUserCard>& member, std::map<std::string, QUInt8>& userRole);
 
 	bool bulkInsertGroupMember(const std::string& groupId, const std::map<std::string, QUInt8>& member);
 

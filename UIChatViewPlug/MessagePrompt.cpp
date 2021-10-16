@@ -9,14 +9,14 @@
 #include <QLabel>
 #include <QFile>
 #include <QPropertyAnimation>
-#include "../CustomUi/HeadPhotoLab.h"
-#include "../Platform/Platform.h"
-#include "../Platform/dbPlatForm.h"
-#include "../QtUtil/Entity/JID.h"
-#include "../UICom/uicom.h"
+#include "CustomUi/HeadPhotoLab.h"
+#include "DataCenter/Platform.h"
+#include "DataCenter/dbPlatForm.h"
+#include "Util/Entity/JID.h"
+#include "Util/ui/uicom.h"
 
 extern ChatViewMainPanel *g_pMainPanel;
-MessagePrompt::MessagePrompt(const QTalk::Entity::ImMessageInfo& msg)
+MessagePrompt::MessagePrompt(const st::entity::ImMessageInfo& msg)
     : QFrame(nullptr), _msg(msg)
     , _timer(nullptr), animation(nullptr)
 {
@@ -93,11 +93,11 @@ void MessagePrompt::initUi()
     QString headPath = "";
 
     //
-	QTalk::Entity::JID jid(_msg.SendJid.data());
-    if(_msg.ChatType == QTalk::Enum::GroupChat)
+	st::entity::JID jid(_msg.SendJid.data());
+    if(_msg.ChatType == st::Enum::GroupChat)
     {
         //
-        std::shared_ptr<QTalk::Entity::ImGroupInfo> groupInfo = DB_PLAT.getGroupInfo(jid.basename(), true);
+        std::shared_ptr<st::entity::ImGroupInfo> groupInfo = DB_PLAT.getGroupInfo(jid.basename(), true);
         QString strHead = "";
         if(nullptr != groupInfo)
         {
@@ -107,7 +107,7 @@ void MessagePrompt::initUi()
 
         if(!strHead.isEmpty())
         {
-            headPath = QString::fromStdString(QTalk::GetHeadPathByUrl(strHead.toStdString()));
+            headPath = QString::fromStdString(st::GetHeadPathByUrl(strHead.toStdString()));
         }
         if(headPath.isEmpty() || !QFile::exists(headPath))
         {
@@ -118,24 +118,24 @@ void MessagePrompt::initUi()
 #endif
         }
     }
-    else if(_msg.ChatType == QTalk::Enum::System)
+    else if(_msg.ChatType == st::Enum::System)
     {
         headPath = ":/chatview/image1/system.png";
         _pLabelName->setText(tr("系统消息"));
     }
     else
     {
-        std::shared_ptr<QTalk::Entity::ImUserInfo> userInfo = DB_PLAT.getUserInfo(jid.basename());
+        std::shared_ptr<st::entity::ImUserInfo> userInfo = DB_PLAT.getUserInfo(jid.basename());
         QString strHead = "";
         if(nullptr != userInfo)
         {
-            _pLabelName->setText(QString::fromStdString(QTalk::getUserName(userInfo)));
+            _pLabelName->setText(QString::fromStdString(st::getUserName(userInfo)));
             strHead = QString::fromStdString(userInfo->HeaderSrc);
         }
 
         if(!strHead.isEmpty())
         {
-            headPath = QString::fromStdString(QTalk::GetHeadPathByUrl(strHead.toStdString()));
+            headPath = QString::fromStdString(st::GetHeadPathByUrl(strHead.toStdString()));
         }
         if(headPath.isEmpty() || !QFile::exists(headPath))
         {
@@ -202,56 +202,56 @@ void MessagePrompt::dealTimer() {
 QString MessagePrompt::dealMessageContent() {
 
     QString ret = "";
-    if (_msg.ChatType == QTalk::Enum::GroupChat && !_msg.UserName.empty()) {
+    if (_msg.ChatType == st::Enum::GroupChat && !_msg.UserName.empty()) {
         ret += QString(_msg.UserName.data()) + ": ";
     }
 
     switch (_msg.Type)
     {
 
-	case QTalk::Entity::MessageTypeFile:
+	case st::entity::MessageTypeFile:
 		ret += tr("[文件]");
 		break;
-    case QTalk::Entity::MessageTypePhoto:
+    case st::entity::MessageTypePhoto:
         ret += tr("[图片]");
         break;
-	case QTalk::Entity::MessageTypeImageNew:
+	case st::entity::MessageTypeImageNew:
 		ret += tr("[表情]");
 		break;
-    case QTalk::Entity::MessageTypeSmallVideo:
+    case st::entity::MessageTypeSmallVideo:
         ret += tr("[视频]");
         break;
-    case QTalk::Entity::WebRTC_MsgType_VideoCall:
+    case st::entity::WebRTC_MsgType_VideoCall:
         ret += tr("[实时视频]");
         break;
-    case QTalk::Entity::WebRTC_MsgType_AudioCall:
+    case st::entity::WebRTC_MsgType_AudioCall:
         ret += tr("[实时音频]");
         break;
-    case QTalk::Entity::WebRTC_MsgType_Video_Group:
+    case st::entity::WebRTC_MsgType_Video_Group:
         ret += tr("[群组视频]");
         break;
-	case QTalk::Entity::MessageTypeCommonTrdInfo:
-	case QTalk::Entity::MessageTypeCommonTrdInfoV2:
+	case st::entity::MessageTypeCommonTrdInfo:
+	case st::entity::MessageTypeCommonTrdInfoV2:
 		ret += tr("[链接卡片]");
 		break;
-    case QTalk::Entity::MessageTypeSourceCode:
+    case st::entity::MessageTypeSourceCode:
         ret += tr("[代码块]");
         break;
-    case QTalk::Entity::MessageTypeVoice:
+    case st::entity::MessageTypeVoice:
         ret += tr("[语音]");
         break;
-    case QTalk::Entity::MessageTypeProduct:
-    case QTalk::Entity::MessageTypeNote:
+    case st::entity::MessageTypeProduct:
+    case st::entity::MessageTypeNote:
         ret += tr("[产品详情]");
         break;
-    case QTalk::Entity::MessageTypeSystem:
+    case st::entity::MessageTypeSystem:
         ret += tr("[系统消息]");
         break;
-    case QTalk::Entity::MessageTypeNotice:
+    case st::entity::MessageTypeNotice:
         ret += tr("[公告消息]");
         break;
-     case QTalk::Entity::MessageTypeGrabMenuVcard:
-     case QTalk::Entity::MessageTypeGrabMenuResult:
+     case st::entity::MessageTypeGrabMenuVcard:
+     case st::entity::MessageTypeGrabMenuResult:
          ret += tr("[抢单消息]");
          break;
     case 65537:
@@ -259,9 +259,9 @@ QString MessagePrompt::dealMessageContent() {
         ret += tr("[热线提示信息]");
         break;
     default:
-    case QTalk::Entity::MessageTypeText:
-    case QTalk::Entity::MessageTypeGroupAt:
-    case QTalk::Entity::MessageTypeRobotAnswer:
+    case st::entity::MessageTypeText:
+    case st::entity::MessageTypeGroupAt:
+    case st::entity::MessageTypeRobotAnswer:
         {
             QString tmpContent = QString::fromStdString(_msg.Content).split("\n").first();
 
@@ -296,7 +296,7 @@ void MessagePrompt::mousePressEvent(QMouseEvent *e) {
 
     if(_pLabelName)
     {
-		QTalk::Entity::JID jid(_msg.SendJid.data());
+		st::entity::JID jid(_msg.SendJid.data());
         QString strName = _pLabelName->text();
         emit openChatWnd(_msg.ChatType, QString::fromStdString(jid.basename()),
                 QString::fromStdString(_msg.RealJid), _pLabelName->text(), g_pMainPanel->getSelfUserId().data());

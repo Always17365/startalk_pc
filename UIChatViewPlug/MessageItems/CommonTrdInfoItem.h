@@ -2,8 +2,8 @@
 // Created by admin on 2019-01-22.
 //
 
-#ifndef QTALK_V2_COMMONTRDINFOITEM_H
-#define QTALK_V2_COMMONTRDINFOITEM_H
+#ifndef STALK_V2_COMMONTRDINFOITEM_H
+#define STALK_V2_COMMONTRDINFOITEM_H
 
 #include "MessageItemBase.h"
 
@@ -26,7 +26,7 @@ class CommonTrdInfoItem : public MessageItemBase {
 
 Q_OBJECT
 public:
-    explicit CommonTrdInfoItem(const StNetMessageResult &msgInfo, QWidget *parent = Q_NULLPTR);
+    explicit CommonTrdInfoItem(const StNetMessageResult &msgInfo, QWidget *parent = nullptr);
 
 public:
     QSize itemWdtSize() override;
@@ -65,4 +65,4 @@ private:
 };
 
 
-#endif //QTALK_V2_COMMONTRDINFOITEM_H
+#endif //STALK_V2_COMMONTRDINFOITEM_H

@@ -2,19 +2,19 @@
 // Created by cc on 18-11-6.
 //
 
-#ifndef QTALK_V2_IM_USERSUPPLEMENT_H
-#define QTALK_V2_IM_USERSUPPLEMENT_H
+#ifndef STALK_V2_IM_USERSUPPLEMENT_H
+#define STALK_V2_IM_USERSUPPLEMENT_H
 
 #include <string>
-#include "../include/CommonDefine.h"
+#include "include/CommonDefine.h"
 
 /**
  * @brief
  * @author cc
  * @date 2018.11.06
  */
-namespace QTalk {
-    namespace Entity {
+namespace st {
+    namespace entity {
 
         struct ImUserSupplement
         {
@@ -43,4 +43,4 @@ namespace QTalk {
     }
 }
 
-#endif //QTALK_V2_IM_USERSUPPLEMENT_H
+#endif //STALK_V2_IM_USERSUPPLEMENT_H

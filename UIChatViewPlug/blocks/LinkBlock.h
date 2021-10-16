@@ -2,13 +2,13 @@
 // Created by cc on 19-2-19.
 //
 
-#ifndef QTALK_V2_LINKBLOCK_H
-#define QTALK_V2_LINKBLOCK_H
+#ifndef STALK_V2_LINKBLOCK_H
+#define STALK_V2_LINKBLOCK_H
 
 #include <QObject>
 #include <QTextObjectInterface>
 #include <QPainter>
-#include "../../UICom/qimage/qimage.h"
+#include "Util/ui/qimage/qimage.h"
 
 enum {
     linkPropertyLink = QTextFormat::UserProperty + 1,
@@ -50,4 +50,4 @@ public:
     }
 };
 
-#endif //QTALK_V2_LINKBLOCK_H
+#endif //STALK_V2_LINKBLOCK_H

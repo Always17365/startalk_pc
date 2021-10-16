@@ -5,8 +5,8 @@
 #pragma execution_character_set("utf-8")
 #endif
 
-#ifndef QTALK_V2_USERCARD_H
-#define QTALK_V2_USERCARD_H
+#ifndef STALK_V2_USERCARD_H
+#define STALK_V2_USERCARD_H
 
 #include <QWidget>
 #include <memory>
@@ -16,12 +16,12 @@
 #include <QAction>
 #include <QHBoxLayout>
 #include <set>
-#include "../CustomUi/UShadowWnd.h"
-#include "../entity/im_userSupplement.h"
-#include "../CustomUi/TextEdit.h"
-#include "../entity/im_user.h"
-#include "../include/CommonStrcut.h"
-#include "../CustomUi/MedalWgt.h"
+#include "CustomUi/UShadowWnd.h"
+#include "entity/im_userSupplement.h"
+#include "CustomUi/TextEdit.h"
+#include "entity/im_user.h"
+#include "include/CommonStrcut.h"
+#include "CustomUi/MedalWgt.h"
 #include "medal/UserMedalWnd.h"
 #include "medal/MedalDetailWnd.h"
 #include "medal/UserListWnd.h"
@@ -82,11 +82,11 @@ Q_SIGNALS:
 	void sgJumpToStructre(const QString&);
 
 public:
-    bool showUserCard(std::shared_ptr<QTalk::Entity::ImUserSupplement> imuserSup,
-                      std::shared_ptr<QTalk::Entity::ImUserInfo> userInfo);
+    bool showUserCard(std::shared_ptr<st::entity::ImUserSupplement> imuserSup,
+                      std::shared_ptr<st::entity::ImUserInfo> userInfo);
     void setMaskName(const QString& maskName);
 	void setFlags(int flags);
-	void showMedal(const std::set<QTalk::StUserMedal> &user_medal);
+	void showMedal(const std::set<st::StUserMedal> &user_medal);
 
 protected:
     void initUi();
@@ -107,7 +107,7 @@ protected slots:
     void gotPhoneNo(const std::string& userId, const std::string& phoneNo);
     void onShowUserMedalDetail();
     void onShowMedalDetail(int id);
-    void onShowUserList(const std::vector<QTalk::StMedalUser>&);
+    void onShowUserList(const std::vector<st::StMedalUser>&);
     void modifyUserMedalStatus(int id, bool isWear);
 
 private:
@@ -162,7 +162,7 @@ private:
     bool        _isSelf;
 	QMutex      _mutex;
 
-    std::set<QTalk::StUserMedal> _user_medal;
+    std::set<st::StUserMedal> _user_medal;
 private:
     enum
     {
@@ -187,4 +187,4 @@ public:
 };
 
 
-#endif //QTALK_V2_USERCARD_H
+#endif //STALK_V2_USERCARD_H

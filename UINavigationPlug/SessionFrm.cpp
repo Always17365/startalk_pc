@@ -11,24 +11,24 @@
 #include <QtConcurrent>
 #include <QFileInfo>
 #include <QPushButton>
-#include "../CustomUi/HeadPhotoLab.h"
-#include "../CustomUi/UCButton.h"
-#include "../UICom/UIEntity.h"
-#include "../Message/ChatMessage.h"
-#include "../Platform/Platform.h"
+#include "CustomUi/HeadPhotoLab.h"
+#include "CustomUi/UCButton.h"
+#include "entity/UIEntity.h"
+#include "Message/ChatMessage.h"
+#include "DataCenter/Platform.h"
 #include "SessionitemDelegate.h"
-#include "../QtUtil/Entity/JID.h"
-#include "../QtUtil/Utils/Log.h"
-#include "../QtUtil/Utils/utils.h"
-#include "../Platform/dbPlatForm.h"
-#include "../include/perfcounter.h"
-#include "../CustomUi/QtMessageBox.h"
-#include "../include/Line.h"
+#include "Util/Entity/JID.h"
+#include "Util/Log.h"
+#include "Util/utils.h"
+#include "DataCenter/dbPlatForm.h"
+#include "Util/perfcounter.h"
+#include "CustomUi/QtMessageBox.h"
+#include "CustomUi/Line.h"
 
 #define SYSTEM_XMPPID "SystemMessage"
 #define SYSTEM_NAME "系统消息"
 
-using namespace QTalk::Entity;
+using namespace st::entity;
 
 SessionFrm::SessionFrm(QWidget *parent) : QFrame(parent)
 {
@@ -135,8 +135,8 @@ void SessionFrm::connects()
     connect(_quitGroupAct, &QAction::triggered, this, &SessionFrm::onQuitGroupAct);
     //
     qRegisterMetaType<ReceiveSession>("ReceiveSession");
-    qRegisterMetaType<QTalk::Entity::UID>("QTalk::Entity::UID");
-    qRegisterMetaType<QTalk::StGroupInfo>("QTalk::StGroupInfo");
+    qRegisterMetaType<st::entity::UID>("st::entity::UID");
+    qRegisterMetaType<st::StGroupInfo>("st::StGroupInfo");
     qRegisterMetaType<StSessionInfo>("StSessionInfo");
     connect(this, &SessionFrm::sgReceiveSession, this,
             &SessionFrm::onReceiveSession);
@@ -205,13 +205,13 @@ void SessionFrm::onReceiveSession(const ReceiveSession &mess, bool isSend)
 
         if (mess.sendJid != _strSelfId.data()) {
             if (notCurItem) {
-                if (mess.chatType == QTalk::Enum::GroupChat) {
+                if (mess.chatType == st::Enum::GroupChat) {
                     unsigned int atCount = item->data(ITEM_DATATYPE_ATCOUNT).toUInt();
 
                     if (mess.messageContent.contains("@all")) {
                         atCount |= 0x000F;
                     } else if (mess.messageContent.contains(
-                                   QString("@%1").arg(PLAT.getSelfName().data()))) {
+                                   QString("@%1").arg(DC.getSelfName().data()))) {
                         atCount |= 0x00F0;
                     }
 
@@ -228,15 +228,15 @@ void SessionFrm::onReceiveSession(const ReceiveSession &mess, bool isSend)
         sessionName = item->data(ITEM_DATATYPE_USERNAME).toString();
     } else {
         QString headPath;
-        QTalk::Entity::JID jid(userId.toStdString());
+        st::entity::JID jid(userId.toStdString());
         bool noLocalHead = true;
 
-        if (mess.chatType == QTalk::Enum::GroupChat) {
-            std::shared_ptr<QTalk::Entity::ImGroupInfo> groupInfo =
+        if (mess.chatType == st::Enum::GroupChat) {
+            std::shared_ptr<st::entity::ImGroupInfo> groupInfo =
                 DB_PLAT.getGroupInfo(userId.toStdString(), true);
 
             if (groupInfo) {
-                headPath = QTalk::GetHeadPathByUrl(groupInfo->HeaderSrc).data();
+                headPath = st::GetHeadPathByUrl(groupInfo->HeaderSrc).data();
                 QFileInfo headfile(headPath);
                 noLocalHead = !headfile.isFile() || !headfile.exists();
 
@@ -251,7 +251,7 @@ void SessionFrm::onReceiveSession(const ReceiveSession &mess, bool isSend)
 
             if (userInfo) {
                 if (!userInfo->HeaderSrc.empty()) {
-                    headPath = QTalk::GetHeadPathByUrl(userInfo->HeaderSrc).data();
+                    headPath = st::GetHeadPathByUrl(userInfo->HeaderSrc).data();
                     QFileInfo headfile(headPath);
                     noLocalHead = !headfile.isFile() || !headfile.exists();
                 }
@@ -278,7 +278,7 @@ void SessionFrm::onReceiveSession(const ReceiveSession &mess, bool isSend)
             sessionName = tr(SYSTEM_NAME);
             item->setData(":/UINavigationPlug/image1/system.png", ITEM_DATATYPE_HEADPATH);
         } else {
-            sessionName = getUserName(id, mess.chatType == QTalk::Enum::GroupChat);
+            sessionName = getUserName(id, mess.chatType == st::Enum::GroupChat);
             item->setData(headPath, ITEM_DATATYPE_HEADPATH);
             item->setToolTip(sessionName);
         }
@@ -307,12 +307,12 @@ void SessionFrm::onReceiveSession(const ReceiveSession &mess, bool isSend)
 
     QString userName;
 
-    if (mess.chatType == QTalk::Enum::GroupChat) {
-        userName = QString::fromStdString(QTalk::getUserName(
+    if (mess.chatType == st::Enum::GroupChat) {
+        userName = QString::fromStdString(st::getUserName(
                                               mess.sendJid.toStdString()));
     }
 
-    if (mess.messtype == QTalk::Entity::MessageTypeShock
+    if (mess.messtype == st::entity::MessageTypeShock
         && _strSelfId.data() != mess.sendJid) {
         item->setData(true, ITEM_DATATYPE_QQQ);
     }
@@ -348,7 +348,7 @@ void SessionFrm::onloadSessionData()
                 const std::string &xmppId = it->first;
                 UID uid(xmppId);
                 auto itFind = std::find_if(pSessions->begin(), pSessions->end(),
-                [uid](const std::shared_ptr<QTalk::Entity::ImSessionInfo> &session) {
+                [uid](const std::shared_ptr<st::entity::ImSessionInfo> &session) {
                     return session->XmppId == uid.usrId();
                 });
 
@@ -358,8 +358,8 @@ void SessionFrm::onloadSessionData()
 
                     if (jsoErr.error == QJsonParseError::NoError) {
                         QJsonObject obj = jsoDoc.object();
-                        std::shared_ptr<QTalk::Entity::ImSessionInfo> session(new
-                                                                              QTalk::Entity::ImSessionInfo);
+                        std::shared_ptr<st::entity::ImSessionInfo> session(new
+                                                                              st::entity::ImSessionInfo);
                         session->XmppId = uid.usrId();
                         session->RealJid = uid.realId();
                         session->ChatType = obj.value("chatType").toInt(); //
@@ -378,12 +378,12 @@ void SessionFrm::onloadSessionData()
             QString headPath;
             bool noLocalHead = true;
 
-            if (sessionInfo->ChatType == QTalk::Enum::GroupChat) {
-                std::shared_ptr<QTalk::Entity::ImGroupInfo> groupInfo =
+            if (sessionInfo->ChatType == st::Enum::GroupChat) {
+                std::shared_ptr<st::entity::ImGroupInfo> groupInfo =
                     DB_PLAT.getGroupInfo(sessionInfo->XmppId);
 
                 if (groupInfo) {
-                    headPath = QTalk::GetHeadPathByUrl(groupInfo->HeaderSrc).data();
+                    headPath = st::GetHeadPathByUrl(groupInfo->HeaderSrc).data();
                     QFileInfo headfile(headPath);
                     noLocalHead = !headfile.isFile() || !headfile.exists();
 
@@ -396,7 +396,7 @@ void SessionFrm::onloadSessionData()
 
                 if (userInfo) {
                     if (!userInfo->HeaderSrc.empty()) {
-                        headPath = QTalk::GetHeadPathByUrl(userInfo->HeaderSrc).data();
+                        headPath = st::GetHeadPathByUrl(userInfo->HeaderSrc).data();
                         QFileInfo headfile(headPath);
                         noLocalHead = !headfile.isFile() || !headfile.exists();
                     }
@@ -416,7 +416,7 @@ void SessionFrm::onloadSessionData()
             } else {
                 item = new QStandardItem;
 
-                if (sessionInfo->ChatType == QTalk::Enum::GroupChat) {
+                if (sessionInfo->ChatType == st::Enum::GroupChat) {
                     item->setData(0, ITEM_DATATYPE_ATCOUNT);
                 }
             }
@@ -436,12 +436,12 @@ void SessionFrm::onloadSessionData()
                           ITEM_DATATYPE_LAST_MESSAGE_ID);
             QString sessionName;
 
-            if (SYSTEM_XMPPID == QTalk::Entity::JID(sessionInfo->XmppId).username()) {
+            if (SYSTEM_XMPPID == st::entity::JID(sessionInfo->XmppId).username()) {
                 sessionName = tr(SYSTEM_NAME);
                 item->setData(":/UINavigationPlug/image1/system.png", ITEM_DATATYPE_HEADPATH);
             } else {
                 sessionName = getUserName(xmppId,
-                                          sessionInfo->ChatType == QTalk::Enum::GroupChat);
+                                          sessionInfo->ChatType == st::Enum::GroupChat);
                 item->setData(headPath, ITEM_DATATYPE_HEADPATH);
             }
 
@@ -457,8 +457,8 @@ void SessionFrm::onloadSessionData()
             {
                 QString userName;
 
-                if (sessionInfo->ChatType == QTalk::Enum::GroupChat) {
-                    userName = QString::fromStdString(QTalk::getUserName(sessionInfo->UserId));
+                if (sessionInfo->ChatType == st::Enum::GroupChat) {
+                    userName = QString::fromStdString(st::getUserName(sessionInfo->UserId));
                 }
 
                 item->setData(GenerateContent(QString::fromStdString(sessionInfo->Content),
@@ -489,7 +489,7 @@ void SessionFrm::onloadSessionData()
                           withoutGroupHeadGroups);
     }
 
-    _strSelfId = PLAT.getSelfXmppId();
+    _strSelfId = DC.getSelfXmppId();
     // sort
     sortAndFilterView();
     //
@@ -528,7 +528,7 @@ void SessionFrm::onItemSelectChanged(const QModelIndex &index)
     }
 
     if (sessionInfo.userName.isEmpty()) {
-        sessionInfo.userName = QTalk::getGroupName(
+        sessionInfo.userName = st::getGroupName(
                                    sessionInfo.userId.toStdString()).data();
         _sessionMap[uid]->setData(sessionInfo.userName, ITEM_DATATYPE_USERNAME);
     }
@@ -538,7 +538,7 @@ void SessionFrm::onItemSelectChanged(const QModelIndex &index)
     {
         _sessionMap[uid]->setData(false, ITEM_DATATYPE_QQQ);
     }
-    //if (sessionInfo.chatType != QTalk::Enum::GroupChat) {
+    //if (sessionInfo.chatType != st::Enum::GroupChat) {
     unsigned int count = _sessionMap[uid]->data(ITEM_DATATYPE_UNREADCOUNT).toUInt();
     _sessionMap[uid]->setData(0, ITEM_DATATYPE_UNREADCOUNT);
     bool unNotice = _mapNotice.find(sessionInfo.userId.toStdString()) !=
@@ -552,12 +552,12 @@ void SessionFrm::onItemSelectChanged(const QModelIndex &index)
 
     _sessionMap[uid]->setData(0, ITEM_DATATYPE_ATCOUNT);
     QtConcurrent::run([sessionInfo, index, count]() {
-        if (sessionInfo.chatType != QTalk::Enum::GroupChat) {
+        if (sessionInfo.chatType != st::Enum::GroupChat) {
             NavigationMsgManager::sendGetUserStatus(sessionInfo.realJid.toStdString());
         }
 
         if (count > 0) {
-            //if(sessionInfo.chatType == QTalk::Enum::TwoPersonChat)
+            //if(sessionInfo.chatType == st::Enum::TwoPersonChat)
             {
                 // 发送消息已读
                 QString messageId = index.data(ITEM_DATATYPE_LAST_MESSAGE_ID).toString();
@@ -603,7 +603,7 @@ void SessionFrm::onDownLoadGroupHeadPhotosFinish()
   */
 void SessionFrm::onUpdateOnline()
 {
-    if (!PLAT.isMainThread()) {
+    if (!DC.isMainThread()) {
         emit sgUpdateOnline();
         return;
     }
@@ -624,7 +624,7 @@ void SessionFrm::onUpdateOnline()
   */
 void SessionFrm::onUpdateOnlineUsers(const QString &id)
 {
-    if (!PLAT.isMainThread()) {
+    if (!DC.isMainThread()) {
         emit sgUpdateOnlineUsers(id);
         return;
     }
@@ -645,9 +645,9 @@ void SessionFrm::onNewSession(const StSessionInfo &info)
     mess.xmppId = info.userId;
 
     if (DB_PLAT.isHotLine(mess.xmppId.toStdString())) {
-        mess.chatType = QTalk::Enum::Consult;
+        mess.chatType = st::Enum::Consult;
     } else {
-        mess.chatType = (QTalk::Enum::ChatType)info.chatType;
+        mess.chatType = (st::Enum::ChatType)info.chatType;
     }
 
     mess.realJid = info.realJid.isEmpty() ? info.userId : info.realJid;
@@ -661,12 +661,12 @@ void SessionFrm::onNewSession(const StSessionInfo &info)
         mess.messageRecvTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
         mess.messageId = item->data(ITEM_DATATYPE_LAST_MESSAGE_ID).toString();
     } else {
-        std::string messagedId = QTalk::utils::getMessageId();
+        std::string messagedId = st::utils::uuid();
         mess.messageContent = "";
         mess.messageRecvTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
         mess.messageId = QString::fromStdString(messagedId);
         //
-        QTalk::Entity::ImMessageInfo msgInfo;
+        st::entity::ImMessageInfo msgInfo;
         msgInfo.MsgId = messagedId;
         msgInfo.XmppId = uid.usrId();
         msgInfo.RealJid = uid.realId();
@@ -675,9 +675,9 @@ void SessionFrm::onNewSession(const StSessionInfo &info)
         msgInfo.From = _strSelfId;
         msgInfo.To = uid.usrId();
         msgInfo.Content = "";
-        msgInfo.Type = QTalk::Entity::MessageTypeEmpty;
+        msgInfo.Type = st::entity::MessageTypeEmpty;
         msgInfo.State = 1;
-        msgInfo.Direction = QTalk::Entity::MessageDirectionSent;
+        msgInfo.Direction = st::entity::MessageDirectionSent;
         msgInfo.LastUpdateTime = mess.messageRecvTime;
         msgInfo.SendJid = _strSelfId;
         NavigationMsgManager::addEmptyMessage(msgInfo);
@@ -699,7 +699,7 @@ void SessionFrm::onNewSession(const StSessionInfo &info)
 //  */
 //void SessionFrm::GenerateHeadPhotoName(QString &photosrc)
 //{
-//    std::string tmpPath = QTalk::GetFileNameByUrl(photosrc.toStdString());
+//    std::string tmpPath = st::GetFileNameByUrl(photosrc.toStdString());
 //    photosrc = tmpPath.data();
 //    Q_ASSERT(!photosrc.startsWith("http"));
 //}
@@ -710,20 +710,20 @@ void SessionFrm::onNewSession(const StSessionInfo &info)
   * @author cc
   * @date 2018.10.15
   */
-void SessionFrm::setUserStatus(const QTalk::Entity::UID &uid, bool)
+void SessionFrm::setUserStatus(const st::entity::UID &uid, bool)
 {
     QStandardItem *item = _sessionMap.value(uid);
 
     if (nullptr != item) {
         auto chatType = item->data(ITEM_DATATYPE_CHATTYPE).toInt();
 
-        if (chatType == QTalk::Enum::GroupChat) {
+        if (chatType == st::Enum::GroupChat) {
             item->setData(true, ITEM_DATATYPE_ISONLINE);
             return;
         }
 
         {
-            QTalk::Entity::JID jid(uid.usrId());
+            st::entity::JID jid(uid.usrId());
 
             if (jid.username() == SYSTEM_XMPPID) {
                 item->setData(true, ITEM_DATATYPE_ISONLINE);
@@ -736,7 +736,7 @@ void SessionFrm::setUserStatus(const QTalk::Entity::UID &uid, bool)
             return;
         }
 
-        bool isOnline = PLAT.isOnline(uid.realId());
+        bool isOnline = DC.isOnline(uid.realId());
         item->setData(isOnline, ITEM_DATATYPE_ISONLINE);
     }
 }
@@ -760,9 +760,9 @@ bool SessionFrm::eventFilter(QObject *o, QEvent *e)
                                 ITEM_DATATYPE_UNNOTICE).toBool();
             _toTopOrCancelTopAct->setText(isTop ? tr("取消置顶") : tr("会话置顶"));
             _noticeAct->setText(unNotice ? tr("取消免打扰") : tr("消息免打扰"));
-            _quitGroupAct->setVisible(chatType == QTalk::Enum::GroupChat);
+            _quitGroupAct->setVisible(chatType == st::Enum::GroupChat);
 
-            if (chatType == QTalk::Enum::GroupChat) {
+            if (chatType == st::Enum::GroupChat) {
                 _starAct->setVisible(false);
                 _blackAct->setVisible(false);
             } else {
@@ -816,9 +816,9 @@ bool SessionFrm::event(QEvent *e)
  * @brief SessionFrm::onUpdateGroupInfo
  * @param gInfo
  */
-void SessionFrm::onUpdateGroupInfo(const QTalk::StGroupInfo &gInfo)
+void SessionFrm::onUpdateGroupInfo(const st::StGroupInfo &gInfo)
 {
-    if (!PLAT.isMainThread()) {
+    if (!DC.isMainThread()) {
         emit updateGroupInfoSignal(gInfo);
         return;
     }
@@ -838,7 +838,7 @@ void SessionFrm::onUpdateGroupInfo(const QTalk::StGroupInfo &gInfo)
         if (!name.isEmpty()) {
             item->setData(name, ITEM_DATATYPE_USERNAME);
             item->setToolTip(name);
-            item->setData(QTalk::GetHeadPathByUrl(info->HeaderSrc).data(),
+            item->setData(st::GetHeadPathByUrl(info->HeaderSrc).data(),
                           ITEM_DATATYPE_HEADPATH);
         }
     }
@@ -858,68 +858,68 @@ QString SessionFrm::GenerateContent(const QString &content,
 {
     QString ret = "";
 
-    if (chatType == QTalk::Enum::GroupChat && !userName.isEmpty()
-        && msgType != QTalk::Entity::MessageTypeGroupNotify) {
+    if (chatType == st::Enum::GroupChat && !userName.isEmpty()
+        && msgType != st::entity::MessageTypeGroupNotify) {
         ret += userName + ":";
     }
 
     switch (msgType) {
-    case QTalk::Entity::MessageTypePhoto:
+    case st::entity::MessageTypePhoto:
         ret += tr("[图片]");
         break;
 
-    case QTalk::Entity::MessageTypeImageNew:
+    case st::entity::MessageTypeImageNew:
         ret += tr("[表情]");
         break;
 
-    case QTalk::Entity::MessageTypeFile:
+    case st::entity::MessageTypeFile:
         ret += tr("[文件]");
         break;
 
-    case QTalk::Entity::MessageTypeCommonTrdInfo:
-    case QTalk::Entity::MessageTypeCommonTrdInfoV2:
+    case st::entity::MessageTypeCommonTrdInfo:
+    case st::entity::MessageTypeCommonTrdInfoV2:
         ret += tr("[链接卡片]");
         break;
 
-    case QTalk::Entity::MessageTypeSourceCode:
+    case st::entity::MessageTypeSourceCode:
         ret += tr("[代码块]");
         break;
 
-    case QTalk::Entity::MessageTypeSmallVideo:
+    case st::entity::MessageTypeSmallVideo:
         ret += tr("[视频]");
         break;
 
-    case QTalk::Entity::WebRTC_MsgType_VideoCall:
+    case st::entity::WebRTC_MsgType_VideoCall:
         ret += tr("[实时视频]");
         break;
 
-    case QTalk::Entity::WebRTC_MsgType_AudioCall:
+    case st::entity::WebRTC_MsgType_AudioCall:
         ret += tr("[实时音频]");
         break;
 
-    case QTalk::Entity::WebRTC_MsgType_Video_Group:
+    case st::entity::WebRTC_MsgType_Video_Group:
         ret += tr("[群组视频]");
         break;
 
-    case QTalk::Entity::MessageTypeVoice:
+    case st::entity::MessageTypeVoice:
         ret += tr("[语音]");
         break;
 
-    case QTalk::Entity::MessageTypeProduct:
-    case QTalk::Entity::MessageTypeNote:
+    case st::entity::MessageTypeProduct:
+    case st::entity::MessageTypeNote:
         ret += tr("[产品详情]");
         break;
 
-    case QTalk::Entity::MessageTypeSystem:
+    case st::entity::MessageTypeSystem:
         ret += tr("[系统消息]");
         break;
 
-    case QTalk::Entity::MessageTypeNotice:
+    case st::entity::MessageTypeNotice:
         ret += tr("[公告消息]");
         break;
 
-    case QTalk::Entity::MessageTypeGrabMenuVcard:
-    case QTalk::Entity::MessageTypeGrabMenuResult:
+    case st::entity::MessageTypeGrabMenuVcard:
+    case st::entity::MessageTypeGrabMenuResult:
         ret += tr("[抢单消息]");
         break;
 
@@ -962,10 +962,10 @@ QString SessionFrm::GenerateContent(const QString &content,
  * @param uid
  * @param count
  */
-void SessionFrm::onUpdateReadedCount(const QTalk::Entity::UID &uid,
+void SessionFrm::onUpdateReadedCount(const st::entity::UID &uid,
                                      const int &count)
 {
-    if (!PLAT.isMainThread()) {
+    if (!DC.isMainThread()) {
         emit updateReadedCountSignal(uid, count);
         return;
     }
@@ -989,7 +989,7 @@ void SessionFrm::onUpdateReadedCount(const QTalk::Entity::UID &uid,
             emit updateTotalUnreadCount(_totalUnReadCount);
         }
 
-        //         if (chatType == QTalk::Enum::GroupChat) {
+        //         if (chatType == st::Enum::GroupChat) {
         //             int atCount = DB_PLAT.getAtCount(uid.usrId());
         //             _sessionMap[uid]->setData(atCount, ITEM_DATATYPE_ATCOUNT);
         //         }
@@ -1003,10 +1003,10 @@ void SessionFrm::onUpdateReadedCount(const QTalk::Entity::UID &uid,
  * @param uid
  * @param fromId
  */
-void SessionFrm::recvRevikeMessage(const QTalk::Entity::UID &uid,
+void SessionFrm::recvRevikeMessage(const st::entity::UID &uid,
                                    const QString &fromId)
 {
-    if (!PLAT.isMainThread()) {
+    if (!DC.isMainThread()) {
         emit recvRevokeMessageSignal(uid, fromId);
         return;
     }
@@ -1015,11 +1015,11 @@ void SessionFrm::recvRevikeMessage(const QTalk::Entity::UID &uid,
         QString userName = tr("你");
 
         if (fromId.toStdString() != _strSelfId) {
-            std::shared_ptr<QTalk::Entity::ImUserInfo> info =
+            std::shared_ptr<st::entity::ImUserInfo> info =
                 DB_PLAT.getUserInfo(fromId.toStdString());
 
             if (info && !info->Name.empty()) {
-                userName = QString::fromStdString(QTalk::getUserName(info));
+                userName = QString::fromStdString(st::getUserName(info));
             } else {
                 userName = "";
             }
@@ -1045,7 +1045,7 @@ void SessionFrm::onShowCardAct(bool)
     if (index.isValid()) {
         QString xmppId = index.data(ITEM_DATATYPE_USERID).toString();
 
-        if (index.data(ITEM_DATATYPE_CHATTYPE).toInt() == QTalk::Enum::GroupChat) {
+        if (index.data(ITEM_DATATYPE_CHATTYPE).toInt() == st::Enum::GroupChat) {
             emit showGroupCardSignal(xmppId);
         } else {
             emit showUserCardSignal(xmppId);
@@ -1117,7 +1117,7 @@ void SessionFrm::updateUserConfig()
  */
 void SessionFrm::onDestroyGroup(const QString &groupId)
 {
-    if (!PLAT.isMainThread()) {
+    if (!DC.isMainThread()) {
         emit destoryGroupSignal(groupId);
         return;
     }
@@ -1213,7 +1213,7 @@ void SessionFrm::onBlackAct(bool)
  */
 void SessionFrm::jumpToNewMessage()
 {
-    if (!PLAT.isMainThread()) {
+    if (!DC.isMainThread()) {
         return;
     }
 
@@ -1245,7 +1245,7 @@ void SessionFrm::jumpToNewMessage()
  */
 QString SessionFrm::getUserName(const std::string &id, bool isGroup)
 {
-    std::string userId = QTalk::Entity::JID(id).username();
+    std::string userId = st::entity::JID(id).username();
 
     if (SYSTEM_XMPPID == userId) {
         return tr(SYSTEM_NAME);
@@ -1253,9 +1253,9 @@ QString SessionFrm::getUserName(const std::string &id, bool isGroup)
 
     if (!id.empty()) {
         if (isGroup) {
-            return QString::fromStdString(QTalk::getGroupName(id));
+            return QString::fromStdString(st::getGroupName(id));
         } else {
-            return QString::fromStdString(QTalk::getUserName(id));
+            return QString::fromStdString(st::getUserName(id));
         }
     }
 
@@ -1314,9 +1314,9 @@ void SessionFrm::onUpdateUserInfo(const QVector<QString> &users)
             auto info = DB_PLAT.getUserInfo(u.toStdString(), true);
 
             if (info) {
-                item->setData(QTalk::getUserName(u.toStdString()).data(),
+                item->setData(st::getUserName(u.toStdString()).data(),
                               ITEM_DATATYPE_USERNAME);
-                item->setData(QTalk::GetHeadPathByUrl(info->HeaderSrc).data(),
+                item->setData(st::GetHeadPathByUrl(info->HeaderSrc).data(),
                               ITEM_DATATYPE_HEADPATH);
             }
         }
@@ -1362,7 +1362,7 @@ void SessionFrm::onClearUnreadAct(bool)
  * @brief SessionFrm::onUserConfigChanged
  * @param uid
  */
-void SessionFrm::onUserConfigChanged(const QTalk::Entity::UID &uid)
+void SessionFrm::onUserConfigChanged(const st::entity::UID &uid)
 {
     if (_sessionMap.contains(uid)) {
         int type = _sessionMap[uid]->data(ITEM_DATATYPE_CHATTYPE).toInt();
@@ -1371,7 +1371,7 @@ void SessionFrm::onUserConfigChanged(const QTalk::Entity::UID &uid)
         _sessionMap[uid]->setData(isTop, ITEM_DATATYPE_ISTOP);
         _sessionMap[uid]->setData(unNotice, ITEM_DATATYPE_UNNOTICE);
         _sessionMap[uid]->setData(getUserName(uid.realId(),
-                                              type == QTalk::Enum::GroupChat), ITEM_DATATYPE_USERNAME);
+                                              type == st::Enum::GroupChat), ITEM_DATATYPE_USERNAME);
         // sort
         _pSessionView->update();
         sortAndFilterView();
@@ -1383,7 +1383,7 @@ void SessionFrm::onUserConfigChanged(const QTalk::Entity::UID &uid)
  * @param uid
  * @param draft
  */
-void SessionFrm::onShowDraft(const QTalk::Entity::UID &uid,
+void SessionFrm::onShowDraft(const st::entity::UID &uid,
                              const QString &draft)
 {
     enum {
@@ -1496,10 +1496,10 @@ void SessionFrm::onAppActive()
  * @param messageId
  * @param time
  */
-void SessionFrm::onGotMState(const QTalk::Entity::UID &uid,
+void SessionFrm::onGotMState(const st::entity::UID &uid,
                              const QString &messageId, const long long &time)
 {
-    if (!PLAT.isMainThread()) {
+    if (!DC.isMainThread()) {
         emit sgGotMState(uid, messageId, time);
         return;
     }
@@ -1525,13 +1525,13 @@ void SessionFrm::onQuitGroupAct(bool)
         QString xmppId = index.data(ITEM_DATATYPE_USERID).toString();
         int chatType = index.data(ITEM_DATATYPE_CHATTYPE).toInt();
         QString name = index.data(ITEM_DATATYPE_USERNAME).toString();
-        int ret = QtMessageBox::warning(this, tr("警告"),
+        int ret = QtMessageBox::warning(this, QObject::tr("警告"),
                                         tr("即将退出群聊%1 (%2), 是否继续?").arg(name, xmppId),
                                         QtMessageBox::EM_BUTTON_YES | QtMessageBox::EM_BUTTON_NO);
 
         if (ret == QtMessageBox::EM_BUTTON_YES) {
             QtConcurrent::run([xmppId, chatType]() {
-                if (chatType == QTalk::Enum::GroupChat) {
+                if (chatType == st::Enum::GroupChat) {
                     NavigationMsgManager::quitGroupById(xmppId.toStdString());
                 }
             });
@@ -1546,17 +1546,17 @@ void SessionFrm::onQuitGroupAct(bool)
  */
 void SessionFrm::receiveSession(R_Message mess)
 {
-    QTalk::Entity::ImMessageInfo message = mess.message;
+    st::entity::ImMessageInfo message = mess.message;
     ReceiveSession info;
-    info.chatType = (QTalk::Enum::ChatType)message.ChatType;
+    info.chatType = (st::Enum::ChatType)message.ChatType;
     info.messageId = QString::fromStdString(message.MsgId);
     info.messageContent = QString::fromStdString(message.Content);
-    info.xmppId = QString::fromStdString(QTalk::Entity::JID(
+    info.xmppId = QString::fromStdString(st::entity::JID(
                                              message.SendJid).basename());
-    info.realJid = QString::fromStdString(QTalk::Entity::JID(
+    info.realJid = QString::fromStdString(st::entity::JID(
                                               message.RealJid).basename());
     info.messageRecvTime = message.LastUpdateTime;
-    std::string from = QTalk::Entity::JID(message.From).basename();
+    std::string from = st::entity::JID(message.From).basename();
     info.sendJid = QString::fromStdString(from);
     info.messtype = message.Type;
     emit sgReceiveSession(info, from == _strSelfId);
@@ -1568,9 +1568,9 @@ void SessionFrm::receiveSession(R_Message mess)
  */
 void SessionFrm::sendSession(S_Message mess)
 {
-    QTalk::Entity::ImMessageInfo message = mess.message;
+    st::entity::ImMessageInfo message = mess.message;
     ReceiveSession info;
-    info.chatType = (QTalk::Enum::ChatType)message.ChatType;
+    info.chatType = (st::Enum::ChatType)message.ChatType;
     info.messageId = QString::fromStdString(message.MsgId);
     info.messageContent = QString::fromStdString(message.Content);
     info.xmppId = QString::fromStdString(message.To);
@@ -1602,7 +1602,7 @@ void SessionFrm::onLoginSuccess()
  * @brief SessionFrm::onUpdateUserConfig
  * @param arConfigs
  */
-void SessionFrm::onUpdateUserConfig(const std::vector<QTalk::Entity::ImConfig>
+void SessionFrm::onUpdateUserConfig(const std::vector<st::entity::ImConfig>
                                     &arConfigs)
 {
     //
@@ -1645,12 +1645,12 @@ void SessionFrm::onUpdateUserConfig(const std::vector<QTalk::Entity::ImConfig>
  */
 void SessionFrm::onUpdateUserConfig(const std::map<std::string, std::string>
                                     &deleteData,
-                                    const std::vector<QTalk::Entity::ImConfig> &arImConfig)
+                                    const std::vector<st::entity::ImConfig> &arImConfig)
 {
     QMutexLocker locker(&_mutex);
 
     for (const auto &it : deleteData) {
-        QTalk::Entity::UID uid(it.first);
+        st::entity::UID uid(it.first);
 
         //
         if (it.second == "kStickJidDic") {
@@ -1677,7 +1677,7 @@ void SessionFrm::onUpdateUserConfig(const std::map<std::string, std::string>
 
     //
     for (const auto &conf : arImConfig) {
-        QTalk::Entity::UID uid(conf.ConfigSubKey);
+        st::entity::UID uid(conf.ConfigSubKey);
 
         if (conf.ConfigKey == "kStickJidDic") {
             _mapStick[conf.ConfigSubKey] = conf.ConfigValue;
@@ -1701,7 +1701,7 @@ void SessionFrm::onUpdateUserConfig(const std::map<std::string, std::string>
  * @param xmppId
  * @param localHead
  */
-void SessionFrm::onGotUserCards(const std::vector<QTalk::StUserCard> &cards)
+void SessionFrm::onGotUserCards(const std::vector<st::StUserCard> &cards)
 {
     QVector<QString> users;
 

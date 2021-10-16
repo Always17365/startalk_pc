@@ -2,8 +2,8 @@
 // Created by cc on 2019-01-27.
 //
 
-#ifndef QTALK_V2_USHADOWBORDER_H
-#define QTALK_V2_USHADOWBORDER_H
+#ifndef STALK_V2_USHADOWBORDER_H
+#define STALK_V2_USHADOWBORDER_H
 
 #include <QLabel>
 
@@ -48,4 +48,4 @@ private:
 };
 
 
-#endif //QTALK_V2_USHADOWBORDER_H
+#endif //STALK_V2_USHADOWBORDER_H

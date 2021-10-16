@@ -4,8 +4,8 @@
 
 #include "MeetingRemindItem.h"
 
-#include "../CustomUi/HeadPhotoLab.h"
-#include "../../WebService/WebService.h"
+#include "CustomUi/HeadPhotoLab.h"
+#include "WebService/WebService.h"
 
 #include <QSpacerItem>
 #include <QHBoxLayout>
@@ -13,15 +13,15 @@
 #include <QDesktopServices>
 #include <QMouseEvent>
 #include <QUrl>
-#include "../../Platform/Platform.h"
-#include "../../UICom/qimage/qimage.h"
-#include "../../Platform/NavigationManager.h"
+#include "DataCenter/Platform.h"
+#include "Util/ui/qimage/qimage.h"
+#include "DataCenter/NavigationManager.h"
 #include <QTextEdit>
 #include <QJsonArray>
 
 MeetingRemindItem::MeetingRemindItem(const StNetMessageResult &msgInfo,
                                      QWidget *parent):MessageItemBase(msgInfo,parent),
-                                                      contentLabel(Q_NULLPTR)
+                                                      contentLabel(nullptr)
 {
     init();
 }
@@ -36,12 +36,12 @@ void MeetingRemindItem::loadUrl(const StNetMessageResult& msgInfo) {
         QString linkUrl = jsonObject.value("url").toString();
         QString id = jsonObject.value("params").toObject().value("id").toString();
         linkUrl.append("username=");
-        linkUrl.append(QString::fromStdString(PLAT.getSelfUserId()));
+        linkUrl.append(QString::fromStdString(DC.getSelfUserId()));
         linkUrl.append("&meeting_id=");
         linkUrl.append(id);
 
         MapCookie cookies;
-        cookies["ckey"] = QString::fromStdString(PLAT.getClientAuthKey());
+        cookies["ckey"] = QString::fromStdString(DC.getClientAuthKey());
         WebService::loadUrl(QUrl(linkUrl), false, cookies);
     }
 }
@@ -54,7 +54,7 @@ void MeetingRemindItem::initLayout() {
     _contentSize = QSize(350, 0);
     _mainMargin = QMargins(15, 0, 20, 0);
     _mainSpacing = 10;
-    if (QTalk::Entity::MessageDirectionSent == _msgInfo.direction) {
+    if (st::entity::MessageDirectionSent == _msgInfo.direction) {
         _headPixSize = QSize(0, 0);
         _nameLabHeight = 0;
         _leftMargin = QMargins(0, 0, 0, 0);
@@ -62,7 +62,7 @@ void MeetingRemindItem::initLayout() {
         _leftSpacing = 0;
         _rightSpacing = 0;
         initSendLayout();
-    } else if (QTalk::Entity::MessageDirectionReceive == _msgInfo.direction) {
+    } else if (st::entity::MessageDirectionReceive == _msgInfo.direction) {
         _headPixSize = QSize(28, 28);
         _nameLabHeight = 16;
         _leftMargin = QMargins(0, 10, 0, 0);
@@ -71,7 +71,7 @@ void MeetingRemindItem::initLayout() {
         _rightSpacing = 4;
         initReceiveLayout();
     }
-    if (QTalk::Enum::ChatType::GroupChat != _msgInfo.type) {
+    if (st::Enum::ChatType::GroupChat != _msgInfo.type) {
         _nameLabHeight = 0;
     }
     setContentsMargins(0, 5, 0, 5);
@@ -138,8 +138,8 @@ void MeetingRemindItem::initReceiveLayout() {
     rightLay->setContentsMargins(_rightMargin);
     rightLay->setSpacing(_rightSpacing);
     mainLay->addLayout(rightLay);
-    if (QTalk::Enum::ChatType::GroupChat == _msgInfo.type
-        && QTalk::Entity::MessageDirectionReceive == _msgInfo.direction ) {
+    if (st::Enum::ChatType::GroupChat == _msgInfo.type
+        && st::entity::MessageDirectionReceive == _msgInfo.direction ) {
         auto* nameLay = new QHBoxLayout;
         nameLay->setMargin(0);
         nameLay->setSpacing(5);
@@ -159,7 +159,7 @@ void MeetingRemindItem::initReceiveLayout() {
 
     auto *horizontalSpacer = new QSpacerItem(40, 1, QSizePolicy::Expanding, QSizePolicy::Fixed);
     mainLay->addItem(horizontalSpacer);
-    if (QTalk::Enum::ChatType::GroupChat == _msgInfo.type) {
+    if (st::Enum::ChatType::GroupChat == _msgInfo.type) {
         mainLay->setStretch(0, 0);
         mainLay->setStretch(1, 0);
         mainLay->setStretch(2, 1);

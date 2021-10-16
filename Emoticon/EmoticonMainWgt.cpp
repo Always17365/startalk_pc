@@ -16,16 +16,16 @@
 #include <QApplication>
 #include "EmoPreviewWgt.h"
 #include "EmoIconWgt.h"
-#include "../Platform/Platform.h"
+#include "DataCenter/Platform.h"
 #include "MessageManager.h"
 #include "EmoCellWidget.h"
 #include "EmoticonManager.h"
 #include "../quazip/JlCompress.h"
 #include "LocalEmoticon.h"
 #ifdef _WINDOWS
-#include <windows.h>
+    #include <windows.h>
 #else
-#include <unistd.h>
+    #include <unistd.h>
 #endif // _WINDOWS
 
 
@@ -36,7 +36,8 @@
 #define DEM_COLLECTION_MODEL "[obj type=\"image\" value=\"%1\" width=%2 height=%3 ]"
 
 EmoticonMainWgt::EmoticonMainWgt()
-        : UShadowDialog(nullptr, true), _pManager(nullptr) {
+    : UShadowDialog(nullptr, true), _pManager(nullptr)
+{
     _pMessageManager = new EmoMsgManager;
     new EmoMsgListener;
     initUi();
@@ -44,7 +45,6 @@ EmoticonMainWgt::EmoticonMainWgt()
     initDefaultEmo();
     addMyCollection();
     getLocalEmoticon();
-
     connect(this, &EmoticonMainWgt::readLocalEmoticons, this, &EmoticonMainWgt::initLocalEmoticon);
     connect(_pBtnLeftPage, &QPushButton::clicked, this, &EmoticonMainWgt::turnLeft);
     connect(_pBtnRightPage, &QPushButton::clicked, this, &EmoticonMainWgt::turnRight);
@@ -56,7 +56,8 @@ EmoticonMainWgt::EmoticonMainWgt()
     connect(this, &EmoticonMainWgt::updateConllectionSignal, this, &EmoticonMainWgt::updateCollection);
 }
 
-EmoticonMainWgt *EmoticonMainWgt::instance() {
+EmoticonMainWgt *EmoticonMainWgt::instance()
+{
     static EmoticonMainWgt wgt;
     return &wgt;
 }
@@ -64,40 +65,43 @@ EmoticonMainWgt *EmoticonMainWgt::instance() {
 EmoticonMainWgt::~EmoticonMainWgt()
 {
     delete _pMessageManager;
-
 }
 
 /**
-  * @函数名   
-  * @功能描述 
+  * @函数名
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/19
   */
-void EmoticonMainWgt::setConversionId(const QString &conversionId) {
+void EmoticonMainWgt::setConversionId(const QString &conversionId)
+{
     _strConversionId = conversionId;
 }
 
 /**
-  * @函数名   
-  * @功能描述 
+  * @函数名
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/19
   */
-QString EmoticonMainWgt::downloadEmoticon(const QString &pkgId, const QString &shortCut) {
+QString EmoticonMainWgt::downloadEmoticon(const QString &pkgId, const QString &shortCut)
+{
     QString realFilePath;
     QString fileName(shortCut);
     fileName.replace("/", "");
     fileName = QString("%1_%2").arg(pkgId, fileName);
 
     // 下载表情
-    if (!QFile::exists(realFilePath) && _pMessageManager) {
+    if (!QFile::exists(realFilePath) && _pMessageManager)
+    {
         const std::string &strPath = _pMessageManager->getEmoRealFilePath(pkgId.toStdString(),
-                                                                          shortCut.toStdString(),
-                                                                          fileName.toStdString());
+                                     shortCut.toStdString(),
+                                     fileName.toStdString());
         realFilePath = QString::fromStdString(strPath);
     }
+
     return realFilePath;
 }
 
@@ -110,34 +114,40 @@ QString EmoticonMainWgt::getEmoticonLocalFilePath(const QString &pkgId, const QS
 {
     QString realFilePath;
 
-    if (_mapEmoticonInfos.contains(pkgId)) {
-
-        const QMap<UnorderMapKey, StEmoticonItem>& mapEmo = _mapEmoticonInfos[pkgId].mapEmoticon;
-        auto itFind = std::find_if(mapEmo.begin(), mapEmo.end(), [shortCut](const StEmoticonItem& item){
+    if (_mapEmoticonInfos.contains(pkgId))
+    {
+        const QMap<UnorderMapKey, StEmoticonItem> &mapEmo = _mapEmoticonInfos[pkgId].mapEmoticon;
+        auto itFind = std::find_if(mapEmo.begin(), mapEmo.end(), [shortCut](const StEmoticonItem & item)
+        {
             return item.shortcut == shortCut;
         });
+
         if(itFind != mapEmo.end())
         {
-            const std::string &strDirPath = PLAT.getLocalEmoticonPath(pkgId.toStdString());
+            const std::string &strDirPath = DC.getLocalEmoticonPath(pkgId.toStdString());
             realFilePath = QString("%1/%2").arg(strDirPath.c_str()).arg(itFind->fileorg);
         }
     }
 
-    if (realFilePath.isEmpty() || !QFile::exists(realFilePath)) {
+    if (realFilePath.isEmpty() || !QFile::exists(realFilePath))
+    {
         QString fileName(shortCut);
         fileName.replace("/", "");
         fileName = QString("%1_%2").arg(pkgId, fileName);
         // temp 路径下表情
-        const QString &strDirPath = QString(PLAT.getTempEmoticonPath(pkgId.toStdString()).c_str());
-        if (QDir(strDirPath).exists()) {
+        const QString &strDirPath = QString(DC.getTempEmoticonPath(pkgId.toStdString()).c_str());
+
+        if (QDir(strDirPath).exists())
+        {
             realFilePath = QString("%1/%2").arg(strDirPath, fileName);
             QFileInfoList infoLst = QDir(strDirPath).entryInfoList(QDir::Files | QDir::NoDotAndDotDot);
-            auto it = std::find_if(infoLst.begin(), infoLst.end(), [fileName](const QFileInfo &info) {
+            auto it = std::find_if(infoLst.begin(), infoLst.end(), [fileName](const QFileInfo & info)
+            {
                 return info.baseName() == fileName;
             });
-            if (it != infoLst.end()) {
+
+            if (it != infoLst.end())
                 realFilePath += "." + it->suffix();
-            }
         }
     }
 
@@ -146,17 +156,20 @@ QString EmoticonMainWgt::getEmoticonLocalFilePath(const QString &pkgId, const QS
 
 /**
   * @函数名   removeLocalEmoticon
-  * @功能描述 
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/21
   */
-void EmoticonMainWgt::removeLocalEmoticon(const QString &pkgid, const QString &iconPath) {
-    QtConcurrent::run([this, pkgid, iconPath]() {
-
-        std::string localEmoDir = PLAT.getLocalEmoticonPath(pkgid.toStdString());
+void EmoticonMainWgt::removeLocalEmoticon(const QString &pkgid, const QString &iconPath)
+{
+    QtConcurrent::run([this, pkgid, iconPath]()
+    {
+        std::string localEmoDir = DC.getLocalEmoticonPath(pkgid.toStdString());
         QDir dir(QString(localEmoDir.c_str()));
-        if (dir.exists()) {
+
+        if (dir.exists())
+        {
             dir.removeRecursively();
             emit removeEmoticon(pkgid);
             _mapBtnTableWgt.remove(pkgid);
@@ -167,33 +180,40 @@ void EmoticonMainWgt::removeLocalEmoticon(const QString &pkgid, const QString &i
 }
 
 /**
-  * @函数名   
-  * @功能描述 
+  * @函数名
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/21
   */
-ArStNetEmoticon EmoticonMainWgt::getNetEmoticonInfo() {
+ArStNetEmoticon EmoticonMainWgt::getNetEmoticonInfo()
+{
     QMutexLocker locker(&_mutex);
     return _arNetEmoInfo;
 }
 
 /**
-  * @函数名   
-  * @功能描述 
+  * @函数名
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/22
   */
-void EmoticonMainWgt::downloadNetEmoticon(const QString &pkgId) {
-    QtConcurrent::run([this, pkgId]() {
-        if (_pMessageManager) {
+void EmoticonMainWgt::downloadNetEmoticon(const QString &pkgId)
+{
+    QtConcurrent::run([this, pkgId]()
+    {
+        if (_pMessageManager)
+        {
             auto it = std::find_if(_arNetEmoInfo.begin(), _arNetEmoInfo.end(),
-                                   [pkgId](std::shared_ptr<StNetEmoticon> stNetEmo) {
-                                       return stNetEmo->pkgid == pkgId.toStdString();
-                                   });
-            if (it != _arNetEmoInfo.end()) {
-                std::string localPath = PLAT.getLocalEmoticonPacketPath(pkgId.toStdString());
+                                   [pkgId](std::shared_ptr<StNetEmoticon> stNetEmo)
+            {
+                return stNetEmo->pkgid == pkgId.toStdString();
+            });
+
+            if (it != _arNetEmoInfo.end())
+            {
+                std::string localPath = DC.getLocalEmoticonPacketPath(pkgId.toStdString());
                 _pMessageManager->downloadNetEmoticon((*it)->emoFile, localPath, pkgId.toStdString());
             }
         }
@@ -202,58 +222,63 @@ void EmoticonMainWgt::downloadNetEmoticon(const QString &pkgId) {
 
 /**
   * @函数名   updateDownloadNetEmotiocnProcess
-  * @功能描述 
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/22
   */
-void EmoticonMainWgt::updateDownloadNetEmotiocnProcess(const std::string &key, double dtotal, double dnow) {
+void EmoticonMainWgt::updateDownloadNetEmotiocnProcess(const std::string &key, double dtotal, double dnow)
+{
     emit updateProcessSignal(key.data(), dtotal, dnow);
 }
 
 /**
-  * @函数名   
-  * @功能描述 
+  * @函数名
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/22
   */
-void EmoticonMainWgt::installEmoticon(const QString &pkgId) {
-    QtConcurrent::run([this, pkgId]() {
+void EmoticonMainWgt::installEmoticon(const QString &pkgId)
+{
+    QtConcurrent::run([this, pkgId]()
+    {
         QString pkgPath = QString::fromStdString(
-                PLAT.getLocalEmoticonPacketPath(pkgId.toStdString()));
+                              DC.getLocalEmoticonPacketPath(pkgId.toStdString()));
+
         while (!QFile::exists(pkgPath)) {}
 
-        QString emoDir = QString("%1/emoticon").arg(PLAT.getAppdataRoamingPath().c_str());
+        QString emoDir = QString("%1/emoticon").arg(DC.getAppdataRoamingPath().c_str());
         QStringList lstFile = JlCompress::extractDir(pkgPath, emoDir);
-
         int tmpIndex = 0;
+
         while (lstFile.empty())
         {
             if(tmpIndex++ == 100)
-            {
                 break;
-            }
+
 #ifdef _WINDOWS
-			Sleep(1);
+            Sleep(1);
 #else
-			sleep(1);
+            sleep(1);
 #endif // _WINDOWS
             lstFile = JlCompress::extractDir(pkgPath, emoDir);
         }
 
         //
-        if (!lstFile.empty()) {
+        if (!lstFile.empty())
+        {
             // 表情目录可能与头像id不一致 改个名
             QFileInfo dir(lstFile[0]);
-            if (dir.isDir() && dir.baseName() != pkgId) {
+
+            if (dir.isDir() && dir.baseName() != pkgId)
                 QFile(lstFile[0]).rename(emoDir + "/" + pkgId);
-            }
 
             emit addLocalEmoSignal(pkgId);
-        } else {
-            emit installEmoticonError(pkgId);
         }
+        else
+            emit installEmoticonError(pkgId);
+
         QFile::remove(pkgPath);
         //
         emit setTurnPageBtnEnableSignal();
@@ -261,39 +286,46 @@ void EmoticonMainWgt::installEmoticon(const QString &pkgId) {
 }
 
 /**
-  * @函数名   
-  * @功能描述 
+  * @函数名
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/30
   */
-void EmoticonMainWgt::init() {
-	//
-	Q_INIT_RESOURCE(emoticon);
-	QString styleSheetPath = QString(":/style/style%1/Emoticon.qss").arg(AppSetting::instance().getThemeMode());
-	if (QFile::exists(styleSheetPath)) {
-		QFile file(styleSheetPath);
-		if (file.open(QFile::ReadOnly)) {
-			this->setStyleSheet(file.readAll());
-			file.close();
-		}
-	}
+void EmoticonMainWgt::init()
+{
+    //
+    Q_INIT_RESOURCE(emoticon);
+    QString styleSheetPath = QString(":/style/style%1/Emoticon.qss").arg(AppSetting::instance().getThemeMode());
 
+    if (QFile::exists(styleSheetPath))
+    {
+        QFile file(styleSheetPath);
+
+        if (file.open(QFile::ReadOnly))
+        {
+            this->setStyleSheet(file.readAll());
+            file.close();
+        }
+    }
 }
 
 /**
-  * @函数名   
-  * @功能描述 
+  * @函数名
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/18
   */
-void EmoticonMainWgt::addEmoticon(const StEmoticon &stEmo) {
-    if (_pStackIconWgt && _pStackEmoWgt) {
+void EmoticonMainWgt::addEmoticon(const StEmoticon &stEmo)
+{
+    if (_pStackIconWgt && _pStackEmoWgt)
+    {
         EmoIcon *btn = _pStackIconWgt->addEmoIcon(stEmo.iconPath, stEmo.pkgid, stEmo.name);
         QTableWidget *tableWgt = _pStackEmoWgt->addEmoticon(stEmo.mapEmoticon, stEmo.pkgid);
 
-        if (_mapBtnTableWgt.empty()) {
+        if (_mapBtnTableWgt.empty())
+        {
             btn->setCheckState(true);
             _pStackEmoWgt->setCurrentWidget(tableWgt);
         }
@@ -304,48 +336,56 @@ void EmoticonMainWgt::addEmoticon(const StEmoticon &stEmo) {
 }
 
 /**
-  * @函数名   
-  * @功能描述 
+  * @函数名
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/18
   */
-bool EmoticonMainWgt::readEmoticonXml(const QString &xmlPath, StEmoticon &stEmoticon) {
+bool EmoticonMainWgt::readEmoticonXml(const QString &xmlPath, StEmoticon &stEmoticon)
+{
     bool ret = false;
-
     QFile xml(xmlPath);
     QDomDocument doc;
     ret = xml.exists() && xml.open(QIODevice::ReadOnly);
-    if (ret) {
+
+    if (ret)
+    {
         ret = doc.setContent(&xml);
-        if (ret) {
+
+        if (ret)
+        {
             QDomElement root = doc.documentElement();
-            if ("FACESETTING" == root.tagName()) {
+
+            if ("FACESETTING" == root.tagName())
+            {
                 QDomNode dft_n = root.firstChild();
                 QDomElement dft_e = dft_n.toElement();
-                if ("DEFAULTFACE" == dft_e.tagName()) {
+
+                if ("DEFAULTFACE" == dft_e.tagName())
+                {
                     stEmoticon.name = dft_e.attribute("emotionName");
                     stEmoticon.isShowALl = dft_e.attribute("showall").toInt();
-
                     QDomNode face_n = dft_e.firstChild();
-                    while (!face_n.isNull()) {
+
+                    while (!face_n.isNull())
+                    {
                         StEmoticonItem item;
                         QDomElement face_e = face_n.toElement();
                         item.emoid = face_e.attribute("id");
                         item.shortcut = face_e.attribute("shortcut");
                         item.tooltip = face_e.attribute("tip");
-
                         QDomNode tmpNode = face_e.firstChild();
                         item.fileorg = tmpNode.toElement().text();
                         tmpNode = tmpNode.nextSibling();
                         item.filefixd = tmpNode.toElement().text();
-
                         stEmoticon.mapEmoticon[item.shortcut] = item;
                         face_n = face_n.nextSibling();
                     }
                 }
             }
         }
+
         xml.close();
     }
 
@@ -354,23 +394,30 @@ bool EmoticonMainWgt::readEmoticonXml(const QString &xmlPath, StEmoticon &stEmot
 
 /**
   * @函数名   onEmoticonItemClick
-  * @功能描述 
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/19
   */
-void EmoticonMainWgt::onEmoticonItemClick(int row, int col) {
+void EmoticonMainWgt::onEmoticonItemClick(int row, int col)
+{
     auto *wgt = (QTableWidget *) sender();
-    if (wgt) {
+
+    if (wgt)
+    {
         auto *cellWgt = (EmoCellWidget *) wgt->cellWidget(row, col);
-        if (cellWgt) {
+
+        if (cellWgt)
+        {
             QString pkgId = cellWgt->getPkgId();
             QString shortCut = cellWgt->getShortCut();
-            if (pkgId.isEmpty() || shortCut.isEmpty()) {
+
+            if (pkgId.isEmpty() || shortCut.isEmpty())
                 return;
-            }
+
             int isShowAll = 0;
             QString emoticonContent = QString(DEM_EMOTICON_MODEL).arg(shortCut, pkgId);
+
             if(_mapEmoticonInfos.contains(pkgId))
                 isShowAll = _mapEmoticonInfos[pkgId].isShowALl;
 
@@ -388,6 +435,7 @@ void EmoticonMainWgt::onEmoticonItemClick(int row, int col) {
                 emit sendEmoticon(_strConversionId, emoticonContent, isShowAll, "");
         }
     }
+
     this->setVisible(false);
 }
 
@@ -396,87 +444,100 @@ void EmoticonMainWgt::onEmoticonItemClick(int row, int col) {
  * @param row
  * @param col
  */
-void EmoticonMainWgt::onCollectionItemClick(int row, int col) {
+void EmoticonMainWgt::onCollectionItemClick(int row, int col)
+{
     auto *wgt = (QTableWidget *) sender();
-    if (wgt) {
+
+    if (wgt)
+    {
         auto *cellWgt = (EmoCellWidget *) wgt->cellWidget(row, col);
-        if (cellWgt) {
+
+        if (cellWgt)
+        {
             QString localPath = cellWgt->getPkgId();
             QString emoNetPath = cellWgt->getShortCut();
-            if (localPath.isEmpty() || emoNetPath.isEmpty()) {
+
+            if (localPath.isEmpty() || emoNetPath.isEmpty())
                 return;
-            }
+
 //            QPixmap pixmap(localPath);
 //            QString emoticonContent = QString(DEM_COLLECTION_MODEL).arg(emoNetPath)
 //                    .arg(pixmap.width()).arg(pixmap.height());
             emit sendCollectionImage(_strConversionId, localPath, emoNetPath);
         }
     }
+
     this->setVisible(false);
 }
 
 /**
   * @函数名   setTurnPageBtnEnable
-  * @功能描述 
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/19
   */
-void EmoticonMainWgt::setTurnPageBtnEnable() {
+void EmoticonMainWgt::setTurnPageBtnEnable()
+{
     int index = _pStackIconWgt->currentIndex();
     _pBtnLeftPage->setEnabled(index != 0 && index != -1);
     _pBtnRightPage->setEnabled(index != (_pStackIconWgt->count() - 1));
 }
 
 /**
-  * @函数名   
-  * @功能描述 
+  * @函数名
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/19
   */
-void EmoticonMainWgt::turnLeft() {
+void EmoticonMainWgt::turnLeft()
+{
     int index = _pStackIconWgt->currentIndex();
-    if (index != 0) {
+
+    if (index != 0)
         _pStackIconWgt->setCurrentIndex(index - 1);
-    }
+
     setTurnPageBtnEnable();
 }
 
 /**
-  * @函数名   
-  * @功能描述 
+  * @函数名
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/19
   */
-void EmoticonMainWgt::turnRight() {
+void EmoticonMainWgt::turnRight()
+{
     int index = _pStackIconWgt->currentIndex();
-    if (index != _pStackIconWgt->count() - 1) {
+
+    if (index != _pStackIconWgt->count() - 1)
         _pStackIconWgt->setCurrentIndex(index + 1);
-    }
+
     setTurnPageBtnEnable();
 }
 
 /**
   * @函数名   onSettingBtnClick
-  * @功能描述 
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/19
   */
-void EmoticonMainWgt::onSettingBtnClick() {
-
+void EmoticonMainWgt::onSettingBtnClick()
+{
     //
-    if (_pManager == nullptr) {
+    if (_pManager == nullptr)
+    {
         _pManager = new EmoticonManager(_mapEmoticonInfos, this);
         _pManager->getLocalManager()->initCollection(_collectionEmo);
         _pManager->getLocalManager()->updateCollection(_mapCollections);
         _pManager->getLocalManager()->initEmoticon();
-
         connect(_pManager->getLocalManager(), &LocalEmoticon::removeCollection,
                 this, &EmoticonMainWgt::onRemoveCollection);
     }
+
     //
     getNetEmoticon();
     // 显示屏幕中间
@@ -488,14 +549,16 @@ void EmoticonMainWgt::onSettingBtnClick() {
 }
 
 /**
-  * @函数名   
-  * @功能描述 
+  * @函数名
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/21
   */
-void EmoticonMainWgt::getNetEmoticon() {
-    QtConcurrent::run([this]() {
+void EmoticonMainWgt::getNetEmoticon()
+{
+    QtConcurrent::run([this]()
+    {
         QMutexLocker locker(&_mutex);
         _arNetEmoInfo = _pMessageManager->getNetEmoticon();
         emit sgGotNetEmo();
@@ -503,61 +566,66 @@ void EmoticonMainWgt::getNetEmoticon() {
 }
 
 /**
-  * @函数名   
-  * @功能描述 
+  * @函数名
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/22
   */
-void EmoticonMainWgt::addLocalEmoticon(const QString &pkgId) {
-    QDir xmlDir(QString(PLAT.getLocalEmoticonPath(pkgId.toStdString()).c_str()));
+void EmoticonMainWgt::addLocalEmoticon(const QString &pkgId)
+{
+    QDir xmlDir(QString(DC.getLocalEmoticonPath(pkgId.toStdString()).c_str()));
     QFileInfoList xmlLst = xmlDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot);
-    QDir iconDir(PLAT.getEmoticonIconPath().c_str());
+    QDir iconDir(DC.getEmoticonIconPath().c_str());
     QFileInfoList fileLst = iconDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot);
-
-    auto xmlFind = std::find_if(xmlLst.begin(), xmlLst.end(), [pkgId](const QFileInfo &info) {
+    auto xmlFind = std::find_if(xmlLst.begin(), xmlLst.end(), [pkgId](const QFileInfo & info)
+    {
         return info.suffix().toUpper() == "XML";
     });
-    auto itFind = std::find_if(fileLst.begin(), fileLst.end(), [pkgId](const QFileInfo &info) {
+    auto itFind = std::find_if(fileLst.begin(), fileLst.end(), [pkgId](const QFileInfo & info)
+    {
         return info.baseName() == pkgId;
     });
-    if (xmlFind != xmlLst.end() && itFind != fileLst.end()) {
+
+    if (xmlFind != xmlLst.end() && itFind != fileLst.end())
+    {
         StEmoticon stEmoticon;
         stEmoticon.pkgid = pkgId;
         stEmoticon.iconPath = itFind->absoluteFilePath();
+
         //
         if (readEmoticonXml(xmlFind->absoluteFilePath(), stEmoticon)) addEmoticon(stEmoticon);
 
-        if (_pManager) {
+        if (_pManager)
             _pManager->getLocalManager()->addEmoticon(stEmoticon);
-        }
-        _mapEmoticonInfos[pkgId] = stEmoticon;
 
+        _mapEmoticonInfos[pkgId] = stEmoticon;
         emit installedEmotion(pkgId);
     }
 }
 
 /**
   * @函数名   onRemoveEmoticon
-  * @功能描述 
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/28
   */
-void EmoticonMainWgt::onRemoveEmoticon(const QString &pkgId) {
+void EmoticonMainWgt::onRemoveEmoticon(const QString &pkgId)
+{
     Q_UNUSED(pkgId);
 }
 
 /**
-  * @函数名   
-  * @功能描述 
+  * @函数名
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/17
   */
-void EmoticonMainWgt::initUi() {
+void EmoticonMainWgt::initUi()
+{
     setWindowFlags(windowFlags() | Qt::Widget);
-
     _pStackEmoWgt = new EmoPreviewWgt(6);
     _pStackIconWgt = new EmoIconWgt();
     _pBtnLeftPage = new QPushButton();
@@ -590,18 +658,15 @@ void EmoticonMainWgt::initUi() {
     bottomLayout->addWidget(_pBtnSetting);
     bottomFrame->setLayout(bottomLayout);
     bottomFrame->setFixedHeight(46);
-
     _pBtnLeftPage->setFocusPolicy(Qt::NoFocus);
     _pBtnRightPage->setFocusPolicy(Qt::NoFocus);
     _pBtnSetting->setFocusPolicy(Qt::NoFocus);
-
     auto *layout = new QVBoxLayout(_pCenternWgt);
     layout->setMargin(0);
     layout->setSpacing(0);
     layout->addWidget(topFrame);
     layout->addWidget(bottomFrame);
     layout->setStretch(0, 8);
-
     setFixedSize(DEM_FIXED_WIDTH, DEM_FIXED_HEIGHT);
 #ifdef _MACOS
     macAdjustWindows();
@@ -609,61 +674,67 @@ void EmoticonMainWgt::initUi() {
 }
 
 /**
-  * @函数名   
-  * @功能描述 
+  * @函数名
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/18
   */
-void EmoticonMainWgt::initLocalEmoticon() {
-    for (const StEmoticon &stEmo : _mapEmoticonInfos) {
+void EmoticonMainWgt::initLocalEmoticon()
+{
+    for (const StEmoticon &stEmo : _mapEmoticonInfos)
         addEmoticon(stEmo);
-    }
 
     setTurnPageBtnEnable();
 }
 
-void EmoticonMainWgt::getLocalEmoticon() {
-    QtConcurrent::run([this]() {
-        QDir iconDir(PLAT.getEmoticonIconPath().c_str());
+void EmoticonMainWgt::getLocalEmoticon()
+{
+    QtConcurrent::run([this]()
+    {
+        QDir iconDir(DC.getEmoticonIconPath().c_str());
         QFileInfoList fileLst = iconDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot);
-            for(const QFileInfo& info : fileLst) {
-                QString pkgid = info.baseName();
-                QDir xmlDir(QString(PLAT.getLocalEmoticonPath(pkgid.toStdString()).c_str()));
-                QFileInfoList xmlLst = xmlDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot);
-                auto xmlFind = std::find_if(xmlLst.begin(), xmlLst.end(), [pkgid](const QFileInfo &info) {
-                    return info.suffix().toUpper() == "XML";
-                });
 
-                if (xmlFind != xmlLst.end()) {
-                    StEmoticon stEmoticon;
-                    stEmoticon.pkgid = pkgid;
-                    stEmoticon.iconPath = info.absoluteFilePath();
-                    // read xml
-                    if (!readEmoticonXml(xmlFind->absoluteFilePath(), stEmoticon)) continue;
+        for(const QFileInfo &info : fileLst)
+        {
+            QString pkgid = info.baseName();
+            QDir xmlDir(QString(DC.getLocalEmoticonPath(pkgid.toStdString()).c_str()));
+            QFileInfoList xmlLst = xmlDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot);
+            auto xmlFind = std::find_if(xmlLst.begin(), xmlLst.end(), [pkgid](const QFileInfo & info)
+            {
+                return info.suffix().toUpper() == "XML";
+            });
 
-                    _mapEmoticonInfos[pkgid] = stEmoticon;
-                }
+            if (xmlFind != xmlLst.end())
+            {
+                StEmoticon stEmoticon;
+                stEmoticon.pkgid = pkgid;
+                stEmoticon.iconPath = info.absoluteFilePath();
+
+                // read xml
+                if (!readEmoticonXml(xmlFind->absoluteFilePath(), stEmoticon)) continue;
+
+                _mapEmoticonInfos[pkgid] = stEmoticon;
             }
+        }
 
         emit readLocalEmoticons();
     });
 }
 
 /**
-  * @函数名   
-  * @功能描述 
+  * @函数名
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/18
   */
-void EmoticonMainWgt::addMyCollection() {
-
+void EmoticonMainWgt::addMyCollection()
+{
     _collectionEmo.iconPath = ":/emoImg/image/MyEmoticon.png";
     _collectionEmo.pkgid = DEM_COLLECTION;
     _collectionEmo.name = tr("我的收藏");
     addEmoticon(_collectionEmo);
-
     auto wgt = _mapBtnTableWgt.value(DEM_COLLECTION).second;
     disconnect(wgt, &QTableWidget::cellClicked, this, &EmoticonMainWgt::onEmoticonItemClick);
     disconnect(wgt, &QTableWidget::cellDoubleClicked, this, &EmoticonMainWgt::onEmoticonItemClick);
@@ -672,20 +743,21 @@ void EmoticonMainWgt::addMyCollection() {
 }
 
 /**
-  * @函数名   
-  * @功能描述 
+  * @函数名
+  * @功能描述
   * @参数
   * @author   cc
   * @date     2018/10/18
   */
-void EmoticonMainWgt::bindBtnTableWgt(EmoIcon *btn, QTableWidget *wgt) {
-    connect(btn, &EmoIcon::clicked, [this, btn, wgt]() {
-        for (auto & it : _mapBtnTableWgt) {
+void EmoticonMainWgt::bindBtnTableWgt(EmoIcon *btn, QTableWidget *wgt)
+{
+    connect(btn, &EmoIcon::clicked, this, [this, btn, wgt]()
+    {
+        for (auto &it : _mapBtnTableWgt)
             it.first->setCheckState(it.first == btn);
-        }
+
         _pStackEmoWgt->setCurrentWidget(wgt);
     });
-
     connect(wgt, &QTableWidget::cellClicked, this, &EmoticonMainWgt::onEmoticonItemClick);
     connect(wgt, &QTableWidget::cellDoubleClicked, this, &EmoticonMainWgt::onEmoticonItemClick);
 }
@@ -697,7 +769,8 @@ void EmoticonMainWgt::bindBtnTableWgt(EmoIcon *btn, QTableWidget *wgt) {
   * @author   cc
   * @date     2018/10/17
   */
-void EmoticonMainWgt::focusOutEvent(QFocusEvent *e) {
+void EmoticonMainWgt::focusOutEvent(QFocusEvent *e)
+{
     this->hide();
     QWidget::focusOutEvent(e);
 }
@@ -709,11 +782,13 @@ void EmoticonMainWgt::focusOutEvent(QFocusEvent *e) {
   * @author   cc
   * @date     2018/10/17
   */
-void EmoticonMainWgt::mousePressEvent(QMouseEvent *e) {
+void EmoticonMainWgt::mousePressEvent(QMouseEvent *e)
+{
     QPoint pos = e->pos();
-    if (!realContentsRect().contains(pos)) {
+
+    if (!realContentsRect().contains(pos))
         this->hide();
-    }
+
     UShadowDialog::mousePressEvent(e);
 }
 
@@ -721,24 +796,27 @@ void EmoticonMainWgt::mousePressEvent(QMouseEvent *e) {
  * 更新收藏
  * @param arConfigs
  */
-void EmoticonMainWgt::updateCollectionConfig(const std::vector<QTalk::Entity::ImConfig> &arConfigs) {
-
-    QtConcurrent::run([this, arConfigs]() {
-
+void EmoticonMainWgt::updateCollectionConfig(const std::vector<st::entity::ImConfig> &arConfigs)
+{
+    QtConcurrent::run([this, arConfigs]()
+    {
         QMutexLocker locker(&_mutex);
-
         QSet<QString> tmps;
-        for(const auto& str : _mapCollections)
+
+        for(const auto &str : _mapCollections)
             tmps.insert(str.first);
 
         bool mod = false;
         std::vector<std::string> downloads;
         _collections.clear();
         _mapCollections.clear();
-        for (const auto &config  : arConfigs) {
-            if (config.ConfigKey == "kCollectionCacheKey") {
+
+        for (const auto &config  : arConfigs)
+        {
+            if (config.ConfigKey == "kCollectionCacheKey")
+            {
                 std::string netPath = config.ConfigValue;
-                QString localPath = QString::fromStdString(QTalk::getCollectionPath(netPath));
+                QString localPath = QString::fromStdString(st::getCollectionPath(netPath));
 
                 if(tmps.contains(localPath))
                 {
@@ -749,9 +827,10 @@ void EmoticonMainWgt::updateCollectionConfig(const std::vector<QTalk::Entity::Im
                     mod = true;
 
                 QFileInfo fileINfo(localPath);
-                if (!fileINfo.exists()) {
+
+                if (!fileINfo.exists())
                     downloads.push_back(netPath);
-                }
+
                 _collections[config.ConfigSubKey] = config.ConfigValue;
                 _mapCollections.insert(std::pair<UnorderMapKey, std::string>(localPath, netPath));
             }
@@ -759,33 +838,41 @@ void EmoticonMainWgt::updateCollectionConfig(const std::vector<QTalk::Entity::Im
 
         //
         mod |= !tmps.empty();
+
         //
-        if (mod && _pMessageManager) {
+        if (mod && _pMessageManager)
+        {
             if(!downloads.empty())
                 _pMessageManager->downloadCollections(downloads);
+
             emit updateConllectionSignal();
         }
     });
 }
 
 void EmoticonMainWgt::updateCollectionConfig(const std::map<std::string, std::string> &deleteData,
-                                             const std::vector<QTalk::Entity::ImConfig>& arImConfig) {
-
-    QtConcurrent::run([this, deleteData, arImConfig]() {
+        const std::vector<st::entity::ImConfig> &arImConfig)
+{
+    QtConcurrent::run([this, deleteData, arImConfig]()
+    {
         QMutexLocker locker(&_mutex);
 
         if(!deleteData.empty())
         {
             bool mod = false;
-            for (const auto &config  : deleteData) {
-                if (config.second == "kCollectionCacheKey" && _collections.find(config.first) != _collections.end()) {
+
+            for (const auto &config  : deleteData)
+            {
+                if (config.second == "kCollectionCacheKey" && _collections.find(config.first) != _collections.end())
+                {
                     std::string configVal = _collections[config.first];
                     _collections.erase(config.first);
-
                     auto itFind =  std::find_if(_mapCollections.begin(), _mapCollections.end(),
-                            [configVal](const auto pairConfig) {
+                                                [configVal](const auto pairConfig)
+                    {
                         return pairConfig.second == configVal;
                     });
+
                     if(itFind != _mapCollections.end())
                     {
                         mod = true;
@@ -793,48 +880,56 @@ void EmoticonMainWgt::updateCollectionConfig(const std::map<std::string, std::st
                     }
                 }
             }
+
             if(mod)
                 emit updateConllectionSignal();
         }
+
         if(!arImConfig.empty())
         {
             bool mod = false;
             std::vector<std::string> downloads;
-            for (const auto &config  : arImConfig) {
-                if (config.ConfigKey == "kCollectionCacheKey" &&
-                        _collections.find(config.ConfigSubKey) == _collections.end()) {
 
+            for (const auto &config  : arImConfig)
+            {
+                if (config.ConfigKey == "kCollectionCacheKey" &&
+                        _collections.find(config.ConfigSubKey) == _collections.end())
+                {
                     mod = true;
                     std::string netPath = config.ConfigValue;
-                    QString localPath = QString::fromStdString(QTalk::getCollectionPath(netPath));
+                    QString localPath = QString::fromStdString(st::getCollectionPath(netPath));
                     QFileInfo fileINfo(localPath);
-                    if (!fileINfo.exists()) {
+
+                    if (!fileINfo.exists())
                         downloads.push_back(netPath);
-                    }
+
                     _collections[config.ConfigSubKey] = config.ConfigValue;
                     _mapCollections.insert(std::pair<UnorderMapKey, std::string>(localPath, netPath));
                 }
             }
-            if (mod && _pMessageManager) {
+
+            if (mod && _pMessageManager)
+            {
                 if(!downloads.empty())
                     _pMessageManager->downloadCollections(downloads);
+
                 emit updateConllectionSignal();
             }
         }
-
     });
 }
 
 /**
  * 更新收藏
  */
-void EmoticonMainWgt::updateCollection() {
+void EmoticonMainWgt::updateCollection()
+{
     //
     auto wgt = _mapBtnTableWgt.value(DEM_COLLECTION).second;
+
     if(wgt)
-    {
         _pStackEmoWgt->updateCollection(wgt, _mapCollections);
-    }
+
     //
     if(_pManager)
         _pManager->getLocalManager()->updateCollection(_mapCollections);
@@ -857,6 +952,7 @@ void EmoticonMainWgt::initDefaultEmo()
     if(QFile::exists(emojiPath))
     {
         auto tmpFilePath = QString("%1/0106@2x.png").arg(emojiPath);
+
         if(QFile::exists(tmpFilePath))
         {
             QDir dir(emojiPath);
@@ -866,7 +962,7 @@ void EmoticonMainWgt::initDefaultEmo()
 
     if(!QFile::exists(emojiPath))
     {
-        QTemporaryFile* tmpFile = QTemporaryFile::createNativeFile(":/emo/emoticon.zip");
+        QTemporaryFile *tmpFile = QTemporaryFile::createNativeFile(":/emo/emoticon.zip");
         tmpFile->copy(emojiZip);
 
         if(QFile::exists(emojiZip))
@@ -877,18 +973,17 @@ void EmoticonMainWgt::initDefaultEmo()
     }
 }
 
-void EmoticonMainWgt::onRemoveCollection(const QString& emoPath)
+void EmoticonMainWgt::onRemoveCollection(const QString &emoPath)
 {
     if(_pMessageManager)
     {
         std::string key = emoPath.toStdString();
         QMutexLocker locker(&_mutex);
-        for(const auto& item : _collections)
+
+        for(const auto &item : _collections)
         {
             if(item.second == key)
-            {
                 _pMessageManager->updateUserSetting(true, "kCollectionCacheKey", item.first, key);
-            }
         }
     }
 }

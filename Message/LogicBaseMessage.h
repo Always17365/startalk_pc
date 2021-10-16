@@ -2,15 +2,15 @@
 // Created by cc on 2019-08-14.
 //
 
-#ifndef QTALK_V2_LOGICBASEMESSAGE_H
-#define QTALK_V2_LOGICBASEMESSAGE_H
+#ifndef STALK_V2_LOGICBASEMESSAGE_H
+#define STALK_V2_LOGICBASEMESSAGE_H
 
 #include <string>
 #include <map>
 #include <utility>
 #include <vector>
 #include <functional>
-#include "../EventBus/Event.hpp"
+#include "EventBus/Event.hpp"
 
 // 收到群成员
 class S_RecvGroupMemberEvt : public Event {
@@ -29,7 +29,7 @@ public:
 //class S_AllFriendsEvt : public Event
 //{
 //public:
-//    std::vector<QTalk::Entity::IMFriendList> friends;
+//    std::vector<st::Entity::IMFriendList> friends;
 //};
 
 // deal bind
@@ -51,7 +51,7 @@ class S_StaffChanged : public Event{};
 
 class S_AddHttpQeq : public Event {
 public:
-    QTalk::HttpRequest request;
+    st::HttpRequest request;
     std::function<void(int, const std::string &)> callback;
 };
 
@@ -76,4 +76,4 @@ class SgMedalListChanged : public Event{};
 
 class SgUserMedalChanged : public Event{};
 
-#endif //QTALK_V2_LOGICBASEMESSAGE_H
+#endif //STALK_V2_LOGICBASEMESSAGE_H

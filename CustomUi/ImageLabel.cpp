@@ -3,7 +3,7 @@
 //
 
 #include "ImageLabel.h"
-#include "../UICom/qimage/qimage.h"
+#include "Util/ui/qimage/qimage.h"
 #include <QPainter>
 
 ImageLabel::ImageLabel(const QString &imagePath, QWidget *parent)
@@ -24,15 +24,14 @@ void ImageLabel::paintEvent(QPaintEvent *e)
     double factor1 = maxWidth / width;
     double factor2 = macHeight / height;
 
-    if (factor1 < 1.0 || factor2 < 1.0)
-    {
+    if (factor1 < 1.0 || factor2 < 1.0) {
         factor = qMin(factor1, factor2);
     }
 
     width = factor * width;
     height = factor * height;
-    auto dpi = QTalk::qimage::dpi();
-    pixmap = QTalk::qimage::loadImage(_path, false, true, width * dpi, height * dpi);
+    auto dpi = st::qimage::dpi();
+    pixmap = st::qimage::loadImage(_path, false, true, width * dpi, height * dpi);
     painter.drawPixmap({rect.x(), rect.y(), (int)width, (int)height}, pixmap);
     QFrame::paintEvent(e);
 }

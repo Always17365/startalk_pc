@@ -3,9 +3,9 @@
 //
 
 #include "SearchView.h"
-#include "../UICom/qimage/qimage.h"
-#include "../UICom/StyleDefine.h"
-#include "../Platform/AppSetting.h"
+#include "Util/ui/qimage/qimage.h"
+#include "Util/ui/StyleDefine.h"
+#include "DataCenter/AppSetting.h"
 #include <QPainter>
 #include <QEvent>
 #include <QDebug>
@@ -24,7 +24,7 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     QStyledItemDelegate::paint(painter, option, index);
     painter->save();
     painter->setRenderHint(QPainter::TextAntialiasing);
-    painter->fillRect(option.rect, QTalk::StyleDefine::instance().getGroupManagerNormalColor());
+    painter->fillRect(option.rect, st::StyleDefine::instance().getGroupManagerNormalColor());
     //
     int radius = 16;
     QRect rect = option.rect;
@@ -33,15 +33,15 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     QString iconPath = index.data(EM_SEARCH_DATATYPE_ICONPATH).toString();
     QString staff = index.data(EM_SEARCH_DATATYPE_STAFF).toString();
 
-    QPixmap icon = QTalk::qimage::loadCirclePixmap(iconPath, radius * QTalk::qimage::dpi());
+    QPixmap icon = st::qimage::loadCirclePixmap(iconPath, radius * st::qimage::dpi());
     painter->setRenderHints(QPainter::Antialiasing, true);
     painter->setRenderHints(QPainter::SmoothPixmapTransform, true);
     painter->drawPixmap(QRect(rect.x(), rect.y() + (rect.height() - radius * 2) / 2, radius * 2, radius * 2), icon);
-    QTalk::setPainterFont(painter, AppSetting::instance().getFontLevel());
-    painter->setPen(QTalk::StyleDefine::instance().getNavNameFontColor());
+    st::setPainterFont(painter, AppSetting::instance().getFontLevel());
+    painter->setPen(st::StyleDefine::instance().getNavNameFontColor());
     painter->drawText(QRect(rect.x() + radius * 2 + 8, rect.y(),
                             rect.width() - radius * 2 - 2 - 30, rect.height() / 2), Qt::AlignBottom, strText);
-    painter->setPen(QTalk::StyleDefine::instance().getNavContentFontColor());
+    painter->setPen(st::StyleDefine::instance().getNavContentFontColor());
     painter->drawText(QRect(rect.x() + radius * 2 + 8, rect.y() + rect.height() / 2 + 5,
                             rect.width() - radius * 2 - 8  - 50, rect.height() / 2), Qt::AlignTop, staff);
 
@@ -50,8 +50,8 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     QString picPath = isChecked ? ":/GroupManager/image1/checkbox_checked.png"
                             : ":/GroupManager/image1/checkbox_unchecked.png";
 
-    QPixmap checkIcon = QTalk::qimage::loadCirclePixmap(picPath,
-                                                                   10 * QTalk::qimage::dpi());
+    QPixmap checkIcon = st::qimage::loadCirclePixmap(picPath,
+                                                                   10 * st::qimage::dpi());
     painter->drawPixmap(pixRect, checkIcon);
 
     painter->restore();

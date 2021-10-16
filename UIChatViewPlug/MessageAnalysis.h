@@ -2,12 +2,12 @@
 // Created by cc on 2019/11/07.
 //
 
-#ifndef QTALK_V2_MESSAGEANALYSIS_H
-#define QTALK_V2_MESSAGEANALYSIS_H
+#ifndef STALK_V2_MESSAGEANALYSIS_H
+#define STALK_V2_MESSAGEANALYSIS_H
 
 #include "search/SearchItemWgt.h"
 
-namespace QTalk
+namespace st
 {
     void analysisMessage(StNetMessageResult &info);
     // text
@@ -37,4 +37,4 @@ namespace QTalk
 }
 
 
-#endif //QTALK_V2_MESSAGEANALYSIS_H
+#endif //STALK_V2_MESSAGEANALYSIS_H

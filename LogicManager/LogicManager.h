@@ -4,8 +4,8 @@
 
 #include <string>
 #include "logicmanager_global.h"
-#include "../include/CommonDefine.h"
-#include "../interface/logic/IDatabasePlug.h"
+#include "include/CommonDefine.h"
+#include "interface/logic/IDatabasePlug.h"
 #include <set>
 #include <map>
 

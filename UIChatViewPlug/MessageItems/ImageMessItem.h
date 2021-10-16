@@ -13,11 +13,10 @@ class ImageMessItem : public MessageItemBase
     Q_OBJECT
 public:
     explicit ImageMessItem(const StNetMessageResult &msgInfo,
-            const QString& link,
-            const QString& path,
-            const QSizeF& size,
-            QWidget *parent = nullptr);
-    ~ImageMessItem() override;
+                           const QString &link,
+                           const QString &path,
+                           const QSizeF &size,
+                           QWidget *parent = nullptr);
     // MessageItemBase interface
 public:
     QSize itemWdtSize() override;
@@ -26,15 +25,15 @@ public:
     // QWidget interface
 protected:
     void resizeEvent(QResizeEvent *event) override;
-    void mousePressEvent(QMouseEvent* e) override;
-    bool event(QEvent* e) override ;
+    void mousePressEvent(QMouseEvent *e) override;
+    bool event(QEvent *e) override ;
 
 private:
     void init();
     void initLayout();
     void initSendLayout();
     void initReceiveLayout();
-    void setImage();  
+    void setImage();
 
 private slots:
     void onMoveTimer();
@@ -44,9 +43,9 @@ Q_SIGNALS:
     void sgItemChanged();
 
 private:
-    QLabel *_imageLab;
-    QMovie *_movie;
-    bool    _isGIF;
+    QLabel *_imageLab{ nullptr };
+    QMovie *_movie {nullptr};
+    bool    _isGIF {false};
 
     QSize _headPixSize;
     QMargins _mainMargin;

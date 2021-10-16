@@ -4,17 +4,17 @@
 
 #include <memory>
 #include <set>
-#include "../EventBus/Event.hpp"
-#include "../include/CommonDefine.h"
-#include "../include/im_enum.h"
-#include "../entity/IM_Session.h"
-#include "../entity/im_message.h"
-#include "../include/CommonStrcut.h"
-#include "../entity/UID.h"
+#include "EventBus/Event.hpp"
+#include "include/CommonDefine.h"
+#include "include/im_enum.h"
+#include "entity/IM_Session.h"
+#include "entity/im_message.h"
+#include "include/CommonStrcut.h"
+#include "entity/UID.h"
 #include <map>
 #include <utility>
 
-typedef std::vector<QTalk::Entity::ImMessageInfo> VectorMessage;
+typedef std::vector<st::entity::ImMessageInfo> VectorMessage;
 
 // 发送消息
 class S_Message : public Event
@@ -23,7 +23,7 @@ public:
     QInt64 time;
     QUInt8 chatType;
     std::string userId;
-    QTalk::Entity::ImMessageInfo message;
+    st::entity::ImMessageInfo message;
 };
 
 // 接收消息
@@ -33,14 +33,14 @@ public:
     QInt64 time;
     QUInt8 chatType;
     std::string userId;
-    QTalk::Entity::ImMessageInfo message;
+    st::entity::ImMessageInfo message;
     bool isCarbon;
 };
 
 class PreSendMessageEvt : public Event
 {
 public:
-    QTalk::Entity::ImMessageInfo message;
+    st::entity::ImMessageInfo message;
 };
 
 // 拉的历史消息
@@ -49,7 +49,7 @@ class HistoryMessage : public Event
 public:
     QInt64 time;
     QUInt8 chatType;
-    QTalk::Entity::UID uid;
+    st::entity::UID uid;
     VectorMessage msgList;
 };
 
@@ -221,7 +221,9 @@ public:
 class GetEmoticonFileMessage : public Event
 {
 public:
-    GetEmoticonFileMessage(std::string pid, std::string sid, std::string name) : pkgid(std::move(pid)), emoShortcut(std::move(sid)), fileName(std::move(name))
+    GetEmoticonFileMessage(std::string pid, std::string sid,
+                           std::string name) : pkgid(std::move(pid)), emoShortcut(std::move(sid)),
+        fileName(std::move(name))
     {
     }
 
@@ -257,8 +259,10 @@ public:
 class ReadedMessage : public Event
 {
 public:
-    explicit ReadedMessage(std::string messageId, std::string userId, QUInt8 chatType)
-        : messageId(std::move(messageId)), userId(std::move(userId)), chatType(chatType){};
+    explicit ReadedMessage(std::string messageId, std::string userId,
+                           QUInt8 chatType)
+        : messageId(std::move(messageId)), userId(std::move(userId)),
+          chatType(chatType) {};
 
 public:
     const std::string messageId;
@@ -269,8 +273,9 @@ public:
 class SignalReadState : public Event
 {
 public:
-    SignalReadState(const std::map<std::string, QInt32> &mapRead, const std::string &userId, const std::string &realJid)
-        : userId(userId), realJid(realJid), mapReadState(mapRead){};
+    SignalReadState(const std::map<std::string, QInt32> &mapRead,
+                    const std::string &userId, const std::string &realJid)
+        : userId(userId), realJid(realJid), mapReadState(mapRead) {};
 
 public:
     const std::string &userId;
@@ -290,7 +295,8 @@ public:
 class GroupReadState : public Event
 {
 public:
-    GroupReadState(const std::map<std::string, int> &readCount, const std::string &groupId)
+    GroupReadState(const std::map<std::string, int> &readCount,
+                   const std::string &groupId)
         : mapReadCount(readCount), groupId(groupId)
     {
     }
@@ -317,21 +323,23 @@ public:
 class RevokeMessage : public Event
 {
 public:
-    RevokeMessage(QTalk::Entity::UID uid, std::string fromId,
+    RevokeMessage(st::entity::UID uid, std::string fromId,
                   std::string messageId)
-        : uid(std::move(uid)), messageFrom(std::move(fromId)), messageId(std::move(messageId)), chatType(QTalk::Enum::ChatType::TwoPersonChat)
+        : uid(std::move(uid)), messageFrom(std::move(fromId)),
+          messageId(std::move(messageId)), chatType(st::Enum::ChatType::TwoPersonChat)
     {
     }
 
 public:
-    RevokeMessage(QTalk::Entity::UID uid, std::string fromId,
+    RevokeMessage(st::entity::UID uid, std::string fromId,
                   std::string messageId, QUInt8 chatType)
-        : uid(std::move(uid)), messageFrom(std::move(fromId)), messageId(std::move(messageId)), chatType(chatType)
+        : uid(std::move(uid)), messageFrom(std::move(fromId)),
+          messageId(std::move(messageId)), chatType(chatType)
     {
     }
 
 public:
-    const QTalk::Entity::UID uid;
+    const st::entity::UID uid;
     const std::string messageFrom;
     const std::string messageId;
     const QUInt8 chatType;
@@ -341,7 +349,8 @@ public:
 class S_RevokeMessage : public RevokeMessage
 {
 public:
-    S_RevokeMessage(const QTalk::Entity::UID &uid, const std::string &fromId, const std::string &messageId, const QUInt8 chatType)
+    S_RevokeMessage(const st::entity::UID &uid, const std::string &fromId,
+                    const std::string &messageId, const QUInt8 chatType)
         : RevokeMessage(uid, fromId, messageId, chatType) {}
     ~S_RevokeMessage() override = default;
 };
@@ -395,7 +404,8 @@ public:
 class ReportDump : public Event
 {
 public:
-    explicit ReportDump(std::string ip, std::string id, std::string dump, QInt64 time)
+    explicit ReportDump(std::string ip, std::string id, std::string dump,
+                        QInt64 time)
         : ipAddr(std::move(ip)), id(id), dumpFile(std::move(dump)), crashTime(time)
     {
     }
@@ -464,7 +474,7 @@ class ChangeHeadMessage : public Event
 {
 public:
     explicit ChangeHeadMessage(std::string userHead)
-        : userHead(std::move(userHead)){};
+        : userHead(std::move(userHead)) {};
 
 public:
     std::string userHead;
@@ -486,8 +496,10 @@ public:
 class UploadFileEvt : public Event
 {
 public:
-    explicit UploadFileEvt(std::string localPath, bool withProcess, std::string processKey)
-        : localPath(std::move(localPath)), withProcess(withProcess), process_key(std::move(processKey))
+    explicit UploadFileEvt(std::string localPath, bool withProcess,
+                           std::string processKey)
+        : localPath(std::move(localPath)), withProcess(withProcess),
+          process_key(std::move(processKey))
     {
     }
 
@@ -501,28 +513,29 @@ public:
 class RecentSessionEvt : public Event
 {
 public:
-    explicit RecentSessionEvt(std::vector<QTalk::StShareSession> &ss)
-        : sessions(ss){};
+    explicit RecentSessionEvt(std::vector<st::StShareSession> &ss)
+        : sessions(ss) {};
 
 public:
-    std::vector<QTalk::StShareSession> &sessions;
+    std::vector<st::StShareSession> &sessions;
 };
 
 class ContactsSessionEvt : public Event
 {
 public:
-    explicit ContactsSessionEvt(std::vector<QTalk::StShareSession> &ss)
-        : sessions(ss){};
+    explicit ContactsSessionEvt(std::vector<st::StShareSession> &ss)
+        : sessions(ss) {};
 
 public:
-    std::vector<QTalk::StShareSession> &sessions;
+    std::vector<st::StShareSession> &sessions;
 };
 
 class ImageMessageEvt : public Event
 {
 public:
-    explicit ImageMessageEvt(bool isNext, const std::string &messageId, std::vector<std::pair<std::string, std::string>> &msgs)
-        : messageId(messageId), msgs(msgs), isNext(isNext){};
+    explicit ImageMessageEvt(bool isNext, const std::string &messageId,
+                             std::vector<std::pair<std::string, std::string>> &msgs)
+        : messageId(messageId), msgs(msgs), isNext(isNext) {};
 
 public:
     const std::string &messageId;
@@ -533,19 +546,13 @@ public:
 class EmptyMessageEvt : public Event
 {
 public:
-    explicit EmptyMessageEvt(QTalk::Entity::ImMessageInfo msgInfo)
+    explicit EmptyMessageEvt(st::entity::ImMessageInfo msgInfo)
     {
         this->msgInfo = std::move(msgInfo);
     }
 
 public:
-    QTalk::Entity::ImMessageInfo msgInfo;
-};
-
-class HotLineMessageListEvt : public Event
-{
-public:
-    std::string xmppId;
+    st::entity::ImMessageInfo msgInfo;
 };
 
 class UpdateMsgExtendInfo : public Event

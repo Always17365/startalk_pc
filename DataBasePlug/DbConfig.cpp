@@ -3,9 +3,9 @@
 //
 
 #include "DbConfig.h"
-#include "../QtUtil/Utils/Log.h"
+#include "Util/Log.h"
 
-DbConfig::DbConfig(qtalk::sqlite::database *sqlDb)
+DbConfig::DbConfig(st::sqlite::database *sqlDb)
         : DaoInterface(sqlDb, "DB_Config") {
 
 }
@@ -21,7 +21,7 @@ bool DbConfig::creatTable() {
                       "`SubKey`	TEXT, "
                       "`Value`	TEXT, "
                       "PRIMARY KEY(`Key`, `SubKey`) )";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     return query.executeStep();
 }
 
@@ -31,7 +31,7 @@ bool DbConfig::getDbVersion(int &version) {
         return false;
     }
     std::string sql = "SELECT `Value` FROM `DB_Config` WHERE `Key` = 'DB_VER'";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
 
     try {
         if (query.executeNext()) {
@@ -52,7 +52,7 @@ bool DbConfig::setDbVersion(const int &ver) {
         return false;
     }
     std::string sql = "INSERT OR REPLACE INTO `DB_Config` (`Key`, `SubKey`, `Value`) VALUES ('DB_VER', 'DB_VER', ?);";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
 
     try {
         query.bind(1, std::to_string(ver).c_str());
@@ -71,7 +71,7 @@ bool DbConfig::initGroupMainVersion() {
         return false;
     }
     std::string sql = "INSERT OR IGNORE INTO DB_Config (Key, SubKey, Value) VALUES ('Group', 'mainVersion', ?);";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
 
     try {
         query.bind(1, std::to_string(0).c_str());

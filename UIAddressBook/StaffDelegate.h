@@ -1,8 +1,8 @@
 ﻿//
 // Created by cc on 18-12-20.
 //
-#ifndef QTALK_V2_STAFFDELEGATE_H
-#define QTALK_V2_STAFFDELEGATE_H
+#ifndef STALK_V2_STAFFDELEGATE_H
+#define STALK_V2_STAFFDELEGATE_H
 
 
 #include <QStyledItemDelegate>
@@ -38,4 +38,4 @@ protected:
 };
 
 
-#endif //QTALK_V2_STAFFDELEGATE_H
+#endif //STALK_V2_STAFFDELEGATE_H

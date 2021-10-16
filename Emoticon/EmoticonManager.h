@@ -4,7 +4,7 @@
 #ifndef _EMOTICONMANAGER_H_
 #define _EMOTICONMANAGER_H_
 
-#include "../CustomUi/UShadowWnd.h"
+#include "CustomUi/UShadowWnd.h"
 #include <QFrame>
 #include "EmoticonStruct.h"
 

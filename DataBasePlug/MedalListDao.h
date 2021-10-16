@@ -2,12 +2,12 @@
 // Created by cc on 2019/10/15.
 //
 
-#ifndef QTALK_V2_MEDALLISTDAO_H
-#define QTALK_V2_MEDALLISTDAO_H
+#ifndef STALK_V2_MEDALLISTDAO_H
+#define STALK_V2_MEDALLISTDAO_H
 
 #include "DaoInterface.h"
 #include <vector>
-#include "../entity/im_medal_list.h"
+#include "entity/im_medal_list.h"
 
 /**
 * @description: MedalListDao
@@ -16,13 +16,13 @@
 **/
 class MedalListDao : public DaoInterface{
 public:
-    explicit MedalListDao(qtalk::sqlite::database *sqlDb);
+    explicit MedalListDao(st::sqlite::database *sqlDb);
     bool creatTable() override;
 
 public:
-    void insertMedalList(const std::vector<QTalk::Entity::ImMedalList>& medals);
-    void getMedalList(std::vector<QTalk::Entity::ImMedalList>& medals);
+    void insertMedalList(const std::vector<st::entity::ImMedalList>& medals);
+    void getMedalList(std::vector<st::entity::ImMedalList>& medals);
 };
 
 
-#endif //QTALK_V2_MEDALLISTDAO_H
+#endif //STALK_V2_MEDALLISTDAO_H

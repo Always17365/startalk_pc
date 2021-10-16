@@ -17,15 +17,15 @@
 #include <QMenu>
 #include <QAction>
 #include <QFileInfo>
-#include "../CustomUi/HeadPhotoLab.h"
-#include "../QtUtil/Entity/JID.h"
-#include "../Platform/Platform.h"
-#include "../CustomUi/LinkButton.h"
+#include "CustomUi/HeadPhotoLab.h"
+#include "Util/Entity/JID.h"
+#include "DataCenter/Platform.h"
+#include "CustomUi/LinkButton.h"
 #include "AddressBookPanel.h"
-#include "../UICom/UIEntity.h"
+#include "entity/UIEntity.h"
 #include "../UICardManager/UserCard.h"
-#include "../Platform/dbPlatForm.h"
-#include "../Platform/NavigationManager.h"
+#include "DataCenter/dbPlatForm.h"
+#include "DataCenter/NavigationManager.h"
 
 UserCard::UserCard(AddressBookPanel *panel)
     : QFrame(panel), _pMainPanel(panel)
@@ -228,19 +228,19 @@ void UserCard::initUi()
     connect(_pMailBtn, &QPushButton::clicked, this, &UserCard::sendMailSlot);
     connect(_pBtnStar, &QPushButton::clicked, this, &UserCard::starUserSlot);
     connect(_pAddBlackListAct, &QAction::triggered, this, &UserCard::addBlackListSlot);
-    connect(btnMore, &QPushButton::clicked, [this]()
+    connect(btnMore, &QPushButton::clicked, this, [this]()
     {
         _pMenu->exec(QCursor::pos());
     });
 }
 
-bool UserCard::showUserCard(const std::shared_ptr<QTalk::Entity::ImUserSupplement> &imuserSup,
-                            const std::shared_ptr<QTalk::Entity::ImUserInfo> &info)
+bool UserCard::showUserCard(const std::shared_ptr<st::entity::ImUserSupplement> &imuserSup,
+                            const std::shared_ptr<st::entity::ImUserInfo> &info)
 {
     QMutexLocker locker(&_mutex);
-    QTalk::Entity::JID jid(imuserSup->XmppId.c_str());
+    st::entity::JID jid(imuserSup->XmppId.c_str());
     //
-    emit setWgtStatusSignal(jid.username() == PLAT.getSelfUserId());
+    emit setWgtStatusSignal(jid.username() == DC.getSelfUserId());
     //
     bool ret = (nullptr != info);
 
@@ -254,10 +254,10 @@ bool UserCard::showUserCard(const std::shared_ptr<QTalk::Entity::ImUserSupplemen
             strName = info->Name;
 
         if(strName.empty())
-            strName = QTalk::Entity::JID(imuserSup->XmppId).username();
+            strName = st::entity::JID(imuserSup->XmppId).username();
 
         _strUserName = QString::fromStdString(strName);
-        QString headSrc = QString(QTalk::GetHeadPathByUrl(info->HeaderSrc).c_str());
+        QString headSrc = QString(st::GetHeadPathByUrl(info->HeaderSrc).c_str());
         QFileInfo headFileinfo(headSrc);
 
         if(headFileinfo.exists() && headFileinfo.isFile())
@@ -360,7 +360,7 @@ void UserCard::setFlags(int flags)
  */
 void UserCard::sendMessageSlot()
 {
-    StSessionInfo stSession(QTalk::Enum::TwoPersonChat, QString::fromStdString(_strUserId), _strUserName);
+    StSessionInfo stSession(st::Enum::TwoPersonChat, QString::fromStdString(_strUserId), _strUserName);
     stSession.headPhoto = _strHeadSrc;
     emit _pMainPanel->sgSwitchCurFun(0);
     emit _pMainPanel->sgOpenNewSession(stSession);

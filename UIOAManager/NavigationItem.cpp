@@ -1,14 +1,14 @@
 ﻿#include "NavigationItem.h"
 #include "OAManagerPanel.h"
-#include "../CustomUi/NavigationItem.h"
+#include "CustomUi/NavigationItem.h"
 
-#include "../UICom/qimage/qimage.h"
+#include "Util/ui/qimage/qimage.h"
 #include <QHBoxLayout>
 #include <QPainter>
 #include <QPaintEvent>
-#include "../UICom/StyleDefine.h"
+#include "Util/ui/StyleDefine.h"
 
-using namespace QTalk;
+using namespace st;
 OANavigationItem::OANavigationItem(const int& id, QString name, QString icon, OAManagerPanel *mainPanel)
 	: QFrame(mainPanel), _id(id),
 	_mainPanel(mainPanel),

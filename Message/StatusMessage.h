@@ -3,8 +3,8 @@
 
 #include <utility>
 
-#include "../EventBus/Event.hpp"
-#include "../include/CommonStrcut.h"
+#include "EventBus/Event.hpp"
+#include "include/CommonStrcut.h"
 
 // tcp断链
 class DisconnectToServer : public Event { };
@@ -13,11 +13,12 @@ class DisconnectToServer : public Event { };
 class AuthFailed : public Event
 {
 public:
-	std::string  message;
+    std::string  message;
 };
 
 // 触发重连消息
-class RetryConnectToServerEvt : public Event {
+class RetryConnectToServerEvt : public Event
+{
 public:
     bool result = false;
 };
@@ -36,7 +37,8 @@ public:
 class RefreshNavEvt : public Event {};
 
 // 回到登录窗口
-class GoBackLoginWndEvt : public Event {
+class GoBackLoginWndEvt : public Event
+{
 public:
     std::string reason; // message
 };
@@ -45,18 +47,18 @@ public:
 class SystemQuitEvt : public Event {};
 
 //
-class GetHistoryError : public Event{};
+class GetHistoryError : public Event {};
 
 //
 class UserOnlineState : public Event
 {
 public:
-    explicit UserOnlineState(const QInt64& login_t, const QInt64& logout_t, std::string ip)
+    UserOnlineState(const QInt64 &login_t, const QInt64 &logout_t, std::string ip)
         : login_t(login_t), logout_t(logout_t), ip(std::move(ip)) {}
 
 public:
-    QInt64 login_t;
-    QInt64 logout_t;
+    QInt64 login_t {0};
+    QInt64 logout_t{0};
     std::string ip;
 };
 
@@ -64,17 +66,18 @@ public:
 class OperatorStatistics : public Event
 {
 public:
-    explicit OperatorStatistics(std::string ip, std::vector<QTalk::StActLog> operators)
-        :ip(std::move(ip)), operators(std::move(operators)) {}
+    explicit OperatorStatistics(std::string ip, std::vector<st::StActLog> operators)
+        : ip(std::move(ip)), operators(std::move(operators)) {}
 
 public:
     const std::string ip;
-    const std::vector<QTalk::StActLog> operators;
+    const std::vector<st::StActLog> operators;
 
 };
 
 //
-class ExceptCpuEvt : public Event {
+class ExceptCpuEvt : public Event
+{
 public:
     double cpu;
     long long time;

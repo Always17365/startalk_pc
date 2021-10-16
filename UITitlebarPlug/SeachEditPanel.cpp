@@ -1,20 +1,18 @@
 ﻿#include "SeachEditPanel.h"
-#include "../QtUtil/Utils/Log.h"
-#include "../UICom/StyleDefine.h"
+#include "Util/Log.h"
+#include "Util/ui/StyleDefine.h"
 #include <QStyle>
 #include <QHBoxLayout>
 
 SeachEditPanel::SeachEditPanel(QWidget *parent) : QFrame(parent),
-    _isEditing(Q_NULLPTR),
-    _searchEdt(nullptr),
-    _searchBtn(nullptr)
+    _isEditing(nullptr)
 {
     initPanel();
     this->setFocusProxy(_searchEdt);
 }
 
 SeachEditPanel::~SeachEditPanel()
-= default;
+    = default;
 
 /**
   * @函数名
@@ -62,7 +60,7 @@ void SeachEditPanel::initPanel()
     _searchEdt->setPlaceholderText(tr("搜索"));
     _clearBtn = new QToolButton(this);
     _clearBtn->setObjectName("ClearBtn");
-    auto * searchLay = new QHBoxLayout(this);
+    auto *searchLay = new QHBoxLayout(this);
     searchLay->addWidget(_searchBtn);
     searchLay->addWidget(_searchEdt);
     searchLay->addWidget(_clearBtn);
@@ -76,48 +74,51 @@ void SeachEditPanel::initPanel()
     connect(_searchEdt, &SearchEdit::sgSelectDown, this, &SeachEditPanel::sgSelectDown);
     connect(_searchEdt, &SearchEdit::sgSelectItem, this, &SeachEditPanel::sgSelectItem);
     connect(_searchEdt, &SearchEdit::sgKeyEsc, this, &SeachEditPanel::sgKeyEsc);
-
-    connect(_searchEdt, &QLineEdit::textChanged, [this](){
+    connect(_searchEdt, &QLineEdit::textChanged, this, [this]()
+    {
         _clearBtn->setVisible(!_searchEdt->text().isEmpty());
         _searchEdt->style()->polish(this);
     });
-    connect(_clearBtn, &QToolButton::clicked, [this](){
+    connect(_clearBtn, &QToolButton::clicked, this,  [this]()
+    {
         _searchEdt->clear();
     });
 }
 
-bool SeachEditPanel::eventFilter(QObject *o, QEvent *e) {
-
+bool SeachEditPanel::eventFilter(QObject *o, QEvent *e)
+{
     if(o == _searchEdt)
     {
         if(e->type() == QEvent::FocusIn)
         {
             _clearBtn->setVisible(true);
-            QColor selectColor = QTalk::StyleDefine::instance().getTitleSearchSelectColor();
+            QColor selectColor = st::StyleDefine::instance().getTitleSearchSelectColor();
             QString qss = QString("QFrame{background:rgba(%1, %2, %3, %4);"
                                   "border:1px solid rgba(0,202,190,1);}")
-                                          .arg(selectColor.red()).arg(selectColor.green())
-                                          .arg(selectColor.blue()).arg(selectColor.alphaF());
+                          .arg(selectColor.red()).arg(selectColor.green())
+                          .arg(selectColor.blue()).arg(selectColor.alphaF());
             this->setStyleSheet(qss);
             style()->polish(this);
         }
         else if(e->type() == QEvent::FocusOut)
         {
             _clearBtn->setVisible(false);
-            QColor normalColor = QTalk::StyleDefine::instance().getTitleSearchNormalColor();
+            QColor normalColor = st::StyleDefine::instance().getTitleSearchNormalColor();
             QString qss = QString("QFrame{background:rgba(%1, %2, %3, %4);}") .arg(normalColor.red()).arg(normalColor.green())
-                    .arg(normalColor.blue()).arg(normalColor.alphaF());
+                          .arg(normalColor.blue()).arg(normalColor.alphaF());
             this->setStyleSheet(qss);
             style()->polish(this);
         }
     }
+
     return QObject::eventFilter(o, e);;
 }
 
-bool SeachEditPanel::event(QEvent *e) {
+bool SeachEditPanel::event(QEvent *e)
+{
     if(e->type() == QEvent::FocusIn)
     {
-
     }
+
     return QFrame::event(e);
 }

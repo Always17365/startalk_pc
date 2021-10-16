@@ -2,11 +2,11 @@
 // Created by cc on 2019-04-16.
 //
 
-#ifndef QTALK_V2_SCANQRCODE_H
-#define QTALK_V2_SCANQRCODE_H
+#ifndef STALK_V2_SCANQRCODE_H
+#define STALK_V2_SCANQRCODE_H
 
 #include <QFrame>
-#include "../../qzxing/QZXing"
+#include "qzxing/QZXing.h"
 
 /**
 * @description: ScanQRcode
@@ -46,4 +46,4 @@ private:
 };
 
 
-#endif //QTALK_V2_SCANQRCODE_H
+#endif //STALK_V2_SCANQRCODE_H

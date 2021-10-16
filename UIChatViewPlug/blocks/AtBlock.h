@@ -2,13 +2,13 @@
 // Created by cc on 2018/11/28.
 //
 
-#ifndef QTALK_V2_ATBLOCK_H
-#define QTALK_V2_ATBLOCK_H
+#ifndef STALK_V2_ATBLOCK_H
+#define STALK_V2_ATBLOCK_H
 
 #include <QObject>
 #include <QTextObjectInterface>
 #include <QPainter>
-#include "../../UICom/StyleDefine.h"
+#include "Util/ui/StyleDefine.h"
 
 enum {
     atPropertyText = QTextFormat::UserProperty + 1,
@@ -39,11 +39,11 @@ public:
                             int posInDocument, const QTextFormat &format) override {
         QString text = format.property(atPropertyText).toString();
         painter->save();
-        painter->setPen(QTalk::StyleDefine::instance().getAtBlockFontColor());
+        painter->setPen(st::StyleDefine::instance().getAtBlockFontColor());
         painter->drawText(QRect(rect.x(), rect.y() + 3, rect.width(), rect.height()), Qt::AlignBottom | Qt::AlignLeft,text);
         painter->restore();
     }
 };
 
 
-#endif //QTALK_V2_ATBLOCK_H
+#endif //STALK_V2_ATBLOCK_H

@@ -3,11 +3,11 @@
 //
 
 #include "GroupTopicEditor.h"
-#include "../CustomUi/TitleBar.h"
+#include "CustomUi/TitleBar.h"
 #include <QVBoxLayout>
 #include <QtConcurrent>
-#include "../include/Line.h"
-#include "../CustomUi/QtMessageBox.h"
+#include "CustomUi/Line.h"
+#include "CustomUi/QtMessageBox.h"
 #include "MessageManager.h"
 
 //

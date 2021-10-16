@@ -10,20 +10,20 @@
 #include <QSettings>
 #include <QScrollBar>
 #include <QApplication>
-#include "../Platform/Platform.h"
-#include "../QtUtil/Entity/JID.h"
+#include "DataCenter/Platform.h"
+#include "Util/Entity/JID.h"
 #include "ChatViewMainPanel.h"
 #include "GroupItemDelegate.h"
 #include "MessageManager.h"
-#include "../Platform/dbPlatForm.h"
-#include "../QtUtil/Utils/Log.h"
-#include "../CustomUi/QtMessageBox.h"
+#include "DataCenter/dbPlatForm.h"
+#include "Util/Log.h"
+#include "CustomUi/QtMessageBox.h"
 #include <QFileDialog>
 #include <QDesktopServices>
 
 #define HEAD_RADIUS 40
 
-using namespace QTalk;
+using namespace st;
 extern ChatViewMainPanel *g_pMainPanel;
 
 GroupMember::GroupMember(QString &groupId, QWidget *parent)
@@ -70,7 +70,7 @@ GroupMember::addMember(const std::string &xmppid,
             EM_ITEMDATA_TYPE_MASKNAME);
         item->setData(userType, EM_ITEMDATA_TYPE_USERTYPE);
 
-        if (strId.toStdString() == PLAT.getSelfXmppId())
+        if (strId.toStdString() == DC.getSelfXmppId())
         {
             if (userType == 1)
             {
@@ -99,7 +99,7 @@ GroupMember::addMember(const std::string &xmppid,
 
         {
             _srcModel->appendRow(item);
-            std::lock_guard<QTalk::util::spin_mutex> lock(_sm);
+            std::lock_guard<st::util::spin_mutex> lock(_sm);
             _mapMemberItem[xmppid] = item;
         }
 
@@ -118,7 +118,7 @@ void GroupMember::deleteMember(const std::string &xmppid)
 {
     qInfo() << "deleteMember" << xmppid.data() << _groupId.data();
     {
-        std::lock_guard<QTalk::util::spin_mutex> lock(_sm);
+        std::lock_guard<st::util::spin_mutex> lock(_sm);
 
         //
         if (_mapMemberItem.contains(xmppid))
@@ -136,10 +136,10 @@ void GroupMember::deleteMember(const std::string &xmppid)
 
 void GroupMember::updateGroupMember(const std::string &memberJid, const std::string &nick, int affiliation)
 {
-    std::string userId = Entity::JID(memberJid).basename();
-    std::shared_ptr<QTalk::Entity::ImUserInfo> userInfo = DB_PLAT.getUserInfo(memberJid);
-    bool isOnline = PLAT.isOnline(userId);
-    std::lock_guard<QTalk::util::spin_mutex> lock(_sm);
+    std::string userId = entity::JID(memberJid).basename();
+    std::shared_ptr<st::entity::ImUserInfo> userInfo = DB_PLAT.getUserInfo(memberJid);
+    bool isOnline = DC.isOnline(userId);
+    std::lock_guard<st::util::spin_mutex> lock(_sm);
 
     if (_mapMemberItem.contains(memberJid))
     {
@@ -172,7 +172,7 @@ void GroupMember::updateGroupMember(const std::string &memberJid, const std::str
   */
 void GroupMember::updateMemberInfo(const std::vector<StUserCard> &users)
 {
-    std::lock_guard<QTalk::util::spin_mutex> lock(_sm);
+    std::lock_guard<st::util::spin_mutex> lock(_sm);
 
     for (const auto &user : users)
     {
@@ -198,7 +198,7 @@ void GroupMember::updateMemberInfo(const std::vector<StUserCard> &users)
                 name = user.userName;
 
             if(name.empty())
-                name = QTalk::Entity::JID(user.xmppId).username();
+                name = st::entity::JID(user.xmppId).username();
 
             _mapMemberItem[user.xmppId]->setData(QString::fromStdString(name), EM_ITEMDATA_TYPE_USERNAME);
             _mapMemberItem[user.xmppId]->setData(
@@ -265,12 +265,12 @@ void GroupMember::initUi()
     _pContextMenu->addAction(_removeGroupAction);
     _pMemberList->installEventFilter(this);
     connect(_pSearchBtn, &QPushButton::clicked, this, &GroupMember::onSearchBtnClick);
-    connect(_pSearchLineEdit, &QLineEdit::textChanged, [this](const QString & text)
+    connect(_pSearchLineEdit, &QLineEdit::textChanged, this, [this](const QString & text)
     {
         QString strContent = _pSearchLineEdit->text();
         _pModel->setFilterRegExp(strContent.toLower());
     });
-    connect(_pMemberList, &QListView::doubleClicked, [](const QModelIndex & index)
+    connect(_pMemberList, &QListView::doubleClicked, this, [](const QModelIndex & index)
     {
         if(!index.isValid())
             return;
@@ -278,11 +278,11 @@ void GroupMember::initUi()
         QString strUserName(index.data(EM_ITEMDATA_TYPE_USERNAME).toByteArray());
         QString strUserHead(index.data(EM_ITEMDATA_TYPE_HEADPATH).toByteArray());
         QString strUserId(index.data(EM_ITEMDATA_TYPE_XMPPID).toByteArray());
-        StSessionInfo stSession(QTalk::Enum::TwoPersonChat, strUserId, strUserName);
+        StSessionInfo stSession(st::Enum::TwoPersonChat, strUserId, strUserName);
         stSession.headPhoto = strUserHead;
         emit g_pMainPanel->sgOpenNewSession(stSession);
     });
-    connect(showCardAct, &QAction::triggered, [this](bool)
+    connect(showCardAct, &QAction::triggered, this, [this](bool)
     {
         QModelIndex index = _pMemberList->currentIndex();
 
@@ -292,7 +292,7 @@ void GroupMember::initUi()
             g_pMainPanel->showUserCard(strUserId);
         }
     });
-    connect(_setAdminAction, &QAction::triggered, [this](bool)
+    connect(_setAdminAction, &QAction::triggered, this, [this](bool)
     {
         QModelIndex index = _pMemberList->currentIndex();
 
@@ -310,7 +310,7 @@ void GroupMember::initUi()
                 error_log("set admin error id:{0} nick:{1} type{2}", xmppId, nick, type);
         }
     });
-    connect(_removeGroupAction, &QAction::triggered, [this](bool)
+    connect(_removeGroupAction, &QAction::triggered, this, [this](bool)
     {
         QModelIndex index = _pMemberList->currentIndex();
 
@@ -367,7 +367,7 @@ void GroupMember::onSearchBtnClick()
         if(ret == QtMessageBox::EM_BUTTON_YES)
         {
             _pSearchLineEdit->clear();
-            QString historyDir = QString("%1/%2.txt").arg(PLAT.getHistoryDir().data()).arg(_groupId);
+            QString historyDir = QString("%1/%2.txt").arg(DC.getHistoryDir().data()).arg(_groupId);
             QString path = QFileDialog::getSaveFileName(g_pMainPanel, tr("请选择导出目录"), historyDir);
 
             if(!path.isEmpty())
@@ -415,7 +415,7 @@ bool GroupMember::eventFilter(QObject *o, QEvent *e)
             unsigned int affline = index.data(EM_ITEMDATA_TYPE_USERTYPE).toUInt();
             std::string xmppId(index.data(EM_ITEMDATA_TYPE_XMPPID).toByteArray());
 
-            if (xmppId == PLAT.getSelfXmppId())
+            if (xmppId == DC.getSelfXmppId())
             {
                 _setAdminAction->setVisible(false);
                 _removeGroupAction->setVisible(false);
@@ -482,7 +482,7 @@ void GroupMember::updateHead()
         for (const auto item : _mapMemberItem)
         {
             std::string xmppId(item->data(EM_ITEMDATA_TYPE_XMPPID).toByteArray());
-            bool isOnline = PLAT.isOnline(xmppId);
+            bool isOnline = DC.isOnline(xmppId);
 
             if(isOnline)
                 onlineCount++;
@@ -515,7 +515,7 @@ void GroupMember::clearData()
 {
 //    setMemberCount(0, 0);
 //    //
-//    std::lock_guard<QTalk::util::spin_mutex> lock(_sm);
+//    std::lock_guard<st::util::spin_mutex> lock(_sm);
 //    groupMemberCount = groupMemberOnlineCount = 0;
 //    _mapMemberItem.clear();
 //    _srcModel->clear();

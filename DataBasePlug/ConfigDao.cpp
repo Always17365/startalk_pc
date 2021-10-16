@@ -1,8 +1,8 @@
 ﻿#include <iostream>
 #include "ConfigDao.h"
-#include "../QtUtil/Utils/Log.h"
+#include "Util/Log.h"
 
-ConfigDao::ConfigDao(qtalk::sqlite::database *sqlDb)
+ConfigDao::ConfigDao(st::sqlite::database *sqlDb)
         : DaoInterface(sqlDb, "IM_Config") {
 
 }
@@ -21,7 +21,7 @@ bool ConfigDao::creatTable() {
                       "PRIMARY KEY(`ConfigKey`,`ConfigSubKey`))";
 
     try {
-        qtalk::sqlite::statement query(*_pSqlDb, sql);
+        st::sqlite::statement query(*_pSqlDb, sql);
         return query.executeStep();
     }
     catch (const std::exception &e) {
@@ -47,7 +47,7 @@ bool ConfigDao::insertConfig(const std::string &key, const std::string &subKey, 
 
     // 获取所有用户
     std::string sql = "INSERT OR REPLACE INTO IM_Config (`ConfigKey`, `ConfigSubKey`, `ConfigValue`) values (?, ?, ?);";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     try {
         query.bind(1, key);
         query.bind(2, subKey);
@@ -75,7 +75,7 @@ bool ConfigDao::getConfig(const std::string &key, const std::string &subKey, std
 
     // 获取所有用户
     std::string sql = "SELECT `ConfigValue` FROM IM_Config WHERE `ConfigKey` = ? AND `ConfigSubKey` = ?;";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     try {
         query.bind(1, key);
         query.bind(2, subKey);
@@ -109,7 +109,7 @@ bool ConfigDao::getConfig(const std::string &key, std::map<std::string, std::str
 
     // 获取所有用户
     std::string sql = "SELECT `ConfigSubKey`, `ConfigValue` FROM IM_Config WHERE `ConfigKey` = ?;";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     try {
         query.bind(1, key);
 
@@ -134,7 +134,7 @@ bool ConfigDao::getConfigVersion(int &version) {
 
     // 获取所有用户
     std::string sql = "SELECT max(`Version`) FROM IM_Config;";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     try {
         if (query.executeNext()) {
             version = query.getColumn(0).getInt();
@@ -148,7 +148,7 @@ bool ConfigDao::getConfigVersion(int &version) {
 }
 
 //
-bool ConfigDao::bulkInsertConfig(const std::vector<QTalk::Entity::ImConfig> &configs) {
+bool ConfigDao::bulkInsertConfig(const std::vector<st::entity::ImConfig> &configs) {
     if (!_pSqlDb) {
         return false;
     }
@@ -158,13 +158,13 @@ bool ConfigDao::bulkInsertConfig(const std::vector<QTalk::Entity::ImConfig> &con
                       "(`ConfigKey`, `ConfigSubKey`, `ConfigValue`, `Version`) "
                       "values "
                       "(?, ?, ?, ?);";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
 
     std::cout << "bulkInsertConfig---" << configs.size() << std::endl;
 
     try {
         _pSqlDb->exec("begin immediate;");
-        for (QTalk::Entity::ImConfig conf: configs) {
+        for (st::entity::ImConfig conf: configs) {
             query.bind(1, conf.ConfigKey);
             query.bind(2, conf.ConfigSubKey);
             query.bind(3, conf.ConfigValue);
@@ -193,7 +193,7 @@ bool ConfigDao::bulkRemoveConfig(const std::map<std::string, std::string> &mapCo
 
     //
     std::string sql = "delete from IM_Config where ConfigKey = ? and ConfigSubKey = ?; ";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     try {
         _pSqlDb->exec("begin immediate;");
         for (std::pair<std::string, std::string> conf : mapConf) {
@@ -215,16 +215,16 @@ bool ConfigDao::bulkRemoveConfig(const std::map<std::string, std::string> &mapCo
     }
 }
 
-bool ConfigDao::getAllConfig(std::vector<QTalk::Entity::ImConfig> &configs) {
+bool ConfigDao::getAllConfig(std::vector<st::entity::ImConfig> &configs) {
     if (!_pSqlDb) {
         return false;
     }
     //
     std::string sql = "SELECT `ConfigKey`, `ConfigSubKey`, `ConfigValue`, `Version` FROM IM_Config; ";
-    qtalk::sqlite::statement query(*_pSqlDb, sql);
+    st::sqlite::statement query(*_pSqlDb, sql);
     try {
         while (query.executeNext()) {
-            QTalk::Entity::ImConfig config;
+            st::entity::ImConfig config;
             config.ConfigKey = query.getColumn(0).getString();
             config.ConfigSubKey = query.getColumn(1).getString();
             config.ConfigValue = query.getColumn(2).getString();

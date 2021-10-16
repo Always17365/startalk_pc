@@ -2,27 +2,27 @@
 // Created by cc on 2019-02-28.
 //
 
-#ifndef QTALK_V2_CodeItem_H
-#define QTALK_V2_CodeItem_H
+#ifndef STALK_V2_CodeItem_H
+#define STALK_V2_CodeItem_H
 
 #include "MessageItemBase.h"
 
 #include <QLabel>
 
 
-class CodeItem : public MessageItemBase {
+class CodeItem : public MessageItemBase
+{
 
-Q_OBJECT
+    Q_OBJECT
 public:
-    explicit CodeItem(const StNetMessageResult &msgInfo, QWidget *parent = Q_NULLPTR);
-    ~CodeItem() override = default;;
+    explicit CodeItem(const StNetMessageResult &msgInfo, QWidget *parent = nullptr);
 
 public:
     QSize itemWdtSize() override;
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
-    bool eventFilter(QObject* o, QEvent* e) override;
+    bool eventFilter(QObject *o, QEvent *e) override;
 
 private:
     void init();
@@ -32,20 +32,20 @@ private:
     void initContentLayout();
 
 private:
-    QLabel *_iconLab;
-    QLabel *_titleLab;
-    QLabel *_contentLab;
+    QLabel *_iconLab {nullptr};
+    QLabel *_titleLab{nullptr};
+    QLabel *_contentLab{nullptr};
 
     QSize _headPixSize;
     QMargins _mainMargin;
     QMargins _leftMargin;
     QMargins _rightMargin;
     QSize _contentSize;
-    int _mainSpacing;
+    int _mainSpacing {0};
 
-    int _leftSpacing;
-    int _rightSpacing;
-    int _nameLabHeight;
+    int _leftSpacing  {0};
+    int _rightSpacing {0};
+    int _nameLabHeight{0};
 
 public:
     QString _codeStyle;
@@ -55,4 +55,4 @@ public:
 };
 
 
-#endif //QTALK_V2_CodeItem_H
+#endif //STALK_V2_CodeItem_H

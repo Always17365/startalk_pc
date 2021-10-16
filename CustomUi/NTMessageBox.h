@@ -2,8 +2,8 @@
 // Created by cc on 2020/2/12.
 //
 
-#ifndef QTALK_V2_NTMESSAGEBOX_H
-#define QTALK_V2_NTMESSAGEBOX_H
+#ifndef STALK_V2_NTMESSAGEBOX_H
+#define STALK_V2_NTMESSAGEBOX_H
 
 #include "UShadowWnd.h"
 #include "customui_global.h"
@@ -36,4 +36,4 @@ private:
     QLabel *mainMessageLabel;
 };
 
-#endif //QTALK_V2_NTMESSAGEBOX_H
+#endif //STALK_V2_NTMESSAGEBOX_H

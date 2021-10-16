@@ -2,13 +2,13 @@
 // Created by lihaibin on 2019-07-03.
 //
 
-#ifndef QTALK_V2_IM_TRANSFER_H
-#define QTALK_V2_IM_TRANSFER_H
+#ifndef STALK_V2_IM_TRANSFER_H
+#define STALK_V2_IM_TRANSFER_H
 
 #include <string>
 
-namespace QTalk {
-    namespace Entity {
+namespace st {
+    namespace entity {
         struct ImTransfer
         {
             std::string userId{};
@@ -17,4 +17,4 @@ namespace QTalk {
     }
 }
 
-#endif //QTALK_V2_IM_TRANSFER_H
+#endif //STALK_V2_IM_TRANSFER_H

@@ -2,20 +2,21 @@
 // Created by cc on 2019/11/14.
 //
 
-#ifndef QTALK_V2_FILERECORDWND_H
-#define QTALK_V2_FILERECORDWND_H
+#ifndef STALK_V2_FILERECORDWND_H
+#define STALK_V2_FILERECORDWND_H
 
 
-#include "../../CustomUi/UShadowWnd.h"
-#include "../../CustomUi/SearchEdit.hpp"
-#include "../../include/CommonStrcut.h"
-#include "../../include/STLazyQueue.h"
 #include <QListView>
 #include <QStandardItemModel>
 #include <QStandardItem>
 #include <QStackedWidget>
 #include <vector>
 #include <QStyledItemDelegate>
+
+#include "CustomUi/UShadowWnd.h"
+#include "CustomUi/SearchEdit.hpp"
+#include "include/CommonStrcut.h"
+#include "Util/lazy/lazyq.h"
 
 /**
  *
@@ -46,7 +47,7 @@ class FileRecordItemWgt : public QFrame
 {
     Q_OBJECT
 public:
-    explicit FileRecordItemWgt(const StFileRecord& record, QWidget* parent = nullptr);
+    explicit FileRecordItemWgt(const StFileRecord &record, QWidget *parent = nullptr);
 
 private:
     void onOpenFilePath();
@@ -65,7 +66,7 @@ class FileRecordDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 public:
-    explicit FileRecordDelegate(QListView* listView = nullptr);
+    explicit FileRecordDelegate(QListView *listView = nullptr);
 
 protected:
     void paint(QPainter *painter,
@@ -75,10 +76,10 @@ protected:
 
 private:
     void dealWidget(const QStyleOptionViewItem &option, const QModelIndex &index);
-    QWidget* creatWgt(const QStyleOptionViewItem &option, const QModelIndex &index);
+    QWidget *creatWgt(const QStyleOptionViewItem &option, const QModelIndex &index);
 
 private:
-    QListView* _pParentView{};
+    QListView *_pParentView{};
 };
 
 
@@ -87,35 +88,36 @@ private:
 * @author: cc
 * @create: 2019-11-14 18:07
 **/
-class FileRecordWnd : public UShadowDialog {
+class FileRecordWnd : public UShadowDialog
+{
     Q_OBJECT
 public:
-    explicit FileRecordWnd(QWidget * parent = nullptr);
+    explicit FileRecordWnd(QWidget *parent = nullptr);
 
 public:
-    void setSearch(const QString& key);
+    void setSearch(const QString &key);
 
 private:
     void initUI();
     void searchFile(const QString &key);
     void goSearch();
 
-    void updateUi(const QString&);
+    void updateUi(const QString &);
     void onScrollChanged(int );
 
 Q_SIGNALS:
-    void sgGotResult(const QString&);
-    void sgGoSearch(const QString&);
+    void sgGotResult(const QString &);
+    void sgGoSearch(const QString &);
 
 private:
-    QStackedWidget* _pStackWgt{};
+    QStackedWidget *_pStackWgt{};
 
     QLabel     *_pLoading{};
     QLabel     *_pLoadingBottom{};
 
-    Search_Edit* _pSearchEdit{};
-    QListView*   _pView{};
-    QStandardItemModel* _pModel{};
+    Search_Edit *_pSearchEdit{};
+    QListView   *_pView{};
+    QStandardItemModel *_pModel{};
 
 private:
     bool _hasMore{};
@@ -126,11 +128,11 @@ private:
     int _scroll_value;
 
 private:
-    std::vector<QTalk::Search::StHistoryFile> _fileRecords;
+    std::vector<st::Search::StHistoryFile> _fileRecords;
 
 private:
-    STLazyQueue<QString> *_searchQueue;
+    lazyq<QString> *_searchQueue;
 };
 
 
-#endif //QTALK_V2_FILERECORDWND_H
+#endif //STALK_V2_FILERECORDWND_H

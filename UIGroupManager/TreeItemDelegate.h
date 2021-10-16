@@ -2,8 +2,8 @@
 // Created by cc on 18-11-13.
 //
 
-#ifndef QTALK_V2_TREEITEMDELEGATE_H
-#define QTALK_V2_TREEITEMDELEGATE_H
+#ifndef STALK_V2_TREEITEMDELEGATE_H
+#define STALK_V2_TREEITEMDELEGATE_H
 
 #include <QStyledItemDelegate>
 #include <QPainter>
@@ -53,4 +53,4 @@ private:
 };
 
 
-#endif //QTALK_V2_TREEITEMDELEGATE_H
+#endif //STALK_V2_TREEITEMDELEGATE_H

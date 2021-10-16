@@ -8,7 +8,7 @@ class CUSTOMUISHARED_EXPORT UShadowEffect : public QGraphicsEffect
 {
     Q_OBJECT
 public:
-    explicit  UShadowEffect(QObject *parent = Q_NULLPTR);
+    explicit  UShadowEffect(QObject *parent = nullptr);
     void draw(QPainter* painter);
     QRectF boundingRectFor(const QRectF& rect) const;
     inline void setDistance(qreal distance)

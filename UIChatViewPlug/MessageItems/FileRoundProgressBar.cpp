@@ -1,5 +1,5 @@
 ﻿#include "FileRoundProgressBar.h"
-#include "../../UICom/StyleDefine.h"
+#include "Util/ui/StyleDefine.h"
 #include <QDesktopWidget>
 #include <QPaintEvent>
 #include <QPainter>
@@ -140,7 +140,7 @@ void FileRoundProgressBar::paintEvent(QPaintEvent *event)
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
 
-    painter.setBrush(QTalk::StyleDefine::instance().getFileProcessBarLine());
+    painter.setBrush(st::StyleDefine::instance().getFileProcessBarLine());
     painter.setPen(Qt::NoPen);
     painter.drawEllipse(outRect);
 
@@ -155,7 +155,7 @@ void FileRoundProgressBar::paintEvent(QPaintEvent *event)
     painter.drawPath(dataPath);
 
     painter.setPen(Qt::NoPen);
-    painter.setBrush(QTalk::StyleDefine::instance().getFileProcessBarBackground());
+    painter.setBrush(st::StyleDefine::instance().getFileProcessBarBackground());
     painter.drawEllipse(inRect);
 
     // 绘制关闭叉叉

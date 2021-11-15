@@ -327,20 +327,7 @@ void LogicBase::onRecvIQMessage(const IQMessageEvt &evt)
                 LogicBaseMsgManager::creatGroupResult(id, ret);
             } else if (evt.value == "muc_invite_user_v2") {
                 LogicBaseMsgManager::onInviteGroupMembers(id);
-            } /*else if (evt.value == "forbidden_words") {
-
-        bool ok = true;
-        auto itFind = std::find_if(evt.body.headers.begin(), evt.body.headers.end(), [](const StStringHeader & h) {
-            return h.definedKey == StringHeaderTypeResult;
-        });
-
-        if (itFind != evt.body.headers.end()) {
-            ok = itFind->value == "true";
-        }
-
-        LogicBaseMsgManager::forbiddenWordGroupState(id, ok, false);
-    }*/
-
+            }
             break;
         }
 
@@ -627,11 +614,9 @@ void LogicBase::onRecvPresenceMessage(const ProtoMessage &message,
 
                 if (data == nullptr) {
                     error_log("presenceMsg notify CategoryConfigSync json paring error");
-                    //                        throw std::logic_error("presenceMsg notify CategoryConfigSync json paring error");
                     return;
                 }
 
-                //                    int version = Json::get<int >(data, "version");
                 string source = Json::get<string >(data, "resource");
 
                 if (source != DC.getSelfResource()) {
@@ -667,14 +652,6 @@ void LogicBase::onRecvPresenceMessage(const ProtoMessage &message,
                 break;
             }
 
-            case CategoryNavigation: {
-                break;
-            }
-
-            case CategoryOnlineClientSync: {
-                break;
-            }
-
             case CategoryMedalListSync: { //勋章列表同步
                 string bodyVal = presenceMsg.body().value();
                 LogicBaseMsgManager::onMedalListChanged();
@@ -686,7 +663,12 @@ void LogicBase::onRecvPresenceMessage(const ProtoMessage &message,
                 LogicBaseMsgManager::onUserMedalChanged();
                 break;
             }
-
+            case CategoryTickUser: {
+	            LogicBaseMsgManager::goBackLoginWnd();
+            	break;
+            }
+            case CategoryNavigation:
+            case CategoryOnlineClientSync:
             default:
                 break;
             }
@@ -797,8 +779,8 @@ void LogicBase::onRecvPresenceMessage(const ProtoMessage &message,
                 error_log("invite_user error {0}", e.what());
             }
         } else if (presenceMsg.value() == "forbidden_words") {
-            auto body = presenceMsg.body();
-            auto groupId = message.from();
+            const auto& body = presenceMsg.body();
+            const auto& groupId = message.from();
             bool ok = false;
 
             for (auto &h : body.headers()) {

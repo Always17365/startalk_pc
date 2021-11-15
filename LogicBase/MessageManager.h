@@ -110,7 +110,7 @@ public:
 
 public:
     static void refreshNav();
-    static void goBackLoginWnd(const std::string &reson = "");
+    static void goBackLoginWnd(const std::string &reason = "");
     static void systemQuit();
 
     static void forbiddenWordGroupState(const std::string &groupId,

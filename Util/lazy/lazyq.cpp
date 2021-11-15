@@ -1,7 +1,7 @@
 #include "lazyq.h"
 
 #include <QDateTime>
-#include "lazyqHelper.h"
+#include "lazyqhelper.h"
 #include "Util/utils.h"
 #include "Util/Log.h"
 

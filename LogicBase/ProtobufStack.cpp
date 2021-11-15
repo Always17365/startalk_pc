@@ -5,11 +5,9 @@
 #include "ProtobufStack.h"
 
 #include <iostream>
-#include <fstream>
 #include "Util/utils.h"
 #include "Util/Log.h"
 #include "QTalkSecurity.h"
-#include <iostream>
 #include "LogicBase.h"
 #include "MessageManager.h"
 #include "BaseUtil.hpp"
@@ -235,8 +233,6 @@ void ProtobufStack::onMessageReceived(ProtoMessage *message)
                     break;
 
                 case StreamEndCodeReloginFromNav: {
-                    // 拉导航
-                    //                                    LogicBaseMsgManager::refreshNav();
                     break;
                 }
 
@@ -269,7 +265,6 @@ void ProtobufStack::onMessageReceived(ProtoMessage *message)
                 }
             }
 
-            //
             _pLogicBase->onTcpDisconnect("disconnect from server", hasError);
             break;
         }

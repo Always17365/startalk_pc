@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.5)
 project(startalk)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -44,7 +44,6 @@ else ()
         link_directories(Depends/amr/lib/x64)
 
         link_directories(Depends/qzxing/lib/x64)
-        link_directories(Depends/Screenshot/lib/x64)
        
     else ()
         link_directories(Depends/zlib/lib/windows/win32)
@@ -55,34 +54,24 @@ else ()
         link_directories(Depends/amr/lib/x86)
 
         link_directories(Depends/qzxing/lib/x86)
-        link_directories(Depends/Screenshot/lib/x86)
         message(win32)
     endif ()
 
-    if($ENV{QTDIR})
-        set(QT_HOME ${QTDIR})
-        message(${QTDIR})
+    if(NOT DEFINED ENV{QTDIR})
+        message("please set qt venv")
     else()
-        message(please set qt venv)
+        set(QT_HOME $ENV{QTDIR})
     endif()
-
-    link_directories(${QT_HOME}/lib)
-    include_directories(${QT_HOME}/include)
-    include_directories(${QT_HOME}/include/QtWebChannel)
-    include_directories(${QT_HOME}/include/QtWebEngineWidgets)
-    include_directories(${QT_HOME}/include/QtWebEngineCore)
-
 endif ()
 
+message("use qt path:" ${QT_HOME})
 set(CMAKE_PREFIX_PATH ${QT_HOME})
+
+ADD_DEFINITIONS(-D_STARTALK)
 
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR})
 link_directories(.)
 link_directories(..)
-
-#star talk
-ADD_DEFINITIONS(-D_STARTALK)
-
 
 if (NOT WIN32)
     add_subdirectory(qzxing)
